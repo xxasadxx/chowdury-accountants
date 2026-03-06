@@ -488,7 +488,7 @@
   <div class="hero-stats">
     <div class="hero-stat">
       <div class="k">Active Clients</div>
-      <div class="v gold" id="stat-clients">~600</div>
+      <div class="v gold" id="stat-clients">600+</div>
     </div>
     <div class="hero-stat">
       <div class="k">DD Revenue</div>
@@ -712,23 +712,30 @@ async function loadStats() {
 
   // Revenue tracker stats from Supabase
   const [ddClients, soClients, pipeline] = await Promise.all([
-    sb('dd_clients?select=fee,client_type&client_type=eq.dd'),
+    sb('dd_clients?select=fee,client_type'),
     sb('so_clients?select=fee'),
     sb('dd_clients?select=fee&client_type=eq.pipeline')
   ]);
 
   if (ddClients) {
-    const ddRev = ddClients.reduce((s,c) => s + Number(c.fee||0), 0);
+    const activeDD = ddClients.filter(c => c.client_type === 'dd');
+    const ddRev = activeDD.reduce((s,c) => s + Number(c.fee||0), 0);
     const soRev = soClients ? soClients.reduce((s,c) => s + Number(c.fee||0), 0) : 0;
     const total = ddRev + soRev;
-    document.getElementById('dd-count').textContent = ddClients.length + ' clients';
+    document.getElementById('dd-count').textContent = activeDD.length + ' clients';
     document.getElementById('dd-rev').textContent = fmt(total) + '/mo';
     document.getElementById('stat-revenue').textContent = fmt(total) + '/mo';
+  } else {
+    document.getElementById('stat-revenue').textContent = '—';
+    document.getElementById('dd-rev').textContent = '—';
+    document.getElementById('dd-count').textContent = '—';
   }
 
   if (pipeline) {
     const pipeRev = pipeline.reduce((s,c) => s + Number(c.fee||0), 0);
     document.getElementById('dd-pipeline').textContent = fmt(pipeRev) + '/mo';
+  } else {
+    document.getElementById('dd-pipeline').textContent = '—';
   }
 
   // CH tracker stats from Supabase
