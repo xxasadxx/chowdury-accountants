@@ -239,6 +239,12 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
 </style>
 </head>
 <body>
+<div id="portal-nav" style="background:#1a1a18;padding:8px 20px;display:flex;align-items:center;gap:16px;font-family:DM Sans,sans-serif;font-size:12px;">
+  <span style="color:#c8963c;font-weight:700;letter-spacing:0.05em;margin-right:8px">CA</span>
+  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
+  <a href="revenue-tracker.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.1)">💰 Revenue</a>
+  <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
+</div>
 
 
 <div class="loading-overlay" id="loadingOverlay">
@@ -655,18 +661,7 @@ const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const KEY='sb_publishable_dgHRnj3k4QBY61A3Q5CM8g_O4osmWsb';
 const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=representation'};
 
-// Password
-(function(){
-  const PASS='sjtheking007',K='gc_auth';
-  if(sessionStorage.getItem(K)==='1'){return;}
-  document.getElementById('loadingOverlay').classList.add('hidden');
-  const ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;background:#f4f6fb;z-index:999;display:flex;align-items:center;justify-content:center;font-family:Sora,sans-serif;';
-  ov.innerHTML='<div style="background:white;border:1px solid #e0e4f0;border-radius:18px;padding:40px;width:360px;max-width:92vw;box-shadow:0 8px 32px rgba(28,33,53,0.12);text-align:center"><div style="font-size:1.5rem;margin-bottom:16px">🔐</div><div style="font-weight:700;font-size:1.1rem;margin-bottom:6px">Chowdury Accountants</div><div style="font-size:0.8rem;color:#8892b0;margin-bottom:24px">Revenue Tracker · Private</div><input id="pi" type="password" placeholder="Enter password" style="width:100%;background:#eef0f7;border:1.5px solid #e0e4f0;border-radius:8px;padding:11px;font-size:0.9rem;outline:none;box-sizing:border-box;margin-bottom:10px"><div id="pe" style="color:#dc2626;font-size:0.75rem;margin-bottom:10px;display:none">Incorrect password.</div><button onclick="chk()" style="width:100%;background:#2563eb;color:white;border:none;border-radius:8px;padding:11px;font-size:0.9rem;font-weight:600;cursor:pointer;font-family:Sora,sans-serif">Enter</button></div>';
-  document.body.appendChild(ov);
-  document.getElementById('pi').addEventListener('keydown',e=>{if(e.key==='Enter')chk();});
-  window.chk=function(){if(document.getElementById('pi').value===PASS){sessionStorage.setItem(K,'1');ov.remove();document.getElementById('loadingOverlay').classList.remove('hidden');initApp();}else{document.getElementById('pe').style.display='block';document.getElementById('pi').value='';}};
-})();
+// Auth handled by login.html
 
 // Data
 let DD=[],SO=[],FP=[];
