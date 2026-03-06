@@ -491,7 +491,7 @@
       <div class="v gold" id="stat-clients">600+</div>
     </div>
     <div class="hero-stat">
-      <div class="k">DD Revenue</div>
+      <div class="k">Monthly Revenue</div>
       <div class="v green" id="stat-revenue">Loading…</div>
     </div>
     <div class="hero-stat">
@@ -523,7 +523,7 @@
       </div>
       <div class="card-stats">
         <div class="card-stat">
-          <div class="k">DD Clients</div>
+          <div class="k">Active Clients</div>
           <div class="v green" id="dd-count">Loading…</div>
         </div>
         <div class="card-stat">
@@ -535,7 +535,7 @@
           <div class="v gold">£25,000</div>
         </div>
         <div class="card-stat">
-          <div class="k">Pipeline</div>
+          <div class="k">DD Pipeline</div>
           <div class="v amber" id="dd-pipeline">Loading…</div>
         </div>
       </div>
@@ -710,19 +710,21 @@ async function loadStats() {
   // Date
   document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
-  // Revenue tracker stats from Supabase
-  const [ddClients, soClients, pipeline] = await Promise.all([
-    sb('dd_clients?select=fee,client_type'),
-    sb('so_clients?select=fee'),
-    sb('dd_clients?select=fee&client_type=eq.pipeline')
+  // Revenue tracker — correct table names from Supabase
+  const [ddClients, soClients, pipeline, chBilling] = await Promise.all([
+    sb(encodeURIComponent('Gocardless tracker') + '?select=fee,status'),
+    sb('standing_orders?select=fee'),
+    sb('dd_pipeline?select=fee'),
+    sb('ch_billing?select=charged,id')
   ]);
 
+  // DD + SO revenue
   if (ddClients) {
-    const activeDD = ddClients.filter(c => c.client_type === 'dd');
+    const activeDD = ddClients.filter(c => c.status === 'active');
     const ddRev = activeDD.reduce((s,c) => s + Number(c.fee||0), 0);
     const soRev = soClients ? soClients.reduce((s,c) => s + Number(c.fee||0), 0) : 0;
     const total = ddRev + soRev;
-    document.getElementById('dd-count').textContent = activeDD.length + ' clients';
+    document.getElementById('dd-count').textContent = activeDD.length + (soClients ? ' + ' + soClients.length : '') + ' clients';
     document.getElementById('dd-rev').textContent = fmt(total) + '/mo';
     document.getElementById('stat-revenue').textContent = fmt(total) + '/mo';
   } else {
@@ -731,30 +733,26 @@ async function loadStats() {
     document.getElementById('dd-count').textContent = '—';
   }
 
-  if (pipeline) {
+  // Pipeline
+  if (pipeline && pipeline.length > 0) {
     const pipeRev = pipeline.reduce((s,c) => s + Number(c.fee||0), 0);
     document.getElementById('dd-pipeline').textContent = fmt(pipeRev) + '/mo';
   } else {
     document.getElementById('dd-pipeline').textContent = '—';
   }
 
-  // CH tracker stats from Supabase
-  const chBilling = await sb('ch_billing?select=*');
-
-  // CH data is embedded in ch-tracker — count from billing table
+  // CH billing stats
+  document.getElementById('ch-count').textContent = '453 txns';
   if (chBilling) {
-    const charged = chBilling.filter(r => r.charged !== null && r.charged !== '');
+    const charged = chBilling.filter(r => r.charged !== null && r.charged !== undefined);
     const totalCharged = charged.reduce((s,r) => s + Number(r.charged||0), 0);
-    // ch_cost is not in billing table — show what we have
-    document.getElementById('ch-count').textContent = '453 txns';
-    document.getElementById('ch-profit').textContent = charged.length > 0 ? fmt(totalCharged) + ' billed' : '—';
     const uncharged = 453 - charged.length;
+    document.getElementById('ch-profit').textContent = charged.length > 0 ? fmt(totalCharged) + ' billed' : '—';
     document.getElementById('ch-uncharged').textContent = uncharged + ' txns';
-    document.getElementById('ch-potential').textContent = uncharged > 0 ? '~' + fmt(uncharged * 70) : '£0';
+    document.getElementById('ch-potential').textContent = uncharged > 0 ? '~' + fmt(uncharged * 75) : '£0';
   } else {
-    document.getElementById('ch-count').textContent = '453 txns';
-    document.getElementById('ch-uncharged').textContent = '—';
     document.getElementById('ch-profit').textContent = '—';
+    document.getElementById('ch-uncharged').textContent = '—';
     document.getElementById('ch-potential').textContent = '—';
   }
 }
