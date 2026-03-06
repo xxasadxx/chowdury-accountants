@@ -479,6 +479,31 @@
     <a href="login.html" class="signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
   </div>
 </header>
+<script>
+(function(){
+  const page = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.header-nav a:not(.signout)').forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const isActive = (href === 'index.html' && (page === '' || page === 'index.html')) ||
+                     (href !== 'index.html' && page === href);
+    if (isActive) { a.classList.add('active'); }
+  });
+})();
+</script>
+<script>
+(function(){
+  const page = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.header-nav a:not(.signout)').forEach(a => {
+    const href = a.getAttribute('href') || '';
+    const isActive = (href === 'index.html' && (page === '' || page === 'index.html')) ||
+                     (href !== 'index.html' && page === href);
+    if (isActive) {
+      a.style.color = '#fff';
+      a.style.background = 'rgba(255,255,255,0.12)';
+    }
+  });
+})();
+</script>
 
 <div class="hero">
   <div class="hero-text">
@@ -701,9 +726,10 @@ async function sb(path) {
     const res = await fetch(SB_URL + '/rest/v1/' + path, {
       headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
     });
-    if (!res.ok) return null;
-    return res.json();
-  } catch(e) { return null; }
+    if (!res.ok) { console.warn('SB error:', path, res.status, await res.text()); return null; }
+    const data = await res.json();
+    return data;
+  } catch(e) { console.warn('SB fetch error:', path, e); return null; }
 }
 
 async function loadStats() {
@@ -745,6 +771,7 @@ async function loadStats() {
 
   // CH billing stats
   document.getElementById('ch-count').textContent = '453 txns';
+  console.log('ch_billing result:', chBilling);
   if (chBilling !== null) {
     const charged = chBilling.filter(r => r.charged !== null && r.charged !== undefined && r.charged !== '');
     const totalCharged = charged.reduce((s,r) => s + Number(r.charged||0), 0);
