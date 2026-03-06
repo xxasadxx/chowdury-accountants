@@ -496,7 +496,7 @@
     </div>
     <div class="hero-stat">
       <div class="k">Vision 2030</div>
-      <div class="v">£1M</div>
+      <div class="v">£1M+</div>
     </div>
   </div>
 </div>
@@ -724,9 +724,11 @@ async function loadStats() {
     const ddRev = activeDD.reduce((s,c) => s + Number(c.fee||0), 0);
     const soRev = soClients ? soClients.reduce((s,c) => s + Number(c.fee||0), 0) : 0;
     const total = ddRev + soRev;
-    document.getElementById('dd-count').textContent = activeDD.length + (soClients ? ' + ' + soClients.length : '') + ' clients';
-    document.getElementById('dd-rev').textContent = fmt(total) + '/mo';
-    document.getElementById('stat-revenue').textContent = fmt(total) + '/mo';
+    const totalClients = activeDD.length + (soClients ? soClients.length : 0);
+    document.getElementById('dd-count').textContent = totalClients + ' clients';
+    const totalK = Math.floor(total / 1000);
+    document.getElementById('dd-rev').textContent = '£' + totalK + 'k+ /mo';
+    document.getElementById('stat-revenue').textContent = '£' + totalK + 'k+';
   } else {
     document.getElementById('stat-revenue').textContent = '—';
     document.getElementById('dd-rev').textContent = '—';
@@ -743,13 +745,14 @@ async function loadStats() {
 
   // CH billing stats
   document.getElementById('ch-count').textContent = '453 txns';
-  if (chBilling) {
-    const charged = chBilling.filter(r => r.charged !== null && r.charged !== undefined);
+  if (chBilling !== null) {
+    const charged = chBilling.filter(r => r.charged !== null && r.charged !== undefined && r.charged !== '');
     const totalCharged = charged.reduce((s,r) => s + Number(r.charged||0), 0);
     const uncharged = 453 - charged.length;
-    document.getElementById('ch-profit').textContent = charged.length > 0 ? fmt(totalCharged) + ' billed' : '—';
+    const totalChargedK = Math.floor(totalCharged / 1000);
+    document.getElementById('ch-profit').textContent = charged.length > 0 ? '£' + totalChargedK + 'k billed' : '—';
     document.getElementById('ch-uncharged').textContent = uncharged + ' txns';
-    document.getElementById('ch-potential').textContent = uncharged > 0 ? '~' + fmt(uncharged * 75) : '£0';
+    document.getElementById('ch-potential').textContent = uncharged > 0 ? '~£' + Math.round(uncharged * 75 / 1000) + 'k' : '£0';
   } else {
     document.getElementById('ch-profit').textContent = '—';
     document.getElementById('ch-uncharged').textContent = '—';
