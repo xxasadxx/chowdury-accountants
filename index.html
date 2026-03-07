@@ -723,11 +723,10 @@ async function loadStats() {
   document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
   // Revenue tracker — correct table names from Supabase
-  const [ddClients, soClients, pipeline, chBilling] = await Promise.all([
+  const [ddClients, soClients, pipeline] = await Promise.all([
     sb(encodeURIComponent('Gocardless tracker') + '?select=fee,status'),
     sb('standing_orders?select=fee'),
-    sb('dd_pipeline?select=fee'),
-    sb('ch_billing?select=charged,id')
+    sb('dd_pipeline?select=fee')
   ]);
 
   // DD + SO revenue
@@ -756,18 +755,12 @@ async function loadStats() {
   }
 
   // CH billing stats
+  // CH stats come from DATA in ch-tracker (all 453 txns have pre-set charge values)
+  // Total billed: £39,490 | CH cost: £18,235 | Profit: £21,255 | Uncharged: 0
   document.getElementById('ch-count').textContent = '453 txns';
-  const billing = chBilling || [];
-  const charged = billing.filter(r => r.charged !== null && r.charged !== undefined && r.charged !== '');
-  const totalCharged = charged.reduce((s,r) => s + Number(r.charged||0), 0);
-  const uncharged = 453 - charged.length;
-  if (charged.length > 0) {
-    document.getElementById('ch-profit').textContent = '£' + Math.floor(totalCharged/1000) + 'k billed';
-  } else {
-    document.getElementById('ch-profit').textContent = '£33k cost (Oct–Feb)';
-  }
-  document.getElementById('ch-uncharged').textContent = uncharged + ' to bill';
-  document.getElementById('ch-potential').textContent = '~£' + Math.round(uncharged * 75 / 1000) + 'k potential';
+  document.getElementById('ch-profit').textContent = '£39k billed';
+  document.getElementById('ch-uncharged').textContent = '0 to bill';
+  document.getElementById('ch-potential').textContent = '£21k profit';
 }
 
 loadStats();
