@@ -851,16 +851,22 @@ async function initApp(){
     SO = soData;
 
     setLT('Loading failed payments...');
-    let fpData = await api('failed_payments','?select=*&order=id.desc');
-    FP = fpData||[];
+    try {
+      let fpData = await api('failed_payments','?select=*&order=id.desc');
+      FP = fpData||[];
+    } catch(fpErr) {
+      console.warn('Failed payments table error (non-fatal):', fpErr.message);
+      FP = [];
+    }
 
     setSS('ok','Live Supabase');
     hideLO();
     refreshAll();
   } catch(e){
-    setSS('err','Connection error');
+    setSS('err','Connection error: '+e.message);
     hideLO();
     showToast('Error: '+e.message,'danger');
+    console.error('initApp error:', e);
   }
 }
 
