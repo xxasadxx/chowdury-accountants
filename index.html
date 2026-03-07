@@ -761,9 +761,11 @@ async function loadStats() {
   const charged = billing.filter(r => r.charged !== null && r.charged !== undefined && r.charged !== '');
   const totalCharged = charged.reduce((s,r) => s + Number(r.charged||0), 0);
   const uncharged = 453 - charged.length;
-  const totalChargedK = Math.floor(totalCharged / 1000);
-  // Show billed if any, otherwise show total potential
-  document.getElementById('ch-profit').textContent = charged.length > 0 ? '£' + totalChargedK + 'k billed' : 'Open tracker';
+  if (charged.length > 0) {
+    document.getElementById('ch-profit').textContent = '£' + Math.floor(totalCharged/1000) + 'k billed';
+  } else {
+    document.getElementById('ch-profit').textContent = '£33k cost (Oct–Feb)';
+  }
   document.getElementById('ch-uncharged').textContent = uncharged + ' to bill';
   document.getElementById('ch-potential').textContent = '~£' + Math.round(uncharged * 75 / 1000) + 'k potential';
 }

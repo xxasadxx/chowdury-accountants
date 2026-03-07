@@ -567,6 +567,27 @@ async function saveData(d) {
   } catch(e) {}
 }
 
+async function syncAllToSupabase() {
+  // Push all DATA records to Supabase in batches of 50
+  const batch = DATA.map(d => ({
+    id: d.id,
+    charged: d.charged !== '' && d.charged !== null && d.charged !== undefined ? Number(d.charged) : null,
+    charge_date: d.charge_date || null,
+    method: d.method || null,
+    notes: d.notes || null,
+    ref: d.ref || null,
+    updated_at: new Date().toISOString()
+  }));
+  for (let i = 0; i < batch.length; i += 50) {
+    await sbFetch('ch_billing', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify(batch.slice(i, i + 50))
+    });
+  }
+  console.log('Synced', batch.length, 'records to Supabase');
+}
+
 async function loadData() {
   // Try Supabase first
   try {
@@ -584,6 +605,11 @@ async function loadData() {
         }
       });
       console.log('Loaded', rows.length, 'billing records from Supabase');
+      return;
+    } else {
+      // First time - sync all pre-populated data to Supabase so the portal can read it
+      console.log('First load: syncing all data to Supabase...');
+      await syncAllToSupabase();
       return;
     }
   } catch(e) { console.warn('Supabase load failed, trying localStorage', e); }
