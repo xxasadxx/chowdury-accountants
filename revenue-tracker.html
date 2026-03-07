@@ -245,7 +245,6 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
       <span style="color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Practice Portal</span>
     </div>
 <script>
-// Auto-highlight current page in nav
 (function(){
   const page = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('#portal-nav a').forEach(a => {
@@ -546,6 +545,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <button class="pill active" id="rp-filter-all" onclick="setReportFilter('all')">All <span class="pc">DD+SO</span></button>
     <button class="pill" id="rp-filter-gc" onclick="setReportFilter('dd')">Direct Debit</button>
     <button class="pill" id="rp-filter-so" onclick="setReportFilter('so')">Standing Orders</button>
+    <button class="add-btn" style="background:var(--amber);color:#fff;margin-left:8px" onclick="bulkMarkFirstMarchPaid()">⚡ Bulk Mark 1st March Paid</button>
     <span style="font-size:0.72rem;color:var(--muted);margin-left:8px" id="rp-lastUpdated"></span>
   </div>
   <div class="tbl-wrap">
@@ -677,9 +677,6 @@ const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=representation'};
 
-// Auth handled by login.html
-
-// Data
 let DD=[],SO=[],FP=[];
 let ddActiveD='all',soActiveD='all';
 let gcStatusF='all',soStatusF='all';
@@ -687,7 +684,6 @@ let ddSortCol='date',ddSortDir=1,soSortCol='date',soSortDir=1;
 let editingId=null,editingType=null,deletingId=null,deletingType=null,editingFpId=null;
 let currentTab='dd';
 
-// Date config
 const DD_DATES=['1st','5th','15th','25th','28th','Weekly'];
 const SO_DATES=['1st','5th','8th','10th','12th','15th','20th','25th','28th','Weekly','On Invoice'];
 const DO={'1st':1,'5th':2,'8th':3,'10th':4,'12th':5,'15th':6,'20th':7,'25th':8,'28th':9,'Weekly':10,'On Invoice':11};
@@ -711,7 +707,6 @@ function setLT(m){document.getElementById('lt').textContent=m;}
 function hideLO(){document.getElementById('loadingOverlay').classList.add('hidden');}
 function setSS(c,t){const e=document.getElementById('syncStatus');e.className='ss '+c;e.textContent=t;}
 
-// Seed data
 const DD_SEED=[
   {n:"Global Learning Pathway Ltd",c:"Oldham",f:195,d:"1st",s:"Dec 2022"},{n:"AR Massala Ltd",c:"Oldham",f:75,d:"1st",s:"Dec 2022"},
   {n:"Red Chilli Carlisle Ltd",c:"Carlisle",f:75,d:"1st",s:"Dec 2022"},{n:"Emerald Events Mcr Ltd",c:"Oldham",f:75,d:"28th",s:"Jan 2023"},
@@ -885,7 +880,6 @@ function updateHeader(){
   document.getElementById('headerBadge').textContent=(gcA+soA)+' Active Clients · Live';
 }
 
-// Tab switching
 function switchTab(tab){
   currentTab=tab;
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -896,7 +890,6 @@ function switchTab(tab){
   if(tab==='pipeline')loadPipeline();
 }
 
-// DD functions
 function refreshDD(){
   const act=activeClients(DD),inact=inactiveClients(DD);
   const rev=totalRev(DD),lost=lostRev(DD);
@@ -943,7 +936,6 @@ function refreshCombined(){
   const pct=Math.min(total/25000*100,100);
   document.getElementById('c-pPct').textContent=pct.toFixed(1)+'%';
   document.getElementById('c-pFill').style.width=pct+'%';
-  // Breakdown cards
   document.getElementById('c-ddBreakdown').innerHTML=buildBreakdown(DD,'dd');
   document.getElementById('c-soBreakdown').innerHTML=buildBreakdown(SO,'so');
   renderCombinedTable();
@@ -969,7 +961,6 @@ function renderCombinedTable(){
   else if(col==='fee')all.sort((a,b)=>dir*(a.fee-b.fee));
   else all.sort((a,b)=>dir*((DO[a.charge_date]||9)-(DO[b.charge_date]||9)));
   let rn=0;
-  const mF=Math.max(...all.map(c=>c.fee));
   document.getElementById('c-tbody').innerHTML=all.map(c=>{
     rn++;
     const typeColor=c._type==='DD'?'var(--accent)':'var(--green)';
@@ -1107,7 +1098,6 @@ function renderTable(type){
   }).join('');
 }
 
-// Add/Edit
 function openAdd(type){
   editingId=null;editingType=type;
   document.getElementById('modalTitle').textContent='Add '+(type==='dd'?'Direct Debit':'Standing Order')+' Client';
@@ -1189,7 +1179,6 @@ async function confirmDelete(){
   }catch(e){showToast('Error: '+e.message,'danger');}
 }
 
-// Failed payments
 function openAddFailed(){editingFpId=null;document.getElementById('fpModalTitle').textContent='Log Failed Payment';['fpName','fpAmount','fpDate','fpReason'].forEach(id=>document.getElementById(id).value='');document.getElementById('fpSource').value='dd';document.getElementById('fpStatus').value='outstanding';document.getElementById('failedModal').classList.add('open');}
 function editFailed(id){const f=FP.find(x=>x.id===id);if(!f)return;editingFpId=id;document.getElementById('fpModalTitle').textContent='Edit Failed Payment';document.getElementById('fpName').value=f.client_name||'';document.getElementById('fpSource').value=f.source||'dd';document.getElementById('fpAmount').value=f.amount||'';document.getElementById('fpDate').value=f.failure_date||'';document.getElementById('fpReason').value=f.reason||'';document.getElementById('fpStatus').value=f.status||'outstanding';document.getElementById('failedModal').classList.add('open');}
 function closeFailedModal(){document.getElementById('failedModal').classList.remove('open');editingFpId=null;}
@@ -1215,7 +1204,6 @@ async function deleteFailed(id){
 
 document.getElementById('historyModal').addEventListener('click',function(e){if(e.target===this)closeHistoryModal();});
 
-// Payment History
 let histClientId=null,histClientType=null,histClientFee=0,histData=[];
 
 function getMonthsFrom(startMonth,startYear){
@@ -1240,17 +1228,14 @@ async function openHistory(type,id){
   document.getElementById('histLoading').style.display='block';
   document.getElementById('histTable').style.display='none';
   document.getElementById('historyModal').classList.add('open');
-  // Load existing history
   try{
     const data=await api('payment_history','?client_id=eq.'+id+'&client_type=eq.'+type+'&order=id.asc');
     histData=data||[];
-    // Auto-populate missing months in memory only — don't save to DB until user updates
-    const months=getMonthsFrom(2,2026); // March=2
+    const months=getMonthsFrom(2,2026);
     const existing=histData.map(h=>h.month);
     const missing=months.filter(m=>!existing.includes(m));
     if(missing.length>0){
       const fee=c.charge_date==='Weekly'?parseFloat((c.fee*4.33).toFixed(2)):c.fee;
-      // Add to local histData only — NOT saved to Supabase
       const rows=missing.map(m=>({id:'unsaved_'+m.replace(' ','_'),client_id:id,client_type:type,month:m,expected:fee,received:0,status:'pending',_unsaved:true}));
       histData=[...histData,...rows];
       histData.sort((a,b)=>{
@@ -1268,7 +1253,6 @@ async function openHistory(type,id){
 function renderHistory(){
   document.getElementById('histLoading').style.display='none';
   document.getElementById('histTable').style.display='table';
-  // Stats
   const totalExp=histData.reduce((s,h)=>s+(h.expected||0),0);
   const totalRec=histData.reduce((s,h)=>s+(h.received||0),0);
   const missed=histData.filter(h=>h.status==='failed').length;
@@ -1276,12 +1260,10 @@ function renderHistory(){
   document.getElementById('hstat-collected').textContent='£'+Math.round(totalRec).toLocaleString('en-GB');
   document.getElementById('hstat-missed').textContent=missed+' month'+(missed!==1?'s':'');
   document.getElementById('hstat-rate').textContent=rate+'%';
-  // Table rows - show most recent first
   const sorted=[...histData].reverse();
   document.getElementById('hist-tbody').innerHTML=sorted.map(h=>{
-    const stBadge=h.status==='paid'?'hbadge-paid':h.status==='failed'?'hbadge-failed':'hbadge-partial';
     const rowId=h._unsaved?'\''+h.id+'\'':h.id;
-    const unsavedStyle=h._unsaved?'opacity:0.6':'' ;
+    const unsavedStyle=h._unsaved?'opacity:0.6':'';
     return '<tr id="hrow-'+h.id+'" style="'+unsavedStyle+'">'
       +'<td style="font-weight:600;white-space:nowrap">'+h.month+(h._unsaved?'<span style="font-size:0.6rem;color:var(--muted);margin-left:4px">not due yet</span>':'')+'</td>'
       +'<td style="font-family:\'DM Mono\',monospace;color:var(--muted)">£'+(h.expected||0)+'</td>'
@@ -1308,7 +1290,6 @@ async function savePaymentRow(hid){
   try{
     const existing=histData.find(h=>h.id===hid);
     if(existing&&existing._unsaved){
-      // Create new record in Supabase
       const newRow={client_id:existing.client_id,client_type:existing.client_type,month:existing.month,expected:existing.expected,received,status};
       const created=await api('payment_history','',{method:'POST',body:JSON.stringify(newRow)});
       if(created&&created[0]){
@@ -1320,7 +1301,6 @@ async function savePaymentRow(hid){
       const i=histData.findIndex(h=>h.id===hid);
       if(i>=0){histData[i].received=received;histData[i].status=status;}
     }
-    // Update stats
     const totalExp=histData.reduce((s,h)=>s+(h.expected||0),0);
     const totalRec=histData.reduce((s,h)=>s+(h.received||0),0);
     const missed=histData.filter(h=>h.status==='failed').length;
@@ -1329,7 +1309,6 @@ async function savePaymentRow(hid){
     document.getElementById('hstat-missed').textContent=missed+' month'+(missed!==1?'s':'');
     document.getElementById('hstat-rate').textContent=rate+'%';
     showToast('Saved','success');
-    // Auto-log to failed payments if failed
     if(status==='failed'){
       const arr=histClientType==='dd'?DD:SO;
       const c=arr.find(x=>x.id===histClientId);
@@ -1354,11 +1333,9 @@ function closeHistoryModal(){
   histClientId=null;histClientType=null;histData=[];
 }
 
-
 document.getElementById('delModal').addEventListener('click',function(e){if(e.target===this)closeDelModal();});
 document.getElementById('failedModal').addEventListener('click',function(e){if(e.target===this)closeFailedModal();});
 
-// DD Pipeline
 let PIPELINE=[];
 let pipeFilter='all';
 let pipeSortCol='name',pipeSortDir=1;
@@ -1374,7 +1351,6 @@ const PIPE_STATUS_LABELS={
 
 function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),2800);}
 
-// Check if already authenticated
 initApp();
 
 async function loadPipeline(){
@@ -1416,8 +1392,6 @@ function renderPipeline(){
   else if(pipeSortCol==='status')list.sort((a,b)=>pipeSortDir*(a.status||'').localeCompare(b.status||''));
   else if(pipeSortCol==='notes')list.sort((a,b)=>pipeSortDir*(a.notes||'').localeCompare(b.notes||''));
   else if(pipeSortCol==='date')list.sort((a,b)=>pipeSortDir*(a.charge_date||'').localeCompare(b.charge_date||''));
-
-  // KPIs
   const statMap={'to_contact':'Contact','link_sent':'Sent','chased':'Chased','subscribed':'Subscribed','dead':'Dead'};
   ['to_contact','link_sent','chased','subscribed','dead'].forEach(s=>{
     const clients=PIPELINE.filter(p=>p.status===s);
@@ -1428,10 +1402,8 @@ function renderPipeline(){
     const elV=document.getElementById('pp-k'+key+'Val');
     if(elV)elV.textContent='£'+rev+'/mo';
   });
-  // Total potential (exclude dead and subscribed)
   const potential=PIPELINE.filter(p=>p.status!=='dead'&&p.status!=='subscribed').reduce((s,p)=>s+(p.fee||0),0);
   document.getElementById('pp-kPotential').textContent='£'+potential+'/mo';
-
   document.getElementById('pp-cntLbl').textContent=list.length+' shown';
   if(!list.length){
     document.getElementById('pp-tbody').innerHTML='';
@@ -1553,7 +1525,6 @@ async function convertToGC(id){
 
 document.getElementById('pipelineModal').addEventListener('click',function(e){if(e.target===this)closePipelineModal();});
 
-// Reports
 let reportFilter='all';
 function setReportFilter(f){
   reportFilter=f;
@@ -1571,11 +1542,9 @@ async function loadAndRenderReports(){
       api('Gocardless tracker','?select=id,company_name&status=eq.active'),
       api('standing_orders','?select=id,company_name&status=eq.active')
     ]);
-    // Build lookup maps
     const gcMap={}, soMap={};
     (gcClients||[]).forEach(c=>gcMap[c.id]=c.company_name);
     (soClients||[]).forEach(c=>soMap[c.id]=c.company_name);
-    // Enrich payment history with company names
     const enriched=(data||[]).map(h=>({
       ...h,
       company_name: h.client_type==='dd'?(gcMap[h.client_id]||'Unknown'):(soMap[h.client_id]||'Unknown')
@@ -1585,16 +1554,12 @@ async function loadAndRenderReports(){
 }
 
 function renderReports(){
-  // Use cached data if available, otherwise load
   loadAndRenderReports();
 }
 
 function renderReportsWithData(allData){
   window._rpAllData=allData;
   const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  // Get all months present
-  const monthSet=new Set(allData.map(h=>h.month));
-  // Build months from Mar 2026 to now
   const months=[];
   const now=new Date();
   let y=2026,m=2;
@@ -1612,7 +1577,6 @@ function renderReportsWithData(allData){
   const rows=months.map(mon=>{
     const ddRows=allData.filter(h=>h.month===mon&&h.client_type==='dd');
     const soRows=allData.filter(h=>h.month===mon&&h.client_type==='so');
-    // Only count non-pending records in rate calculation
     const ddActive=ddRows.filter(h=>h.status!=='pending');
     const soActive=soRows.filter(h=>h.status!=='pending');
     const ddExp=ddActive.reduce((s,h)=>s+(h.expected||0),0);
@@ -1644,7 +1608,6 @@ function renderReportsWithData(allData){
       +'</tr>';
   });
 
-  // Year total row
   const ytdExp=totGcExp+totSoExp,ytdCol=totGcCol+totSoCol;
   const ytdRate=ytdExp>0?Math.round(ytdCol/ytdExp*100):0;
   rows.push('<tr style="background:var(--surface);font-weight:700;border-top:2px solid var(--border)">'
@@ -1661,13 +1624,13 @@ function renderReportsWithData(allData){
     +'</tr>');
 
   document.getElementById('rp-tbody').innerHTML=rows.join('');
-  // Update KPIs
   document.getElementById('rp-kExpected').textContent='£'+Math.round(ytdExp/1000)+'k';
   document.getElementById('rp-kCollected').textContent='£'+Math.round(ytdCol/1000)+'k';
   document.getElementById('rp-kMissed').textContent='£'+Math.round((ytdExp-ytdCol)/1000)+'k';
   document.getElementById('rp-kRate').textContent=ytdRate+'%';
   document.getElementById('rp-lastUpdated').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
+
 function exportCSV(type){
   let rows=[], filename='', headers=[];
   if(type==='dd'){
@@ -1779,30 +1742,23 @@ async function viewFailedHistory(btn){
   document.getElementById('fhModalTitle').textContent = '📋 ' + clientName + ' — Payment History';
   document.getElementById('fhContent').innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">Loading...</div>';
   document.getElementById('failedHistModal').classList.add('open');
-
-  // Find the client using source to avoid duplicates
   const sourceArr = source === 'so' ? SO : DD;
   const client = sourceArr.find(cl => cl.company_name && cl.company_name.toLowerCase() === clientName.toLowerCase());
-
   if(!client){
     document.getElementById('fhContent').innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">Client not found in active clients.</div>';
     return;
   }
-
   const hist = await api('payment_history','?client_id=eq.'+client.id+'&client_type=eq.'+source+'&order=month.desc');
-
   if(!hist || !hist.length){
     document.getElementById('fhContent').innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center">No payment history found.</div>';
     return;
   }
-
   const stBadge = s => {
     if(s==='paid') return '<span class="hbadge-paid">✅ Paid</span>';
     if(s==='failed') return '<span class="hbadge-failed">❌ Failed</span>';
     if(s==='partial') return '<span class="hbadge-partial">⚠️ Partial</span>';
     return '<span style="color:var(--muted);font-size:0.72rem">Due</span>';
   };
-
   document.getElementById('fhContent').innerHTML =
     '<div style="font-size:0.78rem;color:var(--text2);margin-bottom:10px">Monthly fee: <strong style="color:var(--text)">£'+client.fee+'</strong> · Charge date: <strong style="color:var(--text)">'+client.charge_date+'</strong></div>'
     +'<table style="width:100%;border-collapse:collapse;font-size:0.78rem">'
@@ -1824,7 +1780,33 @@ async function viewFailedHistory(btn){
       }).join('')
     +'</tbody></table>';
 }
+
 document.getElementById('failedHistModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+
+// ⚡ BULK MARK 1ST MARCH PAID
+async function bulkMarkFirstMarchPaid(){
+  const firstDDClients=DD.filter(c=>c.charge_date==='1st'&&c.status!=='inactive');
+  if(!firstDDClients.length){showToast('No 1st DD clients found','danger');return;}
+  const msg='Bulk mark '+firstDDClients.length+' clients (charge date: 1st) as PAID for March 2026?\n\nSkips any that already have a record.\nCorrect INCE BALTI manually after.';
+  if(!confirm(msg))return;
+  showToast('Starting bulk mark...','info');
+  let existing=[];
+  try{existing=await api('payment_history','?client_type=eq.dd&month=eq.Mar 2026')||[];}catch(e){existing=[];}
+  const existingIds=new Set(existing.map(h=>h.client_id));
+  const toInsert=firstDDClients.filter(c=>!existingIds.has(c.id));
+  if(!toInsert.length){showToast('All 1st clients already have March records','info');renderReports();return;}
+  let saved=0;
+  for(let i=0;i<toInsert.length;i+=20){
+    const batch=toInsert.slice(i,i+20).map(c=>({
+      client_id:c.id,client_type:'dd',month:'Mar 2026',
+      expected:c.fee,received:c.fee,status:'paid'
+    }));
+    try{await api('payment_history','',{method:'POST',body:JSON.stringify(batch)});saved+=batch.length;}
+    catch(e){console.error('Batch error:',e);}
+  }
+  showToast('Done! '+saved+' clients marked paid for Mar 2026 ✅','success');
+  renderReports();
+}
 
 </script>
 
