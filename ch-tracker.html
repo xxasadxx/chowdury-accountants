@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CH Cost Tracker — Chowdury Accountants</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg: #f4f6fa;
+    --surface: #ffffff;
+    --surface2: #f8f9fc;
+    --border: #e2e6ef;
+    --border2: #d0d6e3;
+    --green: #16a34a;
+    --green-bg: #dcfce7;
+    --green-mid: #86efac;
+    --yellow: #d97706;
+    --yellow-bg: #fef3c7;
+    --yellow-mid: #fcd34d;
+    --blue: #2563eb;
+    --blue-bg: #dbeafe;
+    --red: #dc2626;
+    --red-bg: #fee2e2;
+    --text: #1e2433;
+    --text2: #4b5563;
+    --muted: #9ca3af;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  header h1 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  header h1 span { color: var(--blue); }
+  header .hdr-stats { display: flex; gap: 20px; }
+  header .hdr-stat { text-align: right; }
+  header .hdr-stat .k { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  header .hdr-stat .v { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    gap: 0;
+  }
+  .tab {
+    padding: 11px 18px;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+  .panel { display: none; padding: 20px 24px; }
+  .panel.active { display: block; }
+
+  /* CARDS */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .card label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); display: block; margin-bottom: 6px; font-weight: 600; }
+  .card .val { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+  .card .val.green { color: var(--green); }
+  .card .val.blue { color: var(--blue); }
+  .card .val.amber { color: var(--yellow); }
+  .card .val.red { color: var(--red); }
+  .card .sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* FY TABS */
+  .fy-tabs { display: flex; gap: 6px; margin-bottom: 16px; }
+  .fy-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    transition: all 0.15s;
+  }
+  .fy-tab:hover { border-color: var(--blue); color: var(--blue); }
+  .fy-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* SECTION HEADING */
+  .section-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); font-weight: 600;
+    margin: 18px 0 12px;
+    padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+
+  /* FILTERS */
+  .filters { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+  .filters input, .filters select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-family: var(--sans);
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .filters input:focus, .filters select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+  .filters input { width: 210px; }
+
+  /* TABLE */
+  .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--surface); }
+  th {
+    background: var(--surface2);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  th:hover { color: var(--text); }
+  td { padding: 9px 12px; border-top: 1px solid var(--border); vertical-align: middle; }
+  tr:hover td { background: #f8f9fc; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .badge.charged { background: var(--green-bg); color: var(--green); }
+  .badge.pending { background: var(--yellow-bg); color: var(--yellow); }
+
+  .type-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+  }
+  .type-Incorporation { background: var(--blue-bg); color: var(--blue); }
+  .type-Confirmation { background: #f1f5f9; color: #475569; }
+  .type-Strike { background: var(--red-bg); color: var(--red); }
+  .type-Name { background: var(--yellow-bg); color: var(--yellow); }
+
+  .method-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    background: #eff6ff; color: var(--blue);
+  }
+
+  .ch-cost { font-family: var(--mono); color: var(--red); font-weight: 600; }
+  .charged-val { font-family: var(--mono); color: var(--green); font-weight: 600; }
+  .profit-pos { color: var(--green); font-family: var(--mono); font-weight: 600; }
+  .profit-neg { color: var(--red); font-family: var(--mono); }
+  .profit-none { color: var(--muted); font-family: var(--mono); }
+
+  /* EDIT BTN */
+  .btn-edit {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text2); padding: 4px 10px; border-radius: 5px;
+    cursor: pointer; font-size: 11px; font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-edit:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-bg); }
+
+  /* MODAL */
+  .modal-bg {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4); z-index: 200;
+    align-items: center; justify-content: center;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px;
+    width: 500px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+  .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+  .modal .company-name { font-family: var(--mono); font-size: 12px; color: var(--blue); margin-bottom: 18px; }
+  .modal-info {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; margin-bottom: 18px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .modal-info-item .k { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+  .modal-info-item .v { font-family: var(--mono); font-size: 13px; color: var(--text); margin-top: 2px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 11px; font-weight: 600; color: var(--text2); }
+  .form-group input, .form-group select, .form-group textarea {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); padding: 9px 12px; border-radius: 7px;
+    font-size: 13px; font-family: var(--sans); outline: none; width: 100%;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+  .form-group textarea { resize: vertical; min-height: 60px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
+  .btn-save { background: var(--blue); color: #fff; border: none; padding: 9px 20px; border-radius: 7px; cursor: pointer; font-weight: 600; font-size: 13px; font-family: var(--sans); }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-cancel { background: transparent; color: var(--text2); border: 1px solid var(--border); padding: 9px 16px; border-radius: 7px; cursor: pointer; font-size: 13px; font-family: var(--sans); }
+  .btn-cancel:hover { background: var(--bg); }
+  .btn-clear { background: transparent; color: var(--red); border: 1px solid rgba(220,38,38,0.25); padding: 9px 16px; border-radius: 7px; cursor: pointer; font-size: 13px; font-family: var(--sans); }
+  .btn-clear:hover { background: var(--red-bg); }
+
+  /* MONTHLY GRID */
+  .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .month-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .month-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .month-row { display: flex; justify-content: space-between; margin-bottom: 7px; align-items: center; }
+  .month-row .k { color: var(--text2); font-size: 12px; }
+  .month-row .v { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+  .month-progress { height: 5px; background: var(--yellow-bg); border-radius: 3px; margin-top: 12px; overflow: hidden; }
+  .month-progress-bar { height: 100%; background: var(--green); border-radius: 3px; transition: width 0.4s; }
+
+  /* YTD SECTION */
+  .ytd-box {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; margin-bottom: 20px;
+  }
+  .ytd-box h3 { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+  .ytd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .ytd-item { }
+  .ytd-item .k { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 600; }
+  .ytd-item .v { font-family: var(--mono); font-size: 18px; font-weight: 700; margin-top: 4px; }
+
+  /* EXPORT */
+  .btn-export { background: var(--surface); border: 1px solid var(--border); color: var(--text2); padding: 7px 14px; border-radius: 7px; cursor: pointer; font-size: 12px; font-weight: 500; margin-left: auto; font-family: var(--sans); }
+  .btn-export:hover { border-color: var(--blue); color: var(--blue); }
+
+  /* PAGINATION */
+  .pagination { display: flex; gap: 6px; align-items: center; margin-top: 14px; justify-content: center; }
+  .pg-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text2); padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-family: var(--sans); }
+  .pg-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .pg-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .pg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pg-info { color: var(--muted); font-size: 12px; }
+
+  .tbl-info { color: var(--muted); font-size: 11px; margin-bottom: 8px; }
+
+  /* UNCHARGED TOTAL */
+  .unc-banner {
+    background: var(--yellow-bg); border: 1px solid var(--yellow-mid);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 14px;
+    color: var(--yellow); font-weight: 600; font-size: 13px;
+  }
+</style>
+</head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<body>
+<div id="portal-nav" style="background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+  <div style="display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,0.1)">
+      <span style="color:#c8963c;font-weight:700;font-size:13px;letter-spacing:0.02em;line-height:1.2">Chowdury Accountants</span>
+      <span style="color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Practice Portal</span>
+    </div>
+<script>
+// Auto-highlight current page in nav
+(function(){
+  const page = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('#portal-nav a').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href && page.includes(href.replace('.html','')) || (page === '' || page === 'index.html') && href === 'index.html') {
+      a.style.background = 'rgba(255,255,255,0.12)';
+      a.style.color = '#fff';
+    }
+  });
+})();
+</script>
+  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
+  <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
+  <a href="ch-tracker.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.1)">⚖️ CH Tracker</a>
+</div>
+
+<header>
+  <h1>⚖️ CH Cost <span>Tracker</span></h1>
+  <div class="hdr-stats">
+    <div class="hdr-stat">
+      <div class="k">Total Profit</div>
+      <div class="v" id="hdr-profit" style="color:var(--green)">—</div>
+    </div>
+    <div class="hdr-stat">
+      <div class="k">Uncharged</div>
+      <div class="v" id="hdr-unc" style="color:var(--yellow)">—</div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('dashboard',this)">📊 Dashboard</div>
+  <div class="tab" onclick="switchTab('transactions',this)">📋 Transactions</div>
+  <div class="tab" onclick="switchTab('monthly',this)">📅 Monthly & YTD</div>
+  <div class="tab" onclick="switchTab('uncharged',this)">🟡 Uncharged</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="panel-dashboard" class="panel active">
+  <div class="fy-tabs" id="dash-fy-tabs">
+    <div class="fy-tab active" onclick="setDashFY('all',this)">All Years</div>
+    <div class="fy-tab" onclick="setDashFY('2024/25',this)">2024/25</div>
+    <div class="fy-tab" onclick="setDashFY('2025/26',this)">2025/26</div>
+    <div class="fy-tab" onclick="setDashFY('2026/27',this)">2026/27</div>
+  </div>
+  <div class="cards" id="dash-cards"></div>
+  <p class="section-title">By Transaction Type</p>
+  <div class="cards" id="type-cards"></div>
+  <p class="section-title">Recent Transactions</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Company</th><th>Type</th><th>CH Cost</th><th>Charged</th><th>Profit</th><th>Method</th><th>Status</th><th>Edit</th></tr></thead>
+      <tbody id="recent-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TRANSACTIONS -->
+<div id="panel-transactions" class="panel">
+  <div class="filters">
+    <input type="text" id="search" placeholder="🔍 Search company..." oninput="renderTable()">
+    <select id="f-fy" onchange="renderTable()">
+      <option value="">All Years</option>
+      <option>2024/25</option>
+      <option>2025/26</option>
+      <option>2026/27</option>
+    </select>
+    <select id="f-month" onchange="renderTable()"><option value="">All Months</option></select>
+    <select id="f-type" onchange="renderTable()">
+      <option value="">All Types</option>
+      <option>Incorporation</option>
+      <option>Confirmation Statement</option>
+      <option>Strike Off</option>
+      <option>Name Change</option>
+    </select>
+    <select id="f-status" onchange="renderTable()">
+      <option value="">All Status</option>
+      <option value="charged">✅ Charged</option>
+      <option value="pending">🟡 Not Charged</option>
+    </select>
+    <select id="f-method" onchange="renderTable()">
+      <option value="">All Methods</option>
+      <option>DD</option>
+      <option>Cash</option>
+      <option>Bank Transfer</option>
+      <option>Invoice</option>
+    </select>
+    <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+  </div>
+  <div class="tbl-info" id="tbl-info"></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th onclick="sortBy('date')">Date ↕</th>
+        <th onclick="sortBy('company')">Company ↕</th>
+        <th>FY</th>
+        <th>Type</th>
+        <th onclick="sortBy('ch_cost')">CH Cost ↕</th>
+        <th onclick="sortBy('charged')">Charged ↕</th>
+        <th onclick="sortBy('profit')">Profit ↕</th>
+        <th>Method</th>
+        <th>Charge Date</th>
+        <th>Notes</th>
+        <th>Status</th>
+        <th>Edit</th>
+      </tr></thead>
+      <tbody id="main-body"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- MONTHLY & YTD -->
+<div id="panel-monthly" class="panel">
+  <div class="fy-tabs" id="monthly-fy-tabs">
+    <div class="fy-tab active" onclick="setMonthlyFY('2024/25',this)">2024/25</div>
+    <div class="fy-tab" onclick="setMonthlyFY('2025/26',this)">2025/26</div>
+    <div class="fy-tab" onclick="setMonthlyFY('2026/27',this)">2026/27</div>
+  </div>
+  <div id="ytd-section"></div>
+  <p class="section-title">Monthly Breakdown</p>
+  <div class="month-grid" id="month-grid"></div>
+</div>
+
+<!-- UNCHARGED -->
+<div id="panel-uncharged" class="panel">
+  <div class="filters">
+    <input type="text" id="search-unc" placeholder="🔍 Search..." oninput="renderUncharged()">
+    <select id="f-unc-fy" onchange="renderUncharged()">
+      <option value="">All Years</option>
+      <option>2024/25</option>
+      <option>2025/26</option>
+      <option>2026/27</option>
+    </select>
+    <select id="f-unc-type" onchange="renderUncharged()">
+      <option value="">All Types</option>
+      <option>Incorporation</option>
+      <option>Confirmation Statement</option>
+      <option>Strike Off</option>
+      <option>Name Change</option>
+    </select>
+  </div>
+  <div class="unc-banner" id="unc-count"></div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Date</th><th>Company</th><th>FY</th><th>Type</th>
+        <th>CH Cost</th><th>Standard Charge</th><th>Potential Profit</th><th>Edit</th>
+      </tr></thead>
+      <tbody id="unc-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MONTH DRILL-DOWN -->
+<div class="modal-bg" id="month-modal-bg" onclick="closeMonthModal(event)">
+  <div class="modal" style="width:820px;max-width:97vw;">
+    <h3 id="mm-title">Transactions</h3>
+    <div id="mm-stats" style="display:flex;gap:16px;margin:10px 0 16px;flex-wrap:wrap;"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Company</th><th>Type</th><th>CH Cost</th><th>Charged</th><th>Profit</th><th>Method</th><th>Status</th><th>Edit</th></tr></thead>
+      <tbody id="mm-body"></tbody>
+    </table></div>
+    <div style="margin-top:16px;text-align:right;"><button class="btn-cancel" onclick="closeMonthModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal">
+    <h3 id="m-title">Record Charge</h3>
+    <div class="company-name" id="m-company"></div>
+    <div class="modal-info" id="m-info"></div>
+    <div class="modal-grid">
+      <div class="form-group">
+        <label>Amount Charged to Client (£)</label>
+        <input type="number" id="m-charged" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-group">
+        <label>Date Charged</label>
+        <input type="date" id="m-charge-date">
+      </div>
+      <div class="form-group">
+        <label>Payment Method</label>
+        <select id="m-method">
+          <option value="">— Select —</option>
+          <option>DD</option>
+          <option>Cash</option>
+          <option>Bank Transfer</option>
+          <option>Invoice</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Invoice / Ref No.</label>
+        <input type="text" id="m-ref" placeholder="Optional">
+      </div>
+      <div class="form-group full">
+        <label>Notes</label>
+        <textarea id="m-notes" placeholder="Any notes..."></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-clear" onclick="clearCharge()">Clear</button>
+      <button class="btn-cancel" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn-save" onclick="saveCharge()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const DATA = [{"id": 1, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-02", "company": "INSTRUCTOR PORTAL LIMITED", "comp_no": "14357575", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 2, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-02", "company": "DUBAI COFFEE LTD", "comp_no": "12329285", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 3, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "GARLIC SPICE LTD", "comp_no": "13006539", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 4, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "SJ MOTOR SERVICES LTD", "comp_no": "12824538", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 5, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "RAHMAN HEALTHCARE LTD", "comp_no": "12847825", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 6, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "MMR TAKEAWAY LTD", "comp_no": "13641608", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 7, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "CHOWDURY PROPERTIES LTD", "comp_no": "15164444", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 8, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "LEES BARBERS LTD", "comp_no": "13639139", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 9, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "BALTI PALACE LTD", "comp_no": "14389273", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 10, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "RB TAKEAWAY LTD", "comp_no": "13642640", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 11, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-04", "company": "HEATON NW LTD", "comp_no": "15081060", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 12, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-10", "company": "NEWS 71 MULTIMEDIA LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 13, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-10", "company": "ARI BARBERS OLDHAM LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 14, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-11", "company": "HYDER FOOD LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 15, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-15", "company": "SPICE OF INDIA RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 16, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-17", "company": "SARAH MINI MARKET LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 17, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-18", "company": "HEYWOOD BARBER NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 18, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-19", "company": "LINXUS RECRUITMENT LTD", "comp_no": "15135031", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 19, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-28", "company": "NEW LOVE FAST FOOD LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 20, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "BALLY OFF LICENCE LTD", "comp_no": "13671931", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 21, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "MSH MINI MARKET LTD", "comp_no": "15188580", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 22, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "AKHI INDIAN TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 23, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "MB TAKEAWAY LTD", "comp_no": "12879940", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 24, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "SI RESTAURANT LTD", "comp_no": "14404433", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 25, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "CANDOLIM LIMITED", "comp_no": "14413737", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 26, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "RAZAK & SONS LIMITED", "comp_no": "13676974", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 27, "month": "Oct 24", "fy": "2024/25", "date": "2024-10-30", "company": "RAHMAN HEALTHCARE SERVICES LTD", "comp_no": "13671722", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 28, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-03", "company": "ANARKALI MAGHULL LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 29, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-03", "company": "TRANSPORT WITH US LIMITED", "comp_no": "14545651", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 30, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-03", "company": "AUCKLAND TRANSPORT LTD", "comp_no": "14991029", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 31, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-07", "company": "J'S INDIAN RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 32, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-07", "company": "NAAZ AKHTAR LTD", "comp_no": "16004777", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 33, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-08", "company": "SPICE SAFARI LTD", "comp_no": "15234601", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 34, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-08", "company": "CHILLI INDIAN LTD", "comp_no": "13697837", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 35, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-11", "company": "SAJ BUILDING AND CONSTRUCTION LIMIT", "comp_no": "14947522", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 36, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-13", "company": "MAHFUJA AND CO LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 37, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-17", "company": "BARSAM.A LTD", "comp_no": "15247136", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 38, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-17", "company": "MONTANA CRUNCHY FRIED CHICKEN & PIZ", "comp_no": "15243763", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 39, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-18", "company": "MAHMOOD BROS LTD", "comp_no": "12753372", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 40, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-18", "company": "BT MCR LTD", "comp_no": "15241330", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 41, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-18", "company": "GOA EXCLUSIVE INDIAN RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 42, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-18", "company": "MNB RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 43, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-20", "company": "CLEARLAKE ASSET MANAGEMENT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 44, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-21", "company": "TAIBA GREEN GROCERS LTD.", "comp_no": "8367648", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 45, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-21", "company": "DONCASTER VANS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 46, "month": "Nov 24", "fy": "2024/25", "date": "2024-11-27", "company": "DONCASTER VAN BREAKERS UK LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 47, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-02", "company": "ASHTON MOBILE TYRES LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 48, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-02", "company": "THE GRILL SHACK AND COFFEE HOUSE LT", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 49, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-02", "company": "INDIAN CURRY HOUSE WALKDEN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 50, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "OPTIMAL MARKETING LTD", "comp_no": "10901145", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 51, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "LIGHTBOWNE LIMITED", "comp_no": "12211457", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 52, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "CHENNAI NW LTD", "comp_no": "15258036", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 53, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "LEEDS OFF LICENSE LTD", "comp_no": "14475019", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 54, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "ATLANTA FRIED CHICKEN LTD", "comp_no": "15258206", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 55, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "SWR TAKEAWAY LTD", "comp_no": "15278202", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 56, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "AH TAKEAWAY LTD", "comp_no": "12267533", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 57, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "EMERALD EVENTS MCR LTD", "comp_no": "13757225", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 58, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "MBA RESTAURANT LTD", "comp_no": "15314054", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 59, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "THE PHYSIO PLUG LIMITED", "comp_no": "14512658", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 60, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "BALTI MASALA LTD", "comp_no": "13527234", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 61, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "KAMRUL SPICE HOUSE LTD", "comp_no": "15283540", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 62, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "SIX BROS WA LTD", "comp_no": "14699626", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 63, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "ADHIKARI LTD", "comp_no": "14652459", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 64, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-03", "company": "BLUE ONION CAFE LTD", "comp_no": "12692695", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 65, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-09", "company": "BURG'ZILLA LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 66, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-12", "company": "MRA RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 67, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-18", "company": "MUMBAI INDIAN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 68, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-19", "company": "NEW IMPERIAL LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 69, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-19", "company": "CHOWDURY PROPERTIES LTD", "comp_no": "15164444", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 70, "month": "Dec 24", "fy": "2024/25", "date": "2024-12-30", "company": "LAXMI VEGETARIAN AND VEGAN RESTAURA", "comp_no": "15599507", "type": "Name Change", "ch_cost": 20.0, "charged": 100.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 100.0}, {"id": 71, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-02", "company": "SPECTRUM ADVERTISING LIMITED", "comp_no": "10982769", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 72, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-04", "company": "EVENT SUPPLIER DIRECT LTD", "comp_no": "15344016", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 73, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-09", "company": "ASHRAF LOCUM LTD", "comp_no": "14543285", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 74, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-13", "company": "SMASH DONER LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 75, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-14", "company": "MMR TAKEAWAY LTD", "comp_no": "13641608", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 76, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-14", "company": "KHADIJA KITCHEN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 77, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-15", "company": "PENGUINE E-PUBLICATIONS LTD", "comp_no": "14544410", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 78, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-15", "company": "ZAK'S TRADERS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 79, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-16", "company": "BROWNBURN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 80, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-16", "company": "SHAJU PROPERTIES LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 81, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-17", "company": "C BROWN CAFE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 82, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-17", "company": "THE PASS NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 83, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-17", "company": "DENTON SQUARE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 84, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-17", "company": "DAFFODILS TAKE-AWAY LIMITED", "comp_no": "15214182", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 85, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-20", "company": "RP TRADING GROUP UK LTD", "comp_no": "15364084", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 86, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-20", "company": "RP HOLDING GROUP UK LTD", "comp_no": "15364104", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 87, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-20", "company": "CHUTNEYS CARLISLE LTD", "comp_no": "12257812", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 88, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-20", "company": "ONTARIO FRIED CHICKEN LTD", "comp_no": "15390575", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 89, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-20", "company": "SURMA EXPRESS OLDHAM LTD", "comp_no": "13834749", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 90, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-21", "company": "NAAZ AKHTAR LTD", "comp_no": "16004777", "type": "Name Change", "ch_cost": 20.0, "charged": 100.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 100.0}, {"id": 91, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-21", "company": "GOOD BURGERS NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 92, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-22", "company": "MASALA CHESTER LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 93, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-24", "company": "XEENAZ LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 94, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-27", "company": "HAMADAN RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 95, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-27", "company": "M&R ECHO LIMITED", "comp_no": "14483229", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 96, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-29", "company": "VASPIAN LOUNGE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 97, "month": "Jan 25", "fy": "2024/25", "date": "2025-01-30", "company": "SPICE WARRINGTON LTD", "comp_no": "15403177", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 98, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-03", "company": "ARO'S CRUNCHY CHICKEN & PIZZA LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 99, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-03", "company": "NUMAN PSYCHOLOGICAL THERAPIES LTD", "comp_no": "15433265", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 100, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-04", "company": "FAIZAN EAT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 101, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-07", "company": "CINNAMON LODGE RESTAURANTS LTD", "comp_no": "5082880", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 102, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-08", "company": "SYLHET CATERING LTD", "comp_no": "14607140", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 103, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-08", "company": "KINGFISHER BD RESTAURANT LTD", "comp_no": "14605750", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 104, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-08", "company": "THE WHITE PEARL FOUNDATION COMMUNIT", "comp_no": "13168106", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 105, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-12", "company": "SPICY BITES TAKEAWAY LTD", "comp_no": "14547407", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 106, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "ABR MANCHESTER LTD", "comp_no": "15366244", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 107, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "EASTERN CHAI LTD", "comp_no": "13151411", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 108, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "ARIA CASH AND CARRY LTD", "comp_no": "8757436", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 109, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "BENGAL CURRY POT LIMITED", "comp_no": "10164490", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 110, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "STIMI LTD", "comp_no": "15409578", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 111, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "MISTECH LTD", "comp_no": "15456006", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 112, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "BILLINGE SPICE LTD", "comp_no": "14587397", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 113, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "KHAN TAKEAWAY LTD", "comp_no": "15415926", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 114, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-13", "company": "AL-AMIN OPTICAL LTD", "comp_no": "9368977", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 115, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-14", "company": "SAMID RESTAURANT LTD", "comp_no": "15468779", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 116, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-14", "company": "ABS RESTAURANT LTD", "comp_no": "13910136", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 117, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-14", "company": "SMART START LTD", "comp_no": "13154205", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 118, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-14", "company": "QUANTUM PERFORMANCE CONSULTANTS LTD", "comp_no": "15453732", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 119, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-19", "company": "SMASH VEGAS MCR LTD", "comp_no": "14688572", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 120, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "YAZ TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 121, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "D' GRAND HAVELI LTD", "comp_no": "12262936", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 122, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "SCHOLARED UK LTD", "comp_no": "14967711", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 123, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "QUADRA CONSTRUCTION LIMITED", "comp_no": "15474467", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 124, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "THE INDIAN OLIVE LTD", "comp_no": "15476635", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 125, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "MCDHABA INDIAN RESTAURANT LTD", "comp_no": "SC798919", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 126, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-21", "company": "SBFT NW LTD", "comp_no": "15498170", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 127, "month": "Feb 25", "fy": "2024/25", "date": "2025-02-27", "company": "BALTI PALACE NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 128, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-03", "company": "CLOSE PROPERTIES LIMITED", "comp_no": "13385860", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 129, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-04", "company": "REDLINE PRESTIGE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 130, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-04", "company": "THE GRILL CAFE OLDHAM LTD", "comp_no": "14574579", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 131, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-04", "company": "RAJ EVENTS LTD", "comp_no": "14601876", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 132, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-04", "company": "VEVAS STALYBRIDGE LTD", "comp_no": "14462447", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 133, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-05", "company": "ST NQ LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 134, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-06", "company": "BEST FOOD PRESTON LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 135, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-10", "company": "MONTANA CRUNCHY FRIED CHICKEN & PIZ", "comp_no": "15243763", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 136, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-10", "company": "HAMADAN RESTAURANT LTD", "comp_no": "16208987", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 137, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-11", "company": "JHEEL KENDAL LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 138, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-12", "company": "SPICE OF INDIA TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 139, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-13", "company": "ALF & SONS CAR WASH LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 140, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-13", "company": "AKD RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 141, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "PROSPECT STORE LTD", "comp_no": "13773879", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 142, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "MB UK TRADERS LTD", "comp_no": "13941508", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 143, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "KIRAN NW LTD", "comp_no": "15521398", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 144, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "RR RESTAURANT LIMITED", "comp_no": "7965986", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 145, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "DELHI SPICE NW LTD", "comp_no": "15523478", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 146, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "MMN RESTAURANT LTD", "comp_no": "12397956", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 147, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "CINNAMON RISHWORTH LTD", "comp_no": "15543926", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 148, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "YAS INTERNATIONAL LIMITED", "comp_no": "11079885", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 149, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "MAGNETO TOOLS LIMITED", "comp_no": "11751571", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 150, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "LGV1DRIVERS LTD", "comp_no": "13204342", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 151, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "THE MEGNA LTD", "comp_no": "12457757", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 152, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "MUMBAI KENDAL LTD", "comp_no": "15557221", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 153, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "PAKISTAN TAKEAWAY LTD", "comp_no": "15569077", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 154, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "SYEDA'S KITCHEN LTD", "comp_no": "14723986", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 155, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "CHENNAI LANDLORD LTD", "comp_no": "13963731", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 156, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-17", "company": "ASHTON GROCERY LTD", "comp_no": "13776461", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 157, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-18", "company": "KM25 LIMITED", "comp_no": "10010854", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 158, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-20", "company": "ASHIANA TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 159, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-21", "company": "AMANUEL PROPERTIES LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 160, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-24", "company": "YELLOW BEE MARKETING LTD", "comp_no": "15336419", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 161, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-25", "company": "GRILL OLDHAM LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 162, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-25", "company": "JM TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 163, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-27", "company": "REPAIR TODAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 164, "month": "Mar 25", "fy": "2024/25", "date": "2025-03-27", "company": "AURA CAFETERIA NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 165, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-02", "company": "ST NQ LTD", "comp_no": "16294486", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 166, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-02", "company": "IN THE VAULT CUTS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 167, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-02", "company": "TB CATERING STOCKPORT LIMITED", "comp_no": "15527545", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 168, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-02", "company": "PROJECT INTERIM LIMITED", "comp_no": "14740056", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 169, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-02", "company": "NXTGEN EDUCATION LTD", "comp_no": "15338194", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 170, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-02", "company": "BADSHAH INVESTMENTS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 171, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-05", "company": "EH TAKEAWAY LTD", "comp_no": "15839607", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 172, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-05", "company": "SEQUENTIAL SERVICES LIMITED", "comp_no": "12097769", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 173, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-07", "company": "SYLHETI BAZAR LIMITED", "comp_no": "11184309", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 174, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-08", "company": "SHAHJALAL TAKEAWAY LIMITED", "comp_no": "11780969", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 175, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-08", "company": "BISMILLAH KITCHEN LTD", "comp_no": "13877525", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 176, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-09", "company": "FEROZA LASH & BROW LOUNGE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 177, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-10", "company": "THE AROMA WINSFORD LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 178, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-11", "company": "MY BALTI MASSALA LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 179, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-11", "company": "COPPICE BAZAR LTD", "comp_no": "14029671", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 180, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-11", "company": "KINGDOM SUITE LTD", "comp_no": "15603310", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 181, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-15", "company": "ROCH SALON LTD", "comp_no": "13339693", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 182, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-16", "company": "BD SAREES LTD", "comp_no": "14768301", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 183, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-16", "company": "HUSTLE BURGER OLDHAM LTD", "comp_no": "14775944", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 184, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-16", "company": "SPECTRE VEHICLE SECURITY LTD", "comp_no": "15614984", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 185, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-17", "company": "WAQAS ZAMIR LTD", "comp_no": "14778802", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 186, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-17", "company": "AR MASSALA LTD", "comp_no": "14027278", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 187, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-17", "company": "AMS RESTAURANT LTD", "comp_no": "15626700", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 188, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-21", "company": "CURRY LOUNGE NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 189, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-22", "company": "SPICE JUNCTION WARRINGTON LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 190, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-22", "company": "HEATON NW LTD", "comp_no": "15081060", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 191, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-23", "company": "RUJI PROPERTIES LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 192, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-23", "company": "TAMY AR LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 193, "month": "Apr 25", "fy": "2025/26", "date": "2025-04-25", "company": "CSNN LIMITED", "comp_no": "15632404", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 194, "month": "May 25", "fy": "2025/26", "date": "2025-05-04", "company": "XQUISITE BRANDS (UK) LTD", "comp_no": "11434864", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 195, "month": "May 25", "fy": "2025/26", "date": "2025-05-04", "company": "JS RESTAURANT LTD", "comp_no": "15664457", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 196, "month": "May 25", "fy": "2025/26", "date": "2025-05-04", "company": "SPICE K TAKEAWAY LIMITED", "comp_no": "10124865", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 197, "month": "May 25", "fy": "2025/26", "date": "2025-05-04", "company": "BIRKDALE TANDOORI LTD", "comp_no": "15600234", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 198, "month": "May 25", "fy": "2025/26", "date": "2025-05-05", "company": "ANMOL WARRINGTON LIMITED", "comp_no": "13355676", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 199, "month": "May 25", "fy": "2025/26", "date": "2025-05-05", "company": "HUSTLE BURGER NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 200, "month": "May 25", "fy": "2025/26", "date": "2025-05-06", "company": "WARRINGTON NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 201, "month": "May 25", "fy": "2025/26", "date": "2025-05-06", "company": "OUD BOX OLDHAM LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 202, "month": "May 25", "fy": "2025/26", "date": "2025-05-07", "company": "MNS RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 203, "month": "May 25", "fy": "2025/26", "date": "2025-05-07", "company": "RAHAD PROPERTIES LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 204, "month": "May 25", "fy": "2025/26", "date": "2025-05-09", "company": "RB & ZRM LTD", "comp_no": "14793238", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 205, "month": "May 25", "fy": "2025/26", "date": "2025-05-09", "company": "AMIR BHAI KITCHEN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 206, "month": "May 25", "fy": "2025/26", "date": "2025-05-13", "company": "IMPERIAL SPICE NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 207, "month": "May 25", "fy": "2025/26", "date": "2025-05-13", "company": "ARK RESTAURANT LTD", "comp_no": "15672722", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 208, "month": "May 25", "fy": "2025/26", "date": "2025-05-13", "company": "UNION NEWS AGENT LTD", "comp_no": "15679445", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 209, "month": "May 25", "fy": "2025/26", "date": "2025-05-14", "company": "GLOBAL LEARNING PATHWAY LIMITED", "comp_no": "13358224", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 210, "month": "May 25", "fy": "2025/26", "date": "2025-05-14", "company": "2020 OPTIX LTD", "comp_no": "7239795", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 211, "month": "May 25", "fy": "2025/26", "date": "2025-05-19", "company": "LAXMI VEGETARIAN AND VEGAN INDIAN C", "comp_no": "15599507", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 212, "month": "May 25", "fy": "2025/26", "date": "2025-05-20", "company": "MUNCH BOX INDIAN TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 213, "month": "May 25", "fy": "2025/26", "date": "2025-05-23", "company": "BENGAL CURRY POT OLDHAM LTD", "comp_no": "15710910", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 214, "month": "May 25", "fy": "2025/26", "date": "2025-05-23", "company": "BEST FOOD PRESTON LTD", "comp_no": "16296706", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 215, "month": "May 25", "fy": "2025/26", "date": "2025-05-23", "company": "BALTI MASALA LTD", "comp_no": "13527234", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 216, "month": "May 25", "fy": "2025/26", "date": "2025-05-27", "company": "MAAHIR PHONE BAZAAR LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 217, "month": "May 25", "fy": "2025/26", "date": "2025-05-27", "company": "SPEEDO X LOGISTICS LTD", "comp_no": "15078798", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 218, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-02", "company": "MTC RESTAURANT LTD", "comp_no": "15613791", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 219, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-05", "company": "SB TANDOORI LTD", "comp_no": "14814168", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 220, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-07", "company": "FRIENDS BUILDERS & CONSTRUCTIONS LT", "comp_no": "14889125", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 221, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-09", "company": "M JANNET J DESIGN LTD", "comp_no": "15128409", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 222, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "AL AMIN PRESCOT LTD", "comp_no": "15710770", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 223, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "MADINA & CO UK LTD", "comp_no": "15453869", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 224, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "MODINA FASHION LTD", "comp_no": "15742032", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 225, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "ZIGGY\u00bf\u00bf\u00bfS SCHOOLWEAR (BOLTON) LTD", "comp_no": "14751431", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 226, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "AYYUB BUILDERS LTD", "comp_no": "14892809", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 227, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "TAMIM AUTO GARAGE LTD", "comp_no": "14892140", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 228, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "ASHTON TYRES LTD", "comp_no": "14891743", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 229, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-11", "company": "BABYLON NIGHT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 230, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-12", "company": "DANDYLAN PROPERTIES LTD", "comp_no": "15759536", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 231, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-12", "company": "RAHMAN PACKAGING LIMITED", "comp_no": "7461907", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 232, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-12", "company": "GOLD HAND CAR WASH LTD", "comp_no": "12667205", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 233, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-12", "company": "SPICY VALLEY TODMORDEN LTD", "comp_no": "12627379", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 234, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-13", "company": "UBM INTERNATIONAL LTD", "comp_no": "15769534", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 235, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-17", "company": "AKHTAR RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 236, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-17", "company": "AURA CAFETERIA LTD", "comp_no": "14895613", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 237, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-17", "company": "RAJA RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 238, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-19", "company": "ASH TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 239, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-20", "company": "WARYAM HAIDER LTD", "comp_no": "15694758", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 240, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-23", "company": "IFSAH LIMITED", "comp_no": "15778058", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 241, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-23", "company": "FLAVOURS OF INDIA LTD", "comp_no": "14935890", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 242, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-24", "company": "HOLLINS BARBERS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 243, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-24", "company": "A24 FOODS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 244, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-25", "company": "EATS & TREATS OLDHAM LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 245, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-26", "company": "PHONE BAZAAR LTD", "comp_no": "14314632", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 246, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-26", "company": "AM TAKEAWAY LTD", "comp_no": "15763004", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 247, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-26", "company": "INDIAN1 TAKEAWAY LTD", "comp_no": "15778003", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 248, "month": "Jun 25", "fy": "2025/26", "date": "2025-06-26", "company": "SH DESSERT BAR LTD", "comp_no": "14944774", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 249, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-02", "company": "CSNN LIMITED", "comp_no": "15632404", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 250, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-06", "company": "SNEBTAF TECH SOLUTION LIMITED", "comp_no": "11315780", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 251, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-07", "company": "UBAYDUR RAHMAN PROPERTIES LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 252, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-08", "company": "AMBIA CUISINE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 253, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-08", "company": "SAJ BUILDING AND CONSTRUCTION LIMIT", "comp_no": "14947522", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 254, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-11", "company": "LAVA KITCHEN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 255, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-11", "company": "CENTAURI PERFORMANCE LTD", "comp_no": "16428733", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 256, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "RED CHILLI (CARLISLE) LIMITED", "comp_no": "13486914", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 257, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "ANIA PROPERTY LTD", "comp_no": "14968465", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 258, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "TR TAKEAWAY LTD", "comp_no": "15792753", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 259, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "INDIAN OLIVE (NESTON) LTD", "comp_no": "15814275", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 260, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "HAYEMEDIA LIMITED", "comp_no": "14946993", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 261, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "IMON TANDOORI LIMITED", "comp_no": "11956917", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 262, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-14", "company": "ATLANTA FRIED CHICKEN LTD", "comp_no": "15258206", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 263, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-16", "company": "SAHARA PROPERTY GROUP LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 264, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-18", "company": "DARBAR BALTI NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 265, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-18", "company": "L & A PROPERTIES MCR LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 266, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-21", "company": "NAITION WIDE SAMEDAY DELIVERY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 267, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-21", "company": "DUA H ABBAS LTD", "comp_no": "15356934", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 268, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-22", "company": "SRM FAMILY PROPERTY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 269, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-24", "company": "BRTA LIMITED", "comp_no": "12716060", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 270, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-28", "company": "ADLINGTON SPICE NW LTD", "comp_no": "15838184", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 271, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-29", "company": "LBR RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 272, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-29", "company": "THE SPICE INN RESTAURANT LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 273, "month": "Jul 25", "fy": "2025/26", "date": "2025-07-30", "company": "CLAYTON KITCHEN LTD", "comp_no": "15816876", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 274, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-03", "company": "I LOVE SUSHI WORLD LTD", "comp_no": "15853935", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 275, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-04", "company": "LOOMIN LTD", "comp_no": "14247532", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 276, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-14", "company": "UMAR AND MUSA LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 277, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-15", "company": "QUANTECH INFINITY LTD", "comp_no": "15836862", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 278, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-15", "company": "TAHARAH SERVICES LTD", "comp_no": "15836865", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 279, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-15", "company": "LACOCO EVENTS LTD", "comp_no": "15836868", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 280, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-15", "company": "BLUE BRICKS OLDHAM LIMITED", "comp_no": "13541617", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 281, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-15", "company": "BRECON PROPERTIES LIMITED", "comp_no": "13533580", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 282, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-15", "company": "PAPRIKA TAKEAWAY LIMITED", "comp_no": "12039921", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 283, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-19", "company": "THE CRISPY WAFFLE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 284, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-19", "company": "RABBIR BUILDERS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 285, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-20", "company": "SHAZNA TAKEAWAY LIMITED", "comp_no": "10087517", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 286, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-20", "company": "FAMOUS INDIAN LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 287, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-20", "company": "CONSTANTA FOODS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 288, "month": "Aug 25", "fy": "2025/26", "date": "2025-08-26", "company": "STRETFORD TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 289, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "ANCHO FAREHAM LIMITED", "comp_no": "15037567", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 290, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "INCE BALTI KEBAB & CURRY HOUSE LTD", "comp_no": "13555441", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 291, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "MQM RESTAURANT LTD", "comp_no": "15895402", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 292, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "THE CHOWDURY ACCOUNTANTS LTD", "comp_no": "9441520", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 293, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "KOFFEE KINGDOM LIMITED", "comp_no": "9650397", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 294, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "MANPAK LIMITED", "comp_no": "8063869", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 295, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "ACTIVE REPAIRS LTD", "comp_no": "15068335", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 296, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "SM TAKEAWAY NW LTD", "comp_no": "15077863", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 297, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "UNITED SALVAGE LTD", "comp_no": "15061998", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 298, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "AMIR\u00bf\u00bf\u00bfS SUPPORT SERVICES LTD", "comp_no": "15051520", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 299, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-02", "company": "KANYADAN WEDDING SERVICES LIMITED", "comp_no": "9595217", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 300, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-03", "company": "ICON PROPERTIES GROUP LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 301, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-10", "company": "CAREER DEVELOPERS LIMITED", "comp_no": "15835600", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 302, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-11", "company": "AL-AMIN FOODSTORE LTD", "comp_no": "12578448", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 303, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-11", "company": "SALVADOR CRISPY LTD", "comp_no": "15910339", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 304, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-11", "company": "AHMED DRIVING ACADEMY LTD", "comp_no": "15919099", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 305, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-11", "company": "AK OPTICAL GROUP LTD", "comp_no": "15921589", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 306, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-12", "company": "SARAH MINI MARKET NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 307, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-12", "company": "LIJA CATERING LTD", "comp_no": "14330589", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 308, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-17", "company": "ALI & ALI PROPERTIES LTD", "comp_no": "15944965", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 309, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-18", "company": "NEW SHUHEL TANDOORI LTD", "comp_no": "15941121", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 310, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-18", "company": "WO GROUP LIMITED", "comp_no": "12021205", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 311, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-18", "company": "NR OPTICLE LTD", "comp_no": "15112281", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 312, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-19", "company": "MSM TAKEAWAY LTD", "comp_no": "15937008", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 313, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-24", "company": "LAYLA & CO NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 314, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-24", "company": "UNION NEWS OLDHAM LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 315, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-24", "company": "SPICE SAFARI NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 316, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-25", "company": "MR TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 317, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-29", "company": "BEE SPICE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 318, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-29", "company": "WOK NOODLES OLDHAM LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 319, "month": "Sep 25", "fy": "2025/26", "date": "2025-09-29", "company": "ALIA CASH & CARRY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 320, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "URBAN BARBERS OL9 LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 321, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "RAHMAN HEALTHCARE LTD", "comp_no": "12847825", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 322, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "BEGAL FAST FOOD OLDHAM LTD", "comp_no": "13616227", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 323, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "SS STORE NW LTD", "comp_no": "15953005", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 324, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "S3H LIMITED", "comp_no": "9573451", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 325, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "DESI CURRY LTD", "comp_no": "15953230", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 326, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "ST CATERING WA LTD", "comp_no": "15964578", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 327, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "INSTRUCTOR PORTAL LIMITED", "comp_no": "14357575", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 328, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "EASTERN CATERING SERVICES OLDHAM LT", "comp_no": "12192992", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 329, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "A1 GERMAN BREAKERS GROUP UK LTD", "comp_no": "15129309", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 330, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "GARLIC SPICE LTD", "comp_no": "13006539", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 331, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "NAIM WEDDING SERVICES LTD", "comp_no": "15969605", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 332, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "LEES BARBERS LTD", "comp_no": "13639139", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 333, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "THE PURPLE MANGO BARNSLEY LTD", "comp_no": "15971302", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 334, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "SJ MOTOR SERVICES LTD", "comp_no": "12824538", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 335, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-02", "company": "LIVERPOOL SPICE LTD", "comp_no": "16582832", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 336, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-03", "company": "ZAALJUL LTD", "comp_no": "15907125", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 337, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-03", "company": "HUSTLE BURGER OLDHAM LTD", "comp_no": "14775944", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 338, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-13", "company": "BADBOY KEBABS STOCKPORT LTD", "comp_no": "15978638", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 339, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-16", "company": "EXTRA VALETING LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 340, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-20", "company": "IK ELECTRIC LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 341, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-20", "company": "DUBAI COFFEE LTD", "comp_no": "12329285", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 342, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-20", "company": "DHAANIYA NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 343, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-23", "company": "SA LEGAL COSTS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 344, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-23", "company": "CHILLI MASALA SWINTON LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 345, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-23", "company": "THE QUAY SPICE RESTAURANT LIMITED", "comp_no": "15987826", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 346, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-23", "company": "MB TAKEAWAY LTD", "comp_no": "12879940", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 347, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "HYDER FOOD LTD", "comp_no": "16013092", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 348, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "MSH MINI MARKET LTD", "comp_no": "15188580", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 349, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "ARI BARBERS OLDHAM LTD", "comp_no": "16010461", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 350, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "RAHMAN HEALTHCARE SERVICES LTD", "comp_no": "13671722", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 351, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "PINT & POPPADAMS LTD", "comp_no": "16008445", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 352, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "BALLY OFF LICENCE LTD", "comp_no": "13671931", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 353, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "SHAH GROUP HOLDINGS LIMITED", "comp_no": "15191721", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 354, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "SPICE OF INDIA RESTAURANT LTD", "comp_no": "16018295", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 355, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-25", "company": "RAZAK & SONS LIMITED", "comp_no": "13676974", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 356, "month": "Oct 25", "fy": "2025/26", "date": "2025-10-29", "company": "HEYWOOD BARBER NW LTD", "comp_no": "16027535", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 357, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-03", "company": "SPICE HOUSE NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 358, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-03", "company": "ISAAC HSM LTD", "comp_no": "15221542", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 359, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-04", "company": "RFA PROPERTIES MCR LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 360, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-05", "company": "CHILLI INDIAN LTD", "comp_no": "13697837", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 361, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-06", "company": "AKHI INDIAN TAKEAWAY LTD", "comp_no": "16051460", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 362, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-07", "company": "SPICE K TAKEAWAY LIMITED", "comp_no": "10124865", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 363, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-13", "company": "EXOTIC SPICE RK LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 364, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-13", "company": "SPICE WARRINGTON LTD", "comp_no": "15403177", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 365, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-13", "company": "ABR MANCHESTER LTD", "comp_no": "15366244", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 366, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-13", "company": "CONSTANTA FOODS LTD", "comp_no": "16663411", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 367, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-13", "company": "OLDHAM CATERER LTD", "comp_no": "16043311", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 368, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-13", "company": "NEWS 71 MULTIMEDIA LTD", "comp_no": "16010071", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 369, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-14", "company": "JK RESTAURANT NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 370, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-24", "company": "BETTER FUTURE TUITION CLUB LTD", "comp_no": "15680568", "type": "Name Change", "ch_cost": 20.0, "charged": 100.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 100.0}, {"id": 371, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-25", "company": "GREEN HOUSE FOODS MCR LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 372, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-26", "company": "AF RESTAURANT NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 373, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-27", "company": "KACCHI KEBABS NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 374, "month": "Nov 25", "fy": "2025/26", "date": "2025-11-27", "company": "J'S INDIAN RESTAURANT LTD", "comp_no": "16065358", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 375, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "DHAKA FUSION LIMITED", "comp_no": "15261086", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 376, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "LEEDS OFF LICENSE LTD", "comp_no": "14475019", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 377, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "GOA EXCLUSIVE INDIAN RESTAURANT LTD", "comp_no": "16086093", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 378, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "EMERALD EVENTS MCR LTD", "comp_no": "13757225", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 379, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "CURRIES AND KEBABS LIMITED", "comp_no": "16097468", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 380, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "GLOBAL LEARNING PATHWAY LIMITED", "comp_no": "13358224", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 381, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "AH TAKEAWAY LTD", "comp_no": "12267533", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 382, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-09", "company": "EXOTIC LOUNGE RS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 383, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-10", "company": "CINNAMON HALIFAX LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 384, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-10", "company": "IRB GROUP LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 385, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-11", "company": "DONCASTER VANS LTD", "comp_no": "16093683", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 386, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-11", "company": "DONCASTER VAN BREAKERS UK LTD", "comp_no": "16105049", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 387, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-16", "company": "MAMU ENTERPRISES LTD", "comp_no": "13840228", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 388, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-16", "company": "MEGHNA CATERING LIMITED", "comp_no": "13778677", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 389, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-17", "company": "ASHTON MOBILE TYRES LTD", "comp_no": "16109536", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 390, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-23", "company": "AYAANA & CO (NW) LTD", "comp_no": "15539500", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 391, "month": "Dec 25", "fy": "2025/26", "date": "2025-12-23", "company": "BASMATI SPICE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 392, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-05", "company": "JS RESTAURANT LTD", "comp_no": "15664457", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 393, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "PURPLE PAKORA NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 394, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "BLUE ONION CAFE LTD", "comp_no": "12692695", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 395, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "YELLOW BEE MARKETING LTD", "comp_no": "15336419", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 396, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "MUMBAI INDIAN LTD", "comp_no": "16143129", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 397, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "EVENT SUPPLIER DIRECT LTD", "comp_no": "15344016", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 398, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "NEW IMPERIAL LTD", "comp_no": "16144998", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 399, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-06", "company": "CHOWDURY PROPERTIES LTD", "comp_no": "15164444", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 400, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-08", "company": "THE PHYSIO PLUG LIMITED", "comp_no": "14512658", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 401, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-09", "company": "ROCH MINI SHOP LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 402, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-13", "company": "BT OFF LICENCE LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 403, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-14", "company": "THAYF ULLAH ESTATE AGENCY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 404, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-17", "company": "SPECTRUM ADVERTISING LIMITED", "comp_no": "10982769", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 405, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-17", "company": "MBA RESTAURANT LTD", "comp_no": "15314054", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 406, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-17", "company": "SURMA EXPRESS OLDHAM LTD", "comp_no": "13834749", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 407, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-20", "company": "MAJHAR LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 408, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-20", "company": "CHUTNEYS CARLISLE LTD", "comp_no": "12257812", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 409, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-28", "company": "MUNCH BOX INDIAN TAKEAWAY LTD", "comp_no": "16462233", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 410, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-28", "company": "INDIAN CURRY HOUSE WALKDEN LTD", "comp_no": "16113529", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 411, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-28", "company": "BOBAFY LTD", "comp_no": "15637314", "type": "Strike Off", "ch_cost": 33.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 412, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "STIMI LTD", "comp_no": "15409578", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 413, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "SMASH DONER LTD", "comp_no": "16181137", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 414, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "INDIAN FOOD STALYBRIDGE LTD", "comp_no": "16187493", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 415, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "BILLINGE SPICE LTD", "comp_no": "14587397", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 416, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "BILLINGE SPICE LTD", "comp_no": "14587397", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 417, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "CAFE EAST LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 418, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "ACH PROPERTY GROUP LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 419, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-29", "company": "WAQAS ZAMIR LTD", "comp_no": "14778802", "type": "Confirmation Statement", "ch_cost": 34.0, "charged": 64.8, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 64.8}, {"id": 420, "month": "Jan 26", "fy": "2025/26", "date": "2026-01-30", "company": "ELLA FISH & CHIPS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 50.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 421, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-02", "company": "EXOTIC LOUNGE AHS LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 422, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-02", "company": "ATHERTON CATERING LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 423, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "THE PASS NW LTD", "comp_no": "16190595", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 424, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "KHADIJA KITCHEN LTD", "comp_no": "16183099", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 425, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "SYLHET CATERING LTD", "comp_no": "14607140", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 426, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "KINGFISHER BD RESTAURANT LTD", "comp_no": "14605750", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 427, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "MASALA CHESTER LTD", "comp_no": "16201021", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 428, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "XEENAZ LTD", "comp_no": "16206283", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 429, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "BENGAL CURRY POT LIMITED", "comp_no": "10164490", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 430, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "PENGUINE E-PUBLICATIONS LTD", "comp_no": "14544410", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 431, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "M&R ECHO LIMITED", "comp_no": "14483229", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 432, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "VASPIAN LOUNGE LTD", "comp_no": "16215046", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 433, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "MISTECH LTD", "comp_no": "15456006", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 434, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "CLUB SPORT AUTOZ LTD", "comp_no": "15896932", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 435, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-05", "company": "ALEENAS DINER LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 436, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-10", "company": "CLEARLAKE ASSET MANAGEMENT LTD", "comp_no": "16091973", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 437, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-10", "company": "MRA RESTAURANT LTD", "comp_no": "16133055", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 438, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-10", "company": "NUMAN PSYCHOLOGICAL THERAPIES LTD", "comp_no": "15433265", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 439, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-10", "company": "MASALA EXPRESS NW LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 440, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-11", "company": "REMA TANDOORI LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 441, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-11", "company": "GOOD BURGERS NW LTD", "comp_no": "16198454", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 442, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-13", "company": "OPTIMAL MARKETING LTD", "comp_no": "10901145", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 443, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-14", "company": "ARO'S CRUNCHY CHICKEN & PIZZA LTD", "comp_no": "16220656", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 444, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-16", "company": "BURG'ZILLA LTD", "comp_no": "16123191", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 445, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-17", "company": "SPICE LOUNGE LEIGH LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 446, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-18", "company": "ARIA CASH AND CARRY LTD", "comp_no": "8757436", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 447, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-18", "company": "MUMBAI LOUNGE BUCKLEY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 448, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-18", "company": "MCDHABA INDIAN RESTAURANT LTD", "comp_no": "SC798919", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 449, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-19", "company": "AMIR BHAI KITCHEN LTD", "comp_no": "16441586", "type": "Strike Off", "ch_cost": 13.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 450, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-23", "company": "MCR FOOD KITCHEN LTD", "comp_no": "14667208", "type": "Strike Off", "ch_cost": 13.0, "charged": 120.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 120.0}, {"id": 451, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-24", "company": "D' GRAND HAVELI LTD", "comp_no": "12262936", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}, {"id": 452, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-26", "company": "SA KIRAN TAKEAWAY LTD", "comp_no": "", "type": "Incorporation", "ch_cost": 100.0, "charged": 180.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 180.0}, {"id": 453, "month": "Feb 26", "fy": "2025/26", "date": "2026-02-26", "company": "CINNAMON LODGE RESTAURANTS LTD", "comp_no": "5082880", "type": "Confirmation Statement", "ch_cost": 50.0, "charged": 84.0, "charge_date": "", "method": "", "notes": "", "ref": "", "suggested": 84.0}];
+
+let currentId = null;
+let sortCol = 'date';
+let sortDir = 1;
+let page = 1;
+const PAGE_SIZE = 50;
+let dashFY = 'all';
+let monthlyFY = '2024/25';
+
+const MONTHS_ALL = ['Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26'];
+const FY_MONTHS = {
+  '2024/25': ['Oct 24','Nov 24','Dec 24','Jan 25','Feb 25','Mar 25'],
+  '2025/26': ['Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26'],
+  '2026/27': []
+};
+
+// ===== SUPABASE CONFIG =====
+const SB_URL = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+
+async function sbFetch(path, options={}) {
+  const res = await fetch(SB_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': options.prefer || ''
+    },
+    ...options
+  });
+  if (!res.ok) { const t = await res.text(); console.error('SB error:', t); return null; }
+  if (res.status === 204) return {};
+  return res.json();
+}
+
+// ===== STORAGE =====
+async function saveRecord(d) {
+  // Upsert single record to Supabase
+  await sbFetch('ch_billing', {
+    method: 'POST',
+    prefer: 'resolution=merge-duplicates',
+    body: JSON.stringify({
+      id: d.id,
+      charged: d.charged,
+      charge_date: d.charge_date || null,
+      method: d.method || null,
+      notes: d.notes || null,
+      ref: d.ref || null,
+      updated_at: new Date().toISOString()
+    })
+  });
+}
+
+async function saveData(d) {
+  // Save single record (d = the updated record)
+  if (d) {
+    await saveRecord(d);
+  }
+  // Also keep localStorage as fallback
+  try {
+    const billing = {};
+    DATA.forEach(r => {
+      billing[r.id] = { charged: r.charged, charge_date: r.charge_date, method: r.method, notes: r.notes, ref: r.ref || '' };
+    });
+    localStorage.setItem('ch_billing_v2', JSON.stringify(billing));
+  } catch(e) {}
+}
+
+async function loadData() {
+  // Try Supabase first
+  try {
+    const rows = await sbFetch('ch_billing?select=*');
+    if (rows && rows.length > 0) {
+      const map = {};
+      rows.forEach(r => map[r.id] = r);
+      DATA.forEach(d => {
+        if (map[d.id]) {
+          d.charged = map[d.id].charged;
+          d.charge_date = map[d.id].charge_date || '';
+          d.method = map[d.id].method || '';
+          d.notes = map[d.id].notes || '';
+          d.ref = map[d.id].ref || '';
+        }
+      });
+      console.log('Loaded', rows.length, 'billing records from Supabase');
+      return;
+    }
+  } catch(e) { console.warn('Supabase load failed, trying localStorage', e); }
+
+  // Fallback to localStorage
+  try {
+    const saved = localStorage.getItem('ch_billing_v2');
+    if (!saved) return;
+    const billing = JSON.parse(saved);
+    DATA.forEach(d => { if (billing[d.id]) Object.assign(d, billing[d.id]); });
+  } catch(e) {}
+}
+
+// ===== HELPERS =====
+function fmt(v) {
+  if (v === null || v === undefined || v === '') return '—';
+  return '£' + Number(v).toFixed(2);
+}
+function profit(d) {
+  if (d.charged === null || d.charged === '' || d.charged === undefined) return null;
+  return Number(d.charged) - Number(d.ch_cost);
+}
+function isCharged(d) {
+  return d.charged !== null && d.charged !== '' && d.charged !== undefined;
+}
+function typeShort(t) {
+  if (t === 'Confirmation Statement') return 'Conf. Stmt';
+  return t;
+}
+function typeClass(t) { return 'type-' + t.split(' ')[0]; }
+
+// ===== TABS =====
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'transactions') renderTable();
+  if (name === 'monthly') renderMonthly();
+  if (name === 'uncharged') renderUncharged();
+}
+
+function setDashFY(fy, el) {
+  dashFY = fy;
+  document.querySelectorAll('#dash-fy-tabs .fy-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderDashboard();
+}
+
+function setMonthlyFY(fy, el) {
+  monthlyFY = fy;
+  document.querySelectorAll('#monthly-fy-tabs .fy-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderMonthly();
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const rows = dashFY === 'all' ? DATA : DATA.filter(d => d.fy === dashFY);
+  const totalCH = rows.reduce((s, d) => s + d.ch_cost, 0);
+  const chargedRows = rows.filter(d => isCharged(d));
+  const totalCharged = chargedRows.reduce((s, d) => s + Number(d.charged), 0);
+  const totalProfit = totalCharged - chargedRows.reduce((s, d) => s + d.ch_cost, 0);
+  const uncCount = rows.length - chargedRows.length;
+  const potentialUnc = rows.filter(d => !isCharged(d)).reduce((s, d) => s + d.suggested, 0);
+
+  document.getElementById('hdr-profit').textContent = fmt(DATA.filter(d=>isCharged(d)).reduce((s,d)=>s+Number(d.charged),0) - DATA.filter(d=>isCharged(d)).reduce((s,d)=>s+d.ch_cost,0));
+  document.getElementById('hdr-unc').textContent = DATA.filter(d=>!isCharged(d)).length + ' txns';
+
+  document.getElementById('dash-cards').innerHTML = `
+    <div class="card"><label>CH Spend</label><div class="val red">${fmt(totalCH)}</div><div class="sub">${rows.length} transactions</div></div>
+    <div class="card"><label>Charged to Clients</label><div class="val green">${fmt(totalCharged)}</div><div class="sub">${chargedRows.length} billed</div></div>
+    <div class="card"><label>Net Profit</label><div class="val ${totalProfit>=0?'green':'red'}">${fmt(totalProfit)}</div><div class="sub">on billed work</div></div>
+    <div class="card"><label>Uncharged</label><div class="val amber">${uncCount}</div><div class="sub">transactions pending</div></div>
+    <div class="card"><label>Potential Revenue</label><div class="val blue">${fmt(potentialUnc)}</div><div class="sub">if all billed now</div></div>
+    <div class="card"><label>Billing Rate</label><div class="val ${chargedRows.length/rows.length>0.7?'green':'amber'}">${rows.length>0?(chargedRows.length/rows.length*100).toFixed(1)+'%':'—'}</div><div class="sub">of transactions billed</div></div>
+  `;
+
+  const types = ['Incorporation','Confirmation Statement','Strike Off','Name Change'];
+  let typeHTML = '';
+  types.forEach(type => {
+    const tr = rows.filter(d => d.type === type);
+    const chCost = tr.reduce((s,d)=>s+d.ch_cost,0);
+    const cr = tr.filter(d=>isCharged(d));
+    const charged = cr.reduce((s,d)=>s+Number(d.charged),0);
+    const p = charged - cr.reduce((s,d)=>s+d.ch_cost,0);
+    typeHTML += `<div class="card">
+      <label>${typeShort(type)}</label>
+      <div class="val blue">${tr.length}</div>
+      <div class="sub">CH Cost: ${fmt(chCost)}</div>
+      <div class="sub">Charged: ${fmt(charged)} · Profit: <span style="color:${p>=0?'var(--green)':'var(--red)'}">${fmt(p)}</span></div>
+      <div class="sub">${cr.length}/${tr.length} billed</div>
+    </div>`;
+  });
+  document.getElementById('type-cards').innerHTML = typeHTML;
+
+  // Recent 15
+  const recent = [...rows].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15);
+  document.getElementById('recent-body').innerHTML = recent.map(d => {
+    const p = profit(d);
+    return `<tr>
+      <td style="color:var(--muted);white-space:nowrap">${d.date}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
+      <td><span class="type-badge ${typeClass(d.type)}">${typeShort(d.type)}</span></td>
+      <td class="ch-cost">${fmt(d.ch_cost)}</td>
+      <td class="charged-val">${isCharged(d)?fmt(d.charged):'<span style="color:var(--muted)">—</span>'}</td>
+      <td class="${p===null?'profit-none':p>=0?'profit-pos':'profit-neg'}">${p!==null?fmt(p):'—'}</td>
+      <td>${d.method?`<span class="method-badge">${d.method}</span>`:'—'}</td>
+      <td><span class="badge ${isCharged(d)?'charged':'pending'}">${isCharged(d)?'✓ Charged':'⚠ Pending'}</span></td>
+      <td><button class="btn-edit" onclick="openModal(${d.id})">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== TABLE =====
+function getFiltered() {
+  const q = (document.getElementById('search')?.value||'').toLowerCase();
+  const fFY = document.getElementById('f-fy')?.value||'';
+  const fMonth = document.getElementById('f-month')?.value||'';
+  const fType = document.getElementById('f-type')?.value||'';
+  const fStatus = document.getElementById('f-status')?.value||'';
+  const fMethod = document.getElementById('f-method')?.value||'';
+  return DATA.filter(d => {
+    if (q && !d.company.toLowerCase().includes(q)) return false;
+    if (fFY && d.fy !== fFY) return false;
+    if (fMonth && d.month !== fMonth) return false;
+    if (fType && d.type !== fType) return false;
+    if (fStatus === 'charged' && !isCharged(d)) return false;
+    if (fStatus === 'pending' && isCharged(d)) return false;
+    if (fMethod && d.method !== fMethod) return false;
+    return true;
+  });
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  page = 1; renderTable();
+}
+
+function renderTable() {
+  let rows = getFiltered();
+  rows.sort((a,b) => {
+    let av = a[sortCol]??'', bv = b[sortCol]??'';
+    if (sortCol==='profit') { av=profit(a)??-9999; bv=profit(b)??-9999; }
+    if (typeof av==='string') return av.localeCompare(bv)*sortDir;
+    return (av-bv)*sortDir;
+  });
+  const total = rows.length;
+  const pages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+  page = Math.min(page, pages);
+  const paged = rows.slice((page-1)*PAGE_SIZE, page*PAGE_SIZE);
+
+  document.getElementById('tbl-info').textContent =
+    `Showing ${(page-1)*PAGE_SIZE+1}–${Math.min(page*PAGE_SIZE,total)} of ${total} transactions`;
+
+  document.getElementById('main-body').innerHTML = paged.map(d => {
+    const p = profit(d);
+    return `<tr>
+      <td style="white-space:nowrap;color:var(--muted);font-family:var(--mono);font-size:11px">${d.date}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
+      <td style="white-space:nowrap;font-size:11px;color:var(--muted)">${d.fy}</td>
+      <td><span class="type-badge ${typeClass(d.type)}">${typeShort(d.type)}</span></td>
+      <td class="ch-cost">${fmt(d.ch_cost)}</td>
+      <td class="charged-val">${isCharged(d)?fmt(d.charged):'<span style="color:var(--muted)">—</span>'}</td>
+      <td class="${p===null?'profit-none':p>=0?'profit-pos':'profit-neg'}">${p!==null?fmt(p):'—'}</td>
+      <td>${d.method?`<span class="method-badge">${d.method}</span>`:'<span style="color:var(--muted)">—</span>'}</td>
+      <td style="color:var(--muted);white-space:nowrap;font-size:11px">${d.charge_date||'—'}</td>
+      <td style="color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.notes||''}">${d.notes||'—'}</td>
+      <td><span class="badge ${isCharged(d)?'charged':'pending'}">${isCharged(d)?'✓ Charged':'⚠ Pending'}</span></td>
+      <td><button class="btn-edit" onclick="openModal(${d.id})">Edit</button></td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  let pgHTML = '';
+  if (pages > 1) {
+    pgHTML += `<button class="pg-btn" onclick="goPage(${page-1})" ${page===1?'disabled':''}>‹ Prev</button>`;
+    for (let i=1; i<=pages; i++) {
+      if (i===1||i===pages||Math.abs(i-page)<=1) {
+        pgHTML += `<button class="pg-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+      } else if (Math.abs(i-page)===2) pgHTML += `<span class="pg-info">…</span>`;
+    }
+    pgHTML += `<button class="pg-btn" onclick="goPage(${page+1})" ${page===pages?'disabled':''}>Next ›</button>`;
+  }
+  document.getElementById('pagination').innerHTML = pgHTML;
+}
+function goPage(p) { page=p; renderTable(); }
+
+// ===== MONTHLY & YTD =====
+function renderMonthly() {
+  const fyMonths = FY_MONTHS[monthlyFY] || [];
+  const fyData = DATA.filter(d => d.fy === monthlyFY);
+
+  // YTD
+  const ytdCH = fyData.reduce((s,d)=>s+d.ch_cost,0);
+  const ytdCR = fyData.filter(d=>isCharged(d));
+  const ytdCharged = ytdCR.reduce((s,d)=>s+Number(d.charged),0);
+  const ytdProfit = ytdCharged - ytdCR.reduce((s,d)=>s+d.ch_cost,0);
+  const ytdUnc = fyData.filter(d=>!isCharged(d)).length;
+  const ytdPot = fyData.filter(d=>!isCharged(d)).reduce((s,d)=>s+d.suggested,0);
+
+  document.getElementById('ytd-section').innerHTML = `
+    <div class="ytd-box">
+      <h3>📊 ${monthlyFY} Year to Date</h3>
+      <div class="ytd-grid">
+        <div class="ytd-item"><div class="k">Total CH Spend</div><div class="v" style="color:var(--red)">${fmt(ytdCH)}</div></div>
+        <div class="ytd-item"><div class="k">Charged to Clients</div><div class="v" style="color:var(--green)">${fmt(ytdCharged)}</div></div>
+        <div class="ytd-item"><div class="k">Net Profit</div><div class="v" style="color:${ytdProfit>=0?'var(--green)':'var(--red)'}">${fmt(ytdProfit)}</div></div>
+        <div class="ytd-item"><div class="k">Transactions</div><div class="v" style="color:var(--blue)">${fyData.length}</div></div>
+        <div class="ytd-item"><div class="k">Uncharged</div><div class="v" style="color:var(--yellow)">${ytdUnc} txns</div></div>
+        <div class="ytd-item"><div class="k">Missed Revenue</div><div class="v" style="color:var(--yellow)">${fmt(ytdPot)}</div></div>
+      </div>
+    </div>`;
+
+  if (fyMonths.length === 0) {
+    document.getElementById('month-grid').innerHTML = '<p style="color:var(--muted);padding:20px">No data for this financial year yet.</p>';
+    return;
+  }
+
+  let html = '';
+  fyMonths.forEach(m => {
+    const rows = DATA.filter(d=>d.month===m);
+    const chCost = rows.reduce((s,d)=>s+d.ch_cost,0);
+    const cr = rows.filter(d=>isCharged(d));
+    const charged = cr.reduce((s,d)=>s+Number(d.charged),0);
+    const p = charged - cr.reduce((s,d)=>s+d.ch_cost,0);
+    const pct = rows.length>0 ? cr.length/rows.length*100 : 0;
+    const incorp = rows.filter(d=>d.type==='Incorporation').length;
+    const conf = rows.filter(d=>d.type==='Confirmation Statement').length;
+    const strike = rows.filter(d=>d.type==='Strike Off').length;
+
+    html += `<div class="month-card" onclick="openMonthModal('${m}')" style="cursor:pointer" onmouseover="this.style.boxShadow='0 4px 14px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
+      <h4>${m} <span style="font-size:11px;font-weight:500;color:var(--muted)">${rows.length} txns</span></h4>
+      <div class="month-row"><span class="k">CH Cost</span><span class="v" style="color:var(--red)">${fmt(chCost)}</span></div>
+      <div class="month-row"><span class="k">Charged to Clients</span><span class="v" style="color:var(--green)">${fmt(charged)}</span></div>
+      <div class="month-row"><span class="k">Profit</span><span class="v" style="color:${p>=0?'var(--green)':'var(--red)'}">${fmt(p)}</span></div>
+      <div class="month-row"><span class="k">Incorp / Conf / Strike</span><span class="v" style="color:var(--text2)">${incorp} / ${conf} / ${strike}</span></div>
+      <div class="month-row"><span class="k">Billed</span><span class="v">${cr.length}/${rows.length} <span style="color:var(--muted);font-size:11px">(${pct.toFixed(0)}%)</span></span></div>
+      <div class="month-progress"><div class="month-progress-bar" style="width:${pct}%"></div></div>
+    </div>`;
+  });
+  document.getElementById('month-grid').innerHTML = html;
+}
+
+// ===== UNCHARGED =====
+function renderUncharged() {
+  const q = (document.getElementById('search-unc')?.value||'').toLowerCase();
+  const fFY = document.getElementById('f-unc-fy')?.value||'';
+  const fType = document.getElementById('f-unc-type')?.value||'';
+  const rows = DATA.filter(d => {
+    if (isCharged(d)) return false;
+    if (q && !d.company.toLowerCase().includes(q)) return false;
+    if (fFY && d.fy !== fFY) return false;
+    if (fType && d.type !== fType) return false;
+    return true;
+  });
+  const totalPot = rows.reduce((s,d)=>s+d.suggested,0);
+  const totalCH = rows.reduce((s,d)=>s+d.ch_cost,0);
+  document.getElementById('unc-count').innerHTML =
+    `⚠️ ${rows.length} uncharged transactions &nbsp;·&nbsp; CH Cost: ${fmt(totalCH)} &nbsp;·&nbsp; Standard Charge: ${fmt(totalPot)} &nbsp;·&nbsp; Potential Profit: ${fmt(totalPot-totalCH)}`;
+  document.getElementById('unc-body').innerHTML = rows.map(d => {
+    const pot = d.suggested - d.ch_cost;
+    return `<tr>
+      <td style="color:var(--muted);white-space:nowrap;font-family:var(--mono);font-size:11px">${d.date}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
+      <td style="font-size:11px;color:var(--muted)">${d.fy}</td>
+      <td><span class="type-badge ${typeClass(d.type)}">${typeShort(d.type)}</span></td>
+      <td class="ch-cost">${fmt(d.ch_cost)}</td>
+      <td style="color:var(--yellow);font-family:var(--mono);font-weight:600">${fmt(d.suggested)}</td>
+      <td class="profit-pos">${fmt(pot)}</td>
+      <td><button class="btn-edit" onclick="openModal(${d.id})">Charge Now</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== MODAL =====
+function openModal(id) {
+  currentId = id;
+  const d = DATA.find(x=>x.id===id);
+  document.getElementById('m-company').textContent = d.company;
+  document.getElementById('m-info').innerHTML = `
+    <div class="modal-info-item"><div class="k">Month</div><div class="v">${d.month}</div></div>
+    <div class="modal-info-item"><div class="k">FY</div><div class="v">${d.fy}</div></div>
+    <div class="modal-info-item"><div class="k">Date</div><div class="v">${d.date}</div></div>
+    <div class="modal-info-item"><div class="k">Type</div><div class="v">${typeShort(d.type)}</div></div>
+    <div class="modal-info-item"><div class="k">CH Cost (inc VAT)</div><div class="v" style="color:var(--red)">${fmt(d.ch_cost)}</div></div>
+    <div class="modal-info-item"><div class="k">Standard Charge</div><div class="v" style="color:var(--yellow)">${fmt(d.suggested)}</div></div>
+    ${d.comp_no?`<div class="modal-info-item"><div class="k">Co. Number</div><div class="v">${d.comp_no}</div></div>`:''}
+  `;
+  document.getElementById('m-charged').value = isCharged(d) ? d.charged : d.suggested;
+  document.getElementById('m-charge-date').value = d.charge_date||'';
+  document.getElementById('m-method').value = d.method||'';
+  document.getElementById('m-notes').value = d.notes||'';
+  document.getElementById('m-ref').value = d.ref||'';
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal(e) { if(e.target.id==='modal-bg') closeModalDirect(); }
+function closeModalDirect() { document.getElementById('modal-bg').classList.remove('open'); currentId=null; }
+
+function saveCharge() {
+  const d = DATA.find(x=>x.id===currentId);
+  const val = document.getElementById('m-charged').value;
+  d.charged = val!=='' ? Number(val) : null;
+  d.charge_date = document.getElementById('m-charge-date').value;
+  d.method = document.getElementById('m-method').value;
+  d.notes = document.getElementById('m-notes').value;
+  d.ref = document.getElementById('m-ref').value;
+  saveData(d);
+  closeModalDirect();
+  renderDashboard(); renderTable(); renderUncharged(); renderMonthly();
+  if (window._returnToMonth) { const m = window._returnToMonth; window._returnToMonth = null; setTimeout(()=>openMonthModal(m),60); }
+}
+
+function clearCharge() {
+  if(!confirm('Mark this transaction as NOT charged?')) return;
+  const d = DATA.find(x=>x.id===currentId);
+  d.charged=null; d.charge_date=''; d.method=''; d.notes=''; d.ref='';
+  saveData(d);
+  closeModalDirect();
+  renderDashboard(); renderTable(); renderUncharged(); renderMonthly();
+  if (window._returnToMonth) { const m = window._returnToMonth; window._returnToMonth = null; setTimeout(()=>openMonthModal(m),60); }
+}
+
+// ===== EXPORT =====
+function exportCSV() {
+  const rows = getFiltered();
+  const headers = ['ID','FY','Month','Date','Company','Company No','Type','CH Cost','Charged','Profit','Method','Charge Date','Ref','Notes','Status'];
+  const lines = [headers.join(',')];
+  rows.forEach(d => {
+    const p = profit(d);
+    lines.push([d.id,d.fy,d.month,d.date,`"${d.company}"`,d.comp_no,`"${d.type}"`,d.ch_cost,d.charged??'',p!==null?p.toFixed(2):'',d.method,d.charge_date,d.ref||'',`"${d.notes||''}"`,(isCharged(d)?'Charged':'Pending')].join(','));
+  });
+  const blob = new Blob([lines.join('\n')],{type:'text/csv'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='CH_Cost_Tracker.csv'; a.click();
+}
+
+
+// ===== MONTH DRILL-DOWN =====
+function openMonthModal(month) {
+  const rows = DATA.filter(d => d.month === month).sort((a,b)=>a.date.localeCompare(b.date));
+  const chCost = rows.reduce((s,d)=>s+d.ch_cost,0);
+  const cr = rows.filter(d=>isCharged(d));
+  const charged = cr.reduce((s,d)=>s+Number(d.charged),0);
+  const p = charged - cr.reduce((s,d)=>s+d.ch_cost,0);
+
+  document.getElementById('mm-title').textContent = month + ' — ' + rows.length + ' transactions';
+  document.getElementById('mm-stats').innerHTML =
+    '<div style="background:var(--red-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">CH Cost</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red)">'+fmt(chCost)+'</div></div>' +
+    '<div style="background:var(--green-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Charged</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green)">'+fmt(charged)+'</div></div>' +
+    '<div style="background:'+(p>=0?'var(--green-bg)':'var(--red-bg)')+';border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Profit</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:'+(p>=0?'var(--green)':'var(--red)')+'">'+fmt(p)+'</div></div>' +
+    '<div style="background:var(--blue-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Billed</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue)">'+cr.length+'/'+rows.length+'</div></div>';
+
+  document.getElementById('mm-body').innerHTML = rows.map(d => {
+    const pr = profit(d);
+    return '<tr>' +
+      '<td style="color:var(--muted);white-space:nowrap;font-family:var(--mono);font-size:11px">'+d.date+'</td>' +
+      '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+d.company+'">'+d.company+'</td>' +
+      '<td><span class="type-badge '+typeClass(d.type)+'">'+typeShort(d.type)+'</span></td>' +
+      '<td class="ch-cost">'+fmt(d.ch_cost)+'</td>' +
+      '<td class="charged-val">'+(isCharged(d)?fmt(d.charged):'<span style="color:var(--muted)">—</span>')+'</td>' +
+      '<td class="'+(pr===null?'profit-none':pr>=0?'profit-pos':'profit-neg')+'">'+(pr!==null?fmt(pr):'—')+'</td>' +
+      '<td>'+(d.method?'<span class="method-badge">'+d.method+'</span>':'<span style="color:var(--muted)">—</span>')+'</td>' +
+      '<td><span class="badge '+(isCharged(d)?'charged':'pending')+'">'+(isCharged(d)?'✓ Charged':'⚠ Pending')+'</span></td>' +
+      '<td><button class="btn-edit" onclick="openModalFromMonth('+d.id+',\'' + month + '\')">Edit</button></td>' +
+      '</tr>';
+  }).join('');
+
+  document.getElementById('month-modal-bg').classList.add('open');
+}
+
+function openModalFromMonth(id, month) {
+  document.getElementById('month-modal-bg').classList.remove('open');
+  window._returnToMonth = month;
+  openModal(id);
+}
+
+function closeMonthModal(e) {
+  if (!e || e.target.id === 'month-modal-bg') {
+    document.getElementById('month-modal-bg').classList.remove('open');
+    window._returnToMonth = null;
+  }
+}
+
+// ===== INIT =====
+async function init() {
+  // Show loading state
+  document.getElementById('hdr-profit').textContent = 'Loading...';
+  await loadData();
+  MONTHS_ALL.forEach(m => {
+    const opt = `<option value="${m}">${m}</option>`;
+    const fMonth = document.getElementById('f-month');
+    if (fMonth) fMonth.insertAdjacentHTML('beforeend', opt);
+  });
+  renderDashboard();
+  renderTable();
+}
+init();
+</script>
+</body>
+</html>
