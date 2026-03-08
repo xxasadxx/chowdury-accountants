@@ -447,7 +447,17 @@
     <h3 id="mm-title">Transactions</h3>
     <div id="mm-stats" style="display:flex;gap:16px;margin:10px 0 16px;flex-wrap:wrap;"></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Date</th><th>Company</th><th>Type</th><th>CH Cost</th><th>Charged</th><th>Profit</th><th>Method</th><th>Status</th><th>Edit</th></tr></thead>
+      <thead><tr id="mm-thead">
+        <th onclick="mmSortBy('date')" style="cursor:pointer;user-select:none">Date <span id="mms-date"></span></th>
+        <th onclick="mmSortBy('company')" style="cursor:pointer;user-select:none">Company <span id="mms-company"></span></th>
+        <th onclick="mmSortBy('type')" style="cursor:pointer;user-select:none">Type <span id="mms-type"></span></th>
+        <th onclick="mmSortBy('ch_cost')" style="cursor:pointer;user-select:none">CH Cost <span id="mms-ch_cost"></span></th>
+        <th onclick="mmSortBy('charged')" style="cursor:pointer;user-select:none">Charged <span id="mms-charged"></span></th>
+        <th onclick="mmSortBy('profit')" style="cursor:pointer;user-select:none">Profit <span id="mms-profit"></span></th>
+        <th onclick="mmSortBy('method')" style="cursor:pointer;user-select:none">Method <span id="mms-method"></span></th>
+        <th onclick="mmSortBy('status')" style="cursor:pointer;user-select:none">Status <span id="mms-status"></span></th>
+        <th>Edit</th>
+      </tr></thead>
       <tbody id="mm-body"></tbody>
     </table></div>
     <div style="margin-top:16px;text-align:right;"><button class="btn-cancel" onclick="closeMonthModal()">Close</button></div>
@@ -952,20 +962,40 @@ function exportCSV() {
 
 
 // ===== MONTH DRILL-DOWN =====
-function openMonthModal(month) {
-  const rows = DATA.filter(d => d.month === month).sort((a,b)=>a.date.localeCompare(b.date));
-  const chCost = rows.reduce((s,d)=>s+d.ch_cost,0);
-  const cr = rows.filter(d=>isCharged(d));
-  const charged = cr.reduce((s,d)=>s+Number(d.charged),0);
-  const p = charged - cr.reduce((s,d)=>s+d.ch_cost,0);
+let mmCurrentMonth = null;
+let mmSortCol = 'date';
+let mmSortDir = 'asc';
 
-  document.getElementById('mm-title').textContent = month + ' — ' + rows.length + ' transactions';
-  document.getElementById('mm-stats').innerHTML =
-    '<div style="background:var(--red-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">CH Cost</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red)">'+fmt(chCost)+'</div></div>' +
-    '<div style="background:var(--green-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Charged</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green)">'+fmt(charged)+'</div></div>' +
-    '<div style="background:'+(p>=0?'var(--green-bg)':'var(--red-bg)')+';border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Profit</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:'+(p>=0?'var(--green)':'var(--red)')+'">'+fmt(p)+'</div></div>' +
-    '<div style="background:var(--blue-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Billed</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue)">'+cr.length+'/'+rows.length+'</div></div>';
+function mmSortBy(col) {
+  if (mmSortCol === col) { mmSortDir = mmSortDir === 'asc' ? 'desc' : 'asc'; }
+  else { mmSortCol = col; mmSortDir = 'asc'; }
+  renderMMBody();
+}
 
+function renderMMBody() {
+  const month = mmCurrentMonth;
+  let rows = DATA.filter(d => d.month === month);
+  const col = mmSortCol, dir = mmSortDir;
+  rows.sort((a,b) => {
+    let av, bv;
+    if (col==='date')    { av=a.date; bv=b.date; }
+    else if (col==='company') { av=a.company.toLowerCase(); bv=b.company.toLowerCase(); }
+    else if (col==='type')    { av=a.type; bv=b.type; }
+    else if (col==='ch_cost') { av=a.ch_cost; bv=b.ch_cost; }
+    else if (col==='charged') { av=isCharged(a)?Number(a.charged):0; bv=isCharged(b)?Number(b.charged):0; }
+    else if (col==='profit')  { av=profit(a)??-Infinity; bv=profit(b)??-Infinity; }
+    else if (col==='method')  { av=a.method||''; bv=b.method||''; }
+    else if (col==='status')  { av=isCharged(a)?1:0; bv=isCharged(b)?1:0; }
+    if (av < bv) return dir==='asc'?-1:1;
+    if (av > bv) return dir==='asc'?1:-1;
+    return 0;
+  });
+  // Update header indicators
+  ['date','company','type','ch_cost','charged','profit','method','status'].forEach(c => {
+    const el = document.getElementById('mms-'+c);
+    if (!el) return;
+    el.textContent = c===col ? (dir==='asc'?' ↑':' ↓') : '';
+  });
   document.getElementById('mm-body').innerHTML = rows.map(d => {
     const pr = profit(d);
     return '<tr>' +
@@ -980,6 +1010,25 @@ function openMonthModal(month) {
       '<td><button class="btn-edit" onclick="openModalFromMonth('+d.id+',\'' + month + '\')">Edit</button></td>' +
       '</tr>';
   }).join('');
+}
+
+function openMonthModal(month) {
+  mmCurrentMonth = month;
+  mmSortCol = 'date'; mmSortDir = 'asc';
+  const rows = DATA.filter(d => d.month === month);
+  const chCost = rows.reduce((s,d)=>s+d.ch_cost,0);
+  const cr = rows.filter(d=>isCharged(d));
+  const charged = cr.reduce((s,d)=>s+Number(d.charged),0);
+  const p = charged - cr.reduce((s,d)=>s+d.ch_cost,0);
+
+  document.getElementById('mm-title').textContent = month + ' — ' + rows.length + ' transactions';
+  document.getElementById('mm-stats').innerHTML =
+    '<div style="background:var(--red-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">CH Cost</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--red)">'+fmt(chCost)+'</div></div>' +
+    '<div style="background:var(--green-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Charged</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--green)">'+fmt(charged)+'</div></div>' +
+    '<div style="background:'+(p>=0?'var(--green-bg)':'var(--red-bg)')+';border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Profit</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:'+(p>=0?'var(--green)':'var(--red)')+'">'+fmt(p)+'</div></div>' +
+    '<div style="background:var(--blue-bg);border-radius:7px;padding:8px 14px"><div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600">Billed</div><div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--blue)">'+cr.length+'/'+rows.length+'</div></div>';
+
+  renderMMBody();
 
   document.getElementById('month-modal-bg').classList.add('open');
 }
