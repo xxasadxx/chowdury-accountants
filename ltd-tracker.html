@@ -759,10 +759,7 @@ async function syncFromCH() {
 
   for (const d of companies) {
     try {
-      const r = await fetch(
-        'https://api.company-information.service.gov.uk/company/' + d.comp_no,
-        { headers: { 'Authorization': 'Basic ' + btoa(CH_API_KEY + ':') } }
-      );
+      const r = await fetch('/.netlify/functions/ch-proxy?comp_no=' + d.comp_no);
       if (!r.ok) throw new Error(r.status);
       const data = await r.json();
 
@@ -802,8 +799,8 @@ async function syncFromCH() {
     done++;
     if (errors === 0 || done <= 2) statusEl.textContent = `Syncing ${done}/${companies.length}...`;
 
-    // Small delay every 10 requests to respect rate limits
-    if (done % 10 === 0) await new Promise(res => setTimeout(res, 150));
+    // Small delay to avoid hammering the proxy
+    if (done % 20 === 0) await new Promise(res => setTimeout(res, 100));
   }
 
   // Save all to Supabase in one batch (upsert by comp_no PK)
