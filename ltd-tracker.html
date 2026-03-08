@@ -795,11 +795,12 @@ async function syncFromCH() {
       updates.push(record);
 
     } catch(e) {
+      if (errors === 0) statusEl.textContent = 'First error: ' + e.message;
       errors++;
     }
 
     done++;
-    statusEl.textContent = `Syncing ${done}/${companies.length}...`;
+    if (errors === 0 || done <= 2) statusEl.textContent = `Syncing ${done}/${companies.length}...`;
 
     // Small delay every 10 requests to respect rate limits
     if (done % 10 === 0) await new Promise(res => setTimeout(res, 150));
