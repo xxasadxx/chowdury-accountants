@@ -510,12 +510,7 @@ function dateLabel(str) {
   if (!str) return '<span class="date-none">—</span>';
   const diff = daysDiff(str);
   const cls = dateClass(str);
-  let suf = '';
-  if (diff !== null) {
-    if (diff < 0) suf = ` <span style="font-size:10px;color:var(--red)">({Math.abs(diff)}d)</span>`;
-    else if (diff <= 30) suf = ` <span style="font-size:10px;color:var(--orange)">({diff}d)</span>`;
-  }
-  return `<span class="date-cell ${cls}">${str}${suf}</span>`;
+  return `<span class="date-cell ${cls}">${str}</span>`;
 }
 function alertSort(a) {
   return a === 'Red' ? 0 : a === 'Amber' ? 1 : a === 'Green' ? 2 : 3;
