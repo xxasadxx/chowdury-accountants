@@ -359,9 +359,18 @@
             <span>PAYE Registered</span>
           </label>
           <label class="toggle-item">
-            <input type="checkbox" id="m-vat">
+            <input type="checkbox" id="m-vat" onchange="toggleVatStagger()">
             <span>VAT Registered</span>
           </label>
+        </div>
+        <div id="vat-stagger-row" style="display:none;margin-top:10px;">
+          <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:4px;">VAT Quarter Group</label>
+          <select id="m-vat-stagger" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;">
+            <option value="">— Select stagger —</option>
+            <option value="1">Group 1 — Jan/Apr/Jul/Oct quarters (due 7 Feb/May/Aug/Nov)</option>
+            <option value="2">Group 2 — Feb/May/Aug/Nov quarters (due 7 Mar/Jun/Sep/Dec)</option>
+            <option value="3">Group 3 — Mar/Jun/Sep/Dec quarters (due 7 Apr/Jul/Oct/Jan)</option>
+          </select>
         </div>
       </div>
 
@@ -469,6 +478,7 @@ async function saveClient() {
     annual_fee: annual,
     paye_registered: document.getElementById('m-paye').checked,
     vat_registered: document.getElementById('m-vat').checked,
+    vat_stagger: document.getElementById('m-vat-stagger').value || null,
     director_name: document.getElementById('m-dir-name').value.trim(),
     director_mobile: document.getElementById('m-dir-mobile').value.trim(),
     director_email: document.getElementById('m-dir-email').value.trim(),
@@ -586,6 +596,32 @@ function updateStats() {
   document.getElementById('sc-annual').textContent = totalAnnual > 0 ? '£' + totalAnnual.toLocaleString('en-GB',{maximumFractionDigits:0}) : '£0';
 }
 
+// ── VAT stagger helpers ──
+function toggleVatStagger() {
+  const vatChecked = document.getElementById('m-vat').checked;
+  document.getElementById('vat-stagger-row').style.display = vatChecked ? 'block' : 'none';
+}
+
+function calcVatDue(stagger) {
+  if (!stagger) return null;
+  const today = new Date();
+  // Due months for each group (0-indexed): 
+  // Group 1: Feb(1), May(4), Aug(7), Nov(10) → due 7th
+  // Group 2: Mar(2), Jun(5), Sep(8), Dec(11)
+  // Group 3: Apr(3), Jul(6), Oct(9), Jan(0)
+  const dueMonths = { '1': [1,4,7,10], '2': [2,5,8,11], '3': [3,6,9,0] };
+  const months = dueMonths[String(stagger)];
+  if (!months) return null;
+  // Find next due date (7th of upcoming due month)
+  for (let i = 0; i < 16; i++) {
+    const d = new Date(today.getFullYear(), today.getMonth() + i, 7);
+    if (months.includes(d.getMonth()) && d >= today) {
+      return `07/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+    }
+  }
+  return null;
+}
+
 // ── Render ──
 function render() {
   let rows = DATA.filter(filterRow);
@@ -654,7 +690,7 @@ function render() {
       <td>${vatBadge}</td>
       <td>${dateLabel(liveAccDue)}</td>
       <td>${dateLabel(liveConfDue)}</td>
-      <td>${dateLabel(d.vat_due)}</td>
+      <td>${dateLabel(calcVatDue(c.vat_stagger) || d.vat_due)}</td>
     </tr>`;
   }).join('');
 }
@@ -677,8 +713,9 @@ function openModal(compNo) {
   document.getElementById('m-conf-due').className = 'v ' + (dateClass(d.conf_due));
   document.getElementById('m-conf-due').textContent = d.conf_due || '—';
   document.getElementById('m-conf-date').textContent = d.conf_date || '—';
-  document.getElementById('m-vat-due').className = 'v ' + (dateClass(d.vat_due));
-  document.getElementById('m-vat-due').textContent = d.vat_due || '—';
+  const calcedVatDue = calcVatDue(c.vat_stagger) || d.vat_due;
+  document.getElementById('m-vat-due').className = 'v ' + (dateClass(calcedVatDue));
+  document.getElementById('m-vat-due').textContent = calcedVatDue || '—';
 
   // Form fields
   document.getElementById('m-monthly-fee').value = c.monthly_fee || '';
@@ -689,6 +726,8 @@ function openModal(compNo) {
   document.getElementById('m-annual-fee').style.color = override ? '' : 'var(--muted)';
   document.getElementById('m-paye').checked = !!(c.paye_registered);
   document.getElementById('m-vat').checked = !!(c.vat_registered);
+  document.getElementById('m-vat-stagger').value = c.vat_stagger || '';
+  toggleVatStagger();
   document.getElementById('m-dir-name').value = c.director_name || '';
   document.getElementById('m-dir-mobile').value = c.director_mobile || '';
   document.getElementById('m-dir-email').value = c.director_email || '';
