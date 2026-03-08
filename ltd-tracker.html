@@ -288,6 +288,7 @@
         <th onclick="sortBy('vat')" id="th-vat">VAT <span id="s-vat"></span></th>
         <th onclick="sortBy('accounts_due')" id="th-accounts_due">Accounts Due <span id="s-accounts_due"></span></th>
         <th onclick="sortBy('conf_due')" id="th-conf_due">Conf Due <span id="s-conf_due"></span></th>
+        <th onclick="sortBy('vat_due')" id="th-vat_due">VAT Due <span id="s-vat_due"></span></th>
       </tr>
     </thead>
     <tbody id="table-body"></tbody>
@@ -602,11 +603,16 @@ function render() {
       const bv = parseDate(b.conf_due)||new Date('2099-01-01');
       return (av - bv) * sortDir;
     }
+    if (sortCol === 'vat_due') {
+      const av = parseDate(a.vat_due)||new Date('2099-01-01');
+      const bv = parseDate(b.vat_due)||new Date('2099-01-01');
+      return (av - bv) * sortDir;
+    }
     return 0;
   });
 
   // Sort indicators
-  ['name','alerts','monthly_fee','annual_fee','paye','vat','accounts_due','conf_due'].forEach(c => {
+  ['name','alerts','monthly_fee','annual_fee','paye','vat','accounts_due','conf_due','vat_due'].forEach(c => {
     const el = document.getElementById('s-' + c);
     if (el) el.textContent = c === sortCol ? (sortDir === 1 ? ' ↑' : ' ↓') : '';
     const th = document.getElementById('th-' + c);
@@ -639,6 +645,7 @@ function render() {
       <td>${vatBadge}</td>
       <td>${dateLabel(d.accounts_due)}</td>
       <td>${dateLabel(d.conf_due)}</td>
+      <td>${dateLabel(d.vat_due)}</td>
     </tr>`;
   }).join('');
 }
