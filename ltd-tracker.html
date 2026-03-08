@@ -805,14 +805,8 @@ async function syncFromCH() {
     if (done % 10 === 0) await new Promise(res => setTimeout(res, 150));
   }
 
-  // Save all to Supabase in one batch (upsert)
+  // Save all to Supabase in one batch (upsert by comp_no PK)
   try {
-    // Delete existing and re-insert
-    await sbFetch('ltd_ch_cache', {
-      method: 'DELETE',
-      headers: { 'Prefer': '' }
-    });
-    // Insert in chunks of 50
     for (let i = 0; i < updates.length; i += 50) {
       await sbFetch('ltd_ch_cache', {
         method: 'POST',
