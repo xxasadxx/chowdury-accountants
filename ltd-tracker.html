@@ -826,11 +826,29 @@ async function syncFromCH() {
 }
 
 
+// ── Auto-sync once per day ──
+async function autoSyncIfStale() {
+  try {
+    const rows = await sbFetch('ltd_ch_cache?select=synced_at&order=synced_at.desc&limit=1');
+    const last = rows?.[0]?.synced_at;
+    if (last) {
+      const hoursSince = (new Date() - new Date(last)) / 3600000;
+      if (hoursSince < 24) return; // fresh enough
+    }
+    const statusEl = document.getElementById('sync-status');
+    statusEl.style.color = 'var(--text-muted)';
+    statusEl.textContent = 'Auto-syncing CH data...';
+    await syncFromCH();
+  } catch(e) {
+    // Fail silently on auto-sync
+  }
+}
+
 // ── Init ──
 updateStats();
 render();
 loadAllClients();
-loadChCache();
+loadChCache().then(() => autoSyncIfStale());
 </script>
 </body>
 </html>
