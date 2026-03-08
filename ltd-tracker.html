@@ -488,11 +488,9 @@ async function saveClient() {
   };
 
   try {
-    await sbFetch('ltd_clients?comp_no=eq.' + encodeURIComponent(currentCompNo), {
-      method: 'DELETE', headers: {}
-    });
     await sbFetch('ltd_clients', {
       method: 'POST',
+      headers: { 'Prefer': 'resolution=merge-duplicates' },
       body: JSON.stringify(record)
     });
     clientCache[currentCompNo] = record;
