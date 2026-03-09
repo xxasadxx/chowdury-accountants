@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>SA Test</title></head>
+<body>
+<h2>SA Test Page</h2>
+<div id="status">Starting...</div>
+<table border="1" id="tbl"><thead><tr><th>#</th><th>Name</th><th>UTR</th></tr></thead><tbody id="tbody"></tbody></table>
+<script>
+document.getElementById('status').textContent = 'JS running...';
+
+const DATA = [
+  {id:1, name:'Shuel Miah', utr:'5029148785'},
+  {id:2, name:'Abul Kalam', utr:'1234567890'},
+  {id:3, name:'Test Person', utr:'9876543210'}
+];
+
+document.getElementById('status').textContent = 'Data loaded: ' + DATA.length + ' clients';
+
+const tb = document.getElementById('tbody');
+tb.innerHTML = DATA.map((c,i) => `<tr><td>${i+1}</td><td>${c.name}</td><td>${c.utr}</td></tr>`).join('');
+
+document.getElementById('status').textContent = 'Done - ' + DATA.length + ' rows rendered';
+</script>
+</body>
+</html>
