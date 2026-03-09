@@ -487,10 +487,16 @@ async function saveClient() {
     updated_at: new Date().toISOString()
   };
 
+  if (!currentCompNo) {
+    statusEl.textContent = '✗ No company selected';
+    statusEl.className = 'save-status err';
+    return;
+  }
+
   try {
     await sbFetch('ltd_clients', {
       method: 'POST',
-      headers: { 'Prefer': 'resolution=merge-duplicates' },
+      headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify(record)
     });
     clientCache[currentCompNo] = record;
@@ -600,17 +606,24 @@ function toggleVatStagger() {
   document.getElementById('vat-stagger-row').style.display = vatChecked ? 'block' : 'none';
 }
 
+function deriveStaggerFromDue(vatDueStr) {
+  // Derive stagger group from an existing VAT due date string (DD/MM/YYYY)
+  if (!vatDueStr) return null;
+  const parts = vatDueStr.split('/');
+  if (parts.length < 2) return null;
+  const month = parseInt(parts[1], 10); // 1-12
+  if ([2,5,8,11].includes(month)) return '1';
+  if ([3,6,9,12].includes(month)) return '2';
+  if ([4,7,10,1].includes(month)) return '3';
+  return null;
+}
+
 function calcVatDue(stagger) {
   if (!stagger) return null;
   const today = new Date();
-  // Due months for each group (0-indexed): 
-  // Group 1: Feb(1), May(4), Aug(7), Nov(10) → due 7th
-  // Group 2: Mar(2), Jun(5), Sep(8), Dec(11)
-  // Group 3: Apr(3), Jul(6), Oct(9), Jan(0)
   const dueMonths = { '1': [1,4,7,10], '2': [2,5,8,11], '3': [3,6,9,0] };
   const months = dueMonths[String(stagger)];
   if (!months) return null;
-  // Find next due date (7th of upcoming due month)
   for (let i = 0; i < 16; i++) {
     const d = new Date(today.getFullYear(), today.getMonth() + i, 7);
     if (months.includes(d.getMonth()) && d >= today) {
@@ -688,7 +701,7 @@ function render() {
       <td>${vatBadge}</td>
       <td>${dateLabel(liveAccDue)}</td>
       <td>${dateLabel(liveConfDue)}</td>
-      <td>${dateLabel(calcVatDue(c.vat_stagger) || d.vat_due)}</td>
+      <td>${dateLabel(calcVatDue(c.vat_stagger || deriveStaggerFromDue(d.vat_due)) || d.vat_due)}</td>
     </tr>`;
   }).join('');
 }
@@ -711,7 +724,7 @@ function openModal(compNo) {
   document.getElementById('m-conf-due').className = 'v ' + (dateClass(d.conf_due));
   document.getElementById('m-conf-due').textContent = d.conf_due || '—';
   document.getElementById('m-conf-date').textContent = d.conf_date || '—';
-  const calcedVatDue = calcVatDue(c.vat_stagger) || d.vat_due;
+  const calcedVatDue = calcVatDue(c.vat_stagger || deriveStaggerFromDue(d.vat_due)) || d.vat_due;
   document.getElementById('m-vat-due').className = 'v ' + (dateClass(calcedVatDue));
   document.getElementById('m-vat-due').textContent = calcedVatDue || '—';
 
@@ -724,7 +737,7 @@ function openModal(compNo) {
   document.getElementById('m-annual-fee').style.color = override ? '' : 'var(--muted)';
   document.getElementById('m-paye').checked = !!(c.paye_registered);
   document.getElementById('m-vat').checked = !!(c.vat_registered);
-  document.getElementById('m-vat-stagger').value = c.vat_stagger || '';
+  document.getElementById('m-vat-stagger').value = c.vat_stagger || deriveStaggerFromDue(d.vat_due) || '';
   toggleVatStagger();
   document.getElementById('m-dir-name').value = c.director_name || '';
   document.getElementById('m-dir-mobile').value = c.director_mobile || '';
