@@ -483,6 +483,36 @@ async function delActivity(id){
   catch(e){alert('Error: '+e.message);}
 }
 
+function editActivity(id){
+  // Toggle the edit row
+  const row=document.getElementById('edit-row-'+id);
+  if(row) row.style.display = row.style.display==='none' ? 'table-row' : 'none';
+}
+
+async function saveEdit(id){
+  const date=document.getElementById('ed-date-'+id)?.value;
+  const from=document.getElementById('ed-from-'+id)?.value;
+  const to=document.getElementById('ed-to-'+id)?.value;
+  const desc=document.getElementById('ed-desc-'+id)?.value;
+  // Calculate hours
+  let hours=null;
+  if(from&&to){
+    const [fh,fm]=from.split(':').map(Number);
+    let [th,tm]=to.split(':').map(Number);
+    if(th<fh||(th===fh&&tm<fm))th+=24;
+    hours=((th*60+tm)-(fh*60+fm))/60;
+  }
+  const payload={activity_date:date,time_from:from||null,time_to:to||null,description:desc,hours:hours};
+  try{
+    await fetch(SB_URL+'/rest/v1/staff_activities?id=eq.'+id,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify(payload)
+    });
+    loadActivities();
+  }catch(e){alert('Error saving: '+e.message);}
+}
+
 async function loadActivities(){
   const d=new Date(curYear,curMonth-1,1);
   document.getElementById('month-label').textContent=d.toLocaleString('en-GB',{month:'long',year:'numeric'});
@@ -512,7 +542,22 @@ function renderActs(data){
         <td style="max-width:280px">${esc(a.description)}</td>
         <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${tm}</td>
         <td style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--blue)">${a.hours?parseFloat(a.hours).toFixed(2)+'h':'—'}</td>
-        <td><button class="act-del" onclick="delActivity('${a.id}')">✕</button></td>
+        <td style="display:flex;gap:4px">
+          <button class="act-edit" onclick="editActivity('${a.id}','${a.activity_date}','${(a.time_from||'')}','${(a.time_to||'')}',this)" title="Edit">✏️</button>
+          <button class="act-del" onclick="delActivity('${a.id}')">✕</button>
+        </td>
+      </tr>
+      <tr id="edit-row-${a.id}" style="display:none;background:#f8f9ff">
+        <td colspan="8" style="padding:10px 14px">
+          <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Date</label><input type="date" id="ed-date-${a.id}" value="${a.activity_date}" style="padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--sans);background:#fff"></div>
+            <div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Time From</label><input type="time" id="ed-from-${a.id}" value="${a.time_from||''}" style="padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--sans);background:#fff"></div>
+            <div style="display:flex;flex-direction:column;gap:3px"><label style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Time To</label><input type="time" id="ed-to-${a.id}" value="${a.time_to||''}" style="padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--sans);background:#fff"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:200px"><label style="font-size:10px;color:var(--text-muted);font-weight:600;text-transform:uppercase">Description</label><input type="text" id="ed-desc-${a.id}" value="${esc(a.description||'')}" style="padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--sans);background:#fff"></div>
+            <button onclick="saveEdit('${a.id}')" style="padding:7px 16px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-family:var(--sans);font-size:12px;font-weight:700;cursor:pointer">Save</button>
+            <button onclick="document.getElementById('edit-row-${a.id}').style.display='none'" style="padding:7px 12px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;cursor:pointer">Cancel</button>
+          </div>
+        </td>
       </tr>`;
     }).join('')}</tbody></table>`;
 }
