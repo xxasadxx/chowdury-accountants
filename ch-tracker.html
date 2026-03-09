@@ -339,7 +339,7 @@
   <p class="section-title">Recent Transactions</p>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>Date</th><th>Company</th><th>Type</th><th>CH Cost</th><th>Charged</th><th>Profit</th><th>Method</th><th>Status</th><th>Edit</th></tr></thead>
+      <thead><tr><th style="width:36px;text-align:center">#</th><th>Date</th><th>Company</th><th>Type</th><th>CH Cost</th><th>Charged</th><th>Profit</th><th>Method</th><th>Status</th><th>Edit</th></tr></thead>
       <tbody id="recent-body"></tbody>
     </table>
   </div>
@@ -381,6 +381,7 @@
   <div class="tbl-wrap">
     <table>
       <thead><tr>
+        <th style="width:36px;text-align:center">#</th>
         <th onclick="sortBy('date')">Date ↕</th>
         <th onclick="sortBy('company')">Company ↕</th>
         <th>FY</th>
@@ -434,7 +435,7 @@
   <div class="tbl-wrap">
     <table>
       <thead><tr>
-        <th>Date</th><th>Company</th><th>FY</th><th>Type</th>
+        <th style="width:36px;text-align:center">#</th><th>Date</th><th>Company</th><th>FY</th><th>Type</th>
         <th>CH Cost</th><th>Standard Charge</th><th>Potential Profit</th><th>Edit</th>
       </tr></thead>
       <tbody id="unc-body"></tbody>
@@ -720,9 +721,10 @@ function renderDashboard() {
 
   // Recent 15
   const recent = [...rows].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,15);
-  document.getElementById('recent-body').innerHTML = recent.map(d => {
+  document.getElementById('recent-body').innerHTML = recent.map((d, i) => {
     const p = profit(d);
     return `<tr>
+      <td style="text-align:center;color:var(--text-muted);font-size:11px">${i+1}</td>
       <td style="color:var(--muted);white-space:nowrap">${d.date}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
       <td><span class="type-badge ${typeClass(d.type)}">${typeShort(d.type)}</span></td>
@@ -778,9 +780,10 @@ function renderTable() {
   document.getElementById('tbl-info').textContent =
     `Showing ${(page-1)*PAGE_SIZE+1}–${Math.min(page*PAGE_SIZE,total)} of ${total} transactions`;
 
-  document.getElementById('main-body').innerHTML = paged.map(d => {
+  document.getElementById('main-body').innerHTML = paged.map((d, i) => {
     const p = profit(d);
     return `<tr>
+      <td style="text-align:center;color:var(--text-muted);font-size:11px">${i+1}</td>
       <td style="white-space:nowrap;color:var(--muted);font-family:var(--mono);font-size:11px">${d.date}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
       <td style="white-space:nowrap;font-size:11px;color:var(--muted)">${d.fy}</td>
@@ -883,9 +886,10 @@ function renderUncharged() {
   const totalCH = rows.reduce((s,d)=>s+d.ch_cost,0);
   document.getElementById('unc-count').innerHTML =
     `⚠️ ${rows.length} uncharged transactions &nbsp;·&nbsp; CH Cost: ${fmt(totalCH)} &nbsp;·&nbsp; Standard Charge: ${fmt(totalPot)} &nbsp;·&nbsp; Potential Profit: ${fmt(totalPot-totalCH)}`;
-  document.getElementById('unc-body').innerHTML = rows.map(d => {
+  document.getElementById('unc-body').innerHTML = rows.map((d, i) => {
     const pot = d.suggested - d.ch_cost;
     return `<tr>
+      <td style="text-align:center;color:var(--text-muted);font-size:11px">${i+1}</td>
       <td style="color:var(--muted);white-space:nowrap;font-family:var(--mono);font-size:11px">${d.date}</td>
       <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
       <td style="font-size:11px;color:var(--muted)">${d.fy}</td>

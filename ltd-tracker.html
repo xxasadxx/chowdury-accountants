@@ -288,6 +288,7 @@
   <table id="main-table">
     <thead>
       <tr>
+        <th style="width:40px;text-align:center;">#</th>
         <th onclick="sortBy('name')" id="th-name">Company <span id="s-name"></span></th>
         <th onclick="sortBy('alerts')" id="th-alerts">Alert <span id="s-alerts"></span></th>
         <th onclick="sortBy('monthly_fee')" id="th-monthly_fee">Monthly Fee <span id="s-monthly_fee">↓</span></th>
@@ -690,6 +691,7 @@ function render() {
     const monthlyFee = c.monthly_fee > 0 ? `<span class="fee-cell">£${c.monthly_fee.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="fee-none">—</span>';
     const annualFee = c.annual_fee > 0 ? `<span class="fee-cell">£${c.annual_fee.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})}</span>` : '<span class="fee-none">—</span>';
     return `<tr class="data-row" onclick="openModal('${d.comp_no}')">
+      <td style="text-align:center;color:var(--text-muted);font-size:12px;width:40px;">${i+1}</td>
       <td>
         <div class="company-name">${d.name}</div>
         <div class="comp-no">${d.comp_no || '—'}${d.comp_no ? `<a href="https://find-and-update.company-information.service.gov.uk/company/${d.comp_no}" target="_blank" class="ch-link" onclick="event.stopPropagation()">↗ CH</a>` : ''}</div>
