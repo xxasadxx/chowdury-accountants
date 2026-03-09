@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Staff Management — The Chowdury Accountants</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👥</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
@@ -99,6 +100,21 @@ header h1 span { color: var(--blue); }
 .cs-opt:hover { background:var(--surface2); }
 .cs-opt .cn { font-size:10px; color:var(--text-muted); font-family:var(--mono); }
 .no-data { text-align:center; padding:32px; color:var(--text-muted); font-size:12px; }
+.btn-export { padding:6px 13px; border-radius:7px; border:1px solid var(--border2); background:var(--surface); font-family:var(--sans); font-size:11px; font-weight:600; cursor:pointer; color:var(--text2); transition:all 0.15s; display:inline-flex; align-items:center; gap:5px; }
+.btn-export:hover { border-color:var(--blue); color:var(--blue); background:#eff6ff; }
+.btn-export.green:hover { border-color:var(--green); color:var(--green); background:#f0fdf4; }
+.export-bar { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.export-period { display:flex; gap:4px; background:var(--surface2); border:1px solid var(--border); border-radius:7px; padding:3px; }
+.export-period button { padding:4px 10px; border-radius:5px; border:none; background:none; font-family:var(--sans); font-size:11px; font-weight:600; cursor:pointer; color:var(--text2); transition:all 0.15s; }
+.export-period button.active { background:var(--surface); color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+@media print {
+  header, .toolbar, .stats-bar, .card:not(#print-card), .export-bar, .month-nav, .act-del, button { display:none !important; }
+  #print-card { display:block !important; box-shadow:none; border:none; }
+  body { background:#fff; }
+  .act-table th, .act-table td { font-size:11px; }
+  .print-header { display:block !important; margin-bottom:16px; }
+}
+.print-header { display:none; }
 .hol-form { display:grid; grid-template-columns:160px 120px 120px 1fr auto; gap:8px; align-items:end; margin-bottom:12px; }
 .hol-form input, .hol-form select { padding:7px 9px; border:1px solid var(--border2); border-radius:6px; font-family:var(--sans); font-size:12px; background:var(--surface2); color:var(--text); outline:none; width:100%; }
 .hol-form input:focus { border-color:var(--blue); }
@@ -217,7 +233,20 @@ header h1 span { color: var(--blue); }
     </div>
 
     <div class="card">
-      <div class="card-header"><span>📋</span><h3 id="act-title">Activities</h3></div>
+      <div class="card-header">
+        <span>📋</span><h3 id="act-title">Activities</h3>
+        <div class="export-bar" style="margin-left:auto">
+          <div class="export-period">
+            <button class="active" id="ep-month" onclick="setExportPeriod('month',this)">Month</button>
+            <button id="ep-week" onclick="setExportPeriod('week',this)">Week</button>
+            <button id="ep-day" onclick="setExportPeriod('day',this)">Today</button>
+            <button id="ep-all" onclick="setExportPeriod('all',this)">All</button>
+          </div>
+          <button class="btn-export green" onclick="exportExcel()">⬇ Excel</button>
+          <button class="btn-export" onclick="exportPDF()">🖨 PDF</button>
+        </div>
+      </div>
+      <div class="print-header" id="print-header"></div>
       <div style="padding:0" id="act-list"><div class="no-data">Loading...</div></div>
     </div>
   </div>
@@ -402,11 +431,11 @@ async function delActivity(id){
 async function loadActivities(){
   const d=new Date(curYear,curMonth-1,1);
   document.getElementById('month-label').textContent=d.toLocaleString('en-GB',{month:'long',year:'numeric'});
-  const s=`${curYear}-${String(curMonth).padStart(2,'0')}-01`;
-  const e=`${curYear}-${String(curMonth).padStart(2,'0')}-${new Date(curYear,curMonth,0).getDate()}`;
+  const {s,e}=getDateRange();
   document.getElementById('act-list').innerHTML='<div class="no-data">Loading…</div>';
   try{
     const data=await sb(`staff_activities?staff=eq.${encodeURIComponent(curStaff)}&activity_date=gte.${s}&activity_date=lte.${e}&order=activity_date.desc,created_at.desc`);
+    _lastActivities=data;
     renderActs(data);updateStats(data);
   }catch(e){console.warn('Activities:',e.message);document.getElementById('act-list').innerHTML='<div class="no-data">No activities this month.</div>';}
 }
@@ -635,6 +664,85 @@ function removePhoto(){window._curPhoto=null;localStorage.removeItem('ca_photo_'
 function updateStatsAvatar(){
   const existing=document.getElementById('stats-avatar');
   if(existing)existing.remove();
+}
+
+// ── Export ──
+let exportPeriod = 'month';
+let _lastActivities = [];
+
+function setExportPeriod(p, el) {
+  exportPeriod = p;
+  document.querySelectorAll('.export-period button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  loadActivities();
+}
+
+function getDateRange() {
+  const now = new Date();
+  if (exportPeriod === 'month') {
+    const s = `${curYear}-${String(curMonth).padStart(2,'0')}-01`;
+    const e = `${curYear}-${String(curMonth).padStart(2,'0')}-${new Date(curYear,curMonth,0).getDate()}`;
+    return {s, e};
+  }
+  if (exportPeriod === 'week') {
+    const day = now.getDay() || 7;
+    const mon = new Date(now); mon.setDate(now.getDate() - day + 1);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    return {s: fmtISO(mon), e: fmtISO(sun)};
+  }
+  if (exportPeriod === 'day') {
+    const t = fmtISO(now);
+    return {s: t, e: t};
+  }
+  return {s: '2020-01-01', e: '2099-12-31'};
+}
+
+function fmtISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function exportExcel() {
+  if (!_lastActivities.length) { alert('No activities to export.'); return; }
+  const rows = _lastActivities.map((a,i) => ({
+    '#': i+1,
+    'Date': a.activity_date,
+    'Day': a.activity_date ? new Date(a.activity_date+'T12:00:00').toLocaleString('en-GB',{weekday:'long'}) : '',
+    'Staff': a.staff,
+    'Client': a.client_name || '',
+    'Task Type': a.task_type || '',
+    'Description': a.description || '',
+    'Time From': a.time_from || '',
+    'Time To': a.time_to || '',
+    'Hours': a.hours ? parseFloat(a.hours) : ''
+  }));
+  // Add totals row
+  const totalHrs = _lastActivities.reduce((s,a)=>s+(parseFloat(a.hours)||0),0);
+  rows.push({'#':'','Date':'','Day':'','Staff':'','Client':'','Task Type':'','Description':'TOTAL','Time From':'','Time To':'','Hours': Math.round(totalHrs*100)/100});
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:12},{wch:12},{wch:10},{wch:30},{wch:20},{wch:40},{wch:8},{wch:8},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws, curStaff);
+  const label = exportPeriod==='month' ? new Date(curYear,curMonth-1,1).toLocaleString('en-GB',{month:'short',year:'numeric'}) : exportPeriod;
+  XLSX.writeFile(wb, `${curStaff}_activities_${label}.xlsx`);
+}
+
+function exportPDF() {
+  if (!_lastActivities.length) { alert('No activities to export.'); return; }
+  const label = exportPeriod==='month'
+    ? new Date(curYear,curMonth-1,1).toLocaleString('en-GB',{month:'long',year:'numeric'})
+    : exportPeriod==='week' ? 'This Week'
+    : exportPeriod==='day' ? 'Today'
+    : 'All Time';
+  const totalHrs = _lastActivities.reduce((s,a)=>s+(parseFloat(a.hours)||0),0);
+  document.getElementById('print-header').innerHTML = `
+    <div style="padding:16px 16px 0">
+      <div style="font-size:16px;font-weight:700">The Chowdury Accountants</div>
+      <div style="font-size:13px;color:#666;margin-top:2px">${curStaff} — Activity Report — ${label}</div>
+      <div style="font-size:12px;color:#666;margin-top:2px">Total: ${_lastActivities.length} activities · ${totalHrs.toFixed(2)} hours · Generated ${new Date().toLocaleDateString('en-GB')}</div>
+      <hr style="margin:10px 0;border:none;border-top:1px solid #e2e6ef">
+    </div>`;
+  window.print();
 }
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
