@@ -453,8 +453,9 @@ async function loadProfile(){
   try{
     const d=await sb(`staff_profiles?staff_name=eq.${encodeURIComponent(curStaff)}`);
     const p=d[0]||{};
-    window._curPhoto = p.photo || null;
-    renderPhotoPreview(p.photo);
+    const savedPhoto = localStorage.getItem('ca_photo_'+curStaff);
+    window._curPhoto = savedPhoto || null;
+    renderPhotoPreview(savedPhoto);
     document.getElementById('photo-staff-name').textContent = curStaff;
     document.getElementById('p-role').value=p.role||ROLES[curStaff]||'';
     document.getElementById('p-phone').value=p.phone||'';
@@ -475,7 +476,7 @@ async function saveProfile(){
   const msg=document.getElementById('prof-msg');msg.textContent='Saving…';msg.className='save-msg';
   try{
     await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({
-      staff_name:curStaff,photo:window._curPhoto||null,role:document.getElementById('p-role').value.trim(),
+      staff_name:curStaff,role:document.getElementById('p-role').value.trim(),
       phone:document.getElementById('p-phone').value.trim(),email:document.getElementById('p-email').value.trim(),
       address:document.getElementById('p-address').value.trim(),emergency_name:document.getElementById('p-emg-name').value.trim(),
       emergency_phone:document.getElementById('p-emg-phone').value.trim(),
@@ -604,28 +605,23 @@ function handlePhoto(input){
   reader.onload=e=>{
     const img=new Image();
     img.onload=()=>{
-      const TARGET=40000; // ~40KB max base64
       const canvas=document.createElement('canvas');
-      let size=150,quality=0.6,result,attempts=0;
-      do {
-        let w=img.width,h=img.height;
-        if(w>h){h=Math.round(h*size/w);w=size;}
-        else{w=Math.round(w*size/h);h=size;}
-        canvas.width=w;canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
-        result=canvas.toDataURL('image/jpeg',quality);
-        quality-=0.1;
-        size=Math.round(size*0.85);
-        attempts++;
-      } while(result.length>TARGET&&attempts<10);
+      let size=200,quality=0.8;
+      let w=img.width,h=img.height;
+      if(w>h){h=Math.round(h*size/w);w=size;}
+      else{w=Math.round(w*size/h);h=size;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const result=canvas.toDataURL('image/jpeg',quality);
       window._curPhoto=result;
+      localStorage.setItem('ca_photo_'+curStaff,result);
       renderPhotoPreview(result);
     };
     img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
-function removePhoto(){window._curPhoto=null;renderPhotoPreview(null);}
+function removePhoto(){window._curPhoto=null;localStorage.removeItem('ca_photo_'+curStaff);renderPhotoPreview(null);}
 
 // Also update stats bar avatar
 function updateStatsAvatar(){
@@ -637,7 +633,7 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function loadAll(){
   loadActivities();
   document.getElementById('photo-staff-name').textContent=curStaff;
-  window._curPhoto=null;renderPhotoPreview(null);
+  const sp=localStorage.getItem('ca_photo_'+curStaff);window._curPhoto=sp||null;renderPhotoPreview(sp||null);
   if(curView==='profile'){loadProfile();loadHolidays();}
 }
 loadAll();
