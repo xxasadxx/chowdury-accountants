@@ -492,11 +492,12 @@ const SEED=[];
 async function init(){
   // Step 1: always load seed JSON for instant display
   try{
-    const res=await fetch('ltd-seed.json');
-    DATA=await res.json();
+    const chunks = await Promise.all([0,1,2,3,4,5,6].map(i=>fetch(`ltd-seed-${i}.json`).then(r=>r.ok?r.json():[])));
+    DATA = chunks.flat();
+    if(!DATA.length) throw new Error('No data loaded');
     populatePeriodFilter();renderAll();
   }catch(e){
-    document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load ltd-seed.json: '+e.message+'</td></tr>';
+    document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load: '+e.message+'</td></tr>';
     return;
   }
   // Step 2: try to overlay with any saved Supabase edits
