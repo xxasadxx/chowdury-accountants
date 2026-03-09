@@ -475,16 +475,22 @@ async function loadProfile(){
 async function saveProfile(){
   const msg=document.getElementById('prof-msg');msg.textContent='Saving…';msg.className='save-msg';
   try{
-    await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({
-      staff_name:curStaff,role:document.getElementById('p-role').value.trim(),
-      phone:document.getElementById('p-phone').value.trim(),email:document.getElementById('p-email').value.trim(),
-      address:document.getElementById('p-address').value.trim(),emergency_name:document.getElementById('p-emg-name').value.trim(),
+    const profileData = {
+      staff_name:curStaff,
+      role:document.getElementById('p-role').value.trim(),
+      phone:document.getElementById('p-phone').value.trim(),
+      email:document.getElementById('p-email').value.trim(),
+      address:document.getElementById('p-address').value.trim(),
+      emergency_name:document.getElementById('p-emg-name').value.trim(),
       emergency_phone:document.getElementById('p-emg-phone').value.trim(),
       start_date:document.getElementById('p-start').value||null,
       salary:parseFloat(document.getElementById('p-salary').value)||null,
       holiday_allowance:parseInt(document.getElementById('p-h-allow').value)||28,
-      notes:document.getElementById('p-notes').value.trim(),updated_at:new Date().toISOString()
-    })});
+      holiday_carried:parseInt(document.getElementById('p-h-carried').value)||0,
+      notes:document.getElementById('p-notes').value.trim(),
+      updated_at:new Date().toISOString()
+    };
+    await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(profileData)});
     msg.textContent='✓ Saved';msg.className='save-msg ok';
     setTimeout(()=>{msg.textContent='';},2500);loadActivities();
   }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
