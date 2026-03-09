@@ -501,11 +501,11 @@ async function seedDatabase(){
   try{
     const res=await fetch('ltd-seed.json');
     const seed=await res.json();
-    btn.textContent=\`Inserting \${seed.length} companies...\`;
+    btn.textContent=`Inserting \${seed.length} companies...`;
     for(let i=0;i<seed.length;i+=50){
       const batch=seed.slice(i,i+50);
       await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(batch),headers:{'Prefer':'return=minimal'}});
-      btn.textContent=\`Inserted \${Math.min(i+50,seed.length)}/\${seed.length}...\`;
+      btn.textContent=`Inserted \${Math.min(i+50,seed.length)}/\${seed.length}...`;
     }
     await init();
   }catch(e){
