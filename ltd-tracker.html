@@ -205,6 +205,9 @@
   .save-status.ok { color: var(--green); font-weight: 600; }
   .save-status.err { color: var(--red); font-weight: 600; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
@@ -280,6 +283,8 @@
     ">🔄 Sync from CH</button>
     <span id="result-count" class="count-badge">306</span>
     <button onclick="openAddClientModal()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">+ Add Client</button>
+    <button onclick="exportLtdExcel()" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 13px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);" onmouseover="this.style.borderColor='#16a34a';this.style.color='#16a34a'" onmouseout="this.style.borderColor='';this.style.color=''">⬇ Excel</button>
+    <button onclick="exportLtdPDF()" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 13px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='';this.style.color=''">🖨 PDF</button>
   </div>
 </div>
 
@@ -1142,6 +1147,43 @@ async function removeClient() {
   } catch(e) { alert('Error removing: ' + e.message); }
 }
 
+
+// ── Export ──
+function exportLtdExcel() {
+  const rows = DATA.map((d,i) => ({
+    '#': i+1,
+    'Company Name': d.name,
+    'Comp No': d.comp_no || '',
+    'Accounts Due': d.accounts_due || '',
+    'Conf Statement Due': d.conf_due || '',
+    'Acc Ref Date': d.accounts_ref_date || '',
+    'VAT Due': d.vat_due || '',
+    'Alert': d.alerts || ''
+  }));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:40},{wch:12},{wch:15},{wch:20},{wch:14},{wch:12},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Ltd Clients');
+  XLSX.writeFile(wb, `LtdClients_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportLtdPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('The Chowdury Accountants — Ltd Co Client List', 14, 16);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text(`${DATA.length} companies · Generated ${new Date().toLocaleDateString('en-GB')}`, 14, 22);
+  doc.autoTable({
+    startY: 26,
+    head: [['#','Company Name','Comp No','Accounts Due','Conf Due','Acc Ref','VAT Due','Alert']],
+    body: DATA.map((d,i) => [i+1, d.name, d.comp_no||'', d.accounts_due||'', d.conf_due||'', d.accounts_ref_date||'', d.vat_due||'', d.alerts||'']),
+    styles: { fontSize:7, cellPadding:2 },
+    headStyles: { fillColor:[30,36,51], textColor:255, fontStyle:'bold' },
+    alternateRowStyles: { fillColor:[248,249,252] },
+    columnStyles: { 1: {cellWidth:55}, 7:{cellWidth:14} }
+  });
+  doc.save(`LtdClients_${new Date().toISOString().slice(0,10)}.pdf`);
+}
 </script>
 
 <!-- Add Client Modal -->

@@ -73,6 +73,9 @@ tr:hover td { background: #f8f9ff; }
 .quarter-bar { background: var(--surface2); border-radius: 4px; height: 6px; width: 80px; overflow: hidden; margin-top: 2px; }
 .quarter-fill { height: 100%; border-radius: 4px; }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <script>if(sessionStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
@@ -117,6 +120,11 @@ tr:hover td { background: #f8f9ff; }
   <button class="filter-btn" onclick="setFilter('g3',this)">Group 3</button>
   <input class="search-box" type="text" placeholder="🔍 Search company..." oninput="searchTable(this.value)">
   <span class="count-badge" id="count-badge">42 clients</span>
+  <div style="margin-left:auto;display:flex;gap:6px">
+    <button onclick="openAddVatModal()" style="background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Add Client</button>
+    <button onclick="exportVatExcel()" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" onmouseover="this.style.borderColor='#16a34a';this.style.color='#16a34a'" onmouseout="this.style.borderColor='';this.style.color=''">⬇ Excel</button>
+    <button onclick="exportVatPDF()" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#3b82f6'" onmouseout="this.style.borderColor='';this.style.color=''">🖨 PDF</button>
+  </div>
 </div>
 
 <!-- Table -->
@@ -377,6 +385,33 @@ async function removeVatClient(id) {
   } catch(e) { alert('Error: ' + e.message); }
 }
 
+
+function exportVatExcel() {
+  const rows = VAT_DATA.map((d,i) => ({'#':i+1,'Company Name':d.name,'Comp No':d.comp_no||'','VAT Due':d.vat_due||'','Stagger Group':d.vat_stagger||'','Days Until':d.days_until,'Alert':d.alerts||''}));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:40},{wch:12},{wch:12},{wch:14},{wch:10},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws, 'VAT Clients');
+  XLSX.writeFile(wb, `VATClients_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportVatPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('The Chowdury Accountants — VAT Client List', 14, 16);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text(`${VAT_DATA.length} VAT clients · Generated ${new Date().toLocaleDateString('en-GB')}`, 14, 22);
+  doc.autoTable({
+    startY: 26,
+    head: [['#','Company Name','Comp No','VAT Due','Stagger Group','Days Until','Alert']],
+    body: VAT_DATA.map((d,i) => [i+1, d.name, d.comp_no||'', d.vat_due||'', d.vat_stagger||'', d.days_until, d.alerts||'']),
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[30,36,51],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[248,249,252]},
+    columnStyles:{1:{cellWidth:60}}
+  });
+  doc.save(`VATClients_${new Date().toISOString().slice(0,10)}.pdf`);
+}
 </script>
 
 <!-- Add VAT Client Modal -->
@@ -464,5 +499,7 @@ async function removeVatClient(id) {
   </div>
 </div>
 
+</body>
+</html>
 </body>
 </html>

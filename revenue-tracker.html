@@ -237,6 +237,9 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   .tabs{overflow-x:auto;}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 <div id="portal-nav" style="background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
@@ -313,7 +316,8 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   <div class="controls">
     <input type="text" class="srch" id="dd-srch" placeholder="Search client name or city..." oninput="renderTable('dd')">
     <button class="add-btn" onclick="openAdd('dd')">+ Add Client</button>
-    <button class="add-btn" style="background:var(--green)" onclick="exportCSV('dd')">⬇ Export</button>
+    <button class="add-btn" style="background:var(--green)" onclick="exportExcel('dd')">⬇ Excel</button>
+      <button class="add-btn" style="background:#6366f1" onclick="exportRevPDF('dd')">🖨 PDF</button>
     <span class="cnt-lbl" id="dd-cntLbl"></span>
   </div>
   <div class="tbl-wrap">
@@ -358,7 +362,8 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   <div class="controls">
     <input type="text" class="srch" id="so-srch" placeholder="Search client name or city..." oninput="renderTable('so')">
     <button class="add-btn green" onclick="openAdd('so')">+ Add SO Client</button>
-    <button class="add-btn" style="background:var(--green)" onclick="exportCSV('so')">⬇ Export</button>
+    <button class="add-btn" style="background:var(--green)" onclick="exportExcel('so')">⬇ Excel</button>
+      <button class="add-btn" style="background:#6366f1" onclick="exportRevPDF('so')">🖨 PDF</button>
     <span class="cnt-lbl" id="so-cntLbl"></span>
   </div>
   <div class="tbl-wrap">
@@ -413,7 +418,8 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     </div>
   </div>
   <div style="display:flex;justify-content:flex-end;margin-bottom:8px">
-    <button class="add-btn" style="background:var(--green)" onclick="exportCSV('combined')">⬇ Export Combined</button>
+    <button class="add-btn" style="background:var(--green)" onclick="exportExcel('combined')">⬇ Excel</button>
+      <button class="add-btn" style="background:#6366f1" onclick="exportRevPDF('combined')">🖨 PDF</button>
   </div>
   <div class="tbl-wrap">
     <table>
@@ -442,7 +448,8 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   <div class="controls">
     <input type="text" class="srch" id="fp-srch" placeholder="Search client name..." oninput="renderFailed()">
     <button class="add-btn red" onclick="openAddFailed()">+ Log Failed Payment</button>
-    <button class="add-btn" style="background:var(--green)" onclick="exportCSV('failed')">⬇ Export</button>
+    <button class="add-btn" style="background:var(--green)" onclick="exportExcel('failed')">⬇ Excel</button>
+      <button class="add-btn" style="background:#6366f1" onclick="exportRevPDF('failed')">🖨 PDF</button>
     <span class="cnt-lbl" id="fp-cntLbl"></span>
   </div>
   <div class="tbl-wrap">
@@ -468,7 +475,8 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   <div class="controls">
     <input type="text" class="srch" id="pp-srch" placeholder="Search pipeline..." oninput="renderPipeline()">
     <button class="add-btn" style="background:var(--teal)" onclick="openAddPipeline()">+ Add to Pipeline</button>
-    <button class="add-btn" style="background:var(--green)" onclick="exportCSV('pipeline')">⬇ Export</button>
+    <button class="add-btn" style="background:var(--green)" onclick="exportExcel('pipeline')">⬇ Excel</button>
+      <button class="add-btn" style="background:#6366f1" onclick="exportRevPDF('pipeline')">🖨 PDF</button>
     <span class="cnt-lbl" id="pp-cntLbl"></span>
   </div>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="pp-filters">
@@ -1803,6 +1811,49 @@ async function bulkMarkFirstMarchPaid(){
   renderReports();
 }
 
+
+// ── Excel / PDF exports (enhanced) ──
+function getRevData(type){
+  if(type==='dd') return ddData;
+  if(type==='so') return soData;
+  if(type==='combined') return [...(ddData||[]),...(soData||[])];
+  if(type==='failed') return failedData||[];
+  if(type==='pipeline') return pipelineData||[];
+  return [];
+}
+function exportExcel(type){
+  const data = getRevData(type);
+  if(!data||!data.length){alert('No data to export');return;}
+  const rows = data.map((r,i)=>({'#':i+1,'Client Name':r.client_name||r.name||'','Monthly (£)':r.monthly_amount||r.amount||0,'Method':r.method||type.toUpperCase(),'Status':r.status||'Active','Email':r.email||'','Notes':r.notes||''}));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wch:4},{wch:40},{wch:14},{wch:10},{wch:10},{wch:30},{wch:25}];
+  const label={'dd':'DirectDebit','so':'StandingOrder','combined':'AllClients','failed':'Failed','pipeline':'Pipeline'}[type]||type;
+  XLSX.utils.book_append_sheet(wb,ws,label);
+  XLSX.writeFile(wb,`Revenue_${label}_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportRevPDF(type){
+  const data = getRevData(type);
+  if(!data||!data.length){alert('No data to export');return;}
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  const label={'dd':'Direct Debit','so':'Standing Orders','combined':'All Clients','failed':'Failed Payments','pipeline':'DD Pipeline'}[type]||type;
+  doc.setFontSize(13);doc.setFont('helvetica','bold');
+  doc.text(`The Chowdury Accountants — Revenue: ${label}`,14,16);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  const total = data.reduce((s,r)=>s+(parseFloat(r.monthly_amount||r.amount)||0),0);
+  doc.text(`${data.length} clients · Total: £${total.toLocaleString('en-GB',{minimumFractionDigits:2})} · Generated ${new Date().toLocaleDateString('en-GB')}`,14,22);
+  doc.autoTable({
+    startY:26,
+    head:[['#','Client Name','Monthly (£)','Method','Status']],
+    body:data.map((r,i)=>[i+1,r.client_name||r.name||'',parseFloat(r.monthly_amount||r.amount||0).toFixed(2),r.method||type.toUpperCase(),r.status||'Active']),
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[30,36,51],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[248,249,252]},
+    columnStyles:{1:{cellWidth:70}}
+  });
+  doc.save(`Revenue_${label.replace(/ /g,'')}_${new Date().toISOString().slice(0,10)}.pdf`);
+}
 </script>
 
 <!-- Failed History Modal -->

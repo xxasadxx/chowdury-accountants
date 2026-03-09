@@ -277,6 +277,9 @@
     color: var(--yellow); font-weight: 600; font-size: 13px;
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <body>
@@ -378,7 +381,8 @@
       <option>Bank Transfer</option>
       <option>Invoice</option>
     </select>
-    <button class="btn-export" onclick="exportCSV()">⬇ Export CSV</button>
+    <button class="btn-export" onclick="exportChExcel()" style="border-color:#16a34a;color:#16a34a" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background=''">⬇ Excel</button>
+    <button class="btn-export" onclick="exportChPDF()">🖨 PDF</button>
   </div>
   <div class="tbl-info" id="tbl-info"></div>
   <div class="tbl-wrap">
@@ -1068,6 +1072,33 @@ async function init() {
   renderTable();
 }
 init();
+
+function exportChExcel() {
+  const rows = filteredData.map((d,i) => ({'#':i+1,'Date':d.date||'','Description':d.description||'','Amount (£)':d.amount||0,'Type':d.type||'','Category':d.category||'','VAT':d.vat||0,'Net':d.net||0}));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:14},{wch:55},{wch:12},{wch:10},{wch:20},{wch:10},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws, 'CH Transactions');
+  XLSX.writeFile(wb, `CHTracker_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportChPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  doc.setFontSize(13); doc.setFont('helvetica','bold');
+  doc.text('The Chowdury Accountants — CH Cost Tracker', 14, 16);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text(`${filteredData.length} transactions · Generated ${new Date().toLocaleDateString('en-GB')}`, 14, 22);
+  doc.autoTable({
+    startY: 26,
+    head: [['#','Date','Description','Amount (£)','Type','Category']],
+    body: filteredData.map((d,i) => [i+1, d.date||'', (d.description||'').substring(0,60), d.amount||0, d.type||'', d.category||'']),
+    styles:{fontSize:7,cellPadding:2},
+    headStyles:{fillColor:[30,36,51],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[248,249,252]},
+    columnStyles:{2:{cellWidth:80},0:{cellWidth:8}}
+  });
+  doc.save(`CHTracker_${new Date().toISOString().slice(0,10)}.pdf`);
+}
 </script>
 </body>
 </html>
