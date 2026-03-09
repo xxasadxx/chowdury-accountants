@@ -517,21 +517,27 @@ const SEED = [];
 
 // ─── Boot ───
 async function init() {
-  const dbg = s => { 
-    const d = document.getElementById('debug-bar'); 
-    if(d) d.innerHTML = s; 
-    console.log(s); 
-  };
-  dbg('Step 1: init() running');
-  const sample = [{"id":1,"forename":"Shuel","surname":"Miah","name":"Shuel Miah","utr":"5029148785","ni_number":"","dob":"","phone":"","email":"","address":"","notes":"","alerts":"","referred_by":"","ref_year":"","referral_fee_paid":false,"client_type":"self_employed","status":"active","tax_years":[{"year":"2024/25","submitted_by":"Asadul","completed":"15/01/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"businesses":[]}];
-  DATA = sample;
-  dbg('Step 2: DATA set, ' + DATA.length + ' records');
-  try { renderKPIsClients(); dbg('Step 3: KPIs OK'); } catch(e) { dbg('KPI CRASH: ' + e.message); return; }
-  try { renderClientsTable(); dbg('Step 4: Table OK'); } catch(e) { dbg('TABLE CRASH: ' + e.message); return; }
-  try { renderFeesPage(); dbg('Step 5: Fees OK'); } catch(e) { dbg('FEES CRASH: ' + e.message); return; }
-  try { renderReferralsPage(); dbg('Step 6: Referrals OK'); } catch(e) { dbg('REFERRALS CRASH: ' + e.message); return; }
-  try { renderTrendsPage(); dbg('Step 7: Trends OK'); } catch(e) { dbg('TRENDS CRASH: ' + e.message); return; }
-  dbg('All steps complete!');
+  const dbg = s => { const d = document.getElementById('debug-bar'); if(d) d.innerHTML = s; };
+  dbg('Loading...');
+  try {
+    const res = await fetch('sa-seed.json');
+    DATA = await res.json();
+    dbg('');
+    renderAll();
+  } catch(e) {
+    dbg('Load error: ' + e.message);
+  }
+  // Overlay any saved Supabase edits
+  try {
+    const rows = await sbFetch('sa_clients?select=id,tax_years,client_type,status,left_year,reason_for_leaving,referred_by,ref_year,referral_fee_paid,businesses,notes,alerts&order=id.asc');
+    if(rows && rows.length > 0) {
+      rows.forEach(r => {
+        const local = DATA.find(d => d.id === r.id);
+        if(local && Array.isArray(r.tax_years) && r.tax_years.length > 0) Object.assign(local, r);
+      });
+      renderAll();
+    }
+  } catch(e) { console.warn('SB:', e.message); }
 }
 
 function showSeedButton(){
