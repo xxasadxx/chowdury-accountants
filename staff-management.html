@@ -134,16 +134,29 @@ header h1 span { color: var(--blue); }
 <body>
 <script>if(sessionStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
 
-<header>
-  <h1>👥 <span>Chowdury</span> Staff Management</h1>
-  <nav class="nav-links">
-      <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
+<div id="portal-nav" style="background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+  <div style="display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,0.1)">
+    <span style="color:#c8963c;font-weight:700;font-size:13px;letter-spacing:0.02em;line-height:1.2">Chowdury Accountants</span>
+    <span style="color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Practice Portal</span>
+  </div>
+  <script>
+  (function(){
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('#portal-nav a').forEach(a => {
+      const href = a.getAttribute('href');
+      if (href && page.includes(href.replace('.html',''))) {
+        a.style.background = 'rgba(255,255,255,0.12)';
+        a.style.color = '#fff';
+      }
+    });
+  })();
+  </script>
+  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
   <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
   <a href="ltd-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏢 Ltd Tracker</a>
   <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
-  <a href="staff-management.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.1)">👥 Staff</a>
-  </nav>
-</header>
+  <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
+</div>
 
 <div class="toolbar">
   <div class="staff-tabs" id="staff-tabs">
