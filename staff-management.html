@@ -481,8 +481,14 @@ async function logActivity(){
 
 async function delActivity(id){
   if(!confirm('Delete this activity?'))return;
-  try{await sb('staff_activities?id=eq.'+id,{method:'DELETE',headers:{}});loadActivities();}
-  catch(e){alert('Error: '+e.message);}
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/staff_activities?id=eq.'+id,{
+      method:'DELETE',
+      headers:{'Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY}
+    });
+    if(!r.ok){const t=await r.text();throw new Error(t);}
+    loadActivities();
+  }catch(e){alert('Error: '+e.message);}
 }
 
 function editActivity(id){
