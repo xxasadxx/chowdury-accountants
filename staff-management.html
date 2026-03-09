@@ -99,6 +99,18 @@ header h1 span { color: var(--blue); }
 .cs-opt:hover { background:var(--surface2); }
 .cs-opt .cn { font-size:10px; color:var(--text-muted); font-family:var(--mono); }
 .no-data { text-align:center; padding:32px; color:var(--text-muted); font-size:12px; }
+.hol-form { display:grid; grid-template-columns:160px 120px 120px 1fr auto; gap:8px; align-items:end; margin-bottom:12px; }
+.hol-form input, .hol-form select { padding:7px 9px; border:1px solid var(--border2); border-radius:6px; font-family:var(--sans); font-size:12px; background:var(--surface2); color:var(--text); outline:none; width:100%; }
+.hol-form input:focus { border-color:var(--blue); }
+.hol-table { width:100%; border-collapse:collapse; }
+.hol-table th { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; padding:6px 10px; background:var(--surface2); border-bottom:1px solid var(--border); text-align:left; }
+.hol-table td { padding:8px 10px; border-bottom:1px solid var(--border); font-size:12px; }
+.hol-table tr:last-child td { border-bottom:none; }
+.hol-bar-wrap { background:var(--surface2); border-radius:6px; height:10px; overflow:hidden; margin-top:4px; }
+.hol-bar { height:100%; border-radius:6px; transition:width 0.4s; }
+.hol-summary { display:flex; gap:20px; padding:12px 16px; background:var(--surface2); border-radius:8px; margin-bottom:14px; flex-wrap:wrap; }
+.hol-stat .k { font-size:10px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em; }
+.hol-stat .v { font-family:var(--mono); font-size:16px; font-weight:700; }
 .section { display:none; }
 .section.active { display:block; }
 </style>
@@ -252,16 +264,55 @@ header h1 span { color: var(--blue); }
       </div>
     </div>
     <div class="card">
-      <div class="card-header"><span>🌴</span><h3>Holiday</h3></div>
+      <div class="card-header"><span>🌴</span><h3>Holiday Tracker <span style="font-size:11px;font-weight:400;color:var(--text-muted)" id="hol-year-label"></span></h3></div>
       <div class="card-body">
-        <div class="profile-grid">
-          <div class="fg"><label>Allowance (days)</label><input type="number" id="p-h-allow" value="28" min="0" oninput="updateHBar()"></div>
-          <div class="fg"><label>Days Taken</label><input type="number" id="p-h-taken" value="0" min="0" oninput="updateHBar()"></div>
-          <div class="fg full">
-            <label>Remaining: <span id="h-rem" style="color:var(--green);font-weight:700">28</span> days</label>
-            <div class="holiday-bar"><div class="holiday-fill" id="h-bar" style="width:0%"></div></div>
+        <div class="profile-grid" style="margin-bottom:14px">
+          <div class="fg"><label>Annual Allowance (days)</label><input type="number" id="p-h-allow" value="28" min="0" oninput="updateHBar()"></div>
+          <div class="fg"><label>Carried Over from Last Year</label><input type="number" id="p-h-carried" value="0" min="0" oninput="updateHBar()"></div>
+        </div>
+        <div class="hol-summary" id="hol-summary">
+          <div class="hol-stat"><div class="k">Total Entitlement</div><div class="v" id="hs-total">28</div></div>
+          <div class="hol-stat"><div class="k">Days Taken</div><div class="v" style="color:var(--yellow)" id="hs-taken">0</div></div>
+          <div class="hol-stat"><div class="k">Days Remaining</div><div class="v" style="color:var(--green)" id="hs-rem">28</div></div>
+          <div class="hol-stat"><div class="k">Days Booked</div><div class="v" style="color:var(--blue)" id="hs-booked">0</div></div>
+        </div>
+        <div class="hol-bar-wrap" style="margin-bottom:16px">
+          <div class="hol-bar" id="h-bar" style="width:0%;background:var(--green)"></div>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Log Holiday / Absence</div>
+        <div class="hol-form">
+          <div>
+            <span class="af-label">Description</span>
+            <input type="text" id="hf-desc" placeholder="e.g. Umrah, Annual leave">
+          </div>
+          <div>
+            <span class="af-label">From</span>
+            <input type="date" id="hf-from">
+          </div>
+          <div>
+            <span class="af-label">To (last day)</span>
+            <input type="date" id="hf-to">
+          </div>
+          <div>
+            <span class="af-label">Type</span>
+            <select id="hf-type">
+              <option value="Annual Leave">Annual Leave</option>
+              <option value="Umrah / Hajj">Umrah / Hajj</option>
+              <option value="Sick Leave">Sick Leave</option>
+              <option value="Compassionate">Compassionate Leave</option>
+              <option value="Unpaid">Unpaid Leave</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <span class="af-label">&nbsp;</span>
+            <button class="btn-save" onclick="addHoliday()" style="height:34px">Add</button>
           </div>
         </div>
+        <span class="save-msg" id="hol-msg"></span>
+
+        <div id="hol-list"><div class="no-data" style="padding:16px">No holidays logged yet.</div></div>
       </div>
     </div>
     <div class="card">
@@ -292,7 +343,7 @@ async function sb(path,opts={}){
 }
 
 function setStaff(s,el){curStaff=s;document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');loadAll();}
-function setView(v,el){curView=v;document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(v==='profile')loadProfile();}
+function setView(v,el){curView=v;document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(v==='profile'){loadProfile();loadHolidays();}}
 function changeMonth(d){curMonth+=d;if(curMonth>12){curMonth=1;curYear++;}if(curMonth<1){curMonth=12;curYear--;}loadActivities();}
 
 (function(){const t=new Date();document.getElementById('f-date').value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
@@ -414,7 +465,7 @@ async function loadProfile(){
     document.getElementById('p-start').value=p.start_date||'';
     document.getElementById('p-salary').value=p.salary||'';
     document.getElementById('p-h-allow').value=p.holiday_allowance||28;
-    document.getElementById('p-h-taken').value=p.holiday_taken||0;
+    document.getElementById('p-h-carried').value=p.holiday_carried||0;
     document.getElementById('p-notes').value=p.notes||'';
     updateHBar();
   }catch(e){console.warn(e.message);}
@@ -431,7 +482,7 @@ async function saveProfile(){
       start_date:document.getElementById('p-start').value||null,
       salary:parseFloat(document.getElementById('p-salary').value)||null,
       holiday_allowance:parseInt(document.getElementById('p-h-allow').value)||28,
-      holiday_taken:parseInt(document.getElementById('p-h-taken').value)||0,
+      holiday_carried:parseInt(document.getElementById('p-h-carried').value)||0,
       notes:document.getElementById('p-notes').value.trim(),updated_at:new Date().toISOString()
     })});
     msg.textContent='✓ Saved';msg.className='save-msg ok';
@@ -439,12 +490,106 @@ async function saveProfile(){
   }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
 }
 
+// ── Holiday helpers ──
+function taxYearStart(date){
+  const d=date||new Date();
+  const y=d.getFullYear();
+  const apr6=new Date(y,3,6);
+  return d>=apr6?apr6:new Date(y-1,3,6);
+}
+function taxYearEnd(start){return new Date(start.getFullYear()+1,3,5);}
+
+function countWorkdays(from,to){
+  let count=0,d=new Date(from);
+  const end=new Date(to);
+  while(d<=end){const dow=d.getDay();if(dow!==0&&dow!==6)count++;d.setDate(d.getDate()+1);}
+  return count;
+}
+
+function fmtDate(ds){
+  const d=new Date(ds+'T12:00:00');
+  return d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+}
+
+let _holidays=[];
+
 function updateHBar(){
-  const a=parseInt(document.getElementById('p-h-allow').value)||28,t=parseInt(document.getElementById('p-h-taken').value)||0;
-  document.getElementById('h-rem').textContent=a-t;
-  const pct=Math.min(t/a*100,100);
-  document.getElementById('h-bar').style.width=pct+'%';
-  document.getElementById('h-bar').className='holiday-fill'+(pct>80?' danger':pct>60?' warn':'');
+  const allow=parseInt(document.getElementById('p-h-allow').value)||28;
+  const carried=parseInt(document.getElementById('p-h-carried').value)||0;
+  const total=allow+carried;
+  const now=new Date();
+  const yStart=taxYearStart(now);
+  const yEnd=taxYearEnd(yStart);
+  document.getElementById('hol-year-label').textContent=
+    `Tax year: 6 Apr ${yStart.getFullYear()} – 5 Apr ${yEnd.getFullYear()}`;
+  const taken=_holidays.filter(h=>h.status==='taken'&&new Date(h.date_from)>=yStart).reduce((s,h)=>s+h.days,0);
+  const booked=_holidays.filter(h=>h.status==='booked'&&new Date(h.date_from)>=yStart).reduce((s,h)=>s+h.days,0);
+  const remaining=total-taken-booked;
+  document.getElementById('hs-total').textContent=total;
+  document.getElementById('hs-taken').textContent=taken;
+  document.getElementById('hs-rem').textContent=Math.max(remaining,0);
+  document.getElementById('hs-booked').textContent=booked;
+  const pct=Math.min((taken+booked)/total*100,100);
+  const bar=document.getElementById('h-bar');
+  bar.style.width=pct+'%';
+  bar.style.background=pct>90?'var(--red)':pct>70?'var(--yellow)':'var(--green)';
+}
+
+function renderHolidayList(){
+  const el=document.getElementById('hol-list');
+  if(!_holidays.length){el.innerHTML='<div class="no-data" style="padding:16px">No holidays logged yet.</div>';return;}
+  el.innerHTML=`<table class="hol-table">
+    <thead><tr><th>#</th><th>Description</th><th>Type</th><th>From</th><th>To</th><th>Days (excl. weekends)</th><th>Status</th><th></th></tr></thead>
+    <tbody>${_holidays.map((h,i)=>`<tr>
+      <td style="color:var(--text-muted);font-size:11px">${i+1}</td>
+      <td style="font-weight:600">${esc(h.description)}</td>
+      <td><span class="task-badge tb-Admin">${esc(h.holiday_type)}</span></td>
+      <td style="font-size:11px;white-space:nowrap">${fmtDate(h.date_from)}</td>
+      <td style="font-size:11px;white-space:nowrap">${fmtDate(h.date_to)}</td>
+      <td style="font-family:var(--mono);font-weight:700;color:var(--blue)">${h.days}</td>
+      <td><span style="font-size:11px;font-weight:600;color:${h.status==='taken'?'var(--green)':'var(--yellow)'}">${h.status==='taken'?'✓ Taken':'⏳ Booked'}</span></td>
+      <td><button class="act-del" onclick="delHoliday('${h.id}')">✕</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+async function loadHolidays(){
+  try{
+    const data=await sb(`staff_holidays?staff_name=eq.${encodeURIComponent(curStaff)}&order=date_from.desc`);
+    _holidays=data;renderHolidayList();updateHBar();
+  }catch(e){console.warn('Holidays:',e.message);}
+}
+
+async function addHoliday(){
+  const msg=document.getElementById('hol-msg');
+  const desc=document.getElementById('hf-desc').value.trim();
+  const from=document.getElementById('hf-from').value;
+  const to=document.getElementById('hf-to').value;
+  if(!desc||!from||!to){msg.textContent='✗ Fill in all fields';msg.className='save-msg err';return;}
+  if(new Date(from)>new Date(to)){msg.textContent='✗ From date must be before To date';msg.className='save-msg err';return;}
+  const days=countWorkdays(from,to);
+  const now=new Date();
+  const status=new Date(to)<now?'taken':'booked';
+  msg.textContent='Saving…';msg.className='save-msg';
+  try{
+    await sb('staff_holidays',{method:'POST',body:JSON.stringify({
+      staff_name:curStaff,description:desc,holiday_type:document.getElementById('hf-type').value,
+      date_from:from,date_to:to,days,status
+    })});
+    msg.textContent=`✓ Added — ${days} working day${days!==1?'s':''} (weekends excluded)`;
+    msg.className='save-msg ok';
+    document.getElementById('hf-desc').value='';
+    document.getElementById('hf-from').value='';
+    document.getElementById('hf-to').value='';
+    setTimeout(()=>{msg.textContent='';},4000);
+    loadHolidays();
+  }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
+}
+
+async function delHoliday(id){
+  if(!confirm('Remove this holiday entry?'))return;
+  try{await sb('staff_holidays?id=eq.'+id,{method:'DELETE',headers:{}});loadHolidays();}
+  catch(e){alert('Error: '+e.message);}
 }
 
 function renderPhotoPreview(src){
@@ -473,7 +618,7 @@ function loadAll(){
   loadActivities();
   document.getElementById('photo-staff-name').textContent=curStaff;
   window._curPhoto=null;renderPhotoPreview(null);
-  if(curView==='profile')loadProfile();
+  if(curView==='profile'){loadProfile();loadHolidays();}
 }
 loadAll();
 </script>
