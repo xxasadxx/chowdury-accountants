@@ -356,7 +356,7 @@ header h1 span { color: var(--blue); }
 </div>
 
 <script>
-const SB_URL='https://yhvhpfsoqtjwnukgyap.supabase.co';
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const ROLES={Asadul:'Managing Director',Hassan:'Ltd Co & VAT Manager',Aminul:'Payroll & SE Manager',Nawaz:'Apprentice',Sadat:'Remote (Bangladesh)'};
 
@@ -369,7 +369,18 @@ async function sb(path,opts={}){
   const t=await r.text();return t?JSON.parse(t):[];
 }
 
-function setStaff(s,el){curStaff=s;document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');loadAll();}
+function setStaff(s,el){
+  curStaff=s;
+  document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('s-name').textContent=s;
+  document.getElementById('s-role').textContent=ROLES[s]||'—';
+  document.getElementById('s-hours').textContent='—';
+  document.getElementById('s-acts').textContent='—';
+  document.getElementById('s-clients').textContent='—';
+  document.getElementById('s-holiday').textContent='—';
+  loadAll();
+}
 function setView(v,el){curView=v;document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(v==='profile'){loadProfile();loadHolidays();}}
 function changeMonth(d){curMonth+=d;if(curMonth>12){curMonth=1;curYear++;}if(curMonth<1){curMonth=12;curYear--;}loadActivities();}
 
