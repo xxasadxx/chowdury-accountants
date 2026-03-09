@@ -516,28 +516,8 @@ const SEED = [];
 
 // ─── Boot ───
 async function init() {
-  // Step 1: always load seed JSON for instant display
-  try {
-    const res = await fetch('sa-seed.json');
-    DATA = await res.json();
-    renderAll();
-  } catch(e) {
-    document.getElementById('clients-tbody').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:30px;color:red">Failed to load sa-seed.json: ' + e.message + '</td></tr>';
-    return;
-  }
-  // Step 2: try to overlay with any saved Supabase edits
-  try {
-    const rows = await sbFetch('sa_clients?select=id,tax_years,client_type,status,left_year,reason_for_leaving,referred_by,ref_year,referral_fee_paid,businesses,director_name,director_mobile,director_email,director_address,notes,alerts&order=id.asc');
-    if(rows && rows.length > 0) {
-      rows.forEach(r => {
-        const local = DATA.find(d => d.id === r.id);
-        if(local && r.tax_years && Array.isArray(r.tax_years) && r.tax_years.length > 0) {
-          Object.assign(local, r);
-        }
-      });
-      renderAll();
-    }
-  } catch(e) { console.warn('SB overlay failed:', e.message); }
+  DATA = [{"id":1,"forename":"Shuel","surname":"Miah","name":"Shuel Miah","utr":"5029148785","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"09/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":2,"forename":"Abul Kalam","surname":"Azad","name":"Abul Kalam Azad","utr":"2963441437","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"14/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":3,"forename":"Aminoor","surname":"Islam","name":"Aminoor Islam","utr":"2316272364","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"16/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":4,"forename":"Mohammed","surname":"Rahman","name":"Mohammed Rahman","utr":"4213479613","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"16/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":5,"forename":"Shah Sultana","surname":"Foyjun","name":"Shah Sultana Foyjun","utr":"9773980930","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"16/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""}];
+  renderAll();
 }
 
 function showSeedButton(){
