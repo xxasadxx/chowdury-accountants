@@ -477,8 +477,9 @@ async function sbFetch(path, opts={}) {
     catch(e2) { throw new Error(txt); }
   }
   const txt = await r.text();
-  if (!txt || txt.trim() === '') return [];
-  return JSON.parse(txt);
+  if (!txt || txt.trim() === '' || txt === 'null') return [];
+  try { return JSON.parse(txt); }
+  catch(e) { throw new Error('Server returned: ' + txt); }
 }
 
 async function loadAllClients() {
@@ -1069,6 +1070,7 @@ async function saveNewClient() {
   if (!name) { alert('Company name is required'); return; }
   if (!compNo) { alert('Company number is required.\nSearch by name and select a result to auto-fill it, or enter it manually.'); return; }
   if (DATA.find(d => d.comp_no === compNo)) { alert('This company number already exists in the tracker'); return; }
+  if (!compNo) { alert('Company number is required. Please search and select a company from Companies House.'); return; }
   const payload = {
     name,
     comp_no: compNo,
