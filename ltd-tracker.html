@@ -827,6 +827,25 @@ function bgClose(e) {
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+// Auto-open modal if ?open=COMPNO in URL
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const compNo = params.get('open');
+  if (compNo) {
+    // Wait for data to load then open
+    const tryOpen = setInterval(() => {
+      const company = DATA.find(c => c.comp_no === compNo);
+      if (company) {
+        clearInterval(tryOpen);
+        openModal(compNo);
+        // Clean URL without reload
+        history.replaceState(null, '', window.location.pathname);
+      }
+    }, 200);
+    setTimeout(() => clearInterval(tryOpen), 5000);
+  }
+})();
+
 // ── CH date helpers ──
 function chDateToDisplay(iso) {
   if (!iso) return '';

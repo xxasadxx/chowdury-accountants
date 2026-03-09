@@ -86,7 +86,7 @@ header h1 span { color: var(--blue); }
 .act-table td { padding:8px 10px; border-bottom:1px solid var(--border); font-size:12px; vertical-align:top; }
 .act-table tr:last-child td { border-bottom:none; }
 .act-table tr:hover td { background:var(--surface2); }
-.clink { color:var(--blue); font-weight:600; cursor:pointer; }
+.clink { color:var(--blue); font-weight:600; text-decoration:none; }
 .clink:hover { text-decoration:underline; }
 .act-del { padding:2px 7px; font-size:11px; border:1px solid var(--border2); border-radius:5px; background:none; cursor:pointer; color:var(--text-muted); }
 .act-del:hover { background:#fee2e2; color:var(--red); border-color:#fca5a5; }
@@ -505,7 +505,7 @@ function renderActs(data){
       return`<tr>
         <td style="color:var(--text-muted);font-size:11px;font-family:var(--mono)">${i+1}</td>
         <td style="white-space:nowrap;font-size:11px;color:var(--text2)">${dt}</td>
-        <td>${a.client_name?`<span class="clink" title="${a.comp_no||''}">${esc(a.client_name)}</span>`:'<span style="color:var(--text-muted)">—</span>'}</td>
+        <td>${a.client_name?`<a class="clink" href="ltd-tracker.html?open=${a.comp_no||''}" title="Open client record">${esc(a.client_name)}</a>`:'<span style="color:var(--text-muted)">—</span>'}</td>
         <td><span class="task-badge tb-${tk}">${esc(a.task_type||'—')}</span></td>
         <td style="max-width:280px">${esc(a.description)}</td>
         <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${tm}</td>
