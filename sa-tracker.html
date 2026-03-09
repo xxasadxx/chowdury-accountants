@@ -201,8 +201,8 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
   <div class="kpi-row" id="kpi-clients"></div>
   <div class="toolbar">
     <select class="year-select" id="year-filter" onchange="applyFilter()">
-      <option value="all">All Years</option>
-      <option value="2024/25" selected>2024/25</option>
+      <option value="all" selected>All Years</option>
+      <option value="2024/25">2024/25</option>
       <option value="2023/24">2023/24</option>
       <option value="2022/23">2022/23</option>
     </select>
@@ -246,8 +246,8 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
   <div class="kpi-row" id="kpi-fees"></div>
   <div class="toolbar">
     <select class="year-select" id="fees-year-filter" onchange="renderFeesPage()">
-      <option value="all">All Years</option>
-      <option value="2024/25" selected>2024/25</option>
+      <option value="all" selected>All Years</option>
+      <option value="2024/25">2024/25</option>
       <option value="2023/24">2023/24</option>
     </select>
     <select class="year-select" id="fees-status-filter" onchange="renderFeesPage()">
@@ -291,7 +291,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
   <div class="kpi-row" id="kpi-referrals"></div>
   <div class="toolbar">
     <select class="year-select" id="ref-year-filter" onchange="renderReferralsPage()">
-      <option value="all">All Years</option>
+      <option value="all" selected>All Years</option>
       <option value="2024/25">2024/25</option>
       <option value="2023/24">2023/24</option>
     </select>
@@ -520,7 +520,22 @@ async function init() {
   renderAll();
   try {
     const rows = await sbFetch('sa_clients?select=*&order=id.asc');
-    if(rows&&rows.length>0){DATA=rows.map(r=>{r.tax_years=r.tax_years||[];r.businesses=r.businesses||[];r.documents=r.documents||[];return r;});renderAll();}
+    if(rows&&rows.length>0){
+      DATA=rows.map(r=>{
+        r.documents=r.documents||[];
+        r.businesses=r.businesses||[];
+        if(!r.tax_years||!Array.isArray(r.tax_years)||r.tax_years.length===0){
+          if(r.tax_year||r.completed||r.submitted_by){
+            const fee=180;
+            r.tax_years=[{year:r.tax_year||'2024/25',submitted_by:r.submitted_by||'',completed:r.completed||'',status:'submitted',fee,discount:0,discount_reason:'',final_fee:fee,invoice_date:'',invoice_number:'',amount_paid:0,payment_date:'',payment_method:'',outstanding:fee,notes:''}];
+          } else { r.tax_years=[]; }
+        }
+        r.client_type=r.client_type||'self_employed';
+        r.status=r.status||'active';
+        return r;
+      });
+      renderAll();
+    }
   } catch(e){console.warn('SB load:',e.message);}
 }
 
