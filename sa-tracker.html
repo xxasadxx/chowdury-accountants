@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SA Tracker — The Chowdury Accountants</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6fa;--surface:#fff;--surface2:#f8f9fc;
+  --border:#e2e6ef;--border2:#d0d6e3;
+  --text:#1e2433;--text2:#4b5563;--muted:#9ca3af;
+  --blue:#3b82f6;--green:#16a34a;--red:#ef4444;--amber:#f59e0b;--purple:#8b5cf6;
+  --sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* NAV */
+#portal-nav{background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.15);flex-wrap:wrap}
+.nav-brand{display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,.1)}
+.nav-brand span:first-child{color:#c8963c;font-weight:700;font-size:13px}
+.nav-brand span:last-child{color:rgba(255,255,255,.3);font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color .15s}
+#portal-nav a:hover,#portal-nav a.active{color:#fff;background:rgba(255,255,255,.1)}
+
+/* KPI */
+.kpi-row{display:flex;gap:12px;padding:16px 20px;flex-wrap:wrap}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;flex:1;min-width:130px}
+.kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:22px;font-weight:700;margin:4px 0 2px}
+.kpi .sub{font-size:11px;color:var(--muted)}
+
+/* TOOLBAR */
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);border-top:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.filter-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--border2);background:none;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s}
+.filter-btn.active,.filter-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+.search-box{padding:6px 11px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;width:220px}
+.count-badge{font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* TABLE */
+.table-wrap{overflow-x:auto;padding:0 20px 20px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:var(--surface2);padding:9px 12px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--border);cursor:pointer;white-space:nowrap}
+th:hover{color:var(--blue)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr.data-row:hover{background:#f0f4ff;cursor:pointer}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-amber{background:#fef3c7;color:#d97706}
+.badge-red{background:#fee2e2;color:#ef4444}
+.badge-blue{background:#dbeafe;color:#2563eb}
+.badge-purple{background:#ede9fe;color:#7c3aed}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:1000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:700px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700}
+.modal-subtitle{font-size:11px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:18px 0 10px}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-grid.three{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field textarea,.field select{padding:8px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;width:100%}
+.field textarea{resize:vertical;min-height:70px}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--blue)}
+.field.full{grid-column:1/-1}
+
+/* Documents */
+.doc-list{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.doc-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;font-size:12px}
+.doc-item a{color:var(--blue);text-decoration:none;flex:1;font-weight:500}
+.doc-item a:hover{text-decoration:underline}
+.doc-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:4px}
+.doc-del:hover{background:#fee2e2;color:var(--red)}
+.upload-area{border:2px dashed var(--border2);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:all .15s;margin-top:8px}
+.upload-area:hover{border-color:var(--blue);background:#eff6ff}
+.upload-area input{display:none}
+.upload-area p{font-size:12px;color:var(--muted)}
+.upload-area p strong{color:var(--blue)}
+
+/* Buttons */
+.btn{padding:8px 16px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#2563eb}
+.btn-danger{background:none;border:1px solid var(--red);color:var(--red)}
+.btn-danger:hover{background:#fee2e2}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--text2)}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+
+@media print{#portal-nav,.toolbar,.kpi-row,button{display:none!important}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div id="portal-nav">
+  <div class="nav-brand">
+    <span>Chowdury Accountants</span>
+    <span>Practice Portal</span>
+  </div>
+  <script>
+  (function(){
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('#portal-nav a').forEach(a => {
+      if (a.getAttribute('href') && page.includes(a.getAttribute('href').replace('.html','')))
+        { a.style.background='rgba(255,255,255,0.12)'; a.style.color='#fff'; }
+    });
+  })();
+  </script>
+  <a href="index.html">🏠 Portal</a>
+  <a href="revenue-tracker.html">💰 Revenue</a>
+  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+  <a href="ch-tracker.html">⚖️ CH Tracker</a>
+  <a href="staff-management.html">👥 Staff</a>
+  <a href="quote-calculator.html">💡 Quote</a>
+  <a href="sa-tracker.html">📋 SA</a>
+  <a href="vat-tracker.html">🟢 VAT</a>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row" id="kpi-row"></div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-btn" onclick="setFilter('2024/25',this)">2024/25</button>
+  <button class="filter-btn" onclick="setFilter('2025/26',this)">2025/26</button>
+  <button class="filter-btn" onclick="setFilter('missing',this)">⚠️ Missing Info</button>
+  <input class="search-box" type="text" placeholder="🔍 Search name, UTR..." oninput="searchTable(this.value)">
+  <span class="count-badge" id="count-badge">— clients</span>
+  <div style="margin-left:auto;display:flex;gap:6px">
+    <button onclick="openAddModal()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 13px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer">+ Add Client</button>
+    <button onclick="exportSAExcel()" class="btn btn-secondary">⬇ Excel</button>
+    <button onclick="exportSAPDF()" class="btn btn-secondary">🖨 PDF</button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="sa-table">
+    <thead>
+      <tr>
+        <th onclick="sortBy('id')">#</th>
+        <th onclick="sortBy('name')">Name</th>
+        <th onclick="sortBy('utr')">UTR</th>
+        <th onclick="sortBy('tax_year')">Tax Year</th>
+        <th onclick="sortBy('completed')">Completed</th>
+        <th onclick="sortBy('submitted_by')">Submitted By</th>
+        <th onclick="sortBy('phone')">Phone</th>
+        <th onclick="sortBy('email')">Email</th>
+        <th onclick="sortBy('alerts')">Alert</th>
+        <th>Docs</th>
+      </tr>
+    </thead>
+    <tbody id="sa-tbody"></tbody>
+  </table>
+</div>
+
+<!-- CLIENT MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+<div class="modal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title" id="modal-name">Client</div>
+      <div class="modal-subtitle" id="modal-utr">UTR: —</div>
+    </div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+  </div>
+  <div class="modal-body">
+
+    <!-- SA Info -->
+    <div class="section-title">📋 Self Assessment</div>
+    <div class="field-grid three">
+      <div class="field"><label>Tax Year</label><input id="m-tax-year" type="text"></div>
+      <div class="field"><label>Date Completed</label><input id="m-completed" type="text" placeholder="DD/MM/YYYY"></div>
+      <div class="field"><label>Submitted By</label>
+        <select id="m-submitted-by">
+          <option>Md Asadul Islam Chowdury</option>
+          <option>Hassan Ali</option>
+          <option>Aminul Choudhury</option>
+          <option>Syed Nawaz</option>
+          <option>Sadat Bhuiyan</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Personal Details -->
+    <div class="section-title">👤 Personal Details</div>
+    <div class="field-grid">
+      <div class="field"><label>Forename</label><input id="m-forename" type="text"></div>
+      <div class="field"><label>Surname</label><input id="m-surname" type="text"></div>
+      <div class="field"><label>Date of Birth</label><input id="m-dob" type="text" placeholder="DD/MM/YYYY"></div>
+      <div class="field"><label>NI Number</label><input id="m-ni" type="text" placeholder="AB 12 34 56 C"></div>
+      <div class="field"><label>UTR Number</label><input id="m-utr-edit" type="text" style="font-family:var(--mono)"></div>
+      <div class="field"><label>Alert Status</label>
+        <select id="m-alerts">
+          <option value="">None</option>
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="section-title">📞 Contact Details</div>
+    <div class="field-grid">
+      <div class="field"><label>Mobile Number</label><input id="m-phone" type="tel" placeholder="07xxx xxxxxx"></div>
+      <div class="field"><label>Email Address</label><input id="m-email" type="email" placeholder="email@example.com"></div>
+      <div class="field full"><label>Home Address</label><textarea id="m-address" placeholder="Full home address..."></textarea></div>
+    </div>
+
+    <!-- Notes -->
+    <div class="section-title">📝 Notes</div>
+    <div class="field">
+      <textarea id="m-notes" placeholder="Any notes about this client..."></textarea>
+    </div>
+
+    <!-- ID Documents -->
+    <div class="section-title">🪪 ID Documents</div>
+    <div id="doc-list" class="doc-list"></div>
+    <div class="upload-area" onclick="document.getElementById('doc-upload').click()">
+      <input type="file" id="doc-upload" multiple accept=".pdf,.jpg,.jpeg,.png" onchange="handleDocUpload(this.files)">
+      <p>📎 <strong>Click to upload</strong> or drag & drop</p>
+      <p style="margin-top:4px;font-size:11px">PDF, JPG, PNG — Passport, Driving Licence, Utility Bill etc.</p>
+    </div>
+    <div id="upload-progress" style="display:none;margin-top:8px;font-size:12px;color:var(--blue)"></div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-danger" onclick="deleteClient()">🗑 Remove</button>
+    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn btn-primary" id="save-btn" onclick="saveClient()">💾 Save Changes</button>
+  </div>
+</div>
+</div>
+
+<!-- ADD CLIENT MODAL -->
+<div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()">
+<div class="modal" style="max-width:520px">
+  <div class="modal-header">
+    <div class="modal-title">➕ Add SA Client</div>
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div class="field-grid">
+      <div class="field"><label>Forename *</label><input id="a-forename" type="text"></div>
+      <div class="field"><label>Surname *</label><input id="a-surname" type="text"></div>
+      <div class="field"><label>UTR Number</label><input id="a-utr" type="text" style="font-family:var(--mono)"></div>
+      <div class="field"><label>Tax Year</label>
+        <select id="a-tax-year">
+          <option>2024/25</option>
+          <option>2025/26</option>
+          <option>2023/24</option>
+        </select>
+      </div>
+      <div class="field"><label>Date Completed</label><input id="a-completed" type="text" placeholder="DD/MM/YYYY"></div>
+      <div class="field"><label>Submitted By</label>
+        <select id="a-submitted-by">
+          <option>Md Asadul Islam Chowdury</option>
+          <option>Hassan Ali</option>
+          <option>Aminul Choudhury</option>
+          <option>Syed Nawaz</option>
+          <option>Sadat Bhuiyan</option>
+        </select>
+      </div>
+      <div class="field"><label>Mobile</label><input id="a-phone" type="tel"></div>
+      <div class="field"><label>Email</label><input id="a-email" type="email"></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+    <button class="btn btn-primary" onclick="saveNewClient()">✅ Add Client</button>
+  </div>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const SB_BUCKET = 'sa-documents';
+
+async function sbFetch(path, opts={}) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})},
+    ...opts
+  });
+  const text = await r.text();
+  if (!r.ok) { try { const j=JSON.parse(text); throw new Error(j.message||j.hint||text); } catch(e2){ throw new Error(text); } }
+  if (!text||text==='null') return [];
+  try { return JSON.parse(text); } catch(e) { return []; }
+}
+
+// ── Data ──
+let SA_DATA = [];
+let filtered = [];
+let currentId = null;
+let currentFilter = 'all';
+let currentSearch = '';
+let sortCol = 'id';
+let sortDir = 1;
+
+// SA seed data will be injected here by Python
+const SA_SEED = [{"id": 1, "forename": "Shuel", "surname": "Miah", "name": "Shuel Miah", "utr": "5029148785", "tax_year": "2024/25", "completed": "09/04/2025", "submitted_by": "Md Asadul Islam Chowdury", "phone": "", "email": "", "dob": "", "ni_number": "", "address": "", "notes": "", "alerts": "", "documents": []}, {"id": 2, "forename": "Abul Kalam", "surname": "Azad", "name": "Abul Kalam Azad", "utr": "2963441437", "tax_year": "2024/25", "completed": "14/04/2025", "submitted_by": "Md Asadul Islam Chowdury", "phone": "", "email": "", "dob": "", "ni_number": "", "address": "", "notes": "", "alerts": "", "documents": []}];
+
+async function loadData() {
+  SA_DATA = SA_SEED.map(r => ({...r}));
+  filtered = [...SA_DATA];
+  renderKPIs();
+  render();
+  // Try load from Supabase on top
+  try {
+    const rows = await sbFetch('sa_clients?select=*&order=id.asc');
+    if (rows && rows.length > 0) {
+      SA_DATA = rows;
+      applyFilter();
+    }
+  } catch(e) {
+    console.warn('Supabase load failed, using seed:', e.message);
+  }
+}
+
+function applyFilter() {
+  let data = [...SA_DATA];
+  if (currentFilter === '2024/25') data = data.filter(r => r.tax_year === '2024/25');
+  else if (currentFilter === '2025/26') data = data.filter(r => r.tax_year === '2025/26');
+  else if (currentFilter === 'missing') data = data.filter(r => !r.phone || !r.email || !r.dob);
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    data = data.filter(r => r.name?.toLowerCase().includes(q) || r.utr?.includes(q) || r.forename?.toLowerCase().includes(q) || r.surname?.toLowerCase().includes(q));
+  }
+  data.sort((a,b) => {
+    const av = (a[sortCol]||'').toString().toLowerCase();
+    const bv = (b[sortCol]||'').toString().toLowerCase();
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+  filtered = data;
+  renderKPIs();
+  render();
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  applyFilter();
+}
+
+function searchTable(q) {
+  currentSearch = q;
+  applyFilter();
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  applyFilter();
+}
+
+function renderKPIs() {
+  const total = SA_DATA.length;
+  const yr2425 = SA_DATA.filter(r => r.tax_year === '2024/25').length;
+  const yr2526 = SA_DATA.filter(r => r.tax_year === '2025/26').length;
+  const withPhone = SA_DATA.filter(r => r.phone).length;
+  const withEmail = SA_DATA.filter(r => r.email).length;
+  const missing = SA_DATA.filter(r => !r.phone || !r.email || !r.dob).length;
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="k">Total SA Clients</div><div class="v" style="color:var(--blue)">${total}</div><div class="sub">All years</div></div>
+    <div class="kpi"><div class="k">2024/25</div><div class="v" style="color:var(--green)">${yr2425}</div><div class="sub">Submitted</div></div>
+    <div class="kpi"><div class="k">2025/26</div><div class="v" style="color:var(--purple)">${yr2526}</div><div class="sub">In progress</div></div>
+    <div class="kpi"><div class="k">Have Phone</div><div class="v">${withPhone}</div><div class="sub">of ${total}</div></div>
+    <div class="kpi"><div class="k">Have Email</div><div class="v">${withEmail}</div><div class="sub">of ${total}</div></div>
+    <div class="kpi"><div class="k">Missing Info</div><div class="v" style="color:var(--amber)">${missing}</div><div class="sub">No phone/email/DOB</div></div>
+  `;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function staffShort(s) {
+  if (!s) return '—';
+  if (s.includes('Asadul')||s.includes('Chowdury')) return 'Asad';
+  if (s.includes('Hassan')) return 'Hassan';
+  if (s.includes('Aminul')||s.includes('Amin')) return 'Amin';
+  if (s.includes('Nawaz')) return 'Nawaz';
+  if (s.includes('Sadat')) return 'Sadat';
+  return s.split(' ')[0];
+}
+
+function alertBadge(a) {
+  if (!a) return '';
+  const map = {Green:'badge-green',Amber:'badge-amber',Red:'badge-red'};
+  return `<span class="badge ${map[a]||''}">${a}</span>`;
+}
+
+function render() {
+  document.getElementById('count-badge').textContent = `${filtered.length} of ${SA_DATA.length} clients`;
+  const tbody = document.getElementById('sa-tbody');
+  if (!filtered.length) { tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted)">No clients found</td></tr>'; return; }
+  tbody.innerHTML = filtered.map((r,i) => `
+    <tr class="data-row" onclick="openModal(${r.id})">
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td style="font-weight:600">${esc(r.name||r.forename+' '+r.surname)}</td>
+      <td style="font-family:var(--mono);font-size:11px">${esc(r.utr||'—')}</td>
+      <td><span class="badge badge-blue">${esc(r.tax_year||'')}</span></td>
+      <td style="font-size:11px;color:var(--text2)">${esc(r.completed||'—')}</td>
+      <td><span style="font-size:11px;color:var(--text2)">${staffShort(r.submitted_by)}</span></td>
+      <td style="font-size:11px">${r.phone ? '✅ '+esc(r.phone) : '<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.email ? esc(r.email) : '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${alertBadge(r.alerts)}</td>
+      <td style="font-size:11px;color:var(--muted)">${r.documents && r.documents.length ? '📎 '+r.documents.length : '—'}</td>
+    </tr>`).join('');
+}
+
+// ── Modal ──
+function openModal(id) {
+  const r = SA_DATA.find(x => x.id === id);
+  if (!r) return;
+  currentId = id;
+  document.getElementById('modal-name').textContent = r.name || `${r.forename} ${r.surname}`;
+  document.getElementById('modal-utr').textContent = 'UTR: ' + (r.utr || '—') + (r.ni_number ? ' · NI: ' + r.ni_number : '');
+  document.getElementById('m-forename').value = r.forename || '';
+  document.getElementById('m-surname').value = r.surname || '';
+  document.getElementById('m-utr-edit').value = r.utr || '';
+  document.getElementById('m-tax-year').value = r.tax_year || '2024/25';
+  document.getElementById('m-completed').value = r.completed || '';
+  document.getElementById('m-submitted-by').value = r.submitted_by || 'Md Asadul Islam Chowdury';
+  document.getElementById('m-dob').value = r.dob || '';
+  document.getElementById('m-ni').value = r.ni_number || '';
+  document.getElementById('m-phone').value = r.phone || '';
+  document.getElementById('m-email').value = r.email || '';
+  document.getElementById('m-address').value = r.address || '';
+  document.getElementById('m-notes').value = r.notes || '';
+  document.getElementById('m-alerts').value = r.alerts || '';
+  renderDocList(r.documents || []);
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); currentId = null; }
+
+function renderDocList(docs) {
+  const el = document.getElementById('doc-list');
+  if (!docs || !docs.length) { el.innerHTML = '<p style="font-size:12px;color:var(--muted)">No documents uploaded yet</p>'; return; }
+  el.innerHTML = docs.map((d,i) => `
+    <div class="doc-item">
+      <span>📄</span>
+      <a href="${d.url||'#'}" target="_blank">${esc(d.name)}</a>
+      <span style="font-size:10px;color:var(--muted)">${d.uploaded||''}</span>
+      <button class="doc-del" onclick="removeDoc(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function removeDoc(idx) {
+  const r = SA_DATA.find(x => x.id === currentId);
+  if (!r) return;
+  r.documents = (r.documents || []).filter((_,i) => i !== idx);
+  renderDocList(r.documents);
+}
+
+async function handleDocUpload(files) {
+  if (!files.length) return;
+  const prog = document.getElementById('upload-progress');
+  prog.style.display = 'block';
+  const r = SA_DATA.find(x => x.id === currentId);
+  if (!r) return;
+  if (!r.documents) r.documents = [];
+  for (const file of files) {
+    prog.textContent = `Uploading ${file.name}...`;
+    try {
+      const path = `client_${currentId}/${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
+      const res = await fetch(`${SUPABASE_URL}/storage/v1/object/${SB_BUCKET}/${path}`, {
+        method:'POST',
+        headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':file.type,'x-upsert':'true'},
+        body: file
+      });
+      if (res.ok) {
+        const url = `${SUPABASE_URL}/storage/v1/object/public/${SB_BUCKET}/${path}`;
+        r.documents.push({ name: file.name, url, path, uploaded: new Date().toLocaleDateString('en-GB') });
+        prog.textContent = `✅ ${file.name} uploaded`;
+      } else {
+        r.documents.push({ name: file.name, url: '#', path:'', uploaded: new Date().toLocaleDateString('en-GB') });
+        prog.textContent = `⚠️ Stored locally (storage bucket not set up yet)`;
+      }
+    } catch(e) {
+      r.documents.push({ name: file.name, url:'#', path:'', uploaded: new Date().toLocaleDateString('en-GB') });
+      prog.textContent = `Saved reference for ${file.name}`;
+    }
+  }
+  renderDocList(r.documents);
+  setTimeout(() => prog.style.display = 'none', 2000);
+}
+
+async function saveClient() {
+  const r = SA_DATA.find(x => x.id === currentId);
+  if (!r) return;
+  const btn = document.getElementById('save-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  const forename = document.getElementById('m-forename').value.trim();
+  const surname = document.getElementById('m-surname').value.trim();
+  Object.assign(r, {
+    forename, surname, name: forename + ' ' + surname,
+    utr: document.getElementById('m-utr-edit').value.trim(),
+    tax_year: document.getElementById('m-tax-year').value,
+    completed: document.getElementById('m-completed').value.trim(),
+    submitted_by: document.getElementById('m-submitted-by').value,
+    dob: document.getElementById('m-dob').value.trim(),
+    ni_number: document.getElementById('m-ni').value.trim(),
+    phone: document.getElementById('m-phone').value.trim(),
+    email: document.getElementById('m-email').value.trim(),
+    address: document.getElementById('m-address').value.trim(),
+    notes: document.getElementById('m-notes').value.trim(),
+    alerts: document.getElementById('m-alerts').value,
+  });
+  // Try save to Supabase
+  try {
+    await sbFetch(`sa_clients?id=eq.${currentId}`, {
+      method:'PATCH', body: JSON.stringify(r),
+      headers:{'Prefer':'return=minimal'}
+    });
+  } catch(e) { console.warn('Supabase save failed:', e.message); }
+  closeModal();
+  applyFilter();
+  btn.textContent = '💾 Save Changes'; btn.disabled = false;
+  document.getElementById('modal-name').textContent = '';
+}
+
+async function deleteClient() {
+  const r = SA_DATA.find(x => x.id === currentId);
+  if (!r || !confirm(`Remove ${r.name} from SA tracker?`)) return;
+  try {
+    await sbFetch(`sa_clients?id=eq.${currentId}`, { method:'DELETE', headers:{'Prefer':'return=minimal'} });
+  } catch(e) { console.warn('Delete failed:', e.message); }
+  SA_DATA = SA_DATA.filter(x => x.id !== currentId);
+  closeModal();
+  applyFilter();
+}
+
+// ── Add Client ──
+function openAddModal() { document.getElementById('add-modal-bg').classList.add('open'); ['a-forename','a-surname','a-utr','a-phone','a-email'].forEach(id=>document.getElementById(id).value=''); }
+function closeAddModal() { document.getElementById('add-modal-bg').classList.remove('open'); }
+
+async function saveNewClient() {
+  const forename = document.getElementById('a-forename').value.trim();
+  const surname = document.getElementById('a-surname').value.trim();
+  if (!forename || !surname) { alert('Forename and surname are required'); return; }
+  const newClient = {
+    forename, surname, name: forename+' '+surname,
+    utr: document.getElementById('a-utr').value.trim(),
+    tax_year: document.getElementById('a-tax-year').value,
+    completed: document.getElementById('a-completed').value.trim(),
+    submitted_by: document.getElementById('a-submitted-by').value,
+    phone: document.getElementById('a-phone').value.trim(),
+    email: document.getElementById('a-email').value.trim(),
+    dob:'', ni_number:'', address:'', notes:'', alerts:'', documents:[]
+  };
+  try {
+    const [saved] = await sbFetch('sa_clients', { method:'POST', body: JSON.stringify(newClient), headers:{'Prefer':'return=representation'} });
+    SA_DATA.push(saved||{...newClient, id: Date.now()});
+  } catch(e) {
+    SA_DATA.push({...newClient, id: Math.max(...SA_DATA.map(r=>r.id),0)+1});
+  }
+  closeAddModal();
+  applyFilter();
+}
+
+// ── Exports ──
+function exportSAExcel() {
+  const rows = filtered.map((r,i) => ({'#':i+1,'Name':r.name,'UTR':r.utr||'','Tax Year':r.tax_year||'','Completed':r.completed||'','Submitted By':r.submitted_by||'','Phone':r.phone||'','Email':r.email||'','DOB':r.dob||'','NI Number':r.ni_number||'','Address':r.address||'','Notes':r.notes||'','Alert':r.alerts||''}));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wch:4},{wch:30},{wch:12},{wch:10},{wch:12},{wch:20},{wch:15},{wch:30},{wch:12},{wch:14},{wch:35},{wch:30},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws,'SA Clients');
+  XLSX.writeFile(wb,`SAClients_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function exportSAPDF() {
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  doc.setFontSize(14);doc.setFont('helvetica','bold');
+  doc.text('The Chowdury Accountants — Self Assessment Tracker',14,16);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');
+  doc.text(`${filtered.length} clients · Generated ${new Date().toLocaleDateString('en-GB')}`,14,22);
+  doc.autoTable({
+    startY:26,
+    head:[['#','Name','UTR','Tax Year','Completed','Submitted By','Phone','Email','Alert']],
+    body:filtered.map((r,i)=>[i+1,r.name,r.utr||'',r.tax_year||'',r.completed||'',staffShort(r.submitted_by),r.phone||'',r.email||'',r.alerts||'']),
+    styles:{fontSize:7,cellPadding:2},
+    headStyles:{fillColor:[30,36,51],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[248,249,252]},
+    columnStyles:{1:{cellWidth:40},7:{cellWidth:40}}
+  });
+  doc.save(`SAClients_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+// Boot
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>
