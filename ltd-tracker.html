@@ -194,6 +194,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <select class="year-select" id="fees-period-filter" onchange="renderFeesPage()">
       <option value="all">All Periods</option>
     </select>
+    <button class="btn btn-secondary" onclick="reconcileDDSO()" title="Mark all DD/SO clients fees as paid">🔄 Reconcile DD/SO</button>
     <select class="year-select" id="fees-status-filter" onchange="renderFeesPage()">
       <option value="all">All</option>
       <option value="outstanding">Outstanding</option>
@@ -1255,6 +1256,79 @@ async function autoSyncIfStale(){
     document.getElementById('sync-status').textContent='Auto-syncing...';
     await syncFromCH();
   }catch(e){console.warn('Auto-sync skipped:',e.message);}
+}
+
+
+// ─── Reconcile DD/SO Fees ───
+async function reconcileDDSO(){
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⏳ Loading...';
+  try {
+    // Fetch all DD and SO clients
+    const [gc, so] = await Promise.all([
+      sbFetch('Gocardless%20tracker?select=client_name,monthly_amount,status&limit=500'),
+      sbFetch('standing_orders?select=client_name,monthly_amount,status&limit=500')
+    ]);
+    
+    // Build map: normalised name -> {method, monthly}
+    const paying = {};
+    (gc||[]).forEach(r => {
+      if(r.client_name) paying[r.client_name.trim().toLowerCase()] = {method:'Direct Debit', monthly: parseFloat(r.monthly_amount)||0};
+    });
+    (so||[]).forEach(r => {
+      if(r.client_name) paying[r.client_name.trim().toLowerCase()] = {method:'Standing Order', monthly: parseFloat(r.monthly_amount)||0};
+    });
+
+    btn.textContent = `Found ${Object.keys(paying).length} DD/SO clients, matching...`;
+
+    let matched = 0;
+    DATA.forEach(client => {
+      const key = client.name.trim().toLowerCase();
+      // Try exact match, then partial
+      let info = paying[key];
+      if(!info) {
+        for(const [k,v] of Object.entries(paying)){
+          if(key.includes(k.split(' ')[0]) || k.includes(client.name.split(' ')[0].toLowerCase())){
+            info = v; break;
+          }
+        }
+      }
+      if(info && client.fee_years && client.fee_years.length > 0){
+        client.fee_years.forEach(fy => {
+          const fee = parseFloat(fy.final_fee) || parseFloat(fy.total_fee) || 640;
+          fy.amount_paid = fee;
+          fy.outstanding = 0;
+          fy.payment_method = info.method;
+        });
+        matched++;
+      }
+    });
+
+    // Rebuild chunk files would require server - just re-render and notify
+    renderAll();
+    btn.textContent = `✅ Matched ${matched} clients`;
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+    
+    // Save updates to Supabase for matched clients
+    const updates = DATA.filter(c => {
+      const k = c.name.trim().toLowerCase();
+      return paying[k] && c.fee_years && c.fee_years.length > 0;
+    }).map(c => ({id: c.id, fee_years: c.fee_years}));
+    
+    for(let i=0; i<updates.length; i+=50){
+      await sbFetch('ltd_clients', {
+        method:'POST',
+        headers:{'Prefer':'resolution=merge-duplicates'},
+        body: JSON.stringify(updates.slice(i,i+50))
+      });
+    }
+    btn.textContent = `✅ Reconciled ${matched} clients`;
+  } catch(e) {
+    btn.textContent = 'Error: ' + e.message;
+    btn.disabled = false;
+    console.error(e);
+  }
 }
 
 // ─── EXPORTS ───
