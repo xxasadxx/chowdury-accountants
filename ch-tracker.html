@@ -1077,6 +1077,7 @@ async function init() {
 init();
 
 function exportChExcel() {
+  const filteredData = getFiltered();
   const rows = filteredData.map((d,i) => ({'#':i+1,'Date':d.date||'','Description':d.description||'','Amount (£)':d.amount||0,'Type':d.type||'','Category':d.category||'','VAT':d.vat||0,'Net':d.net||0}));
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
@@ -1085,6 +1086,7 @@ function exportChExcel() {
   XLSX.writeFile(wb, `CHTracker_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 function exportChPDF() {
+  const filteredData = getFiltered();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
   doc.setFontSize(13); doc.setFont('helvetica','bold');
