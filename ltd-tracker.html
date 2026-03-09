@@ -279,6 +279,7 @@
       cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;
     ">🔄 Sync from CH</button>
     <span id="result-count" class="count-badge">306</span>
+    <button onclick="openAddClientModal()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">+ Add Client</button>
   </div>
 </div>
 
@@ -324,7 +325,11 @@
         <div class="modal-title" id="modal-title">Company Name</div>
         <div class="modal-subtitle" id="modal-subtitle">—</div>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button onclick="openEditClientModal()" style="background:#1e2433;color:#94a3b8;border:1px solid #2d3748;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)">✏️ Edit</button>
+        <button onclick="removeClient()" style="background:none;color:#ef4444;border:1px solid #ef4444;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans)">🗑 Remove</button>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
     </div>
     <div class="modal-body">
 
@@ -970,6 +975,254 @@ updateStats();
 render();
 loadAllClients();
 loadChCache().then(() => autoSyncIfStale());
+
+// ==================== ADD / EDIT / REMOVE CLIENT ====================
+
+const CH_PROXY = '/.netlify/functions/ch-proxy';
+
+function openAddClientModal() {
+  document.getElementById('add-modal-bg').style.display = 'flex';
+  document.getElementById('ch-search-input').value = '';
+  document.getElementById('ch-search-results').innerHTML = '';
+  document.getElementById('add-form-fields').style.display = 'none';
+}
+function closeAddModal() {
+  document.getElementById('add-modal-bg').style.display = 'none';
+}
+
+async function searchCH() {
+  const q = document.getElementById('ch-search-input').value.trim();
+  if (!q) return;
+  const res = document.getElementById('ch-search-results');
+  res.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:8px">Searching Companies House...</div>';
+  try {
+    const isNum = /^[0-9A-Z]{8}$/i.test(q.replace(/\s/g,''));
+    const url = isNum
+      ? `${CH_PROXY}?path=company/${q.replace(/\s/g,'').toUpperCase()}`
+      : `${CH_PROXY}?path=search/companies?q=${encodeURIComponent(q)}&items_per_page=8`;
+    const r = await fetch(url);
+    const data = await r.json();
+    if (isNum && data.company_number) {
+      populateAddForm(data);
+      res.innerHTML = '';
+      return;
+    }
+    const items = data.items || [];
+    if (!items.length) { res.innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:8px">No results found</div>'; return; }
+    res.innerHTML = items.map(it => `
+      <div onclick="selectCHCompany('${it.company_number}')" style="padding:9px 12px;border:1px solid var(--border2);border-radius:7px;margin-bottom:6px;cursor:pointer;background:#1a2035" onmouseover="this.style.borderColor='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)'">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">${it.title}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${it.company_number} · ${it.company_status || ''} · Inc: ${it.date_of_creation || '—'}</div>
+      </div>`).join('');
+  } catch(e) {
+    res.innerHTML = `<div style="color:var(--red);font-size:12px;padding:8px">Error: ${e.message}</div>`;
+  }
+}
+
+async function selectCHCompany(compNo) {
+  document.getElementById('ch-search-results').innerHTML = '<div style="color:var(--text-muted);font-size:12px;padding:8px">Loading company details...</div>';
+  try {
+    const r = await fetch(`${CH_PROXY}?path=company/${compNo}`);
+    const data = await r.json();
+    populateAddForm(data);
+    document.getElementById('ch-search-results').innerHTML = '';
+  } catch(e) {
+    document.getElementById('ch-search-results').innerHTML = `<div style="color:var(--red);font-size:12px;padding:8px">Error: ${e.message}</div>`;
+  }
+}
+
+function populateAddForm(data) {
+  document.getElementById('add-form-fields').style.display = 'block';
+  document.getElementById('add-form-title').textContent = '✅ ' + (data.company_name || data.title || 'Company Selected');
+  document.getElementById('af-name').value = data.company_name || data.title || '';
+  document.getElementById('af-compno').value = data.company_number || '';
+  // Parse accounts due
+  const ad = data.accounts && data.accounts.next_due ? new Date(data.accounts.next_due) : null;
+  document.getElementById('af-acc-due').value = ad ? `${String(ad.getDate()).padStart(2,'0')}/${String(ad.getMonth()+1).padStart(2,'0')}/${ad.getFullYear()}` : '';
+  const cd = data.confirmation_statement && data.confirmation_statement.next_due ? new Date(data.confirmation_statement.next_due) : null;
+  document.getElementById('af-conf-due').value = cd ? `${String(cd.getDate()).padStart(2,'0')}/${String(cd.getMonth()+1).padStart(2,'0')}/${cd.getFullYear()}` : '';
+  const ar = data.accounts && data.accounts.accounting_reference_date;
+  document.getElementById('af-acc-ref').value = ar ? `${String(ar.day).padStart(2,'0')}/${String(ar.month).padStart(2,'0')}` : '';
+}
+
+function showManualAddForm() {
+  document.getElementById('add-form-fields').style.display = 'block';
+  document.getElementById('add-form-title').textContent = '✍️ Manual Entry';
+  ['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('ch-search-results').innerHTML = '';
+}
+
+async function saveNewClient() {
+  const name = document.getElementById('af-name').value.trim();
+  const compNo = document.getElementById('af-compno').value.trim().toUpperCase();
+  if (!name) { alert('Company name is required'); return; }
+  if (DATA.find(d => d.comp_no === compNo && compNo)) { alert('Company number already exists in tracker'); return; }
+  const newId = Math.max(...DATA.map(d=>d.id)) + 1;
+  const newClient = {
+    id: newId,
+    name,
+    comp_no: compNo,
+    accounts_due: document.getElementById('af-acc-due').value.trim(),
+    conf_due: document.getElementById('af-conf-due').value.trim(),
+    accounts_ref_date: document.getElementById('af-acc-ref').value.trim(),
+    alerts: document.getElementById('af-alerts').value,
+    conf_date: '', vat_due: ''
+  };
+  DATA.push(newClient);
+  closeAddModal();
+  render();
+  alert(`✅ ${name} added successfully!\nNote: This is session-only. To persist permanently, add to Supabase ltd_clients table.`);
+}
+
+function openEditClientModal() {
+  const co = DATA.find(d => d.comp_no === currentCompNo);
+  if (!co) return;
+  document.getElementById('ef-name').value = co.name || '';
+  document.getElementById('ef-compno').value = co.comp_no || '';
+  document.getElementById('ef-acc-due').value = co.accounts_due || '';
+  document.getElementById('ef-conf-due').value = co.conf_due || '';
+  document.getElementById('ef-acc-ref').value = co.accounts_ref_date || '';
+  document.getElementById('ef-alerts').value = co.alerts || '';
+  document.getElementById('edit-modal-bg').style.display = 'flex';
+}
+function closeEditModal() {
+  document.getElementById('edit-modal-bg').style.display = 'none';
+}
+
+function saveEditClient() {
+  const idx = DATA.findIndex(d => d.comp_no === currentCompNo);
+  if (idx === -1) return;
+  DATA[idx].name = document.getElementById('ef-name').value.trim();
+  DATA[idx].comp_no = document.getElementById('ef-compno').value.trim().toUpperCase();
+  DATA[idx].accounts_due = document.getElementById('ef-acc-due').value.trim();
+  DATA[idx].conf_due = document.getElementById('ef-conf-due').value.trim();
+  DATA[idx].accounts_ref_date = document.getElementById('ef-acc-ref').value.trim();
+  DATA[idx].alerts = document.getElementById('ef-alerts').value;
+  closeEditModal();
+  closeModal();
+  render();
+  alert('✅ Changes saved (session only)');
+}
+
+function removeClient() {
+  const co = DATA.find(d => d.comp_no === currentCompNo);
+  if (!co) return;
+  if (!confirm(`Remove ${co.name} from the tracker?\nThis cannot be undone.`)) return;
+  const idx = DATA.findIndex(d => d.comp_no === currentCompNo);
+  DATA.splice(idx, 1);
+  closeModal();
+  render();
+  alert(`🗑 ${co.name} removed (session only)`);
+}
+
 </script>
+
+<!-- Add Client Modal -->
+<div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()" style="display:none">
+  <div class="modal" style="max-width:520px;width:95%">
+    <div class="modal-header">
+      <div class="modal-title">➕ Add New Ltd Client</div>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <!-- CH Search -->
+      <div style="margin-bottom:18px">
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Search Companies House</div>
+        <div style="display:flex;gap:8px">
+          <input id="ch-search-input" type="text" placeholder="Company name or number..." style="flex:1;background:#1e2433;border:1px solid var(--border2);border-radius:7px;padding:9px 12px;color:var(--text);font-size:13px;font-family:var(--sans)" onkeydown="if(event.key==='Enter')searchCH()">
+          <button onclick="searchCH()" style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:9px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap">🔍 Search</button>
+        </div>
+        <div id="ch-search-results" style="margin-top:10px;max-height:220px;overflow-y:auto"></div>
+      </div>
+      <!-- Manual/Selected Fields -->
+      <div id="add-form-fields" style="display:none">
+        <div style="border-top:1px solid var(--border2);padding-top:16px;margin-top:4px">
+          <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:12px" id="add-form-title">✅ Company Selected</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Company Name *</div>
+              <input id="af-name" type="text" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Company Number *</div>
+              <input id="af-compno" type="text" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Accounts Due</div>
+              <input id="af-acc-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Conf Statement Due</div>
+              <input id="af-conf-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Accounts Ref Date</div>
+              <input id="af-acc-ref" type="text" placeholder="DD/MM" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Alert Status</div>
+              <select id="af-alerts" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+                <option value="">None</option>
+                <option value="Green">Green</option>
+                <option value="Amber">Amber</option>
+                <option value="Red">Red</option>
+              </select>
+            </div>
+          </div>
+          <button onclick="saveNewClient()" style="margin-top:16px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">✅ Add Client</button>
+        </div>
+      </div>
+      <!-- Manual add link -->
+      <div style="text-align:center;margin-top:10px">
+        <span onclick="showManualAddForm()" style="font-size:11px;color:var(--blue);cursor:pointer;text-decoration:underline">Add manually without CH search</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Client Modal -->
+<div class="modal-bg" id="edit-modal-bg" onclick="if(event.target===this)closeEditModal()" style="display:none">
+  <div class="modal" style="max-width:520px;width:95%">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Client</div>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Company Name *</div>
+          <input id="ef-name" type="text" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Company Number</div>
+          <input id="ef-compno" type="text" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Accounts Due</div>
+          <input id="ef-acc-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Conf Statement Due</div>
+          <input id="ef-conf-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Accounts Ref Date</div>
+          <input id="ef-acc-ref" type="text" placeholder="DD/MM" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Alert Status</div>
+          <select id="ef-alerts" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+            <option value="">None</option>
+            <option value="Green">Green</option>
+            <option value="Amber">Amber</option>
+            <option value="Red">Red</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="saveEditClient()" style="margin-top:16px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">💾 Save Changes</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

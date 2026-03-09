@@ -131,6 +131,7 @@ tr:hover td { background: #f8f9ff; }
         <th onclick="sortBy('days_until')">Status</th>
         <th>Quarter Progress</th>
         <th>CH Alert</th>
+        <th></th>
       </tr>
     </thead>
     <tbody id="vat-tbody"></tbody>
@@ -236,7 +237,7 @@ function render() {
 
   const tbody = document.getElementById('vat-tbody');
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">No clients match this filter</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted)">No clients match this filter</td></tr>';
     return;
   }
 
@@ -251,11 +252,167 @@ function render() {
       <td>${daysBadge(c.days_until)}</td>
       <td>${quarterProgress(c.vat_due)}</td>
       <td>${alertDot}${c.alerts || '—'}</td>
+      <td style="white-space:nowrap">
+        <button onclick="openEditVat(${c.id})" style="background:none;border:1px solid var(--border2);border-radius:5px;padding:3px 8px;color:var(--text-muted);cursor:pointer;font-size:11px;margin-right:4px">✏️</button>
+        <button onclick="removeVatClient(${c.id})" style="background:none;border:1px solid #ef4444;border-radius:5px;padding:3px 8px;color:#ef4444;cursor:pointer;font-size:11px">✕</button>
+      </td>
     </tr>`;
   }).join('');
 }
 
 init();
+
+// ==================== VAT ADD / EDIT / REMOVE ====================
+function openAddVatModal() { document.getElementById('vat-add-modal').style.display='flex'; ['vaf-name','vaf-compno','vaf-vat-due'].forEach(id=>document.getElementById(id).value=''); }
+function closeAddVatModal() { document.getElementById('vat-add-modal').style.display='none'; }
+
+function saveNewVatClient() {
+  const name = document.getElementById('vaf-name').value.trim();
+  if (!name) { alert('Company name required'); return; }
+  const vatDue = document.getElementById('vaf-vat-due').value.trim();
+  const [d,m,y] = vatDue.split('/');
+  const daysUntil = vatDue ? Math.round((new Date(y,m-1,d) - new Date()) / 86400000) : 999;
+  const newClient = {
+    id: Math.max(...VAT_DATA.map(x=>x.id)) + 1,
+    name,
+    comp_no: document.getElementById('vaf-compno').value.trim().toUpperCase(),
+    vat_due: vatDue,
+    vat_stagger: document.getElementById('vaf-stagger').value,
+    alerts: document.getElementById('vaf-alerts').value,
+    days_until: daysUntil,
+    accounts_due:'', conf_due:'', accounts_ref_date:'', conf_date:''
+  };
+  VAT_DATA.push(newClient);
+  closeAddVatModal();
+  renderKPIs();
+  render();
+  alert(`✅ ${name} added!`);
+}
+
+function openEditVat(id) {
+  const co = VAT_DATA.find(x => x.id === id);
+  if (!co) return;
+  document.getElementById('vef-id').value = id;
+  document.getElementById('vef-name').value = co.name || '';
+  document.getElementById('vef-compno').value = co.comp_no || '';
+  document.getElementById('vef-vat-due').value = co.vat_due || '';
+  document.getElementById('vef-stagger').value = co.vat_stagger || 'Group 1';
+  document.getElementById('vef-alerts').value = co.alerts || '';
+  document.getElementById('vat-edit-modal').style.display='flex';
+}
+function closeEditVatModal() { document.getElementById('vat-edit-modal').style.display='none'; }
+
+function saveEditVatClient() {
+  const id = parseInt(document.getElementById('vef-id').value);
+  const idx = VAT_DATA.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const vatDue = document.getElementById('vef-vat-due').value.trim();
+  const [d,m,y] = vatDue.split('/');
+  VAT_DATA[idx].name = document.getElementById('vef-name').value.trim();
+  VAT_DATA[idx].comp_no = document.getElementById('vef-compno').value.trim().toUpperCase();
+  VAT_DATA[idx].vat_due = vatDue;
+  VAT_DATA[idx].vat_stagger = document.getElementById('vef-stagger').value;
+  VAT_DATA[idx].alerts = document.getElementById('vef-alerts').value;
+  VAT_DATA[idx].days_until = vatDue ? Math.round((new Date(y,m-1,d) - new Date()) / 86400000) : 999;
+  closeEditVatModal();
+  renderKPIs();
+  render();
+}
+
+function removeVatClient(id) {
+  const co = VAT_DATA.find(x => x.id === id);
+  if (!co || !confirm(`Remove ${co.name} from VAT tracker?`)) return;
+  VAT_DATA.splice(VAT_DATA.findIndex(x=>x.id===id), 1);
+  renderKPIs();
+  render();
+}
+
 </script>
+
+<!-- Add VAT Client Modal -->
+<div class="modal-bg" id="vat-add-modal" onclick="if(event.target===this)closeAddVatModal()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#111827;border:1px solid #2d3748;border-radius:12px;padding:24px;width:95%;max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:700;color:#f1f5f9">➕ Add VAT Client</div>
+      <button onclick="closeAddVatModal()" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Name *</div>
+        <input id="vaf-name" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Number</div>
+        <input id="vaf-compno" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Due Date</div>
+        <input id="vaf-vat-due" type="text" placeholder="07/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Stagger Group</div>
+        <select id="vaf-stagger" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="Group 1">Group 1 (due 7 Apr)</option>
+          <option value="Group 2">Group 2 (due 7 May)</option>
+          <option value="Group 3">Group 3 (due 7 Jun)</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Alert Status</div>
+        <select id="vaf-alerts" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="">None</option>
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="saveNewVatClient()" style="margin-top:16px;width:100%;background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">✅ Add Client</button>
+  </div>
+</div>
+
+<!-- Edit VAT Client Modal -->
+<div class="modal-bg" id="vat-edit-modal" onclick="if(event.target===this)closeEditVatModal()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#111827;border:1px solid #2d3748;border-radius:12px;padding:24px;width:95%;max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:700;color:#f1f5f9">✏️ Edit VAT Client</div>
+      <button onclick="closeEditVatModal()" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <input type="hidden" id="vef-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Name *</div>
+        <input id="vef-name" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Number</div>
+        <input id="vef-compno" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Due Date</div>
+        <input id="vef-vat-due" type="text" placeholder="07/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Stagger</div>
+        <select id="vef-stagger" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="Group 1">Group 1</option>
+          <option value="Group 2">Group 2</option>
+          <option value="Group 3">Group 3</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Alert Status</div>
+        <select id="vef-alerts" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="">None</option>
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="saveEditVatClient()" style="margin-top:16px;width:100%;background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">💾 Save Changes</button>
+  </div>
+</div>
+
 </body>
 </html>
