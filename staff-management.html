@@ -420,7 +420,20 @@ async function logActivity(){
     ['f-desc','f-from','f-to','f-client','f-comp-no'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('f-hours').textContent='—';hoursVal=null;
     setTimeout(()=>{msg.textContent='';},2500);loadActivities();
-  }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
+  }catch(e){
+    const txt=e.message||'';
+    if(txt.includes('relation')&&txt.includes('exist')){
+      msg.textContent='✗ Table not found — run SQL setup in Supabase';
+    } else if(txt.includes('Failed to fetch')||txt.includes('NetworkError')){
+      msg.textContent='✗ Network error — check internet connection';
+    } else if(txt.includes('violates')||txt.includes('policy')){
+      msg.textContent='✗ Permission denied — check RLS policy';
+    } else {
+      msg.textContent='✗ '+txt.slice(0,80);
+    }
+    msg.className='save-msg err';
+    console.error('logActivity error:',e);
+  }
 }
 
 async function delActivity(id){
@@ -523,7 +536,20 @@ async function saveProfile(){
     await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(profileData)});
     msg.textContent='✓ Saved';msg.className='save-msg ok';
     setTimeout(()=>{msg.textContent='';},2500);loadActivities();
-  }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
+  }catch(e){
+    const txt=e.message||'';
+    if(txt.includes('relation')&&txt.includes('exist')){
+      msg.textContent='✗ Table not found — run SQL setup in Supabase';
+    } else if(txt.includes('Failed to fetch')||txt.includes('NetworkError')){
+      msg.textContent='✗ Network error — check internet connection';
+    } else if(txt.includes('violates')||txt.includes('policy')){
+      msg.textContent='✗ Permission denied — check RLS policy';
+    } else {
+      msg.textContent='✗ '+txt.slice(0,80);
+    }
+    msg.className='save-msg err';
+    console.error('logActivity error:',e);
+  }
 }
 
 // ── Holiday helpers ──
@@ -619,7 +645,20 @@ async function addHoliday(){
     document.getElementById('hf-to').value='';
     setTimeout(()=>{msg.textContent='';},4000);
     loadHolidays();
-  }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
+  }catch(e){
+    const txt=e.message||'';
+    if(txt.includes('relation')&&txt.includes('exist')){
+      msg.textContent='✗ Table not found — run SQL setup in Supabase';
+    } else if(txt.includes('Failed to fetch')||txt.includes('NetworkError')){
+      msg.textContent='✗ Network error — check internet connection';
+    } else if(txt.includes('violates')||txt.includes('policy')){
+      msg.textContent='✗ Permission denied — check RLS policy';
+    } else {
+      msg.textContent='✗ '+txt.slice(0,80);
+    }
+    msg.className='save-msg err';
+    console.error('logActivity error:',e);
+  }
 }
 
 async function delHoliday(id){
