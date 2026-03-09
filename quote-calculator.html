@@ -111,8 +111,8 @@ textarea{resize:vertical;min-height:50px}
   <a href="ltd-tracker.html" style="color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🏢 Ltd Tracker</a>
   <a href="ch-tracker.html" style="color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">⚖️ CH Tracker</a>
   <a href="staff-management.html" style="color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">👥 Staff</a>
-  <a href="vat-tracker.html" style="color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🟢 VAT</a>
   <a href="quote-calculator.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,.12)">💡 Quote</a>
+  <a href="vat-tracker.html" style="color:rgba(255,255,255,.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.5)'">🟢 VAT</a>
 </div>
 
 <div class="layout">
@@ -458,7 +458,7 @@ function renderStd(checked, oo, add, net, vat, total, monthly) {
 
   $('paper').innerHTML = `
     <div class="ph">
-      <div><div class="pn">${P.name}</div><div class="pt">${P.tag}</div><div class="pq">${P.quals}</div></div>
+      <div><div class="pn">${P.name}</div><div class="pt">${P.tag}</div></div>
       <div class="pc">${contactHtml}<br>Tel: ${P.tel}<br>Mob: ${P.mob}<br>${P.email}<br>${P.web}</div>
     </div>
     ${addrHtml?`<div class="paddr">${addrHtml}</div>`:''}
@@ -479,7 +479,7 @@ function renderStd(checked, oo, add, net, vat, total, monthly) {
     </div>
     <div style="margin-top:16px"><p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p><ul class="pul">${whyHtml}</ul></div>
     <div class="psign"><p>I look forward to hearing from you. Please do not hesitate to contact us with any queries.</p><p style="margin-top:10px">Yours sincerely,</p><div class="psname">${P.sig}</div><div class="psrole">${P.role}</div></div>
-    <div class="pfoot"><span>${P.name} | Reg: 09441520 | VAT: 403392620</span><span>${P.addr.replace(/\n/g,' | ')}</span></div>
+    <div class="pfoot"><span>The Chowdury Accountants Ltd T/A Chowdury Accountants | Reg: 09441520 | VAT: 403392620</span><span>${P.addr.replace(/\n/g,' | ')}</span></div>
   `;
 }
 
@@ -509,7 +509,7 @@ function renderBsp(oof, oov, oot, mnet, mvat) {
 
   $('paper').innerHTML = `
     <div class="ph">
-      <div><div class="pn">${P.name}</div><div class="pt">${P.tag}</div><div class="pq">${P.quals}</div></div>
+      <div><div class="pn">${P.name}</div><div class="pt">${P.tag}</div></div>
       <div class="pc">${contactHtml}<br>Tel: ${P.tel}<br>Mob: ${P.mob}<br>${P.email}<br>${P.web}</div>
     </div>
     ${addrHtml?`<div class="paddr">${addrHtml}</div>`:''}
@@ -526,7 +526,7 @@ function renderBsp(oof, oov, oot, mnet, mvat) {
     </div>
     <div style="margin-top:16px"><p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p><ul class="pul">${whyHtml}</ul></div>
     <div class="psign"><p>I look forward to hearing from you. Please do not hesitate to contact us with any queries.</p><p style="margin-top:10px">Yours sincerely,</p><div class="psname">${P.sig}</div><div class="psrole">${P.role}</div></div>
-    <div class="pfoot"><span>${P.name} | Reg: 09441520 | VAT: 403392620</span><span>${P.addr.replace(/\n/g,' | ')}</span></div>
+    <div class="pfoot"><span>The Chowdury Accountants Ltd T/A Chowdury Accountants | Reg: 09441520 | VAT: 403392620</span><span>${P.addr.replace(/\n/g,' | ')}</span></div>
   `;
 }
 </script>
