@@ -471,8 +471,14 @@ async function sbFetch(path, opts={}) {
     },
     ...opts
   });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
+  if (!r.ok) {
+    const txt = await r.text();
+    try { const j = JSON.parse(txt); throw new Error(j.message || j.hint || txt); }
+    catch(e2) { throw new Error(txt); }
+  }
+  const txt = await r.text();
+  if (!txt || txt.trim() === '') return [];
+  return JSON.parse(txt);
 }
 
 async function loadAllClients() {
@@ -1061,7 +1067,8 @@ async function saveNewClient() {
   const name = document.getElementById('af-name').value.trim();
   const compNo = document.getElementById('af-compno').value.trim().toUpperCase();
   if (!name) { alert('Company name is required'); return; }
-  if (DATA.find(d => d.comp_no === compNo && compNo)) { alert('Company already exists in tracker'); return; }
+  if (!compNo) { alert('Company number is required.\nSearch by name and select a result to auto-fill it, or enter it manually.'); return; }
+  if (DATA.find(d => d.comp_no === compNo)) { alert('This company number already exists in the tracker'); return; }
   const payload = {
     name,
     comp_no: compNo,
