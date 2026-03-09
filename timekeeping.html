@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timekeeping — The Chowdury Accountants</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕐</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f4f6fa; --surface: #ffffff; --surface2: #f8f9fc;
+    --border: #e2e6ef; --border2: #d0d6e3;
+    --text: #1e2433; --text2: #4b5563; --text-muted: #9ca3af;
+    --blue: #2563eb; --green: #16a34a; --red: #dc2626;
+    --yellow: #d97706; --purple: #7c3aed; --orange: #ea580c;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
+
+  /* Header */
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 20px; height: 52px; position: sticky; top: 0; z-index: 100; }
+  header h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
+  header h1 span { color: var(--blue); }
+  .nav-links { display: flex; gap: 4px; margin-left: auto; }
+  .nav-links a { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text2); text-decoration: none; transition: all 0.15s; }
+  .nav-links a:hover { background: var(--surface2); color: var(--text); }
+  .nav-links a.active { background: var(--blue); color: #fff; }
+
+  /* Toolbar */
+  .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  
+  /* Staff tabs */
+  .staff-tabs { display: flex; gap: 4px; }
+  .staff-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
+  .staff-tab:hover { border-color: var(--blue); color: var(--blue); }
+  .staff-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* Month nav */
+  .month-nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .month-nav button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: all 0.15s; }
+  .month-nav button:hover { border-color: var(--blue); color: var(--blue); }
+  .month-label { font-size: 13px; font-weight: 600; min-width: 130px; text-align: center; }
+
+  /* Stats bar */
+  .stats-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; gap: 24px; }
+  .stat { display: flex; flex-direction: column; }
+  .stat .k { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat .v { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); }
+  .stat .v.blue { color: var(--blue); }
+
+  /* Main layout */
+  .main { padding: 16px 20px; max-width: 1100px; }
+
+  /* Add entry form */
+  .add-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
+  .add-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+  .add-row { display: grid; grid-template-columns: 130px 100px 90px 90px 70px 1fr auto; gap: 8px; align-items: start; }
+  .add-row input, .add-row select, .add-row textarea { padding: 7px 9px; border: 1px solid var(--border2); border-radius: 6px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
+  .add-row input:focus, .add-row select:focus, .add-row textarea:focus { border-color: var(--blue); }
+  .add-row textarea { resize: vertical; min-height: 34px; }
+  label.field-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 3px; }
+  .hours-auto { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue); padding: 7px 4px; }
+
+  /* Sub items area */
+  .sub-items-area { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .sub-items-area label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
+  .sub-item-row { display: flex; gap: 6px; margin-bottom: 5px; align-items: center; }
+  .sub-item-row input { flex: 1; padding: 5px 8px; border: 1px solid var(--border2); border-radius: 5px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; }
+  .sub-item-row input:focus { border-color: var(--blue); }
+  .sub-item-row .rm-btn { width: 22px; height: 22px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 15px; line-height: 1; border-radius: 4px; }
+  .sub-item-row .rm-btn:hover { background: #fee2e2; color: var(--red); }
+  .add-sub-btn { font-size: 11px; color: var(--blue); background: none; border: none; cursor: pointer; padding: 2px 0; font-family: var(--sans); font-weight: 600; }
+  .add-sub-btn:hover { text-decoration: underline; }
+
+  /* Save btn */
+  .save-entry-btn { padding: 8px 18px; background: var(--blue); color: #fff; border: none; border-radius: 7px; font-family: var(--sans); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s; height: 34px; }
+  .save-entry-btn:hover { background: #1d4ed8; }
+  .save-status { font-size: 11px; margin-top: 6px; font-weight: 600; }
+  .save-status.ok { color: var(--green); }
+  .save-status.err { color: var(--red); }
+
+  /* Entries list */
+  .day-group { margin-bottom: 6px; }
+  .day-header { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px 8px 0 0; padding: 8px 14px; display: flex; align-items: center; gap: 10px; }
+  .day-date { font-weight: 700; font-size: 13px; }
+  .day-name-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .day-total { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--blue); background: #eff6ff; padding: 2px 8px; border-radius: 10px; }
+
+  .entry-row { background: var(--surface); border: 1px solid var(--border); border-top: none; padding: 10px 14px; display: flex; gap: 12px; align-items: flex-start; }
+  .entry-row:last-child { border-radius: 0 0 8px 8px; }
+  .entry-time { font-family: var(--mono); font-size: 11px; color: var(--text2); white-space: nowrap; min-width: 105px; padding-top: 1px; }
+  .entry-hours-badge { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--blue); background: #eff6ff; padding: 2px 6px; border-radius: 8px; white-space: nowrap; margin-top: 2px; }
+  .entry-body { flex: 1; }
+  .entry-desc { font-size: 12px; color: var(--text); line-height: 1.5; }
+  .entry-sub-list { margin-top: 6px; padding-left: 0; list-style: none; }
+  .entry-sub-list li { font-size: 11px; color: var(--text2); padding: 1px 0; display: flex; gap: 6px; }
+  .entry-sub-list li span.num { color: var(--text-muted); font-family: var(--mono); font-size: 10px; min-width: 16px; }
+  .entry-actions { display: flex; gap: 4px; padding-top: 2px; }
+  .entry-del-btn { padding: 3px 8px; font-size: 11px; border: 1px solid var(--border2); border-radius: 5px; background: var(--surface2); color: var(--text-muted); cursor: pointer; font-family: var(--sans); }
+  .entry-del-btn:hover { background: #fee2e2; color: var(--red); border-color: #fca5a5; }
+
+  .no-entries { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+  .no-entries .icon { font-size: 36px; margin-bottom: 10px; }
+  .no-entries p { font-size: 13px; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<script>
+  if (sessionStorage.getItem('ca_auth') !== 'true') {
+    window.location.href = 'login.html';
+  }
+</script>
+
+<header>
+  <h1>🕐 <span>Chowdury</span> Timekeeping</h1>
+  <nav class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="revenue-tracker.html">Revenue</a>
+    <a href="ltd-tracker.html">Ltd Co</a>
+    <a href="ch-tracker.html">CH Costs</a>
+    <a href="timekeeping.html" class="active">Timekeeping</a>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <div class="staff-tabs" id="staff-tabs">
+    <div class="staff-tab active" data-staff="Asadul" onclick="setStaff('Asadul',this)">👤 Asadul</div>
+    <div class="staff-tab" data-staff="Hassan" onclick="setStaff('Hassan',this)">👤 Hassan</div>
+    <div class="staff-tab" data-staff="Aminul" onclick="setStaff('Aminul',this)">👤 Aminul</div>
+    <div class="staff-tab" data-staff="Nawaz" onclick="setStaff('Nawaz',this)">👤 Nawaz</div>
+    <div class="staff-tab" data-staff="Sadat" onclick="setStaff('Sadat',this)">👤 Sadat</div>
+  </div>
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">‹</button>
+    <div class="month-label" id="month-label">—</div>
+    <button onclick="changeMonth(1)">›</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="k">Total Hours</div><div class="v blue" id="stat-hours">—</div></div>
+  <div class="stat"><div class="k">Days Worked</div><div class="v" id="stat-days">—</div></div>
+  <div class="stat"><div class="k">Avg Hours/Day</div><div class="v" id="stat-avg">—</div></div>
+  <div class="stat"><div class="k">Entries</div><div class="v" id="stat-entries">—</div></div>
+  <div class="stat"><div class="k">Staff Member</div><div class="v" id="stat-staff">—</div></div>
+</div>
+
+<div class="main">
+  <!-- Add Entry Form -->
+  <div class="add-card">
+    <div class="add-card-title">➕ New Time Entry</div>
+    <div class="add-row">
+      <div>
+        <label class="field-label">Date</label>
+        <input type="date" id="f-date">
+      </div>
+      <div>
+        <label class="field-label">Day</label>
+        <input type="text" id="f-day" placeholder="Auto" readonly style="background:#f0f4ff;cursor:default;">
+      </div>
+      <div>
+        <label class="field-label">Time From</label>
+        <input type="time" id="f-from" oninput="calcHours()">
+      </div>
+      <div>
+        <label class="field-label">Time To</label>
+        <input type="time" id="f-to" oninput="calcHours()">
+      </div>
+      <div>
+        <label class="field-label">Hours</label>
+        <div class="hours-auto" id="f-hours-display">—</div>
+      </div>
+      <div>
+        <label class="field-label">Description / Task</label>
+        <textarea id="f-desc" placeholder="e.g. Updated Payroll for June 14; submitted PAYE details..."></textarea>
+      </div>
+      <div style="padding-top:16px;">
+        <button class="save-entry-btn" onclick="saveEntry()">Save</button>
+      </div>
+    </div>
+
+    <div class="sub-items-area">
+      <label>Sub-items (clients, calls, tasks under this entry)</label>
+      <div id="sub-items-container"></div>
+      <button class="add-sub-btn" onclick="addSubItem()">+ Add item</button>
+    </div>
+    <div class="save-status" id="save-status"></div>
+  </div>
+
+  <!-- Entries -->
+  <div id="entries-container"><div class="loading">Loading entries…</div></div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://yhvhpfsoqtjwnukgyap.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+
+let currentStaff = 'Asadul';
+let currentYear = new Date().getFullYear();
+let currentMonth = new Date().getMonth() + 1; // 1-12
+let entries = [];
+let hoursValue = null;
+
+async function sbFetch(path, opts = {}) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ── Staff & Month ──
+function setStaff(staff, el) {
+  currentStaff = staff;
+  document.querySelectorAll('.staff-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  loadEntries();
+}
+
+function changeMonth(dir) {
+  currentMonth += dir;
+  if (currentMonth > 12) { currentMonth = 1; currentYear++; }
+  if (currentMonth < 1) { currentMonth = 12; currentYear--; }
+  loadEntries();
+}
+
+function updateMonthLabel() {
+  const d = new Date(currentYear, currentMonth - 1, 1);
+  document.getElementById('month-label').textContent = d.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+}
+
+// ── Hours calc ──
+function calcHours() {
+  const from = document.getElementById('f-from').value;
+  const to = document.getElementById('f-to').value;
+  const el = document.getElementById('f-hours-display');
+  if (!from || !to) { el.textContent = '—'; hoursValue = null; return; }
+  const [fh, fm] = from.split(':').map(Number);
+  const [th, tm] = to.split(':').map(Number);
+  let mins = (th * 60 + tm) - (fh * 60 + fm);
+  if (mins < 0) mins += 24 * 60;
+  hoursValue = Math.round(mins / 60 * 100) / 100;
+  el.textContent = hoursValue.toFixed(2) + 'h';
+}
+
+// ── Date → Day ──
+document.getElementById('f-date').addEventListener('change', function() {
+  const d = new Date(this.value + 'T12:00:00');
+  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  document.getElementById('f-day').value = days[d.getDay()];
+});
+
+// Set today's date by default
+(function() {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  document.getElementById('f-date').value = `${y}-${m}-${d}`;
+  document.getElementById('f-date').dispatchEvent(new Event('change'));
+})();
+
+// ── Sub items ──
+let subItems = [];
+function addSubItem(val = '') {
+  subItems.push(val);
+  renderSubItems();
+}
+function removeSubItem(i) {
+  subItems.splice(i, 1);
+  renderSubItems();
+}
+function renderSubItems() {
+  const c = document.getElementById('sub-items-container');
+  c.innerHTML = subItems.map((v, i) => `
+    <div class="sub-item-row">
+      <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted);min-width:20px">${i+1}.</span>
+      <input type="text" value="${v.replace(/"/g,'&quot;')}" placeholder="Client name / task description" oninput="subItems[${i}]=this.value">
+      <button class="rm-btn" onclick="removeSubItem(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+// ── Save entry ──
+async function saveEntry() {
+  const statusEl = document.getElementById('save-status');
+  statusEl.textContent = 'Saving…';
+  statusEl.className = 'save-status';
+
+  const dateVal = document.getElementById('f-date').value;
+  const desc = document.getElementById('f-desc').value.trim();
+
+  if (!dateVal || !desc) {
+    statusEl.textContent = '✗ Date and description are required';
+    statusEl.className = 'save-status err';
+    return;
+  }
+
+  const record = {
+    staff: currentStaff,
+    entry_date: dateVal,
+    day_name: document.getElementById('f-day').value,
+    time_from: document.getElementById('f-from').value || null,
+    time_to: document.getElementById('f-to').value || null,
+    hours: hoursValue,
+    description: desc,
+    sub_items: JSON.stringify(subItems.filter(s => s.trim()))
+  };
+
+  try {
+    await sbFetch('timekeeping', { method: 'POST', body: JSON.stringify(record) });
+    statusEl.textContent = '✓ Saved';
+    statusEl.className = 'save-status ok';
+    // Reset form
+    document.getElementById('f-desc').value = '';
+    document.getElementById('f-from').value = '';
+    document.getElementById('f-to').value = '';
+    document.getElementById('f-hours-display').textContent = '—';
+    hoursValue = null;
+    subItems = [];
+    renderSubItems();
+    setTimeout(() => { statusEl.textContent = ''; }, 2500);
+    loadEntries();
+  } catch(e) {
+    statusEl.textContent = '✗ ' + e.message;
+    statusEl.className = 'save-status err';
+  }
+}
+
+// ── Delete entry ──
+async function deleteEntry(id) {
+  if (!confirm('Delete this entry?')) return;
+  try {
+    await sbFetch('timekeeping?id=eq.' + id, { method: 'DELETE', headers: {} });
+    loadEntries();
+  } catch(e) {
+    alert('Delete failed: ' + e.message);
+  }
+}
+
+// ── Load entries ──
+async function loadEntries() {
+  updateMonthLabel();
+  document.getElementById('stat-staff').textContent = currentStaff;
+  const container = document.getElementById('entries-container');
+  container.innerHTML = '<div class="loading">Loading…</div>';
+
+  const startDate = `${currentYear}-${String(currentMonth).padStart(2,'0')}-01`;
+  const endDate = new Date(currentYear, currentMonth, 0);
+  const endStr = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(endDate.getDate()).padStart(2,'0')}`;
+
+  try {
+    const data = await sbFetch(
+      `timekeeping?staff=eq.${encodeURIComponent(currentStaff)}&entry_date=gte.${startDate}&entry_date=lte.${endStr}&order=entry_date.asc,created_at.asc`
+    );
+    entries = data;
+    renderEntries();
+  } catch(e) {
+    container.innerHTML = `<div class="no-entries"><div class="icon">⚠️</div><p>Failed to load: ${e.message}</p></div>`;
+  }
+}
+
+function renderEntries() {
+  updateStats();
+  const container = document.getElementById('entries-container');
+  if (!entries.length) {
+    container.innerHTML = `<div class="no-entries"><div class="icon">📋</div><p>No entries for ${currentStaff} this month.<br>Add the first entry above.</p></div>`;
+    return;
+  }
+
+  // Group by date
+  const groups = {};
+  entries.forEach(e => {
+    if (!groups[e.entry_date]) groups[e.entry_date] = [];
+    groups[e.entry_date].push(e);
+  });
+
+  container.innerHTML = Object.entries(groups).map(([date, dayEntries]) => {
+    const dayTotal = dayEntries.reduce((s, e) => s + (parseFloat(e.hours) || 0), 0);
+    const d = new Date(date + 'T12:00:00');
+    const dayLabel = d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const dayName = dayEntries[0].day_name || d.toLocaleString('en-GB', { weekday: 'long' });
+
+    return `<div class="day-group">
+      <div class="day-header">
+        <span class="day-date">${dayLabel}</span>
+        <span class="day-name-label">${dayName}</span>
+        ${dayTotal > 0 ? `<span class="day-total">${dayTotal.toFixed(2)}h today</span>` : ''}
+      </div>
+      ${dayEntries.map(e => {
+        let subItems = [];
+        try { subItems = JSON.parse(e.sub_items || '[]'); } catch {}
+        const timeStr = (e.time_from && e.time_to) ? `${e.time_from} → ${e.time_to}` : (e.time_from || '');
+        return `<div class="entry-row">
+          <div>
+            <div class="entry-time">${timeStr}</div>
+            ${e.hours ? `<div class="entry-hours-badge">${parseFloat(e.hours).toFixed(2)}h</div>` : ''}
+          </div>
+          <div class="entry-body">
+            <div class="entry-desc">${escHtml(e.description)}</div>
+            ${subItems.length ? `<ol class="entry-sub-list">${subItems.map((s, i) => `<li><span class="num">${i+1}.</span> ${escHtml(s)}</li>`).join('')}</ol>` : ''}
+          </div>
+          <div class="entry-actions">
+            <button class="entry-del-btn" onclick="deleteEntry('${e.id}')">Delete</button>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function updateStats() {
+  const totalHours = entries.reduce((s, e) => s + (parseFloat(e.hours) || 0), 0);
+  const uniqueDays = new Set(entries.map(e => e.entry_date)).size;
+  const avg = uniqueDays > 0 ? totalHours / uniqueDays : 0;
+  document.getElementById('stat-hours').textContent = totalHours.toFixed(2) + 'h';
+  document.getElementById('stat-days').textContent = uniqueDays;
+  document.getElementById('stat-avg').textContent = avg.toFixed(2) + 'h';
+  document.getElementById('stat-entries').textContent = entries.length;
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+loadEntries();
+</script>
+</body>
+</html>
