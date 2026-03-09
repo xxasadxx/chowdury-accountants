@@ -891,7 +891,7 @@ function renderDeadlineGrid(c){
 }
 
 // ─── ACTIVITY LOG ───
-async function async loadActivities(clientId){
+aasync function loadActivities(clientId){
   const client = DATA.find(d=>d.id===clientId);
   if(!client) return [];
   try{
