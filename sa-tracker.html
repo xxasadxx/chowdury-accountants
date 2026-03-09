@@ -585,7 +585,7 @@ function showPage(id,el){
 
 // ─── Helpers ───
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const £=n=>n!=null?'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const fmt=n=>n!=null?'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
 
 function clientTypeLabel(t){return{self_employed:'🧑‍💼 SE',director:'🏢 Director',landlord:'🏠 Landlord',employed:'💼 Employed',multiple:'⚡ Multiple'}[t]||t||'—';}
 function clientTypeBadge(t){const m={self_employed:'badge-blue',director:'badge-purple',landlord:'badge-teal',employed:'badge-grey',multiple:'badge-amber'};return`<span class="badge ${m[t]||'badge-grey'}">${clientTypeLabel(t)}</span>`;}
@@ -635,8 +635,8 @@ function renderKPIsClients(){
     <div class="kpi"><div class="k">Total Clients</div><div class="v" style="color:var(--purple)">${total}</div><div class="sub">All years</div></div>
     <div class="kpi"><div class="k">Active</div><div class="v" style="color:var(--green)">${active}</div><div class="sub">Current</div></div>
     <div class="kpi"><div class="k">Left</div><div class="v" style="color:var(--red)">${left}</div><div class="sub">No longer clients</div></div>
-    <div class="kpi"><div class="k">Total Fees</div><div class="v" style="color:var(--blue)">${£(totalFees)}</div><div class="sub">All years</div></div>
-    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--amber)">${£(totalOut)}</div><div class="sub">Unpaid</div></div>
+    <div class="kpi"><div class="k">Total Fees</div><div class="v" style="color:var(--blue)">${fmt(totalFees)}</div><div class="sub">All years</div></div>
+    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--amber)">${fmt(totalOut)}</div><div class="sub">Unpaid</div></div>
     <div class="kpi"><div class="k">Have Phone</div><div class="v">${withPhone}</div><div class="sub">of ${total}</div></div>
   `;
 }
@@ -657,7 +657,7 @@ function renderClientsTable(){
       <td>${statusBadge(c.status)}</td>
       <td style="white-space:nowrap">${years||'<span style="color:var(--muted);font-size:11px">—</span>'}</td>
       <td style="font-size:11px">${c.phone?'✅ '+esc(c.phone):'<span style="color:var(--muted)">—</span>'}</td>
-      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono);font-size:11px">${out>0?£(out):'✅ Clear'}</td>
+      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono);font-size:11px">${out>0?fmt(out):'✅ Clear'}</td>
       <td>${alertBadge(c.alerts)}</td>
     </tr>`;
   }).join('');
@@ -702,9 +702,9 @@ function renderFeesPage(){
   const totalOut=rows.reduce((s,r)=>s+(parseFloat(r.year.outstanding)||0),0);
   document.getElementById('fees-count').textContent=`${rows.length} records`;
   document.getElementById('kpi-fees').innerHTML=`
-    <div class="kpi"><div class="k">Total Invoiced</div><div class="v" style="color:var(--blue)">${£(totalFee)}</div><div class="sub">${rows.length} records</div></div>
-    <div class="kpi"><div class="k">Total Received</div><div class="v" style="color:var(--green)">${£(totalPaid)}</div><div class="sub">All payments</div></div>
-    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--red)">${£(totalOut)}</div><div class="sub">Still owed</div></div>
+    <div class="kpi"><div class="k">Total Invoiced</div><div class="v" style="color:var(--blue)">${fmt(totalFee)}</div><div class="sub">${rows.length} records</div></div>
+    <div class="kpi"><div class="k">Total Received</div><div class="v" style="color:var(--green)">${fmt(totalPaid)}</div><div class="sub">All payments</div></div>
+    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--red)">${fmt(totalOut)}</div><div class="sub">Still owed</div></div>
     <div class="kpi"><div class="k">Collection Rate</div><div class="v" style="color:var(--purple)">${totalFee>0?Math.round(totalPaid/totalFee*100):0}%</div><div class="sub">Paid vs invoiced</div></div>
   `;
   const tb=document.getElementById('fees-tbody');
@@ -717,14 +717,14 @@ function renderFeesPage(){
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
       <td style="font-weight:600">${esc(c.name)}</td>
       <td><span class="badge badge-grey">${esc(y.year)}</span></td>
-      <td style="font-family:var(--mono)">${£(y.fee)}</td>
-      <td style="font-family:var(--mono);color:var(--red)">${disc>0?'-'+£(disc):'—'}</td>
-      <td style="font-family:var(--mono);font-weight:700">${£(y.final_fee)}</td>
+      <td style="font-family:var(--mono)">${fmt(y.fee)}</td>
+      <td style="font-family:var(--mono);color:var(--red)">${disc>0?'-'+fmt(disc):'—'}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmt(y.final_fee)}</td>
       <td style="font-size:11px">${esc(y.invoice_date||'—')}</td>
-      <td style="font-family:var(--mono)">${y.amount_paid>0?£(y.amount_paid):'<span style="color:var(--muted)">—</span>'}</td>
+      <td style="font-family:var(--mono)">${y.amount_paid>0?fmt(y.amount_paid):'<span style="color:var(--muted)">—</span>'}</td>
       <td style="font-size:11px">${esc(y.payment_date||'—')}</td>
       <td>${methodBadge(y.payment_method)}</td>
-      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono)">${out>0?£(out):'✅'}</td>
+      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono)">${out>0?fmt(out):'✅'}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();quickMarkPaid(${c.id},'${y.year}')">Mark Paid</button></td>
     </tr>`;
   }).join('');
@@ -757,9 +757,9 @@ function renderReferralsPage(){
   document.getElementById('ref-count').textContent=`${rows.length} referrals`;
   document.getElementById('kpi-referrals').innerHTML=`
     <div class="kpi"><div class="k">Total Referrals</div><div class="v" style="color:var(--purple)">${rows.length}</div></div>
-    <div class="kpi"><div class="k">Commission Owed</div><div class="v" style="color:var(--amber)">${£(unpaidComm)}</div><div class="sub">10% unpaid</div></div>
-    <div class="kpi"><div class="k">Commission Paid</div><div class="v" style="color:var(--green)">${£(paidComm)}</div><div class="sub">Settled</div></div>
-    <div class="kpi"><div class="k">Total Commission</div><div class="v">${£(totalComm)}</div><div class="sub">All time</div></div>
+    <div class="kpi"><div class="k">Commission Owed</div><div class="v" style="color:var(--amber)">${fmt(unpaidComm)}</div><div class="sub">10% unpaid</div></div>
+    <div class="kpi"><div class="k">Commission Paid</div><div class="v" style="color:var(--green)">${fmt(paidComm)}</div><div class="sub">Settled</div></div>
+    <div class="kpi"><div class="k">Total Commission</div><div class="v">${fmt(totalComm)}</div><div class="sub">All time</div></div>
   `;
   const tb=document.getElementById('referrals-tbody');
   if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">No referrals recorded yet</td></tr>';return;}
@@ -772,8 +772,8 @@ function renderReferralsPage(){
       <td style="padding:9px 12px;font-weight:600">${esc(c.name)}</td>
       <td style="padding:9px 12px">${esc(c.referred_by)}</td>
       <td style="padding:9px 12px"><span class="badge badge-grey">${joinYear}</span></td>
-      <td style="padding:9px 12px;font-family:var(--mono)">${£(fee)}</td>
-      <td style="padding:9px 12px;font-family:var(--mono);font-weight:700;color:var(--amber)">${£(comm)}</td>
+      <td style="padding:9px 12px;font-family:var(--mono)">${fmt(fee)}</td>
+      <td style="padding:9px 12px;font-family:var(--mono);font-weight:700;color:var(--amber)">${fmt(comm)}</td>
       <td style="padding:9px 12px">${c.referral_fee_paid?'<span class="badge badge-green">✅ Paid</span>':'<span class="badge badge-amber">⏳ Unpaid</span>'}</td>
       <td style="padding:9px 12px"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleCommission(${c.id})">${c.referral_fee_paid?'Mark Unpaid':'Mark Paid'}</button></td>
     </tr>`;
@@ -849,8 +849,8 @@ function renderTrendsPage(){
     const pct=total>0?Math.round(collected/total*100):0;
     html+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px">
       <span style="width:70px;font-weight:600">${y}</span>
-      <span style="flex:1;font-family:var(--mono)">${£(total)} invoiced</span>
-      <span style="font-family:var(--mono);color:var(--green)">${£(collected)} paid</span>
+      <span style="flex:1;font-family:var(--mono)">${fmt(total)} invoiced</span>
+      <span style="font-family:var(--mono);color:var(--green)">${fmt(collected)} paid</span>
       <div style="width:100px;height:6px;background:var(--border);border-radius:3px"><div style="width:${pct}%;height:100%;background:var(--green);border-radius:3px"></div></div>
       <span style="font-size:11px;color:var(--muted);width:32px">${pct}%</span>
     </div>`;
@@ -919,8 +919,8 @@ function renderTaxYearsList(c){
         <span style="font-size:11px;color:var(--muted);margin-left:8px">Submitted by: ${staffShort(y.submitted_by)}</span>
       </div>
       <div style="display:flex;gap:6px;align-items:center">
-        <span style="font-family:var(--mono);font-size:12px;font-weight:600">${£(y.final_fee)}</span>
-        ${parseFloat(y.outstanding)>0?`<span class="badge badge-red">${£(y.outstanding)} owed</span>`:'<span class="badge badge-green">Paid</span>'}
+        <span style="font-family:var(--mono);font-size:12px;font-weight:600">${fmt(y.final_fee)}</span>
+        ${parseFloat(y.outstanding)>0?`<span class="badge badge-red">${fmt(y.outstanding)} owed</span>`:'<span class="badge badge-green">Paid</span>'}
         <button class="btn btn-secondary btn-sm" onclick="editTaxYear(${i})">Edit</button>
         <button class="btn btn-danger btn-sm" onclick="removeTaxYear(${i})">✕</button>
       </div>
@@ -1003,19 +1003,19 @@ function renderFeesList(c){
         <div class="field"><label>Outstanding (£)</label><input type="number" value="${y.outstanding!=null?y.outstanding:(y.final_fee||180)}" onchange="updateFeeField(${i},'outstanding',this.value)" style="font-family:var(--mono);${parseFloat(y.outstanding)>0?'color:var(--red);font-weight:700':''}" id="outstanding-field-${i}"></div>
       </div>
       <div class="fee-summary">
-        <div class="fee-sum-item"><div class="fk">Fee</div><div class="fv">${£(y.fee)}</div></div>
-        <div class="fee-sum-item"><div class="fk">Discount</div><div class="fv" style="color:var(--red)">${parseFloat(y.discount)>0?'-'+£(y.discount):'None'}</div></div>
-        <div class="fee-sum-item"><div class="fk">Final</div><div class="fv" style="color:var(--blue)">${£(y.final_fee)}</div></div>
-        <div class="fee-sum-item"><div class="fk">Paid</div><div class="fv" style="color:var(--green)">${£(y.amount_paid)}</div></div>
-        <div class="fee-sum-item"><div class="fk">Outstanding</div><div class="fv ${parseFloat(y.outstanding)>0?'money-red':'money-green'}" id="fee-summary-out-${i}">${parseFloat(y.outstanding)>0?£(y.outstanding):'✅ Clear'}</div></div>
+        <div class="fee-sum-item"><div class="fk">Fee</div><div class="fv">${fmt(y.fee)}</div></div>
+        <div class="fee-sum-item"><div class="fk">Discount</div><div class="fv" style="color:var(--red)">${parseFloat(y.discount)>0?'-'+fmt(y.discount):'None'}</div></div>
+        <div class="fee-sum-item"><div class="fk">Final</div><div class="fv" style="color:var(--blue)">${fmt(y.final_fee)}</div></div>
+        <div class="fee-sum-item"><div class="fk">Paid</div><div class="fv" style="color:var(--green)">${fmt(y.amount_paid)}</div></div>
+        <div class="fee-sum-item"><div class="fk">Outstanding</div><div class="fv ${parseFloat(y.outstanding)>0?'money-red':'money-green'}" id="fee-summary-out-${i}">${parseFloat(y.outstanding)>0?fmt(y.outstanding):'✅ Clear'}</div></div>
       </div>
     </div>`).join('');
 
   document.getElementById('cm-fees-total').innerHTML=`
     <div style="display:flex;gap:20px;flex-wrap:wrap">
-      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Invoiced</span><br><strong style="font-size:15px;font-family:var(--mono)">${£(totalFee)}</strong></div>
-      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Paid</span><br><strong style="font-size:15px;font-family:var(--mono);color:var(--green)">${£(totalPaid)}</strong></div>
-      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Outstanding</span><br><strong style="font-size:15px;font-family:var(--mono);color:${totalOut>0?'var(--red)':'var(--green)'}">${totalOut>0?£(totalOut):'✅ Fully Clear'}</strong></div>
+      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Invoiced</span><br><strong style="font-size:15px;font-family:var(--mono)">${fmt(totalFee)}</strong></div>
+      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Paid</span><br><strong style="font-size:15px;font-family:var(--mono);color:var(--green)">${fmt(totalPaid)}</strong></div>
+      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Outstanding</span><br><strong style="font-size:15px;font-family:var(--mono);color:${totalOut>0?'var(--red)':'var(--green)'}">${totalOut>0?fmt(totalOut):'✅ Fully Clear'}</strong></div>
     </div>`;
 }
 
@@ -1089,8 +1089,8 @@ function renderReferralsMade(c){
   const refs=DATA.filter(x=>x.referred_by&&x.referred_by.toLowerCase()===((c.forename+' '+c.surname).toLowerCase())||x.referred_by?.toLowerCase()===c.name?.toLowerCase());
   if(!refs.length){el.innerHTML='<p style="font-size:12px;color:var(--muted)">No referrals recorded from this client</p>';return;}
   const total=refs.reduce((s,r)=>s+getClientTotalFee(r)*0.1,0);
-  el.innerHTML=`<div style="margin-bottom:8px;font-size:12px;color:var(--purple);font-weight:600">${refs.length} referral${refs.length>1?'s':''} · ${£(total)} commission total</div>`+
-    refs.map(r=>`<div class="ref-row"><div><div class="ref-name">${esc(r.name)}</div><div class="ref-meta">${(r.tax_years||[])[0]?.year||'—'} · ${£(getClientTotalFee(r))} fees</div></div><span class="badge ${r.referral_fee_paid?'badge-green':'badge-amber'}">${r.referral_fee_paid?'Commission paid':'Commission owed'}</span></div>`).join('');
+  el.innerHTML=`<div style="margin-bottom:8px;font-size:12px;color:var(--purple);font-weight:600">${refs.length} referral${refs.length>1?'s':''} · ${fmt(total)} commission total</div>`+
+    refs.map(r=>`<div class="ref-row"><div><div class="ref-name">${esc(r.name)}</div><div class="ref-meta">${(r.tax_years||[])[0]?.year||'—'} · ${fmt(getClientTotalFee(r))} fees</div></div><span class="badge ${r.referral_fee_paid?'badge-green':'badge-amber'}">${r.referral_fee_paid?'Commission paid':'Commission owed'}</span></div>`).join('');
 }
 
 // ─── DOCS ───
@@ -1210,7 +1210,7 @@ function exportClientsPDF(){
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('The Chowdury Accountants — Self Assessment Clients',14,15);
   doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(`${getFiltered().length} clients · Generated ${new Date().toLocaleDateString('en-GB')}`,14,21);
   doc.autoTable({startY:25,head:[['#','Name','UTR','Type','Status','Fee','Paid','Outstanding','Alert']],
-    body:getFiltered().map((c,i)=>[i+1,c.name,c.utr||'',c.client_type||'',c.status||'active',£(getClientTotalFee(c)),£(getClientTotalPaid(c)),£(getClientOutstanding(c)),c.alerts||'']),
+    body:getFiltered().map((c,i)=>[i+1,c.name,c.utr||'',c.client_type||'',c.status||'active',fmt(getClientTotalFee(c)),fmt(getClientTotalPaid(c)),fmt(getClientOutstanding(c)),c.alerts||'']),
     styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[124,58,237],textColor:255},alternateRowStyles:{fillColor:[248,249,252]}});
   doc.save(`SAClients_${new Date().toISOString().slice(0,10)}.pdf`);
 }
@@ -1223,7 +1223,7 @@ function exportFeesPDF(){
   const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('The Chowdury Accountants — SA Fees & Payments',14,15);
   doc.autoTable({startY:22,head:[['#','Client','Year','Fee','Discount','Final','Invoice Date','Paid','Method','Outstanding']],
-    body:getFeeRows().map((r,i)=>[i+1,r.client.name,r.year.year,£(r.year.fee),£(r.year.discount||0),£(r.year.final_fee),r.year.invoice_date||'',£(r.year.amount_paid||0),r.year.payment_method||'',£(r.year.outstanding||0)]),
+    body:getFeeRows().map((r,i)=>[i+1,r.client.name,r.year.year,fmt(r.year.fee),fmt(r.year.discount||0),fmt(r.year.final_fee),r.year.invoice_date||'',fmt(r.year.amount_paid||0),r.year.payment_method||'',fmt(r.year.outstanding||0)]),
     styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[124,58,237],textColor:255},alternateRowStyles:{fillColor:[248,249,252]}});
   doc.save(`SAFees_${new Date().toISOString().slice(0,10)}.pdf`);
 }

@@ -536,7 +536,7 @@ function showPage(id,el){
 
 // ─── HELPERS ───
 const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-const £=n=>n!=null?'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const fmt=n=>n!=null?'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
 const today=new Date();
 
 function daysUntil(dStr){
@@ -596,8 +596,8 @@ function renderKPIsClients(){
     <div class="kpi"><div class="k">Active</div><div class="v" style="color:var(--green)">${active}</div></div>
     <div class="kpi"><div class="k">Red Alerts</div><div class="v" style="color:var(--red)">${reds}</div><div class="sub">Urgent</div></div>
     <div class="kpi"><div class="k">Hospitality</div><div class="v" style="color:var(--orange)">${hosp}</div><div class="sub">Restaurants etc</div></div>
-    <div class="kpi"><div class="k">Total Fees</div><div class="v" style="color:var(--blue)">${£(totalFees)}</div><div class="sub">All periods</div></div>
-    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--amber)">${£(totalOut)}</div><div class="sub">Unpaid</div></div>
+    <div class="kpi"><div class="k">Total Fees</div><div class="v" style="color:var(--blue)">${fmt(totalFees)}</div><div class="sub">All periods</div></div>
+    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--amber)">${fmt(totalOut)}</div><div class="sub">Unpaid</div></div>
   `;
 }
 
@@ -618,7 +618,7 @@ function renderClientsTable(){
       <td class="${dc}">${esc(c.accounts_due||'—')}</td>
       <td class="${cc}">${esc(c.conf_due||'—')}</td>
       <td class="${vc}">${esc(c.vat_due||'—')}</td>
-      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono);font-size:11px">${out>0?£(out):'✅'}</td>
+      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono);font-size:11px">${out>0?fmt(out):'✅'}</td>
       <td>${alertBadge(c.alerts)}</td>
     </tr>`;
   }).join('');
@@ -657,9 +657,9 @@ function renderFeesPage(){
   const totalOut=rows.reduce((s,r)=>s+(parseFloat(r.year.outstanding)||0),0);
   document.getElementById('fees-count').textContent=`${rows.length} records`;
   document.getElementById('kpi-fees').innerHTML=`
-    <div class="kpi"><div class="k">Invoiced</div><div class="v" style="color:var(--blue)">${£(totalFee)}</div></div>
-    <div class="kpi"><div class="k">Received</div><div class="v" style="color:var(--green)">${£(totalPaid)}</div></div>
-    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--red)">${£(totalOut)}</div></div>
+    <div class="kpi"><div class="k">Invoiced</div><div class="v" style="color:var(--blue)">${fmt(totalFee)}</div></div>
+    <div class="kpi"><div class="k">Received</div><div class="v" style="color:var(--green)">${fmt(totalPaid)}</div></div>
+    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--red)">${fmt(totalOut)}</div></div>
     <div class="kpi"><div class="k">Collection Rate</div><div class="v" style="color:var(--blue)">${totalFee>0?Math.round(totalPaid/totalFee*100):0}%</div></div>
   `;
   const tb=document.getElementById('fees-tbody');
@@ -672,15 +672,15 @@ function renderFeesPage(){
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
       <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</td>
       <td><span class="badge badge-grey">${esc(y.period_end||'—')}</span></td>
-      <td style="font-family:var(--mono)">${£(y.accounts_fee)}</td>
-      <td style="font-family:var(--mono)">${(parseFloat(y.cs_fee)||0)>0?£(y.cs_fee):'—'}</td>
-      <td style="font-family:var(--mono)">${(parseFloat(y.vat_fee)||0)>0?£(y.vat_fee):'—'}</td>
-      <td style="font-family:var(--mono)">${(parseFloat(y.payroll_fee)||0)>0?£(y.payroll_fee):'—'}</td>
-      <td style="font-family:var(--mono)">${(parseFloat(y.other_fee)||0)>0?£(y.other_fee):'—'}</td>
-      <td style="font-family:var(--mono);color:var(--red)">${disc>0?'-'+£(disc):'—'}</td>
-      <td style="font-family:var(--mono);font-weight:700">${£(y.final_fee)}</td>
-      <td style="font-family:var(--mono)">${(parseFloat(y.amount_paid)||0)>0?£(y.amount_paid):'—'}</td>
-      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono)">${out>0?£(out):'✅'}</td>
+      <td style="font-family:var(--mono)">${fmt(y.accounts_fee)}</td>
+      <td style="font-family:var(--mono)">${(parseFloat(y.cs_fee)||0)>0?fmt(y.cs_fee):'—'}</td>
+      <td style="font-family:var(--mono)">${(parseFloat(y.vat_fee)||0)>0?fmt(y.vat_fee):'—'}</td>
+      <td style="font-family:var(--mono)">${(parseFloat(y.payroll_fee)||0)>0?fmt(y.payroll_fee):'—'}</td>
+      <td style="font-family:var(--mono)">${(parseFloat(y.other_fee)||0)>0?fmt(y.other_fee):'—'}</td>
+      <td style="font-family:var(--mono);color:var(--red)">${disc>0?'-'+fmt(disc):'—'}</td>
+      <td style="font-family:var(--mono);font-weight:700">${fmt(y.final_fee)}</td>
+      <td style="font-family:var(--mono)">${(parseFloat(y.amount_paid)||0)>0?fmt(y.amount_paid):'—'}</td>
+      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono)">${out>0?fmt(out):'✅'}</td>
       <td><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();quickMarkPaid(${c.id},'${y.period_end}')">Mark Paid</button></td>
     </tr>`;
   }).join('');
@@ -707,9 +707,9 @@ function renderReferralsPage(){
   document.getElementById('ref-count').textContent=`${rows.length} referrals`;
   document.getElementById('kpi-referrals').innerHTML=`
     <div class="kpi"><div class="k">Total Referrals</div><div class="v" style="color:var(--blue)">${rows.length}</div></div>
-    <div class="kpi"><div class="k">Commission Owed</div><div class="v" style="color:var(--amber)">${£(totalComm-paidComm)}</div><div class="sub">10% unpaid</div></div>
-    <div class="kpi"><div class="k">Commission Paid</div><div class="v" style="color:var(--green)">${£(paidComm)}</div></div>
-    <div class="kpi"><div class="k">Total Commission</div><div class="v">${£(totalComm)}</div></div>
+    <div class="kpi"><div class="k">Commission Owed</div><div class="v" style="color:var(--amber)">${fmt(totalComm-paidComm)}</div><div class="sub">10% unpaid</div></div>
+    <div class="kpi"><div class="k">Commission Paid</div><div class="v" style="color:var(--green)">${fmt(paidComm)}</div></div>
+    <div class="kpi"><div class="k">Total Commission</div><div class="v">${fmt(totalComm)}</div></div>
   `;
   const tb=document.getElementById('referrals-tbody');
   if(!rows.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--muted)">No referrals recorded</td></tr>';return;}
@@ -720,8 +720,8 @@ function renderReferralsPage(){
       <td style="padding:8px 11px;font-weight:600">${esc(c.name)}</td>
       <td style="padding:8px 11px">${esc(c.referred_by)}</td>
       <td style="padding:8px 11px">${sectorBadge(c.sector)}</td>
-      <td style="padding:8px 11px;font-family:var(--mono)">${£(fee)}</td>
-      <td style="padding:8px 11px;font-family:var(--mono);font-weight:700;color:var(--amber)">${£(comm)}</td>
+      <td style="padding:8px 11px;font-family:var(--mono)">${fmt(fee)}</td>
+      <td style="padding:8px 11px;font-family:var(--mono);font-weight:700;color:var(--amber)">${fmt(comm)}</td>
       <td style="padding:8px 11px">${c.referral_fee_paid?'<span class="badge badge-green">✅ Paid</span>':'<span class="badge badge-amber">⏳ Unpaid</span>'}</td>
       <td style="padding:8px 11px"><button class="btn btn-secondary btn-sm" onclick="event.stopPropagation();toggleCommission(${c.id})">${c.referral_fee_paid?'Mark Unpaid':'Mark Paid'}</button></td>
     </tr>`;
@@ -753,8 +753,8 @@ function renderTrendsPage(){
     const pct=Math.round(v.paid/v.fee*100);
     html+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px">
       <span style="width:130px;font-weight:600">${sLabels[s]||s}</span>
-      <span style="flex:1;font-family:var(--mono)">${£(v.fee)}</span>
-      <span style="font-family:var(--mono);color:var(--green)">${£(v.paid)} paid</span>
+      <span style="flex:1;font-family:var(--mono)">${fmt(v.fee)}</span>
+      <span style="font-family:var(--mono);color:var(--green)">${fmt(v.paid)} paid</span>
       <div style="width:100px;height:6px;background:var(--border);border-radius:3px"><div style="width:${pct}%;height:100%;background:var(--green);border-radius:3px"></div></div>
       <span style="font-size:11px;color:var(--muted);width:35px">${pct}%</span>
     </div>`;
@@ -940,18 +940,18 @@ function renderFeesList(c){
         <div class="field"><label>Outstanding (£)</label><input type="number" id="outstanding-f-${i}" value="${y.outstanding!=null?y.outstanding:y.final_fee||0}" onchange="updateFeeField(${i},'outstanding',parseFloat(this.value)||0)" style="font-family:var(--mono);${parseFloat(y.outstanding)>0?'color:var(--red);font-weight:700':''}"></div>
       </div>
       <div class="fee-summary">
-        <div class="fee-sum-item"><div class="fk">Total</div><div class="fv" id="fee-tot-${i}">${£((parseFloat(y.accounts_fee)||0)+(parseFloat(y.cs_fee)||0)+(parseFloat(y.vat_fee)||0)+(parseFloat(y.payroll_fee)||0)+(parseFloat(y.bookkeeping_fee)||0)+(parseFloat(y.other_fee)||0))}</div></div>
-        <div class="fee-sum-item"><div class="fk">Discount</div><div class="fv" style="color:var(--red)">${parseFloat(y.discount)>0?'-'+£(y.discount):'None'}</div></div>
-        <div class="fee-sum-item"><div class="fk">Final</div><div class="fv" style="color:var(--blue)">${£(y.final_fee)}</div></div>
-        <div class="fee-sum-item"><div class="fk">Paid</div><div class="fv" style="color:var(--green)">${£(y.amount_paid)}</div></div>
-        <div class="fee-sum-item"><div class="fk">Outstanding</div><div class="fv ${parseFloat(y.outstanding)>0?'money-red':'money-green'}" id="fee-out-${i}">${parseFloat(y.outstanding)>0?£(y.outstanding):'✅ Clear'}</div></div>
+        <div class="fee-sum-item"><div class="fk">Total</div><div class="fv" id="fee-tot-${i}">${fmt((parseFloat(y.accounts_fee)||0)+(parseFloat(y.cs_fee)||0)+(parseFloat(y.vat_fee)||0)+(parseFloat(y.payroll_fee)||0)+(parseFloat(y.bookkeeping_fee)||0)+(parseFloat(y.other_fee)||0))}</div></div>
+        <div class="fee-sum-item"><div class="fk">Discount</div><div class="fv" style="color:var(--red)">${parseFloat(y.discount)>0?'-'+fmt(y.discount):'None'}</div></div>
+        <div class="fee-sum-item"><div class="fk">Final</div><div class="fv" style="color:var(--blue)">${fmt(y.final_fee)}</div></div>
+        <div class="fee-sum-item"><div class="fk">Paid</div><div class="fv" style="color:var(--green)">${fmt(y.amount_paid)}</div></div>
+        <div class="fee-sum-item"><div class="fk">Outstanding</div><div class="fv ${parseFloat(y.outstanding)>0?'money-red':'money-green'}" id="fee-out-${i}">${parseFloat(y.outstanding)>0?fmt(y.outstanding):'✅ Clear'}</div></div>
       </div>
     </div>`).join('');
   document.getElementById('cm-fees-total').innerHTML=`
     <div style="display:flex;gap:20px;flex-wrap:wrap">
-      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Invoiced</span><br><strong style="font-size:15px;font-family:var(--mono)">${£(totalFee)}</strong></div>
-      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Paid</span><br><strong style="font-size:15px;font-family:var(--mono);color:var(--green)">${£(totalPaid)}</strong></div>
-      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Outstanding</span><br><strong style="font-size:15px;font-family:var(--mono);color:${totalOut>0?'var(--red)':'var(--green)'}">${totalOut>0?£(totalOut):'✅ Fully Clear'}</strong></div>
+      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Invoiced</span><br><strong style="font-size:15px;font-family:var(--mono)">${fmt(totalFee)}</strong></div>
+      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Paid</span><br><strong style="font-size:15px;font-family:var(--mono);color:var(--green)">${fmt(totalPaid)}</strong></div>
+      <div><span style="font-size:10px;color:var(--muted);text-transform:uppercase">Total Outstanding</span><br><strong style="font-size:15px;font-family:var(--mono);color:${totalOut>0?'var(--red)':'var(--green)'}">${totalOut>0?fmt(totalOut):'✅ Fully Clear'}</strong></div>
     </div>`;
 }
 
@@ -979,7 +979,7 @@ function updateFeeCalcPaid(i,val){
   y.outstanding=Math.max(0,(y.final_fee||0)-y.amount_paid);
   const oEl=document.getElementById(`outstanding-f-${i}`);if(oEl)oEl.value=y.outstanding;
   const outEl=document.getElementById(`fee-out-${i}`);
-  if(outEl){outEl.textContent=y.outstanding>0?£(y.outstanding):'✅ Clear';outEl.className='fee-sum-item fv '+(y.outstanding>0?'money-red':'money-green');}
+  if(outEl){outEl.textContent=y.outstanding>0?fmt(y.outstanding):'✅ Clear';outEl.className='fee-sum-item fv '+(y.outstanding>0?'money-red':'money-green');}
 }
 function addFeeYear(){
   const c=DATA.find(x=>x.id===currentId);if(!c)return;
@@ -999,8 +999,8 @@ function renderReferralsMade(c){
   const refs=DATA.filter(x=>x.referred_by&&(x.referred_by.toLowerCase()===c.name.toLowerCase()||x.referred_by.toLowerCase()===c.director_name?.toLowerCase()));
   if(!refs.length){el.innerHTML='<p style="font-size:12px;color:var(--muted)">No referrals from this company</p>';return;}
   const total=refs.reduce((s,r)=>s+getClientTotalFee(r)*0.1,0);
-  el.innerHTML=`<div style="margin-bottom:8px;font-size:12px;color:var(--blue);font-weight:600">${refs.length} referral${refs.length>1?'s':''} · ${£(total)} commission</div>`+
-    refs.map(r=>`<div class="ref-row"><div><div style="font-weight:600;font-size:12px">${esc(r.name)}</div><div style="font-size:10px;color:var(--muted)">${£(getClientTotalFee(r))} fees</div></div><span class="badge ${r.referral_fee_paid?'badge-green':'badge-amber'}">${r.referral_fee_paid?'Commission paid':'Commission owed'}</span></div>`).join('');
+  el.innerHTML=`<div style="margin-bottom:8px;font-size:12px;color:var(--blue);font-weight:600">${refs.length} referral${refs.length>1?'s':''} · ${fmt(total)} commission</div>`+
+    refs.map(r=>`<div class="ref-row"><div><div style="font-weight:600;font-size:12px">${esc(r.name)}</div><div style="font-size:10px;color:var(--muted)">${fmt(getClientTotalFee(r))} fees</div></div><span class="badge ${r.referral_fee_paid?'badge-green':'badge-amber'}">${r.referral_fee_paid?'Commission paid':'Commission owed'}</span></div>`).join('');
 }
 
 // ─── DOCS ───
@@ -1107,7 +1107,7 @@ function exportClientsPDF(){
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('The Chowdury Accountants — Ltd Company Clients',14,15);
   doc.setFontSize(8);doc.setFont('helvetica','normal');doc.text(`${getFiltered().length} companies · Generated ${new Date().toLocaleDateString('en-GB')}`,14,21);
   doc.autoTable({startY:25,head:[['#','Company','Comp No','Sector','Status','Accounts Due','CS Due','Outstanding','Alert']],
-    body:getFiltered().map((c,i)=>[i+1,c.name,c.comp_no||'',c.sector||'',c.status||'active',c.accounts_due||'',c.conf_due||'',£(getClientOutstanding(c)),c.alerts||'']),
+    body:getFiltered().map((c,i)=>[i+1,c.name,c.comp_no||'',c.sector||'',c.status||'active',c.accounts_due||'',c.conf_due||'',fmt(getClientOutstanding(c)),c.alerts||'']),
     styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[59,130,246],textColor:255},alternateRowStyles:{fillColor:[248,249,252]}});
   doc.save(`LtdClients_${new Date().toISOString().slice(0,10)}.pdf`);
 }
@@ -1120,7 +1120,7 @@ function exportFeesPDF(){
   const{jsPDF}=window.jspdf;const doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.text('The Chowdury Accountants — Ltd Co Fees & Payments',14,15);
   doc.autoTable({startY:22,head:[['#','Company','Period','Accounts','CS','VAT','Payroll','Discount','Final','Paid','Outstanding']],
-    body:getFeeRows().map((r,i)=>[i+1,r.client.name,r.year.period_end||'',£(r.year.accounts_fee||0),£(r.year.cs_fee||0),£(r.year.vat_fee||0),£(r.year.payroll_fee||0),£(r.year.discount||0),£(r.year.final_fee||0),£(r.year.amount_paid||0),£(r.year.outstanding||0)]),
+    body:getFeeRows().map((r,i)=>[i+1,r.client.name,r.year.period_end||'',fmt(r.year.accounts_fee||0),fmt(r.year.cs_fee||0),fmt(r.year.vat_fee||0),fmt(r.year.payroll_fee||0),fmt(r.year.discount||0),fmt(r.year.final_fee||0),fmt(r.year.amount_paid||0),fmt(r.year.outstanding||0)]),
     styles:{fontSize:7,cellPadding:2},headStyles:{fillColor:[59,130,246],textColor:255},alternateRowStyles:{fillColor:[248,249,252]}});
   doc.save(`LtdFees_${new Date().toISOString().slice(0,10)}.pdf`);
 }
