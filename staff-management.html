@@ -409,28 +409,43 @@ function selClient(cn,name){document.getElementById('f-client').value=name;docum
 document.addEventListener('click',e=>{if(!e.target.closest('.cs-wrap'))document.getElementById('cs-dd').style.display='none';});
 
 async function logActivity(){
-  const msg=document.getElementById('act-msg');msg.textContent='Saving…';msg.className='save-msg';
-  const date=document.getElementById('f-date').value,desc=document.getElementById('f-desc').value.trim();
+  const msg=document.getElementById('act-msg');
+  const date=document.getElementById('f-date').value;
+  const desc=document.getElementById('f-desc').value.trim();
   if(!date||!desc){msg.textContent='✗ Date and description required';msg.className='save-msg err';return;}
+  msg.textContent='Saving…';msg.className='save-msg';
   const cn=document.getElementById('f-comp-no').value||null;
   const cname=cn?(window._CLIENTS||[]).find(c=>c.comp_no===cn)?.name||null:null;
+  const payload={
+    staff:curStaff,
+    comp_no:cn,
+    client_name:cname,
+    task_type:document.getElementById('f-task').value,
+    description:desc,
+    activity_date:date,
+    time_from:document.getElementById('f-from').value||null,
+    time_to:document.getElementById('f-to').value||null,
+    hours:hoursVal
+  };
   try{
-    await sb('staff_activities',{method:'POST',body:JSON.stringify({staff:curStaff,comp_no:cn,client_name:cname,task_type:document.getElementById('f-task').value,description:desc,activity_date:date,time_from:document.getElementById('f-from').value||null,time_to:document.getElementById('f-to').value||null,hours:hoursVal})});
+    const r=await fetch(SB_URL+'/rest/v1/staff_activities',{
+      method:'POST',
+      headers:{
+        'apikey':SB_KEY,
+        'Authorization':'Bearer '+SB_KEY,
+        'Content-Type':'application/json',
+        'Prefer':'return=minimal'
+      },
+      body:JSON.stringify(payload)
+    });
+    if(!r.ok){const err=await r.text();throw new Error(err);}
     msg.textContent='✓ Saved';msg.className='save-msg ok';
     ['f-desc','f-from','f-to','f-client','f-comp-no'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('f-hours').textContent='—';hoursVal=null;
-    setTimeout(()=>{msg.textContent='';},2500);loadActivities();
+    setTimeout(()=>{msg.textContent='';},2500);
+    loadActivities();
   }catch(e){
-    const txt=e.message||'';
-    if(txt.includes('relation')&&txt.includes('exist')){
-      msg.textContent='✗ Table not found — run SQL setup in Supabase';
-    } else if(txt.includes('Failed to fetch')||txt.includes('NetworkError')){
-      msg.textContent='✗ Network error — check internet connection';
-    } else if(txt.includes('violates')||txt.includes('policy')){
-      msg.textContent='✗ Permission denied — check RLS policy';
-    } else {
-      msg.textContent='✗ '+txt.slice(0,80);
-    }
+    msg.textContent='✗ '+(e.message||'Failed').slice(0,100);
     msg.className='save-msg err';
     console.error('logActivity error:',e);
   }
