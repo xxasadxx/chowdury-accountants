@@ -996,7 +996,10 @@ function openAddClientModal() {
   document.getElementById('add-modal-bg').style.display = 'flex';
   document.getElementById('ch-search-input').value = '';
   document.getElementById('ch-search-results').innerHTML = '';
-  document.getElementById('add-form-fields').style.display = 'none';
+  document.getElementById('add-form-title').textContent = '✍️ Fill details below or search above to auto-fill';
+  document.getElementById('add-form-title').style.color = 'var(--text-muted)';
+  ['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('af-alerts').value = '';
 }
 function closeAddModal() {
   document.getElementById('add-modal-bg').style.display = 'none';
@@ -1048,6 +1051,7 @@ function populateAddForm(data) {
   if (!compNo) { alert('Could not find company number. Try searching by company number directly.'); return; }
   document.getElementById('add-form-fields').style.display = 'block';
   document.getElementById('add-form-title').textContent = '✅ ' + (data.company_name || data.title || 'Company Selected') + ' (' + compNo + ')';
+  document.getElementById('add-form-title').style.color = 'var(--green)';
   document.getElementById('af-name').value = data.company_name || data.title || '';
   document.getElementById('af-compno').value = compNo;
   // Parse accounts due
@@ -1217,7 +1221,7 @@ function exportLtdPDF() {
         <div id="ch-search-results" style="margin-top:10px;max-height:220px;overflow-y:auto"></div>
       </div>
       <!-- Manual/Selected Fields -->
-      <div id="add-form-fields" style="display:none">
+      <div id="add-form-fields">
         <div style="border-top:1px solid var(--border2);padding-top:16px;margin-top:4px">
           <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:12px" id="add-form-title">✅ Company Selected</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
