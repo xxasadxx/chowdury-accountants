@@ -172,6 +172,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
 <body>
 
 <!-- NAV -->
+<div id="debug-bar" style="background:#1e40af;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;position:sticky;top:0;z-index:99999">Loading...</div>
 <div id="portal-nav">
   <div class="nav-brand"><span>Chowdury Accountants</span><span>Practice Portal</span></div>
   <script>(function(){const p=window.location.pathname.split('/').pop()||'index.html';document.querySelectorAll('#portal-nav a').forEach(a=>{if(a.getAttribute('href')&&p.includes(a.getAttribute('href').replace('.html','')))a.style.cssText='color:#fff;background:rgba(255,255,255,0.12)';});})();</script>
@@ -516,8 +517,21 @@ const SEED = [];
 
 // ─── Boot ───
 async function init() {
-  DATA = [{"id":1,"forename":"Shuel","surname":"Miah","name":"Shuel Miah","utr":"5029148785","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"09/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":2,"forename":"Abul Kalam","surname":"Azad","name":"Abul Kalam Azad","utr":"2963441437","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"14/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":3,"forename":"Aminoor","surname":"Islam","name":"Aminoor Islam","utr":"2316272364","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"16/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":4,"forename":"Mohammed","surname":"Rahman","name":"Mohammed Rahman","utr":"4213479613","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"16/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""},{"id":5,"forename":"Shah Sultana","surname":"Foyjun","name":"Shah Sultana Foyjun","utr":"9773980930","ni_number":"","dob":"","phone":"","email":"","address":"","client_type":"self_employed","status":"active","referred_by":"","referral_fee_paid":false,"notes":"","alerts":"","documents":[],"businesses":[],"tax_years":[{"year":"2024/25","submitted_by":"Md Asadul Islam Chowdury","completed":"16/04/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"reason_for_leaving":"","left_year":""}];
-  renderAll();
+  const dbg = s => { 
+    const d = document.getElementById('debug-bar'); 
+    if(d) d.innerHTML = s; 
+    console.log(s); 
+  };
+  dbg('Step 1: init() running');
+  const sample = [{"id":1,"forename":"Shuel","surname":"Miah","name":"Shuel Miah","utr":"5029148785","ni_number":"","dob":"","phone":"","email":"","address":"","notes":"","alerts":"","referred_by":"","ref_year":"","referral_fee_paid":false,"client_type":"self_employed","status":"active","tax_years":[{"year":"2024/25","submitted_by":"Asadul","completed":"15/01/2025","status":"submitted","fee":180,"discount":0,"discount_reason":"","final_fee":180,"invoice_date":"","invoice_number":"","amount_paid":0,"payment_date":"","payment_method":"","outstanding":180,"notes":""}],"businesses":[]}];
+  DATA = sample;
+  dbg('Step 2: DATA set, ' + DATA.length + ' records');
+  try { renderKPIsClients(); dbg('Step 3: KPIs OK'); } catch(e) { dbg('KPI CRASH: ' + e.message); return; }
+  try { renderClientsTable(); dbg('Step 4: Table OK'); } catch(e) { dbg('TABLE CRASH: ' + e.message); return; }
+  try { renderFeesPage(); dbg('Step 5: Fees OK'); } catch(e) { dbg('FEES CRASH: ' + e.message); return; }
+  try { renderReferralsPage(); dbg('Step 6: Referrals OK'); } catch(e) { dbg('REFERRALS CRASH: ' + e.message); return; }
+  try { renderTrendsPage(); dbg('Step 7: Trends OK'); } catch(e) { dbg('TRENDS CRASH: ' + e.message); return; }
+  dbg('All steps complete!');
 }
 
 function showSeedButton(){
