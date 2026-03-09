@@ -583,7 +583,7 @@ function populateYearFilter(){
   sel.innerHTML='<option value="all">All Years</option>'+years.map(y=>`<option value="${y}">${y}</option>`).join('');
   if(years.includes(current))sel.value=current;
 }
-function renderAll(){renderKPIsClients();renderClientsTable();renderFeesPage();renderReferralsPage();renderTrendsPage();}
+function renderAll(){populateYearFilter();renderKPIsClients();renderClientsTable();renderFeesPage();renderReferralsPage();renderTrendsPage();}
 
 // ─── Page tabs ───
 function showPage(id,el){
