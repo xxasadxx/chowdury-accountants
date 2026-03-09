@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quote Calculator — The Chowdury Accountants</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f6fa;--surface:#fff;--surface2:#f8f9fc;
+  --border:#e2e6ef;--border2:#d0d6e3;
+  --text:#1e2433;--text2:#4b5563;--text-muted:#9ca3af;
+  --blue:#2563eb;--green:#16a34a;--red:#dc2626;--yellow:#d97706;
+  --sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px;min-height:100vh}
+
+.page-wrap{display:grid;grid-template-columns:440px 1fr;min-height:calc(100vh - 42px)}
+.builder{padding:16px;overflow-y:auto;background:var(--bg)}
+.preview-pane{background:#dde3ef;padding:24px;overflow-y:auto}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:12px}
+.card-hdr{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-hdr h3{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
+.card-body{padding:14px}
+
+/* Form */
+.fg{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.fg:last-child{margin-bottom:0}
+.fg label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.fg input,.fg select,.fg textarea{padding:7px 9px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;background:var(--surface2);color:var(--text);outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg textarea{resize:vertical;min-height:52px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* Quote style toggle */
+.style-toggle{display:flex;gap:6px;margin-bottom:12px}
+.st-btn{flex:1;padding:8px 6px;border-radius:8px;border:2px solid var(--border2);cursor:pointer;font-family:var(--sans);font-size:11px;font-weight:700;background:var(--surface);text-align:center;transition:all .15s}
+.st-btn.active{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
+
+/* Service rows */
+.svc-row{display:grid;grid-template-columns:18px 1fr 88px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)}
+.svc-row:last-child{border-bottom:none}
+.svc-row input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:var(--blue)}
+.svc-name{font-size:12px;font-weight:500}
+.svc-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+.svc-fee-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.svc-fee{padding:5px 7px;border:1px solid var(--border2);border-radius:5px;font-family:var(--mono);font-size:12px;text-align:right;background:var(--surface2);width:88px}
+.svc-fee:focus{border-color:var(--blue);outline:none}
+.svc-vat-label{font-size:9px;color:var(--text-muted);font-family:var(--mono)}
+
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);padding:8px 0 4px}
+
+/* Company monthly rows */
+.co-row{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;position:relative}
+.co-row-grid{display:grid;grid-template-columns:1fr 110px 110px;gap:8px;align-items:end}
+.co-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px}
+.co-del:hover{color:var(--red)}
+.btn-add-co{width:100%;padding:7px;border:1px dashed var(--border2);border-radius:7px;background:none;color:var(--blue);font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;margin-top:4px}
+.btn-add-co:hover{background:#eff6ff;border-color:var(--blue)}
+
+/* Work items */
+.work-item{display:grid;grid-template-columns:1fr 22px;gap:6px;align-items:start;margin-bottom:6px}
+.work-item textarea{min-height:36px;resize:none}
+.btn-add-work{width:100%;padding:6px;border:1px dashed var(--border2);border-radius:6px;background:none;color:var(--text2);font-family:var(--sans);font-size:11px;cursor:pointer;margin-top:4px}
+.btn-add-work:hover{background:var(--surface2)}
+.wi-del{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:14px;padding:6px 2px}
+.wi-del:hover{color:var(--red)}
+
+/* Totals */
+.totals-box{background:var(--surface2);border-radius:8px;padding:12px;margin-top:8px}
+.t-row{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+.t-row.big{font-weight:700;font-size:14px;padding-top:8px;margin-top:4px;border-top:1px solid var(--border2)}
+.monthly-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 12px;margin-top:8px;text-align:center}
+.monthly-box .amount{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--blue)}
+.monthly-box .label{font-size:10px;color:var(--blue);opacity:.8;margin-top:2px}
+
+/* Buttons */
+.btn-primary{width:100%;padding:10px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
+.btn-primary:hover{background:#1d4ed8}
+.btn-secondary{width:100%;padding:9px;background:var(--surface);color:var(--text);border:1px solid var(--border2);border-radius:8px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;margin-top:6px}
+.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ═══ QUOTE PAPER ═══ */
+.quote-paper{
+  background:#fff;max-width:700px;margin:0 auto;
+  padding:44px 50px;box-shadow:0 4px 24px rgba(0,0,0,.13);
+  font-family:'Times New Roman',serif;font-size:11pt;line-height:1.6;color:#111;
+  min-height:900px
+}
+.q-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:14px;border-bottom:3px solid #1a1a18}
+.q-brand-name{font-size:17pt;font-weight:bold;color:#1a1a18;font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+.q-brand-tag{font-size:9pt;color:#666;font-style:italic;margin-top:2px}
+.q-brand-quals{font-size:9pt;font-weight:bold;color:#333;margin-top:3px}
+.q-contact{text-align:right;font-size:9pt;color:#444;line-height:1.7}
+.q-meta{font-size:10pt;margin:18px 0 6px}
+.q-addr{font-size:10.5pt;line-height:1.8;margin-bottom:16px}
+.q-dear{margin-bottom:10px;font-size:11pt}
+.q-re{font-weight:bold;margin-bottom:16px;font-size:11pt}
+.q-body p{margin-bottom:10px;font-size:10.5pt}
+.q-table{width:100%;border-collapse:collapse;margin:14px 0;font-size:9.5pt}
+.q-table th{background:#1a1a18;color:#fff;padding:7px 9px;text-align:left;font-size:9pt}
+.q-table th.r,.q-table td.r{text-align:right}
+.q-table td{padding:6px 9px;border-bottom:1px solid #e5e5e5}
+.q-table tr:last-child td{border-bottom:none}
+.q-table .sec-hd td{background:#f0f0f0;font-weight:bold;font-size:9pt;color:#333}
+.q-table .tot td{font-weight:bold;border-top:2px solid #1a1a18;background:#fafafa}
+.q-block{margin:14px 0;padding:11px 15px;border-left:3px solid #1a1a18;background:#fafafa;font-size:10pt}
+.q-block p{margin-bottom:5px}
+.q-block p:last-child{margin-bottom:0}
+.q-ul{margin-left:20px;margin-top:6px}
+.q-ul li{margin-bottom:4px;font-size:10.5pt}
+.q-sign{margin-top:30px;font-size:10.5pt}
+.q-sign-name{font-weight:bold;font-size:12pt;margin-top:26px}
+.q-sign-role{font-size:10pt;color:#444}
+.q-footer{margin-top:32px;padding-top:10px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:8pt;color:#777}
+
+@media print{
+  body{background:#fff}
+  .page-wrap{display:block}
+  .builder,#portal-nav{display:none!important}
+  .preview-pane{background:#fff;padding:0}
+  .quote-paper{box-shadow:none;padding:15mm 18mm;max-width:100%}
+}
+</style>
+</head>
+<body>
+<script>if(sessionStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
+
+<div id="portal-nav" style="background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+  <div style="display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,0.1)">
+    <span style="color:#c8963c;font-weight:700;font-size:13px">Chowdury Accountants</span>
+    <span style="color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Practice Portal</span>
+  </div>
+  <script>(function(){const p=window.location.pathname.split('/').pop()||'index.html';document.querySelectorAll('#portal-nav a').forEach(a=>{const h=a.getAttribute('href');if(h&&p.includes(h.replace('.html',''))){a.style.background='rgba(255,255,255,0.12)';a.style.color='#fff';}});})();</script>
+  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
+  <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
+  <a href="ltd-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏢 Ltd Tracker</a>
+  <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
+  <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
+  <a href="vat-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🟢 VAT</a>
+  <a href="quote-calculator.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💡 Quote</a>
+</div>
+
+<div class="page-wrap">
+<!-- ═══════ LEFT BUILDER ═══════ -->
+<div class="builder">
+
+  <!-- Quote Style -->
+  <div class="style-toggle">
+    <div class="st-btn active" id="st-standard" onclick="setStyle('standard',this)">📋 Standard Fee Schedule</div>
+    <div class="st-btn" id="st-bespoke" onclick="setStyle('bespoke',this)">✍️ Bespoke Project Quote</div>
+  </div>
+
+  <!-- Client Details -->
+  <div class="card">
+    <div class="card-hdr"><span>👤</span><h3>Client Details</h3></div>
+    <div class="card-body">
+      <div class="fg"><label>Client Name</label><input type="text" id="c-name" placeholder="e.g. Dr Muhammad Sheraz" oninput="update()"></div>
+      <div class="fg"><label>Address</label><textarea id="c-addr" placeholder="Address line 1&#10;City&#10;Postcode" oninput="update()"></textarea></div>
+      <div class="row2">
+        <div class="fg"><label>Date</label><input type="date" id="c-date" oninput="update()"></div>
+        <div class="fg"><label>Reference</label><input type="text" id="c-ref" placeholder="e.g. Quote/TCA/0001" oninput="update()"></div>
+      </div>
+      <div class="fg"><label>Service Type</label>
+        <select id="c-type" onchange="update()">
+          <option>Limited Company</option>
+          <option>Self Employed / Sole Trader</option>
+          <option>Partnership</option>
+          <option>Contractor</option>
+          <option>Multiple Companies</option>
+        </select>
+      </div>
+      <div class="fg"><label>Opening Paragraph (optional)</label><textarea id="c-intro" placeholder="Leave blank to use default..." oninput="update()"></textarea></div>
+    </div>
+  </div>
+
+  <!-- STANDARD: Services -->
+  <div id="section-standard">
+    <div class="card">
+      <div class="card-hdr"><span>💷</span><h3>Annual Services &amp; Fees</h3></div>
+      <div class="card-body" id="svc-body"></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span>🔧</span><h3>One-Off Fees</h3></div>
+      <div class="card-body" id="oo-body"></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span>➕</span><h3>Additional Services</h3></div>
+      <div class="card-body" id="add-body"></div>
+    </div>
+  </div>
+
+  <!-- BESPOKE: Work Items + Companies -->
+  <div id="section-bespoke" style="display:none">
+    <div class="card">
+      <div class="card-hdr"><span>📝</span><h3>Scope of Work</h3></div>
+      <div class="card-body">
+        <div class="fg"><label>Section Heading (optional)</label><input type="text" id="b-heading" placeholder="e.g. Van Salvage Business:" oninput="update()"></div>
+        <div id="work-items"></div>
+        <button class="btn-add-work" onclick="addWorkItem()">+ Add work item</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span>💰</span><h3>One-Off Project Fee</h3></div>
+      <div class="card-body">
+        <div class="row2">
+          <div class="fg"><label>Fee (ex VAT)</label><input type="number" id="b-oneoff-fee" value="3500" oninput="update()"></div>
+          <div class="fg"><label>Payment Terms</label><input type="text" id="b-payment-terms" value="Payable in advance" oninput="update()"></div>
+        </div>
+        <div class="fg"><label>Description</label><input type="text" id="b-oneoff-desc" value="One-off payment to bring books and affairs in order" oninput="update()"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span>📅</span><h3>Ongoing Monthly Fees (per company)</h3></div>
+      <div class="card-body">
+        <div id="co-rows"></div>
+        <button class="btn-add-co" onclick="addCompany()">+ Add company</button>
+        <div class="fg" style="margin-top:12px"><label>Monthly fee covers</label><textarea id="b-monthly-covers" oninput="update()">Quarterly bookkeeping for preparing and submission of VAT
+Monthly return of payslips to HMRC and to yourself
+Preparation and submission of Annual Accounts to HMRC and Companies House</textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="card">
+    <div class="card-hdr"><span>🧮</span><h3>Summary</h3></div>
+    <div class="card-body">
+      <div id="totals-box" class="totals-box"></div>
+      <div id="monthly-box" class="monthly-box" style="display:none"></div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <button class="btn-secondary" onclick="resetForm()">↺ Reset</button>
+
+</div><!-- end builder -->
+
+<!-- ═══════ RIGHT PREVIEW ═══════ -->
+<div class="preview-pane">
+  <div class="quote-paper" id="quote-paper"></div>
+</div>
+</div>
+
+<script>
+// ══════════════════ DATA ══════════════════
+const PRACTICE = {
+  name: 'The Chowdury Accountants Ltd',
+  tagline: 'We work with you, not just for you',
+  quals: 'AAT | Management Accountants',
+  address: '283 Featherstall Road North\nOldham\nOL9 6LN',
+  tel: '0161 XXX XXXX',
+  mob: '07XXX XXXXXX',
+  email: 'info@thechowduryaccountants.co.uk',
+  web: 'www.thechowduryaccountants.co.uk',
+  signatory: 'Md Asadul Chowdury',
+  title: 'Managing Director',
+  why: [
+    'Fixed fee basis — no hidden charges',
+    'Unlimited phone and email support',
+    'Dedicated client manager for your account',
+    'Specialist in hospitality, restaurants and takeaways',
+    'All work completed on time, every time',
+    'All work is 100% guaranteed',
+    'Simple monthly payments via GoCardless direct debit',
+  ]
+};
+
+const SERVICES = [
+  { sec:'Financial Accounting & Taxation', items:[
+    { id:'s1', name:'Company filleted accounts', body:'Companies House', fee:160, checked:true },
+    { id:'s2', name:'Company statutory accounts', body:'HMRC', fee:300, checked:true },
+    { id:'s3', name:'Company tax return & corporation tax computation', body:'HMRC', fee:335, checked:true },
+    { id:'s4', name:"Director's self assessment tax return (up to 2 directors)", body:'HMRC', fee:400, checked:true },
+  ]},
+  { sec:'Company Secretarial & Other', items:[
+    { id:'s5', name:'Confirmation statement', body:'Companies House', fee:55, checked:true },
+    { id:'s6', name:'Rental property accounts', body:'HMRC', fee:200, checked:false },
+    { id:'s7', name:'Payroll — monthly (up to 5 employees)', body:'HMRC', fee:50, checked:false },
+    { id:'s8', name:'VAT returns — quarterly', body:'HMRC', fee:120, checked:false },
+    { id:'s9', name:'Bookkeeping — monthly', body:'', fee:150, checked:false },
+  ]},
+];
+
+const ONEOFFS = [
+  { id:'o1', name:'Company set up, PAYE & UTR registration', fee:230, checked:false },
+  { id:'o2', name:'Pension auto-enrolment declaration', fee:500, checked:false },
+  { id:'o3', name:'HMRC fee protection insurance (annual)', fee:200, checked:false },
+  { id:'o4', name:'Registered office address (annual)', fee:200, checked:false },
+];
+
+const ADDITIONAL = [
+  { id:'a1', name:'P11D expenses & benefits return', fee:120, checked:false },
+  { id:'a2', name:'Management accounts — monthly', fee:200, checked:false },
+  { id:'a3', name:'HMRC enquiry support (per hour)', fee:150, checked:false },
+  { id:'a4', name:'Company formation only', fee:100, checked:false },
+];
+
+let quoteStyle = 'standard';
+let companies = [{ name:'', turnover:'', fee:0 }];
+let workItems = ['Bookkeeping and preparing accounts', 'Submitting annual accounts to Companies House', 'Corporation tax return and computation'];
+let coIdCtr = 1;
+let wiIdCtr = 1;
+
+// ══════════════════ INIT ══════════════════
+function init() {
+  // Set today's date
+  const t = new Date();
+  document.getElementById('c-date').value = t.toISOString().split('T')[0];
+  // Auto ref
+  document.getElementById('c-ref').value = 'Quote/TCA/' + String(t.getFullYear()).slice(2) + String(t.getMonth()+1).padStart(2,'0');
+  buildServiceRows();
+  buildBespokeRows();
+  update();
+}
+
+function setStyle(s, el) {
+  quoteStyle = s;
+  document.querySelectorAll('.st-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('section-standard').style.display = s==='standard' ? 'block' : 'none';
+  document.getElementById('section-bespoke').style.display = s==='bespoke' ? 'block' : 'none';
+  update();
+}
+
+// ══════════════════ SERVICE ROWS ══════════════════
+function buildServiceRows() {
+  const svcs = SERVICES;
+  let h = '';
+  svcs.forEach(sec => {
+    h += `<div class="sec-title">${sec.sec}</div>`;
+    sec.items.forEach(item => {
+      h += svcRow(item);
+    });
+  });
+  document.getElementById('svc-body').innerHTML = h;
+
+  let oh = '';
+  ONEOFFS.forEach(item => { oh += svcRow(item, 'One-off'); });
+  document.getElementById('oo-body').innerHTML = oh;
+
+  let ah = '';
+  ADDITIONAL.forEach(item => { ah += svcRow(item); });
+  document.getElementById('add-body').innerHTML = ah;
+}
+
+function svcRow(item, sub) {
+  const s = sub || item.body || '';
+  return `<div class="svc-row">
+    <input type="checkbox" id="${item.id}" ${item.checked?'checked':''} onchange="update()">
+    <div><div class="svc-name">${item.name}</div>${s?`<div class="svc-sub">${s}</div>`:''}</div>
+    <div class="svc-fee-wrap">
+      <input type="number" class="svc-fee" id="fee_${item.id}" value="${item.fee}" oninput="update()">
+      <div class="svc-vat-label" id="vat_${item.id}">+£${Math.round(item.fee*.2)} VAT</div>
+    </div>
+  </div>`;
+}
+
+// ══════════════════ BESPOKE ROWS ══════════════════
+function buildBespokeRows() {
+  const wc = document.getElementById('work-items');
+  wc.innerHTML = '';
+  workItems.forEach((text, idx) => {
+    const div = document.createElement('div');
+    div.className = 'work-item';
+    div.innerHTML = `<textarea class="fg" style="min-height:34px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;background:var(--surface2);resize:none;outline:none" oninput="workItems[${idx}]=this.value;update()">${text}</textarea>
+    <button class="wi-del" onclick="removeWorkItem(${idx})">✕</button>`;
+    wc.appendChild(div);
+  });
+
+  const cc = document.getElementById('co-rows');
+  cc.innerHTML = '';
+  companies.forEach((co, idx) => {
+    const div = document.createElement('div');
+    div.className = 'co-row';
+    div.innerHTML = `
+      <div class="co-row-grid">
+        <div class="fg" style="margin:0"><label>Company Name</label><input type="text" value="${co.name}" placeholder="e.g. Doncaster Van Breakers" oninput="companies[${idx}].name=this.value;update()"></div>
+        <div class="fg" style="margin:0"><label>Turnover / wk</label><input type="text" value="${co.turnover}" placeholder="e.g. £15k/wk" oninput="companies[${idx}].turnover=this.value;update()"></div>
+        <div class="fg" style="margin:0"><label>Monthly Fee (ex VAT)</label><input type="number" value="${co.fee||0}" oninput="companies[${idx}].fee=parseFloat(this.value)||0;update()"></div>
+      </div>
+      ${companies.length>1?`<button class="co-del" onclick="removeCompany(${idx})">✕</button>`:''}
+    `;
+    cc.appendChild(div);
+  });
+}
+
+function addWorkItem() {
+  workItems.push('');
+  buildBespokeRows();
+  update();
+}
+function removeWorkItem(idx) {
+  workItems.splice(idx,1);
+  buildBespokeRows();
+  update();
+}
+function addCompany() {
+  companies.push({name:'',turnover:'',fee:0});
+  buildBespokeRows();
+  update();
+}
+function removeCompany(idx) {
+  companies.splice(idx,1);
+  buildBespokeRows();
+  update();
+}
+
+// ══════════════════ TOTALS ══════════════════
+function getChecked(items) {
+  return items.filter(i => {
+    const cb = document.getElementById(i.id);
+    return cb && cb.checked;
+  }).map(i => {
+    const f = parseFloat(document.getElementById('fee_'+i.id)?.value)||i.fee;
+    document.getElementById('vat_'+i.id).textContent = '+£'+Math.round(f*.2)+' VAT';
+    return {...i, fee:f, vat:Math.round(f*.2*100)/100, total:f+Math.round(f*.2*100)/100};
+  });
+}
+
+function fmt(n){return '£'+n.toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function updateTotals() {
+  if (quoteStyle === 'standard') {
+    const allSvcs = SERVICES.flatMap(s=>s.items);
+    const cs = getChecked(allSvcs);
+    const co = getChecked(ONEOFFS);
+    const ca = getChecked(ADDITIONAL);
+    const annNet = cs.reduce((s,i)=>s+i.fee,0);
+    const annVat = cs.reduce((s,i)=>s+i.vat,0);
+    const annTotal = annNet+annVat;
+    const monthly = Math.round(annTotal/12*100)/100;
+    const ooTotal = co.reduce((s,i)=>s+i.total,0)+ca.reduce((s,i)=>s+i.total,0);
+
+    document.getElementById('totals-box').innerHTML = `
+      <div class="t-row"><span>Annual fees (ex VAT)</span><span>${fmt(annNet)}</span></div>
+      <div class="t-row"><span>VAT @ 20%</span><span>${fmt(annVat)}</span></div>
+      <div class="t-row big"><span>Total Annual Fee (inc VAT)</span><span style="color:var(--blue)">${fmt(annTotal)}</span></div>
+      ${ooTotal?`<div class="t-row" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)"><span>One-off / additional fees</span><span>${fmt(ooTotal)}</span></div>`:''}
+    `;
+    document.getElementById('monthly-box').style.display = 'block';
+    document.getElementById('monthly-box').innerHTML = `
+      <div class="amount">${fmt(monthly)}</div>
+      <div class="label">per month (inc VAT) via GoCardless</div>
+    `;
+    return { cs, co, ca, annNet, annVat, annTotal, monthly, ooTotal };
+  } else {
+    const oneoffFee = parseFloat(document.getElementById('b-oneoff-fee')?.value)||0;
+    const oneoffVat = Math.round(oneoffFee*.2*100)/100;
+    const oneoffTotal = oneoffFee+oneoffVat;
+    const monthlyTotal = companies.reduce((s,c)=>s+(c.fee||0),0);
+    const monthlyVat = Math.round(monthlyTotal*.2*100)/100;
+    document.getElementById('totals-box').innerHTML = `
+      <div class="t-row"><span>One-off project fee (ex VAT)</span><span>${fmt(oneoffFee)}</span></div>
+      <div class="t-row"><span>VAT @ 20%</span><span>${fmt(oneoffVat)}</span></div>
+      <div class="t-row big"><span>One-off Total (inc VAT)</span><span style="color:var(--blue)">${fmt(oneoffTotal)}</span></div>
+    `;
+    document.getElementById('monthly-box').style.display = 'block';
+    document.getElementById('monthly-box').innerHTML = `
+      <div class="amount">${fmt(monthlyTotal+monthlyVat)}</div>
+      <div class="label">combined monthly total (inc VAT)</div>
+    `;
+    return { oneoffFee, oneoffVat, oneoffTotal, monthlyTotal, monthlyVat };
+  }
+}
+
+// ══════════════════ FORMAT HELPERS ══════════════════
+function fmtDate(val) {
+  if (!val) return new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+  const d = new Date(val);
+  return d.toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+
+// ══════════════════ RENDER QUOTE ══════════════════
+function renderQuote(totals) {
+  const name = document.getElementById('c-name').value.trim() || '[Client Name]';
+  const addr = document.getElementById('c-addr').value.trim();
+  const dateVal = document.getElementById('c-date').value;
+  const ref = document.getElementById('c-ref').value.trim();
+  const type = document.getElementById('c-type').value;
+  const intro = document.getElementById('c-intro').value.trim();
+
+  const addrLines = addr ? addr.split('\n').map(l=>esc(l)).join('<br>') : '';
+  const contactLines = PRACTICE.address.split('\n').map(l=>esc(l)).join('<br>');
+
+  // Greeting — detect title
+  const isCompany = name.includes('Ltd') || name.includes('Limited');
+  const greet = isCompany ? 'Dear Sir/Madam' : ('Dear ' + name.split(' ').slice(-1)[0]);
+
+  let body = '';
+
+  if (quoteStyle === 'standard') {
+    const { cs, co, ca, annNet, annVat, annTotal, monthly, ooTotal } = totals;
+
+    const defaultIntro = `I am pleased to provide you with a competitive quote for the professional accountancy services for ${type} as follows:`;
+
+    // Table
+    let tableRows = '';
+    let lastSec = '';
+    cs.forEach(item => {
+      const secItem = SERVICES.flatMap(s=>s.items).find(i=>i.id===item.id);
+      const secName = SERVICES.find(s=>s.items.includes(secItem))?.sec || '';
+      if (secName !== lastSec) {
+        tableRows += `<tr class="sec-hd"><td colspan="5">${secName}</td></tr>`;
+        lastSec = secName;
+      }
+      tableRows += `<tr>
+        <td>${item.name}</td>
+        <td>${item.body||'—'}</td>
+        <td class="r">${fmt(item.fee)}</td>
+        <td class="r">${fmt(item.vat)}</td>
+        <td class="r">${fmt(item.total)}</td>
+      </tr>`;
+    });
+    tableRows += `<tr class="tot">
+      <td colspan="2"><strong>Total Accountancy Fees</strong></td>
+      <td class="r"><strong>${fmt(annNet)}</strong></td>
+      <td class="r"><strong>${fmt(annVat)}</strong></td>
+      <td class="r"><strong>${fmt(annTotal)}</strong></td>
+    </tr>`;
+
+    body = `
+      <p>${intro || defaultIntro}</p>
+      <table class="q-table">
+        <thead><tr>
+          <th>Description</th><th>Regulatory Body</th>
+          <th class="r">Fee (£)</th><th class="r">VAT (£)</th><th class="r">Total (£)</th>
+        </tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+      <div class="q-block">
+        <p><strong>Please note the above fees are payable as follows:</strong></p>
+        <p><strong>${fmt(monthly)} per month</strong> (including VAT) payable via GoCardless direct debit</p>
+      </div>`;
+
+    // One-offs
+    const allOO = [...co, ...ca];
+    if (allOO.length) {
+      body += `<p><strong>One-off and additional fees are as follows:</strong></p><ul class="q-ul">`;
+      allOO.forEach(item => {
+        body += `<li>${fmt(item.total)} (including VAT) — ${item.name}</li>`;
+      });
+      body += `</ul>`;
+    }
+
+  } else {
+    // BESPOKE
+    const { oneoffFee, oneoffVat, oneoffTotal, monthlyTotal, monthlyVat } = totals;
+    const heading = document.getElementById('b-heading').value.trim();
+    const oneoffDesc = document.getElementById('b-oneoff-desc').value.trim();
+    const payTerms = document.getElementById('b-payment-terms').value.trim();
+    const coversRaw = document.getElementById('b-monthly-covers').value.trim();
+    const covers = coversRaw.split('\n').filter(l=>l.trim());
+
+    const defaultIntro = `We are pleased to provide you with a competitive quote for our professional accountancy and tax advisory services. In order to quote appropriately, we first need to understand the full scope of work required. As you would appreciate, we will put in additional time and care to ensure everything is brought in order and maintained correctly going forward.`;
+
+    body = `<p>${intro || defaultIntro}</p>`;
+
+    if (heading) body += `<p><strong>${esc(heading)}</strong></p>`;
+    const validItems = workItems.filter(w=>w.trim());
+    if (validItems.length) {
+      body += `<ul class="q-ul">`;
+      validItems.forEach(w => { body += `<li>${esc(w)}</li>`; });
+      body += `</ul>`;
+    }
+
+    body += `<br><p>Our fees for this service would be <strong>${fmt(oneoffFee)} plus VAT (${fmt(oneoffTotal)} including VAT)</strong>. ${oneoffDesc}. ${payTerms ? payTerms + '.' : ''}</p>`;
+
+    // Monthly companies
+    if (companies.some(c=>c.name||c.fee)) {
+      body += `<p>Moving forward, the ongoing monthly fees are as follows:</p><ul class="q-ul">`;
+      companies.filter(c=>c.name||c.fee).forEach(c => {
+        const mFee = c.fee || 0;
+        const mVat = Math.round(mFee*.2*100)/100;
+        const mTotal = mFee + mVat;
+        body += `<li><strong>${esc(c.name)||'Company'}</strong>`;
+        if (c.turnover) body += ` — Turnover ${esc(c.turnover)}`;
+        body += ` — <strong>${fmt(mTotal)} per month</strong> (including VAT)</li>`;
+      });
+      body += `</ul>`;
+
+      if (covers.length) {
+        body += `<p>Monthly fees will cover:</p><ul class="q-ul">`;
+        covers.forEach(l => { body += `<li>${esc(l)}</li>`; });
+        body += `</ul>`;
+      }
+    }
+  }
+
+  // Why us
+  const whyItems = PRACTICE.why.map(w=>`<li>${w}</li>`).join('');
+
+  const paper = `
+    <div class="q-hdr">
+      <div>
+        <div class="q-brand-name">${PRACTICE.name}</div>
+        <div class="q-brand-tag">${PRACTICE.tagline}</div>
+        <div class="q-brand-quals">${PRACTICE.quals}</div>
+      </div>
+      <div class="q-contact">
+        ${contactLines}<br>
+        Tel: ${PRACTICE.tel}<br>
+        Mob: ${PRACTICE.mob}<br>
+        ${PRACTICE.email}<br>
+        ${PRACTICE.web}
+      </div>
+    </div>
+
+    ${addrLines?`<div class="q-addr">${addrLines}</div>`:''}
+    <div class="q-meta">${fmtDate(dateVal)}${ref?'<br>Ref: '+esc(ref):''}</div>
+
+    <div class="q-dear">${greet},</div>
+    <div class="q-re">Re: Quote for Professional Accountancy Services — ${esc(type)}</div>
+
+    <div class="q-body">${body}</div>
+
+    <div style="margin-top:16px">
+      <p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p>
+      <ul class="q-ul">${whyItems}</ul>
+    </div>
+
+    <div class="q-sign">
+      <p>I look forward to hearing from you. If you have any queries, please do not hesitate to contact us.</p>
+      <p style="margin-top:10px">Yours sincerely,</p>
+      <div class="q-sign-name">${PRACTICE.signatory}</div>
+      <div class="q-sign-role">${PRACTICE.title}</div>
+    </div>
+
+    <div class="q-footer">
+      <span>${PRACTICE.name}</span>
+      <span>${PRACTICE.address.replace(/\n/g,' | ')}</span>
+    </div>
+  `;
+  document.getElementById('quote-paper').innerHTML = paper;
+}
+
+function update() {
+  const totals = updateTotals();
+  renderQuote(totals);
+}
+
+function resetForm() {
+  document.getElementById('c-name').value = '';
+  document.getElementById('c-addr').value = '';
+  document.getElementById('c-intro').value = '';
+  buildServiceRows();
+  update();
+}
+
+init();
+</script>
+</body>
+</html>
