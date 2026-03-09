@@ -45,6 +45,12 @@ header h1 span { color: var(--blue); }
 .card-header h3 { font-size: 13px; font-weight: 700; }
 .card-body { padding: 16px; }
 .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.photo-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.photo-circle { width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border2); background: var(--surface2); object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 32px; overflow: hidden; cursor: pointer; position: relative; flex-shrink: 0; }
+.photo-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.photo-circle:hover::after { content: '📷'; position: absolute; inset: 0; background: rgba(0,0,0,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.photo-upload-btn { font-size: 11px; color: var(--blue); background: none; border: 1px solid var(--border2); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-family: var(--sans); font-weight: 600; }
+.photo-upload-btn:hover { border-color: var(--blue); background: #eff6ff; }
 .fg { display: flex; flex-direction: column; gap: 3px; }
 .fg.full { grid-column: 1 / -1; }
 .fg label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
@@ -209,6 +215,16 @@ header h1 span { color: var(--blue); }
     <div class="card">
       <div class="card-header"><span>👤</span><h3>Personal & Contact Details</h3></div>
       <div class="card-body">
+        <div class="photo-wrap">
+          <div class="photo-circle" id="photo-preview" onclick="document.getElementById('photo-input').click()">👤</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px" id="photo-staff-name">Staff Member</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Click photo to change</div>
+            <button class="photo-upload-btn" onclick="document.getElementById('photo-input').click()">📷 Upload Photo</button>
+            <button class="photo-upload-btn" style="margin-left:6px;color:var(--red);border-color:var(--border2)" onclick="removePhoto()">✕ Remove</button>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(this)">
+        </div>
         <div class="profile-grid">
           <div class="fg"><label>Role / Title</label><input type="text" id="p-role" placeholder="e.g. Ltd Co & VAT Manager"></div>
           <div class="fg"><label>Phone</label><input type="tel" id="p-phone" placeholder="Mobile number"></div>
@@ -386,6 +402,9 @@ async function loadProfile(){
   try{
     const d=await sb(`staff_profiles?staff_name=eq.${encodeURIComponent(curStaff)}`);
     const p=d[0]||{};
+    window._curPhoto = p.photo || null;
+    renderPhotoPreview(p.photo);
+    document.getElementById('photo-staff-name').textContent = curStaff;
     document.getElementById('p-role').value=p.role||ROLES[curStaff]||'';
     document.getElementById('p-phone').value=p.phone||'';
     document.getElementById('p-email').value=p.email||'';
@@ -405,7 +424,7 @@ async function saveProfile(){
   const msg=document.getElementById('prof-msg');msg.textContent='Saving…';msg.className='save-msg';
   try{
     await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({
-      staff_name:curStaff,role:document.getElementById('p-role').value.trim(),
+      staff_name:curStaff,photo:window._curPhoto||null,role:document.getElementById('p-role').value.trim(),
       phone:document.getElementById('p-phone').value.trim(),email:document.getElementById('p-email').value.trim(),
       address:document.getElementById('p-address').value.trim(),emergency_name:document.getElementById('p-emg-name').value.trim(),
       emergency_phone:document.getElementById('p-emg-phone').value.trim(),
@@ -428,8 +447,34 @@ function updateHBar(){
   document.getElementById('h-bar').className='holiday-fill'+(pct>80?' danger':pct>60?' warn':'');
 }
 
+function renderPhotoPreview(src){
+  const el=document.getElementById('photo-preview');
+  if(!el)return;
+  if(src){el.innerHTML=`<img src="${src}" alt="photo">`;}
+  else{el.innerHTML='👤';}
+}
+function handlePhoto(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>2*1024*1024){alert('Photo must be under 2MB');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{window._curPhoto=e.target.result;renderPhotoPreview(e.target.result);};
+  reader.readAsDataURL(file);
+}
+function removePhoto(){window._curPhoto=null;renderPhotoPreview(null);}
+
+// Also update stats bar avatar
+function updateStatsAvatar(){
+  const existing=document.getElementById('stats-avatar');
+  if(existing)existing.remove();
+}
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function loadAll(){loadActivities();if(curView==='profile')loadProfile();}
+function loadAll(){
+  loadActivities();
+  document.getElementById('photo-staff-name').textContent=curStaff;
+  window._curPhoto=null;renderPhotoPreview(null);
+  if(curView==='profile')loadProfile();
+}
 loadAll();
 </script>
 </body>
