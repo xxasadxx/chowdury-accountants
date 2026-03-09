@@ -891,8 +891,20 @@ function renderDeadlineGrid(c){
 }
 
 // ─── ACTIVITY LOG ───
-async function loadActivities(clientId){
-  try{return await sbFetch(`timekeeping?client_id=eq.${clientId}&order=date.desc&limit=30`);}catch(e){return[];}
+async function async loadActivities(clientId){
+  const client = DATA.find(d=>d.id===clientId);
+  if(!client) return [];
+  try{
+    // Load from staff_activities by comp_no or client_name
+    let acts = [];
+    if(client.comp_no){
+      acts = await sbFetch(`staff_activities?comp_no=eq.${encodeURIComponent(client.comp_no)}&order=activity_date.desc&limit=50`);
+    }
+    if((!acts||!acts.length) && client.name){
+      acts = await sbFetch(`staff_activities?client_name=eq.${encodeURIComponent(client.name)}&order=activity_date.desc&limit=50`);
+    }
+    return acts||[];
+  }catch(e){console.warn('Activities:',e.message);return[];}
 }
 async function renderActivityLog(c){
   const el=document.getElementById('cm-activity-log');
@@ -900,14 +912,14 @@ async function renderActivityLog(c){
   const acts=await loadActivities(c.id);
   document.getElementById('cm-act-count').textContent=acts.length?`(${acts.length})`:'';
   if(!acts.length){el.innerHTML='<div style="font-size:12px;color:var(--muted)">No activity logged yet</div>';return;}
-  el.innerHTML=acts.map(a=>`<div class="act-item"><div class="act-date">${esc(a.date||'')}</div><div class="act-type">${actTypeLabel(a.activity_type)}</div><div style="flex:1;color:var(--text2)">${esc(a.notes||'')}</div><div style="font-size:11px;color:var(--muted)">${staffShort(a.staff_member)}</div></div>`).join('');
+  el.innerHTML=acts.map(a=>`<div class="act-item"><div class="act-date">${esc(a.activity_date||a.date||'')}</div><div class="act-type">${esc(a.task_type||a.activity_type||'')}</div><div style="flex:1;color:var(--text2)">${esc(a.description||a.notes||'')}</div><div style="font-size:11px;color:var(--muted)">${esc(a.staff||a.staff_member||'')}</div></div>`).join('');
 }
 async function addActivity(){
   const c=DATA.find(x=>x.id===currentId);if(!c)return;
   const type=document.getElementById('cm-act-type').value;
   const note=document.getElementById('cm-act-note').value.trim();
-  const act={client_id:c.id,client_name:c.name,activity_type:type,notes:note,date:new Date().toLocaleDateString('en-GB'),staff_member:'Md Asadul Islam Chowdury'};
-  try{await sbFetch('timekeeping',{method:'POST',body:JSON.stringify(act)});}catch(e){console.warn(e);}
+  const act={comp_no:c.comp_no||'',client_name:c.name,task_type:type,description:note,activity_date:new Date().toISOString().split('T')[0],staff:'Md Asadul Islam Chowdury'};
+  try{await sbFetch('staff_activities',{method:'POST',body:JSON.stringify(act)});}catch(e){console.warn(e);}
   document.getElementById('cm-act-note').value='';
   renderActivityLog(c);
 }
