@@ -1056,10 +1056,8 @@ async function saveNewClient() {
   const name = document.getElementById('af-name').value.trim();
   const compNo = document.getElementById('af-compno').value.trim().toUpperCase();
   if (!name) { alert('Company name is required'); return; }
-  if (DATA.find(d => d.comp_no === compNo && compNo)) { alert('Company number already exists in tracker'); return; }
-  const newId = Math.max(...DATA.map(d=>d.id)) + 1;
-  const newClient = {
-    id: newId,
+  if (DATA.find(d => d.comp_no === compNo && compNo)) { alert('Company already exists in tracker'); return; }
+  const payload = {
     name,
     comp_no: compNo,
     accounts_due: document.getElementById('af-acc-due').value.trim(),
@@ -1068,10 +1066,23 @@ async function saveNewClient() {
     alerts: document.getElementById('af-alerts').value,
     conf_date: '', vat_due: ''
   };
-  DATA.push(newClient);
-  closeAddModal();
-  render();
-  alert(`✅ ${name} added successfully!\nNote: This is session-only. To persist permanently, add to Supabase ltd_clients table.`);
+  try {
+    const btn = document.getElementById('save-new-btn');
+    btn.textContent = 'Saving...'; btn.disabled = true;
+    const [saved] = await sbFetch('ltd_clients', {
+      method:'POST', body: JSON.stringify(payload),
+      headers:{'Prefer':'return=representation'}
+    });
+    DATA.push(saved);
+    clientCache[saved.comp_no] = saved;
+    closeAddModal();
+    render();
+    alert(`✅ ${name} added and saved to database!`);
+  } catch(e) {
+    alert('Error saving: ' + e.message);
+    document.getElementById('save-new-btn').textContent='✅ Add Client';
+    document.getElementById('save-new-btn').disabled=false;
+  }
 }
 
 function openEditClientModal() {
@@ -1089,30 +1100,46 @@ function closeEditModal() {
   document.getElementById('edit-modal-bg').style.display = 'none';
 }
 
-function saveEditClient() {
+async function saveEditClient() {
   const idx = DATA.findIndex(d => d.comp_no === currentCompNo);
   if (idx === -1) return;
-  DATA[idx].name = document.getElementById('ef-name').value.trim();
-  DATA[idx].comp_no = document.getElementById('ef-compno').value.trim().toUpperCase();
-  DATA[idx].accounts_due = document.getElementById('ef-acc-due').value.trim();
-  DATA[idx].conf_due = document.getElementById('ef-conf-due').value.trim();
-  DATA[idx].accounts_ref_date = document.getElementById('ef-acc-ref').value.trim();
-  DATA[idx].alerts = document.getElementById('ef-alerts').value;
-  closeEditModal();
-  closeModal();
-  render();
-  alert('✅ Changes saved (session only)');
+  const payload = {
+    name: document.getElementById('ef-name').value.trim(),
+    comp_no: document.getElementById('ef-compno').value.trim().toUpperCase(),
+    accounts_due: document.getElementById('ef-acc-due').value.trim(),
+    conf_due: document.getElementById('ef-conf-due').value.trim(),
+    accounts_ref_date: document.getElementById('ef-acc-ref').value.trim(),
+    alerts: document.getElementById('ef-alerts').value
+  };
+  try {
+    await sbFetch(`ltd_clients?id=eq.${DATA[idx].id}`, {
+      method:'PATCH', body: JSON.stringify(payload),
+      headers:{'Prefer':'return=minimal'}
+    });
+    Object.assign(DATA[idx], payload);
+    clientCache[payload.comp_no] = DATA[idx];
+    closeEditModal();
+    closeModal();
+    render();
+    alert('✅ Changes saved!');
+  } catch(e) { alert('Error saving: ' + e.message); }
 }
 
-function removeClient() {
+async function removeClient() {
   const co = DATA.find(d => d.comp_no === currentCompNo);
   if (!co) return;
-  if (!confirm(`Remove ${co.name} from the tracker?\nThis cannot be undone.`)) return;
-  const idx = DATA.findIndex(d => d.comp_no === currentCompNo);
-  DATA.splice(idx, 1);
-  closeModal();
-  render();
-  alert(`🗑 ${co.name} removed (session only)`);
+  if (!confirm(`Permanently remove ${co.name} from the tracker?\nThis cannot be undone.`)) return;
+  try {
+    await sbFetch(`ltd_clients?id=eq.${co.id}`, {
+      method:'DELETE', headers:{'Prefer':'return=minimal'}
+    });
+    const idx = DATA.findIndex(d => d.comp_no === currentCompNo);
+    DATA.splice(idx, 1);
+    delete clientCache[co.comp_no];
+    closeModal();
+    render();
+    alert(`🗑 ${co.name} permanently removed.`);
+  } catch(e) { alert('Error removing: ' + e.message); }
 }
 
 </script>
@@ -1169,7 +1196,7 @@ function removeClient() {
               </select>
             </div>
           </div>
-          <button onclick="saveNewClient()" style="margin-top:16px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">✅ Add Client</button>
+          <button id="save-new-btn" onclick="saveNewClient()" style="margin-top:16px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">✅ Add Client</button>
         </div>
       </div>
       <!-- Manual add link -->

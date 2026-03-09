@@ -139,17 +139,52 @@ tr:hover td { background: #f8f9ff; }
 </div>
 
 <script>
-const VAT_DATA = [{"id": 73, "name": "CLOSE PROPERTIES LIMITED", "comp_no": "13385860", "alerts": "Amber", "accounts_ref_date": "29/05", "accounts_due": "29/05/2026", "conf_date": "28/02/2026", "conf_due": "14/03/2026", "vat_due": "07/07/2025", "vat_stagger": "Group 1", "days_until": -245}, {"id": 214, "name": "RAHMAN PACKAGING LIMITED", "comp_no": "07461907", "alerts": "", "accounts_ref_date": "24/12", "accounts_due": "24/09/2026", "conf_date": "11/06/2026", "conf_due": "25/06/2026", "vat_due": "07/11/2025", "vat_stagger": "Group 2", "days_until": -122}, {"id": 16, "name": "AL-AMIN FOODSTORE LTD", "comp_no": "12578448", "alerts": "Red", "accounts_ref_date": "28/04", "accounts_due": "28/04/2026", "conf_date": "25/08/2026", "conf_due": "08/09/2026", "vat_due": "07/03/2026", "vat_stagger": "Group 3", "days_until": -2}, {"id": 12, "name": "AK OPTICAL GROUP LTD", "comp_no": "15921589", "alerts": "", "accounts_ref_date": "31/08", "accounts_due": "28/05/2026", "conf_date": "27/08/2026", "conf_due": "10/09/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 28, "name": "ARIA CASH AND CARRY LTD", "comp_no": "08757436", "alerts": "", "accounts_ref_date": "28/11", "accounts_due": "28/08/2026", "conf_date": "26/01/2027", "conf_due": "09/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 46, "name": "BENGAL CURRY POT LIMITED", "comp_no": "10164490", "alerts": "", "accounts_ref_date": "27/05", "accounts_due": "27/02/2027", "conf_date": "26/01/2027", "conf_due": "09/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 169, "name": "MCDHABA INDIAN RESTAURANT LTD", "comp_no": "SC798919", "alerts": "", "accounts_ref_date": "29/02", "accounts_due": "30/11/2026", "conf_date": "12/02/2027", "conf_due": "26/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 206, "name": "PROSPECT STORE LTD", "comp_no": "13773879", "alerts": "Red", "accounts_ref_date": "29/11", "accounts_due": "29/08/2026", "conf_date": "22/02/2026", "conf_due": "08/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 225, "name": "RR RESTAURANT LIMITED", "comp_no": "07965986", "alerts": "Red", "accounts_ref_date": "27/02", "accounts_due": "27/11/2026", "conf_date": "01/03/2026", "conf_due": "15/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 246, "name": "SJ MOTOR SERVICES LTD", "comp_no": "12824538", "alerts": "", "accounts_ref_date": "30/08", "accounts_due": "30/05/2026", "conf_date": "18/09/2026", "conf_due": "02/10/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 262, "name": "SPICY VALLEY TODMORDEN LTD", "comp_no": "12627379", "alerts": "", "accounts_ref_date": "31/05", "accounts_due": "31/05/2026", "conf_date": "11/06/2026", "conf_due": "25/06/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 272, "name": "SYLHETI BAZAR LIMITED", "comp_no": "11184309", "alerts": "", "accounts_ref_date": "28/02", "accounts_due": "30/11/2026", "conf_date": "23/03/2026", "conf_due": "06/04/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 276, "name": "THE CHOWDURY ACCOUNTANTS LTD", "comp_no": "09441520", "alerts": "", "accounts_ref_date": "21/02", "accounts_due": "21/11/2026", "conf_date": "14/08/2026", "conf_due": "28/08/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 278, "name": "THE MEGNA LTD", "comp_no": "12457757", "alerts": "Amber", "accounts_ref_date": "25/02", "accounts_due": "25/11/2026", "conf_date": "15/03/2026", "conf_due": "29/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 291, "name": "UNITED SALVAGE LTD", "comp_no": "15061998", "alerts": "", "accounts_ref_date": "31/08", "accounts_due": "31/05/2026", "conf_date": "09/08/2026", "conf_due": "23/08/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 297, "name": "WO GROUP LIMITED", "comp_no": "12021205", "alerts": "", "accounts_ref_date": "29/05", "accounts_due": "29/05/2026", "conf_date": "09/09/2026", "conf_due": "23/09/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 301, "name": "YAS INTERNATIONAL LIMITED", "comp_no": "11079885", "alerts": "Amber", "accounts_ref_date": "28/11", "accounts_due": "28/08/2026", "conf_date": "09/03/2026", "conf_due": "23/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 2, "name": "A1 GERMAN BREAKERS GROUP UK LTD", "comp_no": "15129309", "alerts": "", "accounts_ref_date": "30/09", "accounts_due": "30/06/2026", "conf_date": "11/09/2026", "conf_due": "25/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 45, "name": "BEGAL FAST FOOD OLDHAM LTD", "comp_no": "13616227", "alerts": "", "accounts_ref_date": "28/09", "accounts_due": "28/06/2026", "conf_date": "11/09/2026", "conf_due": "25/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 63, "name": "CHENNAI LANDLORD LTD", "comp_no": "13963731", "alerts": "Red", "accounts_ref_date": "30/03", "accounts_due": "30/12/2026", "conf_date": "07/03/2026", "conf_due": "21/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 152, "name": "LIJA CATERING LTD", "comp_no": "14330589", "alerts": "", "accounts_ref_date": "30/09", "accounts_due": "30/06/2026", "conf_date": "31/08/2026", "conf_due": "14/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 158, "name": "MAA LEGAL SERVICES LIMITED", "comp_no": "11728106", "alerts": "", "accounts_ref_date": "30/12", "accounts_due": "30/09/2026", "conf_date": "27/06/2026", "conf_due": "11/07/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 167, "name": "MB TAKEAWAY LTD", "comp_no": "12879940", "alerts": "", "accounts_ref_date": "28/09", "accounts_due": "28/06/2026", "conf_date": "04/10/2026", "conf_due": "18/10/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 195, "name": "NUSEER RAFIQ - (Travel Line Mini Bus)", "comp_no": "", "alerts": "Red", "accounts_ref_date": "", "accounts_due": "", "conf_date": "", "conf_due": "", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 205, "name": "PROJECT INTERIM LIMITED", "comp_no": "14740056", "alerts": "Amber", "accounts_ref_date": "31/03", "accounts_due": "31/03/2026", "conf_date": "17/03/2026", "conf_due": "31/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 235, "name": "SCHOLARED UK LTD", "comp_no": "14967711", "alerts": "Red", "accounts_ref_date": "28/06", "accounts_due": "28/03/2026", "conf_date": "21/02/2026", "conf_due": "07/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 244, "name": "SHAZNA TAKEAWAY LIMITED", "comp_no": "10087517", "alerts": "Amber", "accounts_ref_date": "30/03", "accounts_due": "30/03/2026", "conf_date": "04/08/2026", "conf_due": "18/08/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 306, "name": "ZIGGY\u2019S SCHOOLWEAR (BOLTON) LTD", "comp_no": "14751431", "alerts": "Amber", "accounts_ref_date": "31/03", "accounts_due": "31/03/2026", "conf_date": "25/05/2026", "conf_due": "08/06/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 1, "name": "2020 OPTIX LTD", "comp_no": "07239795", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "30/04/2026", "conf_due": "14/05/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 10, "name": "AH TAKEAWAY LTD", "comp_no": "12267533", "alerts": "Amber", "accounts_ref_date": "29/10", "accounts_due": "29/07/2026", "conf_date": "23/11/2026", "conf_due": "07/12/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 25, "name": "ANMOL WARRINGTON LIMITED", "comp_no": "13355676", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "23/04/2026", "conf_due": "07/05/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 40, "name": "BALLY OFF LICENCE LTD", "comp_no": "13671931", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "10/10/2026", "conf_due": "24/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 48, "name": "BENGAL ROSE LTD", "comp_no": "13681584", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "14/10/2026", "conf_due": "28/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 58, "name": "BRTA LIMITED", "comp_no": "12716060", "alerts": "Red", "accounts_ref_date": "31/07", "accounts_due": "30/04/2027", "conf_date": "02/07/2026", "conf_due": "16/07/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 64, "name": "CHILLI INDIAN LTD", "comp_no": "13697837", "alerts": "Amber", "accounts_ref_date": "29/10", "accounts_due": "29/07/2026", "conf_date": "21/10/2026", "conf_due": "04/11/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 75, "name": "COPPICE BAZAR LTD", "comp_no": "14029671", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "28/03/2026", "conf_due": "11/04/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 79, "name": "D' GRAND HAVELI LTD", "comp_no": "12262936", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "08/02/2027", "conf_due": "22/02/2027", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 107, "name": "GLOBAL LEARNING PATHWAY LIMITED", "comp_no": "13358224", "alerts": "Amber", "accounts_ref_date": "27/04", "accounts_due": "27/04/2026", "conf_date": "09/12/2026", "conf_due": "23/12/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 126, "name": "IMON TANDOORI LIMITED", "comp_no": "11956917", "alerts": "Amber", "accounts_ref_date": "28/04", "accounts_due": "28/01/2027", "conf_date": "05/07/2026", "conf_due": "19/07/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 143, "name": "KINGFISHER BD RESTAURANT LTD", "comp_no": "14605750", "alerts": "Red", "accounts_ref_date": "31/01", "accounts_due": "31/10/2026", "conf_date": "19/01/2027", "conf_due": "02/02/2027", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 216, "name": "RAZAK & SONS LIMITED", "comp_no": "13676974", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "12/10/2026", "conf_due": "26/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 236, "name": "SEQUENTIAL SERVICES LIMITED", "comp_no": "12097769", "alerts": "Amber", "accounts_ref_date": "30/07", "accounts_due": "30/04/2027", "conf_date": "20/03/2026", "conf_due": "03/04/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}];
+const SUPABASE_URL = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 
-let filtered = [...VAT_DATA];
+async function sbFetch(path, opts={}) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function parseDaysUntil(vatDue) {
+  if (!vatDue) return 999;
+  const [d,m,y] = vatDue.split('/');
+  return Math.round((new Date(y,m-1,d) - new Date()) / 86400000);
+}
+
+let VAT_DATA = [];
+
+let filtered = [];
+
+async function loadVatData() {
+  try {
+    const rows = await sbFetch('ltd_clients?vat_due=neq.&vat_due=not.is.null&select=*&order=vat_stagger.asc,name.asc');
+    VAT_DATA = rows.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
+    filtered = [...VAT_DATA];
+    renderKPIs();
+    render();
+  } catch(e) {
+    console.warn('Supabase load failed, using cache:', e.message);
+  }
+}
 let currentFilter = 'all';
 let currentSearch = '';
 let sortCol = 'days_until';
 let sortDir = 1;
 
 function init() {
-  renderKPIs();
-  render();
+  loadVatData();
 }
 
 function renderKPIs() {
@@ -266,27 +301,28 @@ init();
 function openAddVatModal() { document.getElementById('vat-add-modal').style.display='flex'; ['vaf-name','vaf-compno','vaf-vat-due'].forEach(id=>document.getElementById(id).value=''); }
 function closeAddVatModal() { document.getElementById('vat-add-modal').style.display='none'; }
 
-function saveNewVatClient() {
+async function saveNewVatClient() {
   const name = document.getElementById('vaf-name').value.trim();
   if (!name) { alert('Company name required'); return; }
-  const vatDue = document.getElementById('vaf-vat-due').value.trim();
-  const [d,m,y] = vatDue.split('/');
-  const daysUntil = vatDue ? Math.round((new Date(y,m-1,d) - new Date()) / 86400000) : 999;
-  const newClient = {
-    id: Math.max(...VAT_DATA.map(x=>x.id)) + 1,
+  const payload = {
     name,
     comp_no: document.getElementById('vaf-compno').value.trim().toUpperCase(),
-    vat_due: vatDue,
+    vat_due: document.getElementById('vaf-vat-due').value.trim(),
     vat_stagger: document.getElementById('vaf-stagger').value,
     alerts: document.getElementById('vaf-alerts').value,
-    days_until: daysUntil,
     accounts_due:'', conf_due:'', accounts_ref_date:'', conf_date:''
   };
-  VAT_DATA.push(newClient);
-  closeAddVatModal();
-  renderKPIs();
-  render();
-  alert(`✅ ${name} added!`);
+  try {
+    const [saved] = await sbFetch('ltd_clients', {
+      method:'POST', body: JSON.stringify(payload),
+      headers:{'Prefer':'return=representation'}
+    });
+    VAT_DATA.push({...saved, days_until: parseDaysUntil(saved.vat_due)});
+    closeAddVatModal();
+    renderKPIs();
+    render();
+    alert(`✅ ${name} added and saved!`);
+  } catch(e) { alert('Error saving: ' + e.message); }
 }
 
 function openEditVat(id) {
@@ -302,29 +338,43 @@ function openEditVat(id) {
 }
 function closeEditVatModal() { document.getElementById('vat-edit-modal').style.display='none'; }
 
-function saveEditVatClient() {
+async function saveEditVatClient() {
   const id = parseInt(document.getElementById('vef-id').value);
   const idx = VAT_DATA.findIndex(x => x.id === id);
   if (idx === -1) return;
-  const vatDue = document.getElementById('vef-vat-due').value.trim();
-  const [d,m,y] = vatDue.split('/');
-  VAT_DATA[idx].name = document.getElementById('vef-name').value.trim();
-  VAT_DATA[idx].comp_no = document.getElementById('vef-compno').value.trim().toUpperCase();
-  VAT_DATA[idx].vat_due = vatDue;
-  VAT_DATA[idx].vat_stagger = document.getElementById('vef-stagger').value;
-  VAT_DATA[idx].alerts = document.getElementById('vef-alerts').value;
-  VAT_DATA[idx].days_until = vatDue ? Math.round((new Date(y,m-1,d) - new Date()) / 86400000) : 999;
-  closeEditVatModal();
-  renderKPIs();
-  render();
+  const payload = {
+    name: document.getElementById('vef-name').value.trim(),
+    comp_no: document.getElementById('vef-compno').value.trim().toUpperCase(),
+    vat_due: document.getElementById('vef-vat-due').value.trim(),
+    vat_stagger: document.getElementById('vef-stagger').value,
+    alerts: document.getElementById('vef-alerts').value
+  };
+  try {
+    await sbFetch(`ltd_clients?id=eq.${id}`, {
+      method:'PATCH', body: JSON.stringify(payload),
+      headers:{'Prefer':'return=minimal'}
+    });
+    Object.assign(VAT_DATA[idx], payload, {days_until: parseDaysUntil(payload.vat_due)});
+    closeEditVatModal();
+    renderKPIs();
+    render();
+    alert('✅ Changes saved!');
+  } catch(e) { alert('Error saving: ' + e.message); }
 }
 
-function removeVatClient(id) {
+async function removeVatClient(id) {
   const co = VAT_DATA.find(x => x.id === id);
-  if (!co || !confirm(`Remove ${co.name} from VAT tracker?`)) return;
-  VAT_DATA.splice(VAT_DATA.findIndex(x=>x.id===id), 1);
-  renderKPIs();
-  render();
+  if (!co || !confirm(`Remove ${co.name} from VAT tracker?\nThis clears their VAT details but keeps them in Ltd tracker.`)) return;
+  try {
+    await sbFetch(`ltd_clients?id=eq.${id}`, {
+      method:'PATCH', body: JSON.stringify({vat_due:'', vat_stagger:''}),
+      headers:{'Prefer':'return=minimal'}
+    });
+    VAT_DATA.splice(VAT_DATA.findIndex(x=>x.id===id), 1);
+    renderKPIs();
+    render();
+    alert(`🗑 ${co.name} removed from VAT tracker.`);
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 </script>
