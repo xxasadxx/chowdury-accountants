@@ -362,11 +362,9 @@ const ROLES={Asadul:'Managing Director',Hassan:'Ltd Co & VAT Manager',Aminul:'Pa
 
 let curStaff='Asadul',curView='activities',curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1,hoursVal=null;
 
+const SB_HEADERS={'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY,'Prefer':'return=representation'};
 async function sb(path,opts={}){
-  const m=opts.method||'GET';
-  const h={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,...(opts.headers||{})};
-  if(m!=='GET'&&m!=='DELETE'){h['Content-Type']='application/json';h['Prefer']='return=representation';}
-  const r=await fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:h});
+  const r=await fetch(SB_URL+'/rest/v1/'+path,{headers:SB_HEADERS,...opts});
   if(!r.ok)throw new Error(await r.text());
   const t=await r.text();return t?JSON.parse(t):[];
 }
@@ -381,8 +379,11 @@ function calcHours(){
   const fr=document.getElementById('f-from').value,to=document.getElementById('f-to').value,el=document.getElementById('f-hours');
   if(!fr||!to){el.textContent='—';hoursVal=null;return;}
   const[fh,fm]=fr.split(':').map(Number),[th,tm]=to.split(':').map(Number);
-  let m=(th*60+tm)-(fh*60+fm);if(m<0)m+=1440;
-  hoursVal=Math.round(m/60*100)/100;el.textContent=hoursVal.toFixed(2)+'h';
+  let m=(th*60+tm)-(fh*60+fm);
+  const overnight=m<0;
+  if(overnight)m+=1440;
+  hoursVal=Math.round(m/60*100)/100;
+  el.textContent=hoursVal.toFixed(2)+'h'+(overnight?' 🌙':'');
 }
 
 // Inline clients list (abbreviated - loaded from DATA)
