@@ -177,7 +177,8 @@ let filtered = [];
 
 async function loadVatData() {
   try {
-    const rows = await sbFetch('ltd_clients?vat_due=neq.&vat_due=not.is.null&select=*&order=vat_stagger.asc,name.asc');
+    const allRows = await sbFetch('ltd_clients?select=*&order=vat_stagger.asc,name.asc');
+    const rows = allRows.filter(r => r.vat_due && r.vat_due.trim() !== '');
     VAT_DATA = rows.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
     filtered = [...VAT_DATA];
     renderKPIs();
