@@ -144,6 +144,13 @@
     display: flex; align-items: center; justify-content: center;
   }
   .modal-body { padding: 20px 24px; }
+  .m-act-row { padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-start; }
+  .m-act-row:last-child { border-bottom: none; }
+  .m-act-badge { display: inline-block; padding: 1px 6px; border-radius: 8px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+  .m-tb-Bookkeeping{background:#dbeafe;color:#1d4ed8} .m-tb-Payroll{background:#f3e8ff;color:#6d28d9}
+  .m-tb-VAT{background:#dcfce7;color:#15803d} .m-tb-Accounts{background:#fff7ed;color:#c2410c}
+  .m-tb-Phone{background:#f0fdf4;color:#16a34a} .m-tb-Meeting{background:#fef9c3;color:#a16207}
+  .m-tb-Admin{background:#f1f5f9;color:#475569} .m-tb-Other{background:#fafafa;color:#6b7280}
 
   .modal-section { margin-bottom: 20px; }
   .modal-section-title {
@@ -405,6 +412,12 @@
         <div class="form-group full">
           <textarea id="m-notes" placeholder="Any notes about this client..."></textarea>
         </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="modal-section-title">📋 Activity Log <span id="m-act-count" style="font-size:11px;color:var(--muted);font-weight:400"></span></div>
+        <div id="m-act-list" style="font-size:12px;color:var(--muted);padding:8px 0">Loading activities...</div>
+        <a href="staff-management.html" style="font-size:11px;color:var(--blue);font-weight:600;text-decoration:none;margin-top:6px;display:inline-block">➕ Log activity in Staff Management →</a>
       </div>
 
     </div>
@@ -710,6 +723,39 @@ function render() {
 }
 
 // ── Modal ──
+async function loadClientActivities(compNo) {
+  const el = document.getElementById('m-act-list');
+  const cnt = document.getElementById('m-act-count');
+  if (!el) return;
+  el.textContent = 'Loading...';
+  try {
+    const SB_URL = 'https://yhvhpfsoqtjwnukgyap.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+    const r = await fetch(SB_URL + '/rest/v1/staff_activities?comp_no=eq.' + encodeURIComponent(compNo) + '&order=activity_date.desc&limit=20', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    cnt.textContent = data.length ? `(${data.length} entries)` : '';
+    if (!data.length) { el.innerHTML = '<span style="color:var(--muted)">No activities logged yet.</span>'; return; }
+    const totalHrs = data.reduce((s,a)=>s+(parseFloat(a.hours)||0),0);
+    el.innerHTML = `<div style="margin-bottom:8px;font-size:11px;color:var(--muted)">Total hours: <strong style="color:var(--blue)">${totalHrs.toFixed(2)}h</strong></div>` +
+      data.map(a => {
+        const tk = a.task_type ? a.task_type.split('/')[0].trim() : 'Other';
+        const dt = new Date(a.activity_date+'T12:00:00').toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+        return `<div class="m-act-row">
+          <div style="min-width:70px;font-size:11px;color:var(--muted)">${dt}</div>
+          <div style="min-width:60px;font-size:10px;font-weight:600;color:var(--blue)">${a.staff||''}</div>
+          <span class="m-act-badge m-tb-${tk}">${a.task_type||'—'}</span>
+          <div style="flex:1;font-size:12px">${a.description||''}</div>
+          <div style="font-size:11px;font-family:monospace;color:var(--blue);white-space:nowrap">${a.hours?parseFloat(a.hours).toFixed(2)+'h':''}</div>
+        </div>`;
+      }).join('');
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--muted)">Could not load activities.</span>';
+  }
+}
+
 function openModal(compNo) {
   currentCompNo = compNo;
   const d = DATA.find(x => x.comp_no === compNo) || {};
@@ -750,6 +796,7 @@ function openModal(compNo) {
   document.getElementById('save-status').textContent = '';
 
   document.getElementById('modal-bg').classList.add('open');
+  if (currentCompNo) loadClientActivities(currentCompNo);
 }
 
 // Auto-calc annual from monthly

@@ -4,117 +4,101 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Staff Management — The Chowdury Accountants</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕐</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👥</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #f4f6fa; --surface: #ffffff; --surface2: #f8f9fc;
-    --border: #e2e6ef; --border2: #d0d6e3;
-    --text: #1e2433; --text2: #4b5563; --text-muted: #9ca3af;
-    --blue: #2563eb; --green: #16a34a; --red: #dc2626;
-    --yellow: #d97706; --purple: #7c3aed; --orange: #ea580c;
-    --sans: 'Plus Jakarta Sans', sans-serif;
-    --mono: 'JetBrains Mono', monospace;
-  }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
-
-  /* Header */
-  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 20px; height: 52px; position: sticky; top: 0; z-index: 100; }
-  header h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; white-space: nowrap; }
-  header h1 span { color: var(--blue); }
-  .nav-links { display: flex; gap: 4px; margin-left: auto; }
-  .nav-links a { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text2); text-decoration: none; transition: all 0.15s; }
-  .nav-links a:hover { background: var(--surface2); color: var(--text); }
-  .nav-links a.active { background: var(--blue); color: #fff; }
-
-  /* Toolbar */
-  .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  
-  /* Staff tabs */
-  .staff-tabs { display: flex; gap: 4px; }
-  .staff-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
-  .staff-tab:hover { border-color: var(--blue); color: var(--blue); }
-  .staff-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-
-  /* Month nav */
-  .month-nav { display: flex; align-items: center; gap: 8px; margin-left: auto; }
-  .month-nav button { width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border2); background: var(--surface); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: all 0.15s; }
-  .month-nav button:hover { border-color: var(--blue); color: var(--blue); }
-  .month-label { font-size: 13px; font-weight: 600; min-width: 130px; text-align: center; }
-
-  /* Stats bar */
-  .stats-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; gap: 24px; }
-  .stat { display: flex; flex-direction: column; }
-  .stat .k { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
-  .stat .v { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--text); }
-  .stat .v.blue { color: var(--blue); }
-
-  /* Main layout */
-  .main { padding: 16px 20px; max-width: 1100px; }
-
-  /* Add entry form */
-  .add-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-  .add-card-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
-  .add-row { display: grid; grid-template-columns: 130px 100px 90px 90px 70px 1fr auto; gap: 8px; align-items: start; }
-  .add-row input, .add-row select, .add-row textarea { padding: 7px 9px; border: 1px solid var(--border2); border-radius: 6px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
-  .add-row input:focus, .add-row select:focus, .add-row textarea:focus { border-color: var(--blue); }
-  .add-row textarea { resize: vertical; min-height: 34px; }
-  label.field-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 3px; }
-  .hours-auto { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue); padding: 7px 4px; }
-
-  /* Sub items area */
-  .sub-items-area { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-  .sub-items-area label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
-  .sub-item-row { display: flex; gap: 6px; margin-bottom: 5px; align-items: center; }
-  .sub-item-row input { flex: 1; padding: 5px 8px; border: 1px solid var(--border2); border-radius: 5px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; }
-  .sub-item-row input:focus { border-color: var(--blue); }
-  .sub-item-row .rm-btn { width: 22px; height: 22px; border: none; background: none; cursor: pointer; color: var(--text-muted); font-size: 15px; line-height: 1; border-radius: 4px; }
-  .sub-item-row .rm-btn:hover { background: #fee2e2; color: var(--red); }
-  .add-sub-btn { font-size: 11px; color: var(--blue); background: none; border: none; cursor: pointer; padding: 2px 0; font-family: var(--sans); font-weight: 600; }
-  .add-sub-btn:hover { text-decoration: underline; }
-
-  /* Save btn */
-  .save-entry-btn { padding: 8px 18px; background: var(--blue); color: #fff; border: none; border-radius: 7px; font-family: var(--sans); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: background 0.15s; height: 34px; }
-  .save-entry-btn:hover { background: #1d4ed8; }
-  .save-status { font-size: 11px; margin-top: 6px; font-weight: 600; }
-  .save-status.ok { color: var(--green); }
-  .save-status.err { color: var(--red); }
-
-  /* Entries list */
-  .day-group { margin-bottom: 6px; }
-  .day-header { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px 8px 0 0; padding: 8px 14px; display: flex; align-items: center; gap: 10px; }
-  .day-date { font-weight: 700; font-size: 13px; }
-  .day-name-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
-  .day-total { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--blue); background: #eff6ff; padding: 2px 8px; border-radius: 10px; }
-
-  .entry-row { background: var(--surface); border: 1px solid var(--border); border-top: none; padding: 10px 14px; display: flex; gap: 12px; align-items: flex-start; }
-  .entry-row:last-child { border-radius: 0 0 8px 8px; }
-  .entry-time { font-family: var(--mono); font-size: 11px; color: var(--text2); white-space: nowrap; min-width: 105px; padding-top: 1px; }
-  .entry-hours-badge { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--blue); background: #eff6ff; padding: 2px 6px; border-radius: 8px; white-space: nowrap; margin-top: 2px; }
-  .entry-body { flex: 1; }
-  .entry-desc { font-size: 12px; color: var(--text); line-height: 1.5; }
-  .entry-sub-list { margin-top: 6px; padding-left: 0; list-style: none; }
-  .entry-sub-list li { font-size: 11px; color: var(--text2); padding: 1px 0; display: flex; gap: 6px; }
-  .entry-sub-list li span.num { color: var(--text-muted); font-family: var(--mono); font-size: 10px; min-width: 16px; }
-  .entry-actions { display: flex; gap: 4px; padding-top: 2px; }
-  .entry-del-btn { padding: 3px 8px; font-size: 11px; border: 1px solid var(--border2); border-radius: 5px; background: var(--surface2); color: var(--text-muted); cursor: pointer; font-family: var(--sans); }
-  .entry-del-btn:hover { background: #fee2e2; color: var(--red); border-color: #fca5a5; }
-
-  .no-entries { text-align: center; padding: 48px 20px; color: var(--text-muted); }
-  .no-entries .icon { font-size: 36px; margin-bottom: 10px; }
-  .no-entries p { font-size: 13px; }
-
-  /* Loading */
-  .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 12px; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f4f6fa; --surface: #ffffff; --surface2: #f8f9fc;
+  --border: #e2e6ef; --border2: #d0d6e3;
+  --text: #1e2433; --text2: #4b5563; --text-muted: #9ca3af;
+  --blue: #2563eb; --green: #16a34a; --red: #dc2626;
+  --yellow: #d97706; --purple: #7c3aed; --orange: #ea580c;
+  --sans: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; align-items: center; gap: 20px; height: 52px; position: sticky; top: 0; z-index: 100; }
+header h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.02em; }
+header h1 span { color: var(--blue); }
+.nav-links { display: flex; gap: 4px; margin-left: auto; }
+.nav-links a { padding: 5px 11px; border-radius: 6px; font-size: 12px; font-weight: 500; color: var(--text2); text-decoration: none; transition: all 0.15s; }
+.nav-links a:hover { background: var(--surface2); color: var(--text); }
+.nav-links a.active { background: var(--blue); color: #fff; }
+.toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.staff-tabs { display: flex; gap: 4px; }
+.staff-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; }
+.staff-tab:hover { border-color: var(--blue); color: var(--blue); }
+.staff-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.page-tabs { display: flex; gap: 2px; margin-left: auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.page-tab { padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text2); transition: all 0.15s; }
+.page-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.stats-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; gap: 24px; flex-wrap: wrap; }
+.stat .k { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stat .v { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+.stat .v.blue { color: var(--blue); }
+.stat .v.green { color: var(--green); }
+.main { padding: 16px 20px; max-width: 1100px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 16px; }
+.card-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.card-header h3 { font-size: 13px; font-weight: 700; }
+.card-body { padding: 16px; }
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fg { display: flex; flex-direction: column; gap: 3px; }
+.fg.full { grid-column: 1 / -1; }
+.fg label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+.fg input, .fg select, .fg textarea { padding: 7px 9px; border: 1px solid var(--border2); border-radius: 6px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; }
+.fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--blue); }
+.fg textarea { resize: vertical; min-height: 60px; }
+.holiday-bar { background: var(--surface2); border-radius: 6px; height: 8px; overflow: hidden; margin-top: 4px; }
+.holiday-fill { height: 100%; background: var(--green); border-radius: 6px; transition: width 0.3s; }
+.holiday-fill.warn { background: var(--yellow); }
+.holiday-fill.danger { background: var(--red); }
+.btn-save { padding: 8px 18px; background: var(--blue); color: #fff; border: none; border-radius: 7px; font-family: var(--sans); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn-save:hover { background: #1d4ed8; }
+.save-msg { font-size: 11px; font-weight: 600; margin-left: 10px; }
+.save-msg.ok { color: var(--green); }
+.save-msg.err { color: var(--red); }
+.af-grid { display: grid; grid-template-columns: 120px 200px 155px 78px 78px 1fr 60px; gap: 8px; align-items: end; margin-bottom: 10px; }
+.af-grid input, .af-grid select { padding: 7px 9px; border: 1px solid var(--border2); border-radius: 6px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; width: 100%; }
+.af-grid input:focus, .af-grid select:focus { border-color: var(--blue); }
+.af-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 3px; }
+.hours-disp { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--blue); padding: 7px 4px; }
+.task-badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.tb-Bookkeeping { background:#dbeafe;color:#1d4ed8; }
+.tb-Payroll { background:#f3e8ff;color:#6d28d9; }
+.tb-VAT { background:#dcfce7;color:#15803d; }
+.tb-Accounts { background:#fff7ed;color:#c2410c; }
+.tb-Phone { background:#f0fdf4;color:#16a34a; }
+.tb-Meeting { background:#fef9c3;color:#a16207; }
+.tb-Admin { background:#f1f5f9;color:#475569; }
+.tb-Other { background:#fafafa;color:#6b7280; }
+.act-table { width:100%; border-collapse:collapse; }
+.act-table th { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); font-weight:600; padding:6px 10px; background:var(--surface2); border-bottom:1px solid var(--border); text-align:left; }
+.act-table td { padding:8px 10px; border-bottom:1px solid var(--border); font-size:12px; vertical-align:top; }
+.act-table tr:last-child td { border-bottom:none; }
+.act-table tr:hover td { background:var(--surface2); }
+.clink { color:var(--blue); font-weight:600; cursor:pointer; }
+.clink:hover { text-decoration:underline; }
+.act-del { padding:2px 7px; font-size:11px; border:1px solid var(--border2); border-radius:5px; background:none; cursor:pointer; color:var(--text-muted); }
+.act-del:hover { background:#fee2e2; color:var(--red); border-color:#fca5a5; }
+.month-nav { display:flex; align-items:center; gap:8px; }
+.month-nav button { width:26px; height:26px; border-radius:6px; border:1px solid var(--border2); background:var(--surface); cursor:pointer; font-size:13px; color:var(--text2); }
+.month-nav button:hover { border-color:var(--blue); color:var(--blue); }
+.month-label { font-size:12px; font-weight:600; min-width:120px; text-align:center; }
+.cs-wrap { position:relative; }
+.cs-dd { position:absolute; top:100%; left:0; right:0; background:var(--surface); border:1px solid var(--border2); border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.1); z-index:200; max-height:180px; overflow-y:auto; }
+.cs-opt { padding:7px 10px; font-size:12px; cursor:pointer; }
+.cs-opt:hover { background:var(--surface2); }
+.cs-opt .cn { font-size:10px; color:var(--text-muted); font-family:var(--mono); }
+.no-data { text-align:center; padding:32px; color:var(--text-muted); font-size:12px; }
+.section { display:none; }
+.section.active { display:block; }
 </style>
 </head>
 <body>
-<script>
-  if (sessionStorage.getItem('ca_auth') !== 'true') {
-    window.location.href = 'login.html';
-  }
-</script>
+<script>if(sessionStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
 
 <header>
   <h1>👥 <span>Chowdury</span> Staff Management</h1>
@@ -129,316 +113,324 @@
 
 <div class="toolbar">
   <div class="staff-tabs" id="staff-tabs">
-    <div class="staff-tab active" data-staff="Asadul" onclick="setStaff('Asadul',this)">👤 Asadul</div>
-    <div class="staff-tab" data-staff="Hassan" onclick="setStaff('Hassan',this)">👤 Hassan</div>
-    <div class="staff-tab" data-staff="Aminul" onclick="setStaff('Aminul',this)">👤 Aminul</div>
-    <div class="staff-tab" data-staff="Nawaz" onclick="setStaff('Nawaz',this)">👤 Nawaz</div>
-    <div class="staff-tab" data-staff="Sadat" onclick="setStaff('Sadat',this)">👤 Sadat</div>
+    <div class="staff-tab active" onclick="setStaff('Asadul',this)">👤 Asadul</div>
+    <div class="staff-tab" onclick="setStaff('Hassan',this)">👤 Hassan</div>
+    <div class="staff-tab" onclick="setStaff('Aminul',this)">👤 Aminul</div>
+    <div class="staff-tab" onclick="setStaff('Nawaz',this)">👤 Nawaz</div>
+    <div class="staff-tab" onclick="setStaff('Sadat',this)">👤 Sadat</div>
   </div>
-  <div class="month-nav">
-    <button onclick="changeMonth(-1)">‹</button>
-    <div class="month-label" id="month-label">—</div>
-    <button onclick="changeMonth(1)">›</button>
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="setView('activities',this)">📋 Activities</div>
+    <div class="page-tab" onclick="setView('profile',this)">👤 Profile</div>
   </div>
 </div>
 
 <div class="stats-bar">
-  <div class="stat"><div class="k">Total Hours</div><div class="v blue" id="stat-hours">—</div></div>
-  <div class="stat"><div class="k">Days Worked</div><div class="v" id="stat-days">—</div></div>
-  <div class="stat"><div class="k">Avg Hours/Day</div><div class="v" id="stat-avg">—</div></div>
-  <div class="stat"><div class="k">Entries</div><div class="v" id="stat-entries">—</div></div>
-  <div class="stat"><div class="k">Staff Member</div><div class="v" id="stat-staff">—</div></div>
+  <div class="stat"><div class="k">Staff</div><div class="v blue" id="s-name">Asadul</div></div>
+  <div class="stat"><div class="k">Role</div><div class="v" id="s-role">—</div></div>
+  <div class="stat"><div class="k">Hours This Month</div><div class="v blue" id="s-hours">—</div></div>
+  <div class="stat"><div class="k">Activities</div><div class="v" id="s-acts">—</div></div>
+  <div class="stat"><div class="k">Clients Touched</div><div class="v" id="s-clients">—</div></div>
+  <div class="stat"><div class="k">Holiday Remaining</div><div class="v green" id="s-holiday">—</div></div>
 </div>
 
 <div class="main">
-  <!-- Add Entry Form -->
-  <div class="add-card">
-    <div class="add-card-title">➕ New Time Entry</div>
-    <div class="add-row">
-      <div>
-        <label class="field-label">Date</label>
-        <input type="date" id="f-date">
+
+  <!-- ACTIVITIES VIEW -->
+  <div class="section active" id="view-activities">
+    <div class="card">
+      <div class="card-header">
+        <span>➕</span><h3>Log Activity</h3>
+        <div class="month-nav" style="margin-left:auto">
+          <button onclick="changeMonth(-1)">&#8249;</button>
+          <div class="month-label" id="month-label">—</div>
+          <button onclick="changeMonth(1)">&#8250;</button>
+        </div>
       </div>
-      <div>
-        <label class="field-label">Day</label>
-        <input type="text" id="f-day" placeholder="Auto" readonly style="background:#f0f4ff;cursor:default;">
-      </div>
-      <div>
-        <label class="field-label">Time From</label>
-        <input type="time" id="f-from" oninput="calcHours()">
-      </div>
-      <div>
-        <label class="field-label">Time To</label>
-        <input type="time" id="f-to" oninput="calcHours()">
-      </div>
-      <div>
-        <label class="field-label">Hours</label>
-        <div class="hours-auto" id="f-hours-display">—</div>
-      </div>
-      <div>
-        <label class="field-label">Description / Task</label>
-        <textarea id="f-desc" placeholder="e.g. Updated Payroll for June 14; submitted PAYE details..."></textarea>
-      </div>
-      <div style="padding-top:16px;">
-        <button class="save-entry-btn" onclick="saveEntry()">Save</button>
+      <div class="card-body">
+        <div class="af-grid">
+          <div>
+            <span class="af-label">Date</span>
+            <input type="date" id="f-date">
+          </div>
+          <div>
+            <span class="af-label">Client (optional)</span>
+            <div class="cs-wrap">
+              <input type="text" id="f-client" placeholder="Search client..." autocomplete="off" oninput="searchClients(this.value)" onfocus="searchClients(this.value)">
+              <div class="cs-dd" id="cs-dd" style="display:none"></div>
+            </div>
+            <input type="hidden" id="f-comp-no">
+          </div>
+          <div>
+            <span class="af-label">Task Type</span>
+            <select id="f-task">
+              <option value="Bookkeeping">Bookkeeping</option>
+              <option value="Payroll">Payroll</option>
+              <option value="VAT">VAT</option>
+              <option value="Accounts">Accounts / HMRC submission</option>
+              <option value="Phone">Phone call / WhatsApp</option>
+              <option value="Meeting">Client meeting</option>
+              <option value="Admin">Admin / internal</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div>
+            <span class="af-label">From</span>
+            <input type="time" id="f-from" oninput="calcHours()">
+          </div>
+          <div>
+            <span class="af-label">To</span>
+            <input type="time" id="f-to" oninput="calcHours()">
+          </div>
+          <div>
+            <span class="af-label">Description</span>
+            <input type="text" id="f-desc" placeholder="What was done...">
+          </div>
+          <div>
+            <span class="af-label">Hrs</span>
+            <div class="hours-disp" id="f-hours">—</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <button class="btn-save" onclick="logActivity()">Save Activity</button>
+          <span class="save-msg" id="act-msg"></span>
+        </div>
       </div>
     </div>
 
-    <div class="sub-items-area">
-      <label>Sub-items (clients, calls, tasks under this entry)</label>
-      <div id="sub-items-container"></div>
-      <button class="add-sub-btn" onclick="addSubItem()">+ Add item</button>
+    <div class="card">
+      <div class="card-header"><span>📋</span><h3 id="act-title">Activities</h3></div>
+      <div style="padding:0" id="act-list"><div class="no-data">Loading...</div></div>
     </div>
-    <div class="save-status" id="save-status"></div>
   </div>
 
-  <!-- Entries -->
-  <div id="entries-container"><div class="loading">Loading entries…</div></div>
+  <!-- PROFILE VIEW -->
+  <div class="section" id="view-profile">
+    <div class="card">
+      <div class="card-header"><span>👤</span><h3>Personal & Contact Details</h3></div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="fg"><label>Role / Title</label><input type="text" id="p-role" placeholder="e.g. Ltd Co & VAT Manager"></div>
+          <div class="fg"><label>Phone</label><input type="tel" id="p-phone" placeholder="Mobile number"></div>
+          <div class="fg"><label>Email</label><input type="email" id="p-email" placeholder="Email address"></div>
+          <div class="fg full"><label>Home Address</label><textarea id="p-address" placeholder="Full address"></textarea></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span>🚨</span><h3>Emergency Contact</h3></div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="fg"><label>Name & Relation</label><input type="text" id="p-emg-name" placeholder="e.g. Alisha — Spouse"></div>
+          <div class="fg"><label>Phone</label><input type="tel" id="p-emg-phone" placeholder="Phone number"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span>💼</span><h3>Employment Details</h3></div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="fg"><label>Start Date</label><input type="date" id="p-start"></div>
+          <div class="fg"><label>Monthly Salary (£)</label><input type="number" id="p-salary" placeholder="0.00" step="0.01"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span>🌴</span><h3>Holiday</h3></div>
+      <div class="card-body">
+        <div class="profile-grid">
+          <div class="fg"><label>Allowance (days)</label><input type="number" id="p-h-allow" value="28" min="0" oninput="updateHBar()"></div>
+          <div class="fg"><label>Days Taken</label><input type="number" id="p-h-taken" value="0" min="0" oninput="updateHBar()"></div>
+          <div class="fg full">
+            <label>Remaining: <span id="h-rem" style="color:var(--green);font-weight:700">28</span> days</label>
+            <div class="holiday-bar"><div class="holiday-fill" id="h-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span>📝</span><h3>Notes</h3></div>
+      <div class="card-body"><div class="fg full"><textarea id="p-notes" placeholder="Notes..." style="min-height:70px"></textarea></div></div>
+    </div>
+    <div style="display:flex;align-items:center;margin-bottom:20px">
+      <button class="btn-save" onclick="saveProfile()">💾 Save Profile</button>
+      <span class="save-msg" id="prof-msg"></span>
+    </div>
+  </div>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://yhvhpfsoqtjwnukgyap.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const SB_URL='https://yhvhpfsoqtjwnukgyap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const ROLES={Asadul:'Managing Director',Hassan:'Ltd Co & VAT Manager',Aminul:'Payroll & SE Manager',Nawaz:'Apprentice',Sadat:'Remote (Bangladesh)'};
 
-let currentStaff = 'Asadul';
-let currentYear = new Date().getFullYear();
-let currentMonth = new Date().getMonth() + 1; // 1-12
-let entries = [];
-let hoursValue = null;
+let curStaff='Asadul',curView='activities',curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1,hoursVal=null;
 
-async function sbFetch(path, opts = {}) {
-  const method = opts.method || 'GET';
-  const headers = {
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
-    'Content-Type': 'application/json',
-    ...opts.headers
-  };
-  if (method !== 'GET' && method !== 'DELETE') {
-    headers['Prefer'] = 'return=representation';
-  }
-  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, { ...opts, headers });
-  if (!r.ok) throw new Error(await r.text());
-  const text = await r.text();
-  return text ? JSON.parse(text) : [];
+async function sb(path,opts={}){
+  const m=opts.method||'GET';
+  const h={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json',...(opts.headers||{})};
+  if(m!=='GET'&&m!=='DELETE')h['Prefer']='return=representation';
+  const r=await fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:h});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):[];
 }
 
-// ── Staff & Month ──
-function setStaff(staff, el) {
-  currentStaff = staff;
-  document.querySelectorAll('.staff-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  loadEntries();
+function setStaff(s,el){curStaff=s;document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');loadAll();}
+function setView(v,el){curView=v;document.querySelectorAll('.page-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById('view-'+v).classList.add('active');if(v==='profile')loadProfile();}
+function changeMonth(d){curMonth+=d;if(curMonth>12){curMonth=1;curYear++;}if(curMonth<1){curMonth=12;curYear--;}loadActivities();}
+
+(function(){const t=new Date();document.getElementById('f-date').value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
+
+function calcHours(){
+  const fr=document.getElementById('f-from').value,to=document.getElementById('f-to').value,el=document.getElementById('f-hours');
+  if(!fr||!to){el.textContent='—';hoursVal=null;return;}
+  const[fh,fm]=fr.split(':').map(Number),[th,tm]=to.split(':').map(Number);
+  let m=(th*60+tm)-(fh*60+fm);if(m<0)m+=1440;
+  hoursVal=Math.round(m/60*100)/100;el.textContent=hoursVal.toFixed(2)+'h';
 }
 
-function changeMonth(dir) {
-  currentMonth += dir;
-  if (currentMonth > 12) { currentMonth = 1; currentYear++; }
-  if (currentMonth < 1) { currentMonth = 12; currentYear--; }
-  loadEntries();
+// Inline clients list (abbreviated - loaded from DATA)
+window._CLIENTS = [{"comp_no": "07239795", "name": "2020 OPTIX LTD"}, {"comp_no": "15129309", "name": "A1 GERMAN BREAKERS GROUP UK LTD"}, {"comp_no": "16539743", "name": "A24 FOODS LTD"}, {"comp_no": "17058969", "name": "AA SURU TAKEAWAY LTD"}, {"comp_no": "16999699", "name": "ACH PROPERTY GROUP LTD"}, {"comp_no": "15068335", "name": "ACTIVE REPAIRS LTD"}, {"comp_no": "14652459", "name": "ADHIKARI LTD"}, {"comp_no": "15838184", "name": "ADLINGTON SPICE NW LTD"}, {"comp_no": "16874934", "name": "AF RESTAURANT NW LTD"}, {"comp_no": "12267533", "name": "AH TAKEAWAY LTD"}, {"comp_no": "15919099", "name": "AHMED DRIVING ACADEMY LTD"}, {"comp_no": "15921589", "name": "AK OPTICAL GROUP LTD"}, {"comp_no": "16315062", "name": "AKD RESTAURANT LTD"}, {"comp_no": "16051460", "name": "AKHI INDIAN TAKEAWAY LTD"}, {"comp_no": "16524936", "name": "AKHTAR RESTAURANT LTD"}, {"comp_no": "12578448", "name": "AL-AMIN FOODSTORE LTD"}, {"comp_no": "17015604", "name": "ALEENAS DINER LTD"}, {"comp_no": "15944965", "name": "ALI & ALI PROPERTIES LTD"}, {"comp_no": "16751163", "name": "ALIA CASH & CARRY LTD"}, {"comp_no": "15763004", "name": "AM TAKEAWAY LTD"}, {"comp_no": "16333595", "name": "AMANUEL PROPERTIES LTD"}, {"comp_no": "15626700", "name": "AMS RESTAURANT LTD"}, {"comp_no": "15037567", "name": "ANCHO FAREHAM LIMITED"}, {"comp_no": "14968465", "name": "ANIA PROPERTY LTD"}, {"comp_no": "13355676", "name": "ANMOL WARRINGTON LIMITED"}, {"comp_no": "14027278", "name": "AR MASSALA LTD"}, {"comp_no": "16010461", "name": "ARI BARBERS OLDHAM LTD"}, {"comp_no": "08757436", "name": "ARIA CASH AND CARRY LTD"}, {"comp_no": "16220656", "name": "ARO'S CRUNCHY CHICKEN & PIZZA LTD"}, {"comp_no": "16331900", "name": "ASHIANA TAKEAWAY LTD"}, {"comp_no": "14543285", "name": "ASHRAF LOCUM LTD"}, {"comp_no": "13776461", "name": "ASHTON GROCERY LTD"}, {"comp_no": "16109536", "name": "ASHTON MOBILE TYRES LTD"}, {"comp_no": "14891743", "name": "ASHTON TYRES LTD"}, {"comp_no": "17007081", "name": "ATHERTON CATERING LTD"}, {"comp_no": "14895613", "name": "AURA CAFETERIA LTD"}, {"comp_no": "14892809", "name": "AYYUB BUILDERS LTD"}, {"comp_no": "16247420", "name": "B & A STORE LTD"}, {"comp_no": "15978638", "name": "BADBOY KEBABS STOCKPORT LTD"}, {"comp_no": "13671931", "name": "BALLY OFF LICENCE LTD"}, {"comp_no": "16280813", "name": "BALTI PALACE NW LTD"}, {"comp_no": "16929286", "name": "BASMATI SPICE LTD"}, {"comp_no": "14768301", "name": "BD SAREES LTD"}, {"comp_no": "16749650", "name": "BEE SPICE LTD"}, {"comp_no": "13616227", "name": "BEGAL FAST FOOD OLDHAM LTD"}, {"comp_no": "10164490", "name": "BENGAL CURRY POT LIMITED"}, {"comp_no": "15710910", "name": "BENGAL CURRY POT OLDHAM LTD"}, {"comp_no": "13681584", "name": "BENGAL ROSE LTD"}, {"comp_no": "14587397", "name": "BILLINGE SPICE LTD"}, {"comp_no": "15600234", "name": "BIRKDALE TANDOORI LTD"}, {"comp_no": "13877525", "name": "BISMILLAH KITCHEN LTD"}, {"comp_no": "13541617", "name": "BLUE BRICKS OLDHAM LIMITED"}, {"comp_no": "12692695", "name": "BLUE ONION CAFE LTD"}, {"comp_no": "16273188", "name": "BOMBAY BISTRO RESTAURANT & TAKEAWAY LTD"}, {"comp_no": "16769739", "name": "BOND BROTHERZ LTD"}, {"comp_no": "14656535", "name": "BOPNBOUNCE LTD"}, {"comp_no": "13533580", "name": "BRECON PROPERTIES LIMITED"}, {"comp_no": "12716060", "name": "BRTA LIMITED"}, {"comp_no": "16960697", "name": "BT OFF LICENCE LTD"}, {"comp_no": "17054143", "name": "BURGZILLA OLDHAM LTD"}, {"comp_no": "16999306", "name": "CAFE EAST LTD"}, {"comp_no": "15835600", "name": "CAREER DEVELOPERS LIMITED"}, {"comp_no": "13963731", "name": "CHENNAI LANDLORD LTD"}, {"comp_no": "13697837", "name": "CHILLI INDIAN LTD"}, {"comp_no": "16805989", "name": "CHILLI MASALA SWINTON LTD"}, {"comp_no": "15164444", "name": "CHOWDURY PROPERTIES LTD"}, {"comp_no": "12257812", "name": "CHUTNEYS CARLISLE LTD"}, {"comp_no": "16901657", "name": "CINNAMON HALIFAX LTD"}, {"comp_no": "05082880", "name": "CINNAMON LODGE RESTAURANTS LTD"}, {"comp_no": "15816876", "name": "CLAYTON KITCHEN LTD"}, {"comp_no": "16091973", "name": "CLEARLAKE ASSET MANAGEMENT LTD"}, {"comp_no": "14684087", "name": "CLICKYDO LIMITED"}, {"comp_no": "13385860", "name": "CLOSE PROPERTIES LIMITED"}, {"comp_no": "15896932", "name": "CLUB SPORT AUTOZ LTD"}, {"comp_no": "14029671", "name": "COPPICE BAZAR LTD"}, {"comp_no": "15632404", "name": "CSNN LIMITED"}, {"comp_no": "16097468", "name": "CURRIES AND KEBABS LIMITED"}, {"comp_no": "16397163", "name": "CURRY LOUNGE NW LTD"}, {"comp_no": "12262936", "name": "D' GRAND HAVELI LTD"}, {"comp_no": "15759536", "name": "DANDYLAN PROPERTIES LTD"}, {"comp_no": "15523478", "name": "DELHI SPICE NW LTD"}, {"comp_no": "15953230", "name": "DESI CURRY LTD"}, {"comp_no": "16797099", "name": "DHAANIYA NW LTD"}, {"comp_no": "15261086", "name": "DHAKA FUSION LIMITED"}, {"comp_no": "16105049", "name": "DONCASTER VAN BREAKERS UK LTD"}, {"comp_no": "16093683", "name": "DONCASTER VANS LTD"}, {"comp_no": "15356934", "name": "DUA H ABBAS LTD"}, {"comp_no": "12329285", "name": "DUBAI COFFEE LTD"}, {"comp_no": "16054178", "name": "ECS OLDHAM LIMITED"}, {"comp_no": "15839607", "name": "EH TAKEAWAY LTD"}, {"comp_no": "17003567", "name": "ELLA FISH & CHIPS LTD"}, {"comp_no": "13757225", "name": "EMERALD EVENTS MCR LTD"}, {"comp_no": "16622243", "name": "ES OPTICAL GROUP LTD"}, {"comp_no": "13531891", "name": "ESA HEALTHCARE LTD"}, {"comp_no": "15344016", "name": "EVENT SUPPLIER DIRECT LTD"}, {"comp_no": "16022467", "name": "EVENTS BY EASTERN LIMITED"}, {"comp_no": "17006719", "name": "EXOTIC LOUNGE AHS LTD"}, {"comp_no": "16900403", "name": "EXOTIC LOUNGE RS LTD"}, {"comp_no": "16852772", "name": "EXOTIC SPICE RK LTD"}, {"comp_no": "16789826", "name": "EXTRA VALETING LTD"}, {"comp_no": "16226933", "name": "FAIZAN EAT LTD"}, {"comp_no": "16663272", "name": "FAMOUS INDIAN LTD"}, {"comp_no": "16376180", "name": "FEROZA LASH & BROW LOUNGE LTD"}, {"comp_no": "16714202", "name": "FLAVOUR CURRY LTD"}, {"comp_no": "16672743", "name": "FLAVOURS OF INDIA WHITEFIELD LIMITED"}, {"comp_no": "13006539", "name": "GARLIC SPICE LTD"}, {"comp_no": "13358224", "name": "GLOBAL LEARNING PATHWAY LIMITED"}, {"comp_no": "16086093", "name": "GOA EXCLUSIVE INDIAN RESTAURANT LTD"}, {"comp_no": "15335681", "name": "GODAVARI KITCHENS LTD"}, {"comp_no": "12667205", "name": "GOLD HAND CAR WASH LTD"}, {"comp_no": "16198454", "name": "GOOD BURGERS NW LTD"}, {"comp_no": "16874483", "name": "GREEN HOUSE FOODS MCR LTD"}, {"comp_no": "16341443", "name": "GRILL OLDHAM LTD"}, {"comp_no": "09227466", "name": "HALIMA PROPERTY SERVICES LIMITED"}, {"comp_no": "16208987", "name": "HAMADAN RESTAURANT LTD"}, {"comp_no": "16027535", "name": "HEYWOOD BARBER NW LTD"}, {"comp_no": "15654429", "name": "HOLISTIC HEALTHCARE OLDHAM LIMITED"}, {"comp_no": "16537534", "name": "HOLLINS BARBERS LTD"}, {"comp_no": "16070691", "name": "HUSSAIN'S PRODUCTS LTD"}, {"comp_no": "16429032", "name": "HUSTLE BURGER NW LTD"}, {"comp_no": "16429304", "name": "HUSTLE N SPUD LTD"}, {"comp_no": "16013092", "name": "HYDER FOOD LTD"}, {"comp_no": "16692389", "name": "ICON PROPERTIES GROUP LTD"}, {"comp_no": "15778058", "name": "IFSAH LIMITED"}, {"comp_no": "16796904", "name": "IK ELECTRIC LTD"}, {"comp_no": "11956917", "name": "IMON TANDOORI LIMITED"}, {"comp_no": "16358275", "name": "IN THE VAULT CUTS LTD"}, {"comp_no": "13555441", "name": "INCE BALTI KEBAB & CURRY HOUSE LTD"}, {"comp_no": "16187493", "name": "INDIAN FOOD STALYBRIDGE LTD"}, {"comp_no": "15814275", "name": "INDIAN OLIVE (NESTON) LTD"}, {"comp_no": "15778003", "name": "INDIAN1 TAKEAWAY LTD"}, {"comp_no": "14357575", "name": "INSTRUCTOR PORTAL LIMITED"}, {"comp_no": "16901708", "name": "IRB GROUP LTD"}, {"comp_no": "15221542", "name": "ISAAC HSM LTD"}, {"comp_no": "16783067", "name": "ISOBEL KEATING LIMITED"}, {"comp_no": "16308795", "name": "JHEEL KENDAL LTD"}, {"comp_no": "16856473", "name": "JK RESTAURANT NW LTD"}, {"comp_no": "16341924", "name": "JM TAKEAWAY LTD"}, {"comp_no": "16065358", "name": "J'S INDIAN RESTAURANT LTD"}, {"comp_no": "09595217", "name": "KANYADAN WEDDING SERVICES LIMITED"}, {"comp_no": "16183099", "name": "KHADIJA KITCHEN LTD"}, {"comp_no": "15603310", "name": "KINGDOM SUITE LTD"}, {"comp_no": "14605750", "name": "KINGFISHER BD RESTAURANT LTD"}, {"comp_no": "09650397", "name": "KOFFEE KINGDOM LIMITED"}, {"comp_no": "16593187", "name": "L & A PROPERTIES MCR LTD"}, {"comp_no": "16575700", "name": "LAVA KITCHEN LTD"}, {"comp_no": "16739914", "name": "LAYLA & CO NW LTD"}, {"comp_no": "16612738", "name": "LBR RESTAURANT LTD"}, {"comp_no": "14475019", "name": "LEEDS OFF LICENSE LTD"}, {"comp_no": "13639139", "name": "LEES BARBERS LTD"}, {"comp_no": "13204342", "name": "LGV1DRIVERS LTD"}, {"comp_no": "14330589", "name": "LIJA CATERING LTD"}, {"comp_no": "15904282", "name": "LIMEWOOD PROPERTIES INVESTMENT LTD"}, {"comp_no": "15680568", "name": "LITTLEBEES CLUB LTD"}, {"comp_no": "16582832", "name": "LIVERPOOL SPICE LTD"}, {"comp_no": "14247532", "name": "LOOMIN LTD"}, {"comp_no": "14483229", "name": "M&R ECHO LIMITED"}, {"comp_no": "11728106", "name": "MAA LEGAL SERVICES LIMITED"}, {"comp_no": "16475974", "name": "MAAHIR PHONE BAZAAR LTD"}, {"comp_no": "11751571", "name": "MAGNETO TOOLS LIMITED"}, {"comp_no": "16975776", "name": "MAJHAR LTD"}, {"comp_no": "13840228", "name": "MAMU ENTERPRISES LTD"}, {"comp_no": "08063869", "name": "MANPAK LIMITED"}, {"comp_no": "SC850298", "name": "MARYAM HOUSE LTD"}, {"comp_no": "16201021", "name": "MASALA CHESTER LTD"}, {"comp_no": "17024821", "name": "MASALA EXPRESS NW LTD"}, {"comp_no": "12879940", "name": "MB TAKEAWAY LTD"}, {"comp_no": "13941508", "name": "MB UK TRADERS LTD"}, {"comp_no": "SC798919", "name": "MCDHABA INDIAN RESTAURANT LTD"}, {"comp_no": "11475476", "name": "MCDONNELL PROPERTIES LIMITED"}, {"comp_no": "13778677", "name": "MEGHNA CATERING LIMITED"}, {"comp_no": "15456006", "name": "MISTECH LTD"}, {"comp_no": "12397956", "name": "MMN RESTAURANT LTD"}, {"comp_no": "16087398", "name": "MNB RESTAURANT LTD"}, {"comp_no": "16433468", "name": "MNS RESTAURANT LTD"}, {"comp_no": "15895402", "name": "MQM RESTAURANT LTD"}, {"comp_no": "16743238", "name": "MR TAKEAWAY LTD"}, {"comp_no": "16133055", "name": "MRA RESTAURANT LTD"}, {"comp_no": "15188580", "name": "MSH MINI MARKET LTD"}, {"comp_no": "15613791", "name": "MTC RESTAURANT LTD"}, {"comp_no": "16143129", "name": "MUMBAI INDIAN LTD"}, {"comp_no": "15557221", "name": "MUMBAI KENDAL LTD"}, {"comp_no": "17041772", "name": "MUMBAI LOUNGE BUCKLEY LTD"}, {"comp_no": "16794739", "name": "MUNCH BOX LTD"}, {"comp_no": "16382489", "name": "MY BALTI MASSALA LTD"}, {"comp_no": "15969605", "name": "NAIM WEDDING SERVICES LTD"}, {"comp_no": "16595022", "name": "NAITION WIDE SAMEDAY DELIVERY LTD"}, {"comp_no": "16518661", "name": "NEW ASHA LIMITED"}, {"comp_no": "16144998", "name": "NEW IMPERIAL LTD"}, {"comp_no": "15941121", "name": "NEW SHUHEL TANDOORI LTD"}, {"comp_no": "16010071", "name": "NEWS 71 MULTIMEDIA LTD"}, {"comp_no": "15670757", "name": "NORTH BANGLADESHI CRICKET ASSOCIATION LTD"}, {"comp_no": "15112281", "name": "NR OPTICLE LTD"}, {"comp_no": "15433265", "name": "NUMAN PSYCHOLOGICAL THERAPIES LTD"}, {"comp_no": "15338194", "name": "NXTGEN EDUCATION LTD"}, {"comp_no": "14769046", "name": "OCEANFOOD LIMITED"}, {"comp_no": "16043311", "name": "OLDHAM CATERER LTD"}, {"comp_no": "16431710", "name": "OUD BOX OLDHAM LTD"}, {"comp_no": "15569077", "name": "PAKISTAN TAKEAWAY LTD"}, {"comp_no": "12039921", "name": "PAPRIKA TAKEAWAY LIMITED"}, {"comp_no": "14544410", "name": "PENGUINE E-PUBLICATIONS LTD"}, {"comp_no": "16008445", "name": "PINT & POPPADAMS LTD"}, {"comp_no": "11832905", "name": "PREMIER ACCESSORIEZ LTD"}, {"comp_no": "14740056", "name": "PROJECT INTERIM LIMITED"}, {"comp_no": "13773879", "name": "PROSPECT STORE LTD"}, {"comp_no": "16945990", "name": "PURPLE PAKORA NW LTD"}, {"comp_no": "15474467", "name": "QUADRA CONSTRUCTION LIMITED"}, {"comp_no": "15453732", "name": "QUANTUM PERFORMANCE CONSULTANTS LTD"}, {"comp_no": "16660405", "name": "RABBIR BUILDERS LTD"}, {"comp_no": "16434424", "name": "RAHAD PROPERTIES LTD"}, {"comp_no": "12847825", "name": "RAHMAN HEALTHCARE LTD"}, {"comp_no": "13671722", "name": "RAHMAN HEALTHCARE SERVICES LTD"}, {"comp_no": "07461907", "name": "RAHMAN PACKAGING LIMITED"}, {"comp_no": "16525036", "name": "RAJA RESTAURANT LTD"}, {"comp_no": "13676974", "name": "RAZAK & SONS LIMITED"}, {"comp_no": "14793238", "name": "RB & ZRM LTD"}, {"comp_no": "13486914", "name": "RED CHILLI (CARLISLE) LIMITED"}, {"comp_no": "16289904", "name": "REDLINE PRESTIGE LTD"}, {"comp_no": "17026609", "name": "REMA TANDOORI LTD"}, {"comp_no": "16348542", "name": "REPAIR TODAY LTD"}, {"comp_no": "16829900", "name": "RFA PROPERTIES MCR LTD"}, {"comp_no": "16954024", "name": "ROCH MINI SHOP LTD"}, {"comp_no": "13339693", "name": "ROCH SALON LTD"}, {"comp_no": "07965986", "name": "RR RESTAURANT LIMITED"}, {"comp_no": "16403557", "name": "RUJI PROPERTIES LTD"}, {"comp_no": "09573451", "name": "S3H LIMITED"}, {"comp_no": "17056286", "name": "SA KIRAN TAKEAWAY LTD"}, {"comp_no": "16805577", "name": "SA LEGAL COSTS LTD"}, {"comp_no": "16585286", "name": "SAHARA PROPERTY GROUP LTD"}, {"comp_no": "14947522", "name": "SAJ BUILDING AND CONSTRUCTION LIMITED"}, {"comp_no": "15910339", "name": "SALVADOR CRISPY LTD"}, {"comp_no": "16713034", "name": "SARAH MINI MARKET NW LTD"}, {"comp_no": "14814168", "name": "SB TANDOORI LTD"}, {"comp_no": "14967711", "name": "SCHOLARED UK LTD"}, {"comp_no": "12097769", "name": "SEQUENTIAL SERVICES LIMITED"}, {"comp_no": "16299901", "name": "SEVEN NEXUS CREATIVE STUDIO LTD"}, {"comp_no": "16356233", "name": "SEVEN NEXUS HERITAGE LTD"}, {"comp_no": "16638331", "name": "SEVEN NEXUS PRIME LTD"}, {"comp_no": "14944774", "name": "SH DESSERT BAR LTD"}, {"comp_no": "15191721", "name": "SHAH GROUP HOLDINGS LIMITED"}, {"comp_no": "11780969", "name": "SHAHJALAL TAKEAWAY LIMITED"}, {"comp_no": "16297371", "name": "SHAIKH HEALTHCARE LTD"}, {"comp_no": "10087517", "name": "SHAZNA TAKEAWAY LIMITED"}, {"comp_no": "16939496", "name": "SIMA FOODS LTD"}, {"comp_no": "12824538", "name": "SJ MOTOR SERVICES LTD"}, {"comp_no": "15077863", "name": "SM TAKEAWAY NW LTD"}, {"comp_no": "16181137", "name": "SMASH DONER LTD"}, {"comp_no": "14688572", "name": "SMASH VEGAS MCR LTD"}, {"comp_no": "11315780", "name": "SNEBTAF TECH SOLUTION LIMITED"}, {"comp_no": "13437123", "name": "SONALI TRAVELS & FINANCE LTD"}, {"comp_no": "15614984", "name": "SPECTRE VEHICLE SECURITY LTD"}, {"comp_no": "10982769", "name": "SPECTRUM ADVERTISING LIMITED"}, {"comp_no": "15078798", "name": "SPEEDO X LOGISTICS LTD"}, {"comp_no": "16388725", "name": "SPICE HOUSE 786 LTD"}, {"comp_no": "16828017", "name": "SPICE HOUSE NW LTD"}, {"comp_no": "16400422", "name": "SPICE JUNCTION WARRINGTON LTD"}, {"comp_no": "17037965", "name": "SPICE LOUNGE LEIGH LTD"}, {"comp_no": "16018295", "name": "SPICE OF INDIA RESTAURANT LTD"}, {"comp_no": "16311225", "name": "SPICE OF INDIA TAKEAWAY LTD"}, {"comp_no": "16740551", "name": "SPICE SAFARI NW LTD"}, {"comp_no": "12627379", "name": "SPICY VALLEY TODMORDEN LTD"}, {"comp_no": "16600102", "name": "SRM FAMILY PROPERTY LTD"}, {"comp_no": "15953005", "name": "SS STORE NW LTD"}, {"comp_no": "15964578", "name": "ST CATERING WA LTD"}, {"comp_no": "16294486", "name": "ST NQ LTD"}, {"comp_no": "15409578", "name": "STIMI LTD"}, {"comp_no": "16672291", "name": "STRETFORD TAKEAWAY LTD"}, {"comp_no": "13834749", "name": "SURMA EXPRESS OLDHAM LTD"}, {"comp_no": "14723986", "name": "SYEDA'S KITCHEN LTD"}, {"comp_no": "14607140", "name": "SYLHET CATERING LTD"}, {"comp_no": "11184309", "name": "SYLHETI BAZAR LIMITED"}, {"comp_no": "14892140", "name": "TAMIM AUTO GARAGE LTD"}, {"comp_no": "16963074", "name": "THAYF ULLAH ESTATE AGENCY LTD"}, {"comp_no": "16379858", "name": "THE AROMA WINSFORD LTD"}, {"comp_no": "09441520", "name": "THE CHOWDURY ACCOUNTANTS LTD"}, {"comp_no": "15476635", "name": "THE INDIAN OLIVE LTD"}, {"comp_no": "12457757", "name": "THE MEGNA LTD"}, {"comp_no": "16190595", "name": "THE PASS NW LTD"}, {"comp_no": "14512658", "name": "THE PHYSIO PLUG LIMITED"}, {"comp_no": "15971302", "name": "THE PURPLE MANGO BARNSLEY LTD"}, {"comp_no": "15987826", "name": "THE QUAY SPICE RESTAURANT LIMITED"}, {"comp_no": "16612841", "name": "THE SPICE INN RESTAURANT LTD"}, {"comp_no": "13168106", "name": "THE WHITE PEARL FOUNDATION COMMUNITY INTEREST COMPANY"}, {"comp_no": "13250547", "name": "TINT CENTRAL LTD"}, {"comp_no": "15792753", "name": "TR TAKEAWAY LTD"}, {"comp_no": "16562924", "name": "UBAYDUR RAHMAN PROPERTIES LTD"}, {"comp_no": "15769534", "name": "UBM INTERNATIONAL LTD"}, {"comp_no": "16651564", "name": "UMAR AND MUSA LTD"}, {"comp_no": "16740286", "name": "UNION NEWS OLDHAM LTD"}, {"comp_no": "15061998", "name": "UNITED SALVAGE LTD"}, {"comp_no": "16752847", "name": "URBAN BARBERS OL9 LTD"}, {"comp_no": "16215046", "name": "VASPIAN LOUNGE LTD"}, {"comp_no": "14778802", "name": "WAQAS ZAMIR LTD"}, {"comp_no": "16431096", "name": "WARRINGTON NW LTD"}, {"comp_no": "15694758", "name": "WARYAM HAIDER LTD"}, {"comp_no": "12021205", "name": "WO GROUP LIMITED"}, {"comp_no": "16749694", "name": "WOK NOODLES OLDHAM LTD"}, {"comp_no": "16206283", "name": "XEENAZ LTD"}, {"comp_no": "11434864", "name": "XQUISITE BRANDS (UK) LTD"}, {"comp_no": "11079885", "name": "YAS INTERNATIONAL LIMITED"}, {"comp_no": "13651836", "name": "YASMIN ENTERPRISE LTD"}, {"comp_no": "16268790", "name": "YAZ TAKEAWAY LTD"}, {"comp_no": "15336419", "name": "YELLOW BEE MARKETING LTD"}, {"comp_no": "15907125", "name": "ZAALJUL LTD"}, {"comp_no": "14751431", "name": "ZIGGY\u2019S SCHOOLWEAR (BOLTON) LTD"}];
+const CLIENTS = window._CLIENTS;
+async function loadClients(){
+  // Use embedded DATA from ltd-tracker
+  const r=await fetch('ltd-tracker.html').catch(()=>null);
+  if(!r)return;
+  // fallback: just use empty, search works via Supabase
 }
 
-function updateMonthLabel() {
-  const d = new Date(currentYear, currentMonth - 1, 1);
-  document.getElementById('month-label').textContent = d.toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+function searchClients(q){
+  const dd=document.getElementById('cs-dd');
+  // Search from hardcoded list in page (populated on init)
+  if(!q||q.length<1){dd.style.display='none';return;}
+  const res=window._CLIENTS?window._CLIENTS.filter(c=>c.name.toLowerCase().includes(q.toLowerCase())).slice(0,8):[];
+  if(!res.length){dd.style.display='none';return;}
+  dd.innerHTML=res.map(c=>`<div class="cs-opt" onclick="selClient('${c.comp_no}','${c.name.replace(/'/g,"\'")}')">${c.name}<div class="cn">${c.comp_no}</div></div>`).join('');
+  dd.style.display='block';
+}
+function selClient(cn,name){document.getElementById('f-client').value=name;document.getElementById('f-comp-no').value=cn;document.getElementById('cs-dd').style.display='none';}
+document.addEventListener('click',e=>{if(!e.target.closest('.cs-wrap'))document.getElementById('cs-dd').style.display='none';});
+
+async function logActivity(){
+  const msg=document.getElementById('act-msg');msg.textContent='Saving…';msg.className='save-msg';
+  const date=document.getElementById('f-date').value,desc=document.getElementById('f-desc').value.trim();
+  if(!date||!desc){msg.textContent='✗ Date and description required';msg.className='save-msg err';return;}
+  const cn=document.getElementById('f-comp-no').value||null;
+  const cname=cn?(window._CLIENTS||[]).find(c=>c.comp_no===cn)?.name||null:null;
+  try{
+    await sb('staff_activities',{method:'POST',body:JSON.stringify({staff:curStaff,comp_no:cn,client_name:cname,task_type:document.getElementById('f-task').value,description:desc,activity_date:date,time_from:document.getElementById('f-from').value||null,time_to:document.getElementById('f-to').value||null,hours:hoursVal})});
+    msg.textContent='✓ Saved';msg.className='save-msg ok';
+    ['f-desc','f-from','f-to','f-client','f-comp-no'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-hours').textContent='—';hoursVal=null;
+    setTimeout(()=>{msg.textContent='';},2500);loadActivities();
+  }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
 }
 
-// ── Hours calc ──
-function calcHours() {
-  const from = document.getElementById('f-from').value;
-  const to = document.getElementById('f-to').value;
-  const el = document.getElementById('f-hours-display');
-  if (!from || !to) { el.textContent = '—'; hoursValue = null; return; }
-  const [fh, fm] = from.split(':').map(Number);
-  const [th, tm] = to.split(':').map(Number);
-  let mins = (th * 60 + tm) - (fh * 60 + fm);
-  if (mins < 0) mins += 24 * 60;
-  hoursValue = Math.round(mins / 60 * 100) / 100;
-  el.textContent = hoursValue.toFixed(2) + 'h';
+async function delActivity(id){
+  if(!confirm('Delete this activity?'))return;
+  try{await sb('staff_activities?id=eq.'+id,{method:'DELETE',headers:{}});loadActivities();}
+  catch(e){alert('Error: '+e.message);}
 }
 
-// ── Date → Day ──
-document.getElementById('f-date').addEventListener('change', function() {
-  const d = new Date(this.value + 'T12:00:00');
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  document.getElementById('f-day').value = days[d.getDay()];
-});
-
-// Set today's date by default
-(function() {
-  const today = new Date();
-  const y = today.getFullYear();
-  const m = String(today.getMonth() + 1).padStart(2, '0');
-  const d = String(today.getDate()).padStart(2, '0');
-  document.getElementById('f-date').value = `${y}-${m}-${d}`;
-  document.getElementById('f-date').dispatchEvent(new Event('change'));
-})();
-
-// ── Sub items ──
-let subItems = [];
-function addSubItem(val = '') {
-  subItems.push(val);
-  renderSubItems();
-}
-function removeSubItem(i) {
-  subItems.splice(i, 1);
-  renderSubItems();
-}
-function renderSubItems() {
-  const c = document.getElementById('sub-items-container');
-  c.innerHTML = subItems.map((v, i) => `
-    <div class="sub-item-row">
-      <span style="font-family:var(--mono);font-size:11px;color:var(--text-muted);min-width:20px">${i+1}.</span>
-      <input type="text" value="${v.replace(/"/g,'&quot;')}" placeholder="Client name / task description" oninput="subItems[${i}]=this.value">
-      <button class="rm-btn" onclick="removeSubItem(${i})">×</button>
-    </div>
-  `).join('');
+async function loadActivities(){
+  const d=new Date(curYear,curMonth-1,1);
+  document.getElementById('month-label').textContent=d.toLocaleString('en-GB',{month:'long',year:'numeric'});
+  const s=`${curYear}-${String(curMonth).padStart(2,'0')}-01`;
+  const e=`${curYear}-${String(curMonth).padStart(2,'0')}-${new Date(curYear,curMonth,0).getDate()}`;
+  document.getElementById('act-list').innerHTML='<div class="no-data">Loading…</div>';
+  try{
+    const data=await sb(`staff_activities?staff=eq.${encodeURIComponent(curStaff)}&activity_date=gte.${s}&activity_date=lte.${e}&order=activity_date.desc,created_at.desc`);
+    renderActs(data);updateStats(data);
+  }catch(e){document.getElementById('act-list').innerHTML=`<div class="no-data">⚠️ ${e.message}</div>`;}
 }
 
-// ── Save entry ──
-async function saveEntry() {
-  const statusEl = document.getElementById('save-status');
-  statusEl.textContent = 'Saving…';
-  statusEl.className = 'save-status';
-
-  const dateVal = document.getElementById('f-date').value;
-  const desc = document.getElementById('f-desc').value.trim();
-
-  if (!dateVal || !desc) {
-    statusEl.textContent = '✗ Date and description are required';
-    statusEl.className = 'save-status err';
-    return;
-  }
-
-  const record = {
-    staff: currentStaff,
-    entry_date: dateVal,
-    day_name: document.getElementById('f-day').value,
-    time_from: document.getElementById('f-from').value || null,
-    time_to: document.getElementById('f-to').value || null,
-    hours: hoursValue,
-    description: desc,
-    sub_items: subItems.filter(s => s.trim())
-  };
-
-  try {
-    await sbFetch('timekeeping', { method: 'POST', body: JSON.stringify(record) });
-    statusEl.textContent = '✓ Saved';
-    statusEl.className = 'save-status ok';
-    // Reset form
-    document.getElementById('f-desc').value = '';
-    document.getElementById('f-from').value = '';
-    document.getElementById('f-to').value = '';
-    document.getElementById('f-hours-display').textContent = '—';
-    hoursValue = null;
-    subItems = [];
-    renderSubItems();
-    setTimeout(() => { statusEl.textContent = ''; }, 2500);
-    loadEntries();
-  } catch(e) {
-    statusEl.textContent = '✗ ' + e.message;
-    statusEl.className = 'save-status err';
-  }
+function renderActs(data){
+  document.getElementById('act-title').textContent=`Activities — ${curStaff} (${data.length})`;
+  if(!data.length){document.getElementById('act-list').innerHTML='<div class="no-data">No activities this month. Log one above.</div>';return;}
+  document.getElementById('act-list').innerHTML=`<table class="act-table">
+    <thead><tr><th>#</th><th>Date</th><th>Client</th><th>Task</th><th>Description</th><th>Time</th><th>Hours</th><th></th></tr></thead>
+    <tbody>${data.map((a,i)=>{
+      const tk=a.task_type?a.task_type.split('/')[0].trim():'Other';
+      const dt=new Date(a.activity_date+'T12:00:00').toLocaleString('en-GB',{day:'2-digit',month:'short'});
+      const tm=(a.time_from&&a.time_to)?`${a.time_from}–${a.time_to}`:'';
+      return`<tr>
+        <td style="color:var(--text-muted);font-size:11px;font-family:var(--mono)">${i+1}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text2)">${dt}</td>
+        <td>${a.client_name?`<span class="clink" title="${a.comp_no||''}">${esc(a.client_name)}</span>`:'<span style="color:var(--text-muted)">—</span>'}</td>
+        <td><span class="task-badge tb-${tk}">${esc(a.task_type||'—')}</span></td>
+        <td style="max-width:280px">${esc(a.description)}</td>
+        <td style="font-family:var(--mono);font-size:11px;white-space:nowrap">${tm}</td>
+        <td style="font-family:var(--mono);font-size:11px;font-weight:600;color:var(--blue)">${a.hours?parseFloat(a.hours).toFixed(2)+'h':'—'}</td>
+        <td><button class="act-del" onclick="delActivity('${a.id}')">✕</button></td>
+      </tr>`;
+    }).join('')}</tbody></table>`;
 }
 
-// ── Delete entry ──
-async function deleteEntry(id) {
-  if (!confirm('Delete this entry?')) return;
-  try {
-    await sbFetch('timekeeping?id=eq.' + id, { method: 'DELETE', headers: {} });
-    loadEntries();
-  } catch(e) {
-    alert('Delete failed: ' + e.message);
-  }
+async function updateStats(data){
+  const hours=data.reduce((s,a)=>s+(parseFloat(a.hours)||0),0);
+  const clients=new Set(data.filter(a=>a.comp_no).map(a=>a.comp_no)).size;
+  document.getElementById('s-name').textContent=curStaff;
+  document.getElementById('s-hours').textContent=hours.toFixed(2)+'h';
+  document.getElementById('s-acts').textContent=data.length;
+  document.getElementById('s-clients').textContent=clients;
+  try{
+    const p=await sb(`staff_profiles?staff_name=eq.${encodeURIComponent(curStaff)}`);
+    const pr=p[0];
+    document.getElementById('s-role').textContent=(pr&&pr.role)||ROLES[curStaff]||'—';
+    const allow=(pr&&pr.holiday_allowance)||28,taken=(pr&&pr.holiday_taken)||0;
+    document.getElementById('s-holiday').textContent=(allow-taken)+' days';
+  }catch{document.getElementById('s-role').textContent=ROLES[curStaff]||'—';}
 }
 
-// ── Load entries ──
-async function loadEntries() {
-  updateMonthLabel();
-  document.getElementById('stat-staff').textContent = currentStaff;
-  const container = document.getElementById('entries-container');
-  container.innerHTML = '<div class="loading">Loading…</div>';
-
-  const startDate = `${currentYear}-${String(currentMonth).padStart(2,'0')}-01`;
-  const endDate = new Date(currentYear, currentMonth, 0);
-  const endStr = `${currentYear}-${String(currentMonth).padStart(2,'0')}-${String(endDate.getDate()).padStart(2,'0')}`;
-
-  try {
-    const data = await sbFetch(
-      `timekeeping?staff=eq.${encodeURIComponent(currentStaff)}&entry_date=gte.${startDate}&entry_date=lte.${endStr}&order=entry_date.asc,created_at.asc`
-    );
-    entries = data;
-    renderEntries();
-  } catch(e) {
-    container.innerHTML = `<div class="no-entries"><div class="icon">⚠️</div><p>Failed to load: ${e.message}</p></div>`;
-  }
+async function loadProfile(){
+  try{
+    const d=await sb(`staff_profiles?staff_name=eq.${encodeURIComponent(curStaff)}`);
+    const p=d[0]||{};
+    document.getElementById('p-role').value=p.role||ROLES[curStaff]||'';
+    document.getElementById('p-phone').value=p.phone||'';
+    document.getElementById('p-email').value=p.email||'';
+    document.getElementById('p-address').value=p.address||'';
+    document.getElementById('p-emg-name').value=p.emergency_name||'';
+    document.getElementById('p-emg-phone').value=p.emergency_phone||'';
+    document.getElementById('p-start').value=p.start_date||'';
+    document.getElementById('p-salary').value=p.salary||'';
+    document.getElementById('p-h-allow').value=p.holiday_allowance||28;
+    document.getElementById('p-h-taken').value=p.holiday_taken||0;
+    document.getElementById('p-notes').value=p.notes||'';
+    updateHBar();
+  }catch(e){console.warn(e.message);}
 }
 
-function renderEntries() {
-  updateStats();
-  const container = document.getElementById('entries-container');
-  if (!entries.length) {
-    container.innerHTML = `<div class="no-entries"><div class="icon">📋</div><p>No entries for ${currentStaff} this month.<br>Add the first entry above.</p></div>`;
-    return;
-  }
-
-  // Group by date
-  const groups = {};
-  entries.forEach(e => {
-    if (!groups[e.entry_date]) groups[e.entry_date] = [];
-    groups[e.entry_date].push(e);
-  });
-
-  container.innerHTML = Object.entries(groups).map(([date, dayEntries]) => {
-    const dayTotal = dayEntries.reduce((s, e) => s + (parseFloat(e.hours) || 0), 0);
-    const d = new Date(date + 'T12:00:00');
-    const dayLabel = d.toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-    const dayName = dayEntries[0].day_name || d.toLocaleString('en-GB', { weekday: 'long' });
-
-    return `<div class="day-group">
-      <div class="day-header">
-        <span class="day-date">${dayLabel}</span>
-        <span class="day-name-label">${dayName}</span>
-        ${dayTotal > 0 ? `<span class="day-total">${dayTotal.toFixed(2)}h today</span>` : ''}
-      </div>
-      ${dayEntries.map(e => {
-        let subItems = [];
-        try { subItems = JSON.parse(e.sub_items || '[]'); } catch {}
-        const timeStr = (e.time_from && e.time_to) ? `${e.time_from} → ${e.time_to}` : (e.time_from || '');
-        return `<div class="entry-row">
-          <div>
-            <div class="entry-time">${timeStr}</div>
-            ${e.hours ? `<div class="entry-hours-badge">${parseFloat(e.hours).toFixed(2)}h</div>` : ''}
-          </div>
-          <div class="entry-body">
-            <div class="entry-desc">${escHtml(e.description)}</div>
-            ${subItems.length ? `<ol class="entry-sub-list">${subItems.map((s, i) => `<li><span class="num">${i+1}.</span> ${escHtml(s)}</li>`).join('')}</ol>` : ''}
-          </div>
-          <div class="entry-actions">
-            <button class="entry-del-btn" onclick="deleteEntry('${e.id}')">Delete</button>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }).join('');
+async function saveProfile(){
+  const msg=document.getElementById('prof-msg');msg.textContent='Saving…';msg.className='save-msg';
+  try{
+    await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({
+      staff_name:curStaff,role:document.getElementById('p-role').value.trim(),
+      phone:document.getElementById('p-phone').value.trim(),email:document.getElementById('p-email').value.trim(),
+      address:document.getElementById('p-address').value.trim(),emergency_name:document.getElementById('p-emg-name').value.trim(),
+      emergency_phone:document.getElementById('p-emg-phone').value.trim(),
+      start_date:document.getElementById('p-start').value||null,
+      salary:parseFloat(document.getElementById('p-salary').value)||null,
+      holiday_allowance:parseInt(document.getElementById('p-h-allow').value)||28,
+      holiday_taken:parseInt(document.getElementById('p-h-taken').value)||0,
+      notes:document.getElementById('p-notes').value.trim(),updated_at:new Date().toISOString()
+    })});
+    msg.textContent='✓ Saved';msg.className='save-msg ok';
+    setTimeout(()=>{msg.textContent='';},2500);loadActivities();
+  }catch(e){msg.textContent='✗ '+e.message;msg.className='save-msg err';}
 }
 
-function updateStats() {
-  const totalHours = entries.reduce((s, e) => s + (parseFloat(e.hours) || 0), 0);
-  const uniqueDays = new Set(entries.map(e => e.entry_date)).size;
-  const avg = uniqueDays > 0 ? totalHours / uniqueDays : 0;
-  document.getElementById('stat-hours').textContent = totalHours.toFixed(2) + 'h';
-  document.getElementById('stat-days').textContent = uniqueDays;
-  document.getElementById('stat-avg').textContent = avg.toFixed(2) + 'h';
-  document.getElementById('stat-entries').textContent = entries.length;
+function updateHBar(){
+  const a=parseInt(document.getElementById('p-h-allow').value)||28,t=parseInt(document.getElementById('p-h-taken').value)||0;
+  document.getElementById('h-rem').textContent=a-t;
+  const pct=Math.min(t/a*100,100);
+  document.getElementById('h-bar').style.width=pct+'%';
+  document.getElementById('h-bar').className='holiday-fill'+(pct>80?' danger':pct>60?' warn':'');
 }
 
-function escHtml(str) {
-  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// Init
-loadEntries();
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function loadAll(){loadActivities();if(curView==='profile')loadProfile();}
+loadAll();
 </script>
 </body>
 </html>
