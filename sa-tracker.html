@@ -172,7 +172,6 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
 <body>
 
 <!-- NAV -->
-<div id="debug-bar" style="background:#1e40af;color:#fff;padding:8px 16px;font-size:13px;font-weight:600;position:sticky;top:0;z-index:99999">Loading...</div>
 <div id="portal-nav">
   <div class="nav-brand"><span>Chowdury Accountants</span><span>Practice Portal</span></div>
   <script>(function(){const p=window.location.pathname.split('/').pop()||'index.html';document.querySelectorAll('#portal-nav a').forEach(a=>{if(a.getAttribute('href')&&p.includes(a.getAttribute('href').replace('.html','')))a.style.cssText='color:#fff;background:rgba(255,255,255,0.12)';});})();</script>
@@ -517,12 +516,9 @@ const SEED = [];
 
 // ─── Boot ───
 async function init() {
-  const dbg = s => { const d = document.getElementById('debug-bar'); if(d) d.innerHTML = s; };
-  dbg('Loading...');
   try {
     const res = await fetch('sa-seed.json');
     DATA = await res.json();
-    dbg('');
     renderAll();
   } catch(e) {
     dbg('Load error: ' + e.message);
