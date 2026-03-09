@@ -148,10 +148,9 @@ tr.data-row:hover{background:#f0fdf9;cursor:pointer}
   <div class="modal-body">
 
     <div class="sec-title">📋 PAYE Details</div>
-    <div class="fg three">
+    <div class="fg">
       <div class="field"><label>No. of PAYE Employees</label><input id="m-num-paye" type="number" min="0"></div>
-      <div class="field"><label>No. of CIS</label><input id="m-num-cis" type="number" min="0"></div>
-      <div class="field"><label>Tax Year</label><input id="m-tax-year" type="text"></div>
+<div class="field"><label>Tax Year</label><input id="m-tax-year" type="text"></div>
     </div>
     <div class="fg" style="margin-top:10px">
       <div class="field"><label>PAYE Reference</label><input id="m-paye-ref" type="text" style="font-family:var(--mono)"></div>
@@ -268,7 +267,7 @@ function applyFilter() {
   }
   d.sort((a,b)=>{
     let av=a[sortCol]||'', bv=b[sortCol]||'';
-    if (sortCol==='num_paye'||sortCol==='num_cis'){av=parseInt(av)||0;bv=parseInt(bv)||0;return(av-bv)*sortDir;}
+    if (sortCol==='num_paye'){av=parseInt(av)||0;bv=parseInt(bv)||0;return(av-bv)*sortDir;}
     return av.toString().toLowerCase()<bv.toString().toLowerCase()?-sortDir:av.toString().toLowerCase()>bv.toString().toLowerCase()?sortDir:0;
   });
   filtered = d;
@@ -329,7 +328,6 @@ function openModal(id) {
   document.getElementById('modal-paye-ref').textContent = 'PAYE: '+(r.paye_ref||'—')+' · AO: '+(r.acc_office_ref||'—');
   document.getElementById('m-name').value = r.employer_name||'';
   document.getElementById('m-num-paye').value = r.num_paye||'0';
-  document.getElementById('m-num-cis').value = r.num_cis||'0';
   document.getElementById('m-tax-year').value = r.tax_year||'2025/26';
   document.getElementById('m-paye-ref').value = r.paye_ref||'';
   document.getElementById('m-acc-ref').value = r.acc_office_ref||'';
@@ -363,7 +361,6 @@ async function saveClient() {
   Object.assign(r,{
     employer_name: document.getElementById('m-name').value.trim(),
     num_paye: document.getElementById('m-num-paye').value,
-    num_cis: document.getElementById('m-num-cis').value,
     tax_year: document.getElementById('m-tax-year').value,
     paye_ref: document.getElementById('m-paye-ref').value.trim(),
     acc_office_ref: document.getElementById('m-acc-ref').value.trim(),
@@ -402,7 +399,6 @@ async function saveNewClient() {
     paye_ref:document.getElementById('a-paye-ref').value.trim(),
     acc_office_ref:document.getElementById('a-acc-ref').value.trim(),
     num_paye:document.getElementById('a-num-paye').value||'0',
-    num_cis:'0',
     tax_year:document.getElementById('a-tax-year').value,
     email:document.getElementById('a-email').value.trim(),
     phone:document.getElementById('a-phone').value.trim(),
@@ -416,7 +412,7 @@ async function saveNewClient() {
 }
 
 function exportPAYEExcel() {
-  const rows = filtered.map((r,i)=>({'#':i+1,'Employer':r.employer_name,'PAYE Ref':r.paye_ref||'','AO Ref':r.acc_office_ref||'','Employees':r.num_paye||'0','CIS':r.num_cis||'0','Email':r.email||'','Phone':r.phone||'','Contact':r.contact_name||'','Pay Day':r.pay_day||'','Notes':r.notes||'','Alert':r.alerts||''}));
+  const rows = filtered.map((r,i)=>({'#':i+1,'Employer':r.employer_name,'PAYE Ref':r.paye_ref||'','AO Ref':r.acc_office_ref||'','Employees':r.num_paye||'0','Email':r.email||'','Phone':r.phone||'','Contact':r.contact_name||'','Pay Day':r.pay_day||'','Notes':r.notes||'','Alert':r.alerts||''}));
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
   ws['!cols']=[{wch:4},{wch:35},{wch:14},{wch:16},{wch:10},{wch:6},{wch:30},{wch:15},{wch:20},{wch:14},{wch:30},{wch:8}];
