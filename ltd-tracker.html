@@ -464,31 +464,28 @@ const SEED=[];
 
 // ─── BOOT ───
 async function init(){
+  // Step 1: always load seed JSON for instant display
   try{
-    const rows=await sbFetch('ltd_clients?select=*&order=id.asc');
+    const res=await fetch('ltd-seed.json');
+    DATA=await res.json();
+    populatePeriodFilter();renderAll();
+  }catch(e){
+    document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load ltd-seed.json: '+e.message+'</td></tr>';
+    return;
+  }
+  // Step 2: try to overlay with any saved Supabase edits
+  try{
+    const rows=await sbFetch('ltd_clients?select=id,fee_years,sector,status,left_year,reason_for_leaving,referred_by,ref_year,referral_fee_paid,director_name,director_mobile,director_email,director_dob,director_ni,director_address,vat_registered,paye_registered,vat_stagger,notes,alerts,accounts_due,conf_due,conf_date,vat_due&order=id.asc');
     if(rows&&rows.length>0){
-      DATA=rows.map(r=>{
-        r.documents=r.documents||[];
-        if(!Array.isArray(r.fee_years)||r.fee_years.length===0){
-          const af=parseFloat(r.annual_fee)||parseFloat(r.monthly_fee)*12||640;
-          r.fee_years=[{period_end:r.accounts_ref_date||'',status:'filed',assigned_to:'',
-            accounts_fee:af>80?af-40:600,cs_fee:40,vat_fee:0,payroll_fee:0,
-            bookkeeping_fee:0,other_fee:0,discount:0,discount_reason:'',
-            total_fee:af,final_fee:af,invoice_date:'',invoice_number:'',
-            amount_paid:0,payment_date:'',payment_method:'',outstanding:af,notes:''}];
+      rows.forEach(r=>{
+        const local=DATA.find(d=>d.id===r.id);
+        if(local&&r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0){
+          Object.assign(local,r);
         }
-        r.sector=r.sector||'other';
-        r.status=r.status||'active';
-        return r;
       });
       populatePeriodFilter();renderAll();
-    } else {
-      showSeedButton();
     }
-  }catch(e){
-    console.error('Load error:',e);
-    showSeedButton();
-  }
+  }catch(e){console.warn('SB overlay failed:',e.message);}
 }
 
 function showSeedButton(){
