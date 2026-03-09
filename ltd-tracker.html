@@ -562,7 +562,7 @@ function filterRow(d) {
   if (activeFilter === 'Red') return d.alerts === 'Red';
   if (activeFilter === 'Amber') return d.alerts === 'Amber';
   if (activeFilter === 'paye') return !!(c.paye_registered);
-  if (activeFilter === 'vat') return !!(c.vat_registered);
+  if (activeFilter === 'vat') return !!(c.vat_registered) || !!(d.vat_due);
   if (activeFilter === 'acc_overdue') { const diff = daysDiff(d.accounts_due); return diff !== null && diff < 0; }
   if (activeFilter === 'conf_soon') { const diff = daysDiff(d.conf_due); return diff !== null && diff <= 30 && diff >= 0; }
   if (activeFilter === 'no_fee') { return !(c.monthly_fee > 0); }
@@ -736,7 +736,7 @@ function openModal(compNo) {
   document.getElementById('m-annual-fee').readOnly = !override;
   document.getElementById('m-annual-fee').style.color = override ? '' : 'var(--muted)';
   document.getElementById('m-paye').checked = !!(c.paye_registered);
-  document.getElementById('m-vat').checked = !!(c.vat_registered);
+  document.getElementById('m-vat').checked = !!(c.vat_registered) || !!(d.vat_due);
   document.getElementById('m-vat-stagger').value = c.vat_stagger || deriveStaggerFromDue(d.vat_due) || '';
   toggleVatStagger();
   document.getElementById('m-dir-name').value = c.director_name || '';
