@@ -517,24 +517,24 @@ const SEED = [{"id":1,"forename":"Shuel","surname":"Miah","name":"Shuel Miah","u
 // ─── Boot ───
 async function init() {
   DATA = SEED.map(r=>JSON.parse(JSON.stringify(r)));
-  renderAll();
+  try{renderAll();}catch(e){console.error('renderAll seed error:',e);}
   try {
     const rows = await sbFetch('sa_clients?select=*&order=id.asc');
     if(rows&&rows.length>0){
-      DATA=rows.map(r=>{
-        r.documents=r.documents||[];
-        r.businesses=r.businesses||[];
-        if(!r.tax_years||!Array.isArray(r.tax_years)||r.tax_years.length===0){
-          if(r.tax_year||r.completed||r.submitted_by){
-            const fee=180;
-            r.tax_years=[{year:r.tax_year||'2024/25',submitted_by:r.submitted_by||'',completed:r.completed||'',status:'submitted',fee,discount:0,discount_reason:'',final_fee:fee,invoice_date:'',invoice_number:'',amount_paid:0,payment_date:'',payment_method:'',outstanding:fee,notes:''}];
-          } else { r.tax_years=[]; }
-        }
-        r.client_type=r.client_type||'self_employed';
-        r.status=r.status||'active';
-        return r;
-      });
-      renderAll();
+      // Only use SB data if it has the new schema (tax_years column present as array)
+      const hasnewSchema = rows.some(r=>Array.isArray(r.tax_years)&&r.tax_years.length>0);
+      if(hasnewSchema){
+        DATA=rows.map(r=>{
+          r.documents=r.documents||[];
+          r.businesses=r.businesses||[];
+          r.tax_years=r.tax_years||[];
+          r.client_type=r.client_type||'self_employed';
+          r.status=r.status||'active';
+          return r;
+        });
+        try{renderAll();}catch(e){console.error('renderAll SB error:',e);}
+      }
+      // else: keep seed data as-is
     }
   } catch(e){console.warn('SB load:',e.message);}
 }
