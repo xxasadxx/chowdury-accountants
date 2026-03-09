@@ -153,7 +153,11 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <button class="filter-btn" onclick="setSectorFilter('other',this)">Other</button>
     <button class="filter-btn" onclick="setAlertFilter('Red',this)" style="border-color:var(--red);color:var(--red)">🔴 Red</button>
     <button class="filter-btn" onclick="setAlertFilter('Amber',this)" style="border-color:var(--amber);color:var(--amber)">🟡 Amber</button>
-    <button class="filter-btn" onclick="setStatusFilter('left',this)" style="border-color:var(--muted);color:var(--muted)">Left</button>
+    <select class="year-select" id="ltd-status-filter" onchange="setStatusFromDropdown(this.value)">
+      <option value="all">All Clients</option>
+      <option value="active" selected>✅ Active</option>
+      <option value="left">❌ Left / Inactive</option>
+    </select>
     <input class="search-box" type="text" placeholder="🔍 Search name, comp no..." oninput="setSearch(this.value)">
     <span class="count-badge" id="clients-count">—</span>
     <span id="sync-status" style="font-size:11px;color:var(--muted)"></span>
@@ -596,6 +600,10 @@ function staffShort(s){if(!s)return'—';if(s.includes('Asadul')||s.includes('Ch
 // ─── FILTERS ───
 function setSectorFilter(s,el){filterSector=s;filterAlert='';filterStatus='all';document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderClientsTable();renderKPIsClients();}
 function setAlertFilter(a,el){filterAlert=filterAlert===a?'':a;filterSector='all';document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(filterAlert)el.classList.add('active');renderClientsTable();}
+function setStatusFromDropdown(val){
+  filterStatus=val;
+  renderAll();
+}
 function setStatusFilter(s,el){filterStatus=filterStatus===s?'all':s;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));if(filterStatus!=='all')el.classList.add('active');renderClientsTable();}
 function setSearch(q){searchQ=q;renderClientsTable();}
 function sortBy(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}renderClientsTable();}

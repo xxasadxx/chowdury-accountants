@@ -622,7 +622,7 @@ function getFiltered(){
   const yr=document.getElementById('year-filter')?.value||'all';
   if(yr!=='all')d=d.filter(c=>(c.tax_years||[]).some(y=>y.year===yr));
   if(filterType!=='all')d=d.filter(c=>c.client_type===filterType);
-  if(filterStatus!=='all')d=d.filter(c=>(c.status||'active')===filterStatus);
+  const st=document.getElementById('status-filter')?.value||'all';if(st!=='all')d=d.filter(c=>(c.status||'active')===st);
   if(searchQ){const q=searchQ.toLowerCase();d=d.filter(c=>c.name?.toLowerCase().includes(q)||c.utr?.includes(q)||c.forename?.toLowerCase().includes(q)||c.surname?.toLowerCase().includes(q));}
   d.sort((a,b)=>{
     let av=a[sortCol]||'',bv=b[sortCol]||'';
