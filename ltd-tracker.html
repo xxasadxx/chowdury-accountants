@@ -1044,10 +1044,12 @@ async function selectCHCompany(compNo) {
 }
 
 function populateAddForm(data) {
+  const compNo = data.company_number || '';
+  if (!compNo) { alert('Could not find company number. Try searching by company number directly.'); return; }
   document.getElementById('add-form-fields').style.display = 'block';
-  document.getElementById('add-form-title').textContent = '✅ ' + (data.company_name || data.title || 'Company Selected');
+  document.getElementById('add-form-title').textContent = '✅ ' + (data.company_name || data.title || 'Company Selected') + ' (' + compNo + ')';
   document.getElementById('af-name').value = data.company_name || data.title || '';
-  document.getElementById('af-compno').value = data.company_number || '';
+  document.getElementById('af-compno').value = compNo;
   // Parse accounts due
   const ad = data.accounts && data.accounts.next_due ? new Date(data.accounts.next_due) : null;
   document.getElementById('af-acc-due').value = ad ? `${String(ad.getDate()).padStart(2,'0')}/${String(ad.getMonth()+1).padStart(2,'0')}/${ad.getFullYear()}` : '';
@@ -1093,9 +1095,11 @@ async function saveNewClient() {
     render();
     alert(`✅ ${name} added and saved to database!`);
   } catch(e) {
-    alert('Error saving: ' + e.message);
-    document.getElementById('save-new-btn').textContent='✅ Add Client';
-    document.getElementById('save-new-btn').disabled=false;
+    let msg = e.message;
+    try { const j = JSON.parse(msg); msg = j.message || j.hint || msg; } catch(_) {}
+    alert('Error saving: ' + msg);
+    const btn = document.getElementById('save-new-btn');
+    if(btn){btn.textContent='✅ Add Client';btn.disabled=false;}
   }
 }
 
@@ -1219,27 +1223,27 @@ function exportLtdPDF() {
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
             <div>
               <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Company Name *</div>
-              <input id="af-name" type="text" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+              <input id="af-name" type="text" style="width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:8px;color:#1e2433;font-size:12px;font-family:var(--sans);box-sizing:border-box">
             </div>
             <div>
               <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Company Number *</div>
-              <input id="af-compno" type="text" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+              <input id="af-compno" type="text" style="width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:8px;color:#1e2433;font-size:12px;font-family:var(--sans);box-sizing:border-box" placeholder="Auto-filled from CH search">
             </div>
             <div>
               <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Accounts Due</div>
-              <input id="af-acc-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+              <input id="af-acc-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:8px;color:#1e2433;font-size:12px;font-family:var(--sans);box-sizing:border-box">
             </div>
             <div>
               <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Conf Statement Due</div>
-              <input id="af-conf-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+              <input id="af-conf-due" type="text" placeholder="DD/MM/YYYY" style="width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:8px;color:#1e2433;font-size:12px;font-family:var(--sans);box-sizing:border-box">
             </div>
             <div>
               <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Accounts Ref Date</div>
-              <input id="af-acc-ref" type="text" placeholder="DD/MM" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+              <input id="af-acc-ref" type="text" placeholder="DD/MM" style="width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:8px;color:#1e2433;font-size:12px;font-family:var(--sans);box-sizing:border-box">
             </div>
             <div>
               <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Alert Status</div>
-              <select id="af-alerts" style="width:100%;background:#1e2433;border:1px solid var(--border2);border-radius:6px;padding:8px;color:var(--text);font-size:12px;font-family:var(--sans);box-sizing:border-box">
+              <select id="af-alerts" style="width:100%;background:#fff;border:1px solid var(--border2);border-radius:6px;padding:8px;color:#1e2433;font-size:12px;font-family:var(--sans);box-sizing:border-box">
                 <option value="">None</option>
                 <option value="Green">Green</option>
                 <option value="Amber">Amber</option>
