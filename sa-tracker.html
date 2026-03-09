@@ -516,30 +516,70 @@ const SEED = [];
 
 // ─── Boot ───
 async function init() {
-  try{
-    const res = await fetch('sa-seed.json');
-    DATA = await res.json();
-  } catch(e){ DATA = []; console.error('Seed load failed:', e); }
-  try{renderAll();}catch(e){console.error('renderAll seed error:',e);}
   try {
     const rows = await sbFetch('sa_clients?select=*&order=id.asc');
-    if(rows&&rows.length>0){
-      // Only use SB data if it has the new schema (tax_years column present as array)
-      const hasnewSchema = rows.some(r=>Array.isArray(r.tax_years)&&r.tax_years.length>0);
-      if(hasnewSchema){
-        DATA=rows.map(r=>{
-          r.documents=r.documents||[];
-          r.businesses=r.businesses||[];
-          r.tax_years=r.tax_years||[];
-          r.client_type=r.client_type||'self_employed';
-          r.status=r.status||'active';
-          return r;
-        });
-        try{renderAll();}catch(e){console.error('renderAll SB error:',e);}
-      }
-      // else: keep seed data as-is
+    if(rows && rows.length > 0){
+      DATA = rows.map(r=>{
+        r.documents = r.documents||[];
+        r.businesses = r.businesses||[];
+        if(!Array.isArray(r.tax_years) || r.tax_years.length===0){
+          const fee=180;
+          r.tax_years = r.tax_year||r.completed ? [{
+            year: r.tax_year||'2024/25', submitted_by: r.submitted_by||'',
+            completed: r.completed||'', status:'submitted',
+            fee, discount:0, discount_reason:'', final_fee:fee,
+            invoice_date:'', invoice_number:'', amount_paid:0,
+            payment_date:'', payment_method:'', outstanding:fee, notes:''
+          }] : [];
+        }
+        r.client_type = r.client_type||'self_employed';
+        r.status = r.status||'active';
+        return r;
+      });
+      renderAll();
+    } else {
+      showSeedButton();
     }
-  } catch(e){console.warn('SB load:',e.message);}
+  } catch(e){
+    console.error('Load error:', e);
+    showSeedButton();
+  }
+}
+
+function showSeedButton(){
+  document.getElementById('clients-tbody').innerHTML = `<tr><td colspan="9" style="text-align:center;padding:40px">
+    <div style="font-size:14px;color:var(--muted);margin-bottom:12px">No data loaded yet — database needs seeding</div>
+    <button class="btn btn-purple" onclick="seedDatabase()">🌱 Seed Database (383 clients)</button>
+  </td></tr>`;
+}
+
+async function seedDatabase(){
+  const btn = event.target;
+  btn.textContent = 'Loading seed...'; btn.disabled = true;
+  try {
+    const res = await fetch('sa-seed.json');
+    const seed = await res.json();
+    btn.textContent = \`Inserting \${seed.length} clients...\`;
+    // Insert in batches of 50
+    for(let i=0; i<seed.length; i+=50){
+      const batch = seed.slice(i,i+50).map(r=>{
+        const fee=180;
+        return {...r, tax_years: r.tax_years && r.tax_years.length ? r.tax_years : [{
+          year:r.tax_year||'2024/25', submitted_by:r.submitted_by||'',
+          completed:r.completed||'', status:'submitted', fee, discount:0,
+          discount_reason:'', final_fee:fee, invoice_date:'', invoice_number:'',
+          amount_paid:0, payment_date:'', payment_method:'', outstanding:fee, notes:''
+        }]};
+      });
+      await sbFetch('sa_clients', {method:'POST', body:JSON.stringify(batch), headers:{'Prefer':'return=minimal'}});
+      btn.textContent = \`Inserted \${Math.min(i+50,seed.length)}/\${seed.length}...\`;
+    }
+    await init();
+  } catch(e){
+    btn.textContent = 'Error: ' + e.message;
+    btn.disabled = false;
+    console.error(e);
+  }
 }
 
 function renderAll(){renderKPIsClients();renderClientsTable();renderFeesPage();renderReferralsPage();renderTrendsPage();}

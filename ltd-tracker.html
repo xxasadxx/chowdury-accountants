@@ -465,27 +465,56 @@ const SEED=[];
 // ─── BOOT ───
 async function init(){
   try{
-    const res=await fetch('ltd-seed.json');
-    DATA=await res.json();
-  }catch(e){DATA=[];console.error('Seed load failed:',e);}
-  try{populatePeriodFilter();renderAll();}catch(e){console.error('renderAll seed error:',e);}
-  try{
     const rows=await sbFetch('ltd_clients?select=*&order=id.asc');
     if(rows&&rows.length>0){
-      // Only use SB data if it has the new schema
-      const hasNewSchema=rows.some(r=>Array.isArray(r.fee_years)&&r.fee_years.length>0);
-      if(hasNewSchema){
-        DATA=rows.map(r=>{
-          r.documents=r.documents||[];
-          r.fee_years=r.fee_years||[];
-          r.sector=r.sector||'other';
-          r.status=r.status||'active';
-          return r;
-        });
-        try{populatePeriodFilter();renderAll();}catch(e){console.error('renderAll SB error:',e);}
-      }
+      DATA=rows.map(r=>{
+        r.documents=r.documents||[];
+        if(!Array.isArray(r.fee_years)||r.fee_years.length===0){
+          const af=parseFloat(r.annual_fee)||parseFloat(r.monthly_fee)*12||640;
+          r.fee_years=[{period_end:r.accounts_ref_date||'',status:'filed',assigned_to:'',
+            accounts_fee:af>80?af-40:600,cs_fee:40,vat_fee:0,payroll_fee:0,
+            bookkeeping_fee:0,other_fee:0,discount:0,discount_reason:'',
+            total_fee:af,final_fee:af,invoice_date:'',invoice_number:'',
+            amount_paid:0,payment_date:'',payment_method:'',outstanding:af,notes:''}];
+        }
+        r.sector=r.sector||'other';
+        r.status=r.status||'active';
+        return r;
+      });
+      populatePeriodFilter();renderAll();
+    } else {
+      showSeedButton();
     }
-  }catch(e){console.warn('SB:',e.message);}
+  }catch(e){
+    console.error('Load error:',e);
+    showSeedButton();
+  }
+}
+
+function showSeedButton(){
+  document.getElementById('clients-tbody').innerHTML=`<tr><td colspan="10" style="text-align:center;padding:40px">
+    <div style="font-size:14px;color:var(--muted);margin-bottom:12px">No data loaded yet — database needs seeding</div>
+    <button class="btn btn-blue" onclick="seedDatabase()">🌱 Seed Database (306 companies)</button>
+  </td></tr>`;
+}
+
+async function seedDatabase(){
+  const btn=event.target;
+  btn.textContent='Loading seed...';btn.disabled=true;
+  try{
+    const res=await fetch('ltd-seed.json');
+    const seed=await res.json();
+    btn.textContent=\`Inserting \${seed.length} companies...\`;
+    for(let i=0;i<seed.length;i+=50){
+      const batch=seed.slice(i,i+50);
+      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(batch),headers:{'Prefer':'return=minimal'}});
+      btn.textContent=\`Inserted \${Math.min(i+50,seed.length)}/\${seed.length}...\`;
+    }
+    await init();
+  }catch(e){
+    btn.textContent='Error: '+e.message;btn.disabled=false;
+    console.error(e);
+  }
 }
 
 function populatePeriodFilter(){
