@@ -28,7 +28,7 @@ header h1 span { color: var(--blue); }
 .nav-links a.active { background: var(--blue); color: #fff; }
 .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .staff-tabs { display: flex; gap: 4px; }
-.staff-tab { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-size: 12px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; }
+.staff-tab { padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 11px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
 .staff-tab:hover { border-color: var(--blue); color: var(--blue); }
 .staff-tab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 .page-tabs { display: flex; gap: 2px; margin-left: auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
@@ -483,7 +483,6 @@ async function saveProfile(){
       start_date:document.getElementById('p-start').value||null,
       salary:parseFloat(document.getElementById('p-salary').value)||null,
       holiday_allowance:parseInt(document.getElementById('p-h-allow').value)||28,
-      holiday_carried:parseInt(document.getElementById('p-h-carried').value)||0,
       notes:document.getElementById('p-notes').value.trim(),updated_at:new Date().toISOString()
     })});
     msg.textContent='✓ Saved';msg.className='save-msg ok';
@@ -616,6 +615,9 @@ function handlePhoto(input){
       window._curPhoto=result;
       localStorage.setItem('ca_photo_'+curStaff,result);
       renderPhotoPreview(result);
+      // Show brief saved confirmation
+      const pb=document.querySelector('.photo-upload-btn');
+      if(pb){const orig=pb.textContent;pb.textContent='✓ Photo saved!';pb.style.color='var(--green)';setTimeout(()=>{pb.textContent=orig;pb.style.color='';},2000);}
     };
     img.src=e.target.result;
   };
