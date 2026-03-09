@@ -201,12 +201,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
 <div id="page-clients" class="page-section active">
   <div class="kpi-row" id="kpi-clients"></div>
   <div class="toolbar">
-    <select class="year-select" id="year-filter" onchange="applyFilter()">
-      <option value="all" selected>All Years</option>
-      <option value="2024/25">2024/25</option>
-      <option value="2023/24">2023/24</option>
-      <option value="2022/23">2022/23</option>
-    </select>
+    <select class="year-select" id="year-filter" onchange="applyFilter()"><option value="all" selected>All Years</option></select>
     <button class="filter-btn active" onclick="setTypeFilter('all',this)">All</button>
     <button class="filter-btn" onclick="setTypeFilter('self_employed',this)">🧑‍💼 Self Employed</button>
     <button class="filter-btn" onclick="setTypeFilter('director',this)">🏢 Director</button>
@@ -580,6 +575,14 @@ async function seedDatabase(){
   }
 }
 
+function populateYearFilter(){
+  const sel=document.getElementById('year-filter');
+  if(!sel)return;
+  const years=[...new Set(DATA.flatMap(c=>(c.tax_years||[]).map(y=>y.year)))].sort().reverse();
+  const current=sel.value;
+  sel.innerHTML='<option value="all">All Years</option>'+years.map(y=>`<option value="${y}">${y}</option>`).join('');
+  if(years.includes(current))sel.value=current;
+}
 function renderAll(){renderKPIsClients();renderClientsTable();renderFeesPage();renderReferralsPage();renderTrendsPage();}
 
 // ─── Page tabs ───
