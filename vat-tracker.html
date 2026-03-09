@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VAT Tracker — The Chowdury Accountants</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🟢</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f4f6fa; --surface: #ffffff; --surface2: #f8f9fc;
+  --border: #e2e6ef; --border2: #d0d6e3;
+  --text: #1e2433; --text2: #4b5563; --text-muted: #9ca3af;
+  --blue: #2563eb; --green: #16a34a; --red: #dc2626;
+  --yellow: #d97706; --purple: #7c3aed;
+  --sans: 'Plus Jakarta Sans', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
+
+/* Summary cards */
+.kpi-row { display: flex; gap: 12px; padding: 16px 20px; flex-wrap: wrap; }
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; flex: 1; min-width: 130px; }
+.kpi .k { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.kpi .v { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+.kpi .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Toolbar */
+.toolbar { background: var(--surface); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-btn { padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 11px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
+.filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+.filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.filter-btn.red.active { background: var(--red); border-color: var(--red); color:#fff; }
+.filter-btn.amber.active { background: var(--yellow); border-color: var(--yellow); color:#fff; }
+.filter-btn.green.active { background: var(--green); border-color: var(--green); color:#fff; }
+.search-box { padding: 7px 11px; border: 1px solid var(--border2); border-radius: 8px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; width: 200px; }
+.search-box:focus { border-color: var(--blue); }
+.count-badge { font-size: 11px; color: var(--text-muted); margin-left: auto; font-weight: 600; }
+
+/* Table */
+.table-wrap { padding: 0 20px 20px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
+th:hover { color: var(--blue); }
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9ff; }
+
+/* Badges */
+.days-badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-family: var(--mono); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.days-overdue { background: #fee2e2; color: var(--red); }
+.days-soon { background: #fef3c7; color: var(--yellow); }
+.days-ok { background: #dcfce7; color: var(--green); }
+.days-future { background: #eff6ff; color: var(--blue); }
+
+.stagger-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.g1 { background: #eff6ff; color: #1d4ed8; }
+.g2 { background: #f3e8ff; color: #6d28d9; }
+.g3 { background: #f0fdf4; color: #15803d; }
+
+.company-link { color: var(--blue); font-weight: 600; text-decoration: none; cursor: pointer; }
+.company-link:hover { text-decoration: underline; }
+
+/* Status dot */
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.dot-red { background: var(--red); }
+.dot-amber { background: var(--yellow); }
+.dot-green { background: var(--green); }
+
+/* Progress bar for quarter */
+.quarter-bar { background: var(--surface2); border-radius: 4px; height: 6px; width: 80px; overflow: hidden; margin-top: 2px; }
+.quarter-fill { height: 100%; border-radius: 4px; }
+</style>
+</head>
+<body>
+<script>if(sessionStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
+
+<div id="portal-nav" style="background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+  <div style="display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,0.1)">
+    <span style="color:#c8963c;font-weight:700;font-size:13px;letter-spacing:0.02em;line-height:1.2">Chowdury Accountants</span>
+    <span style="color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Practice Portal</span>
+  </div>
+  <script>
+  (function(){
+    const page = window.location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('#portal-nav a').forEach(a => {
+      const href = a.getAttribute('href');
+      if (href && page.includes(href.replace('.html',''))) {
+        a.style.background = 'rgba(255,255,255,0.12)';
+        a.style.color = '#fff';
+      }
+    });
+  })();
+  </script>
+  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
+  <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
+  <a href="ltd-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏢 Ltd Tracker</a>
+  <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
+  <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
+  <a href="vat-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🟢 VAT</a>
+</div>
+
+<!-- KPI Row -->
+<div class="kpi-row" id="kpi-row"></div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All (42)</button>
+  <button class="filter-btn red" onclick="setFilter('overdue',this)">🔴 Overdue</button>
+  <button class="filter-btn amber" onclick="setFilter('soon',this)">🟡 Due ≤30 days</button>
+  <button class="filter-btn green" onclick="setFilter('ok',this)">🟢 This Quarter</button>
+  <button class="filter-btn" onclick="setFilter('g1',this)">Group 1</button>
+  <button class="filter-btn" onclick="setFilter('g2',this)">Group 2</button>
+  <button class="filter-btn" onclick="setFilter('g3',this)">Group 3</button>
+  <input class="search-box" type="text" placeholder="🔍 Search company..." oninput="searchTable(this.value)">
+  <span class="count-badge" id="count-badge">42 clients</span>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+  <table id="vat-table">
+    <thead>
+      <tr>
+        <th onclick="sortBy('id')">#</th>
+        <th onclick="sortBy('name')">Company</th>
+        <th onclick="sortBy('vat_stagger')">Stagger</th>
+        <th onclick="sortBy('vat_due')">Next VAT Due</th>
+        <th onclick="sortBy('days_until')">Status</th>
+        <th>Quarter Progress</th>
+        <th>CH Alert</th>
+      </tr>
+    </thead>
+    <tbody id="vat-tbody"></tbody>
+  </table>
+</div>
+
+<script>
+const VAT_DATA = [{"id": 73, "name": "CLOSE PROPERTIES LIMITED", "comp_no": "13385860", "alerts": "Amber", "accounts_ref_date": "29/05", "accounts_due": "29/05/2026", "conf_date": "28/02/2026", "conf_due": "14/03/2026", "vat_due": "07/07/2025", "vat_stagger": "Group 1", "days_until": -245}, {"id": 214, "name": "RAHMAN PACKAGING LIMITED", "comp_no": "07461907", "alerts": "", "accounts_ref_date": "24/12", "accounts_due": "24/09/2026", "conf_date": "11/06/2026", "conf_due": "25/06/2026", "vat_due": "07/11/2025", "vat_stagger": "Group 2", "days_until": -122}, {"id": 16, "name": "AL-AMIN FOODSTORE LTD", "comp_no": "12578448", "alerts": "Red", "accounts_ref_date": "28/04", "accounts_due": "28/04/2026", "conf_date": "25/08/2026", "conf_due": "08/09/2026", "vat_due": "07/03/2026", "vat_stagger": "Group 3", "days_until": -2}, {"id": 12, "name": "AK OPTICAL GROUP LTD", "comp_no": "15921589", "alerts": "", "accounts_ref_date": "31/08", "accounts_due": "28/05/2026", "conf_date": "27/08/2026", "conf_due": "10/09/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 28, "name": "ARIA CASH AND CARRY LTD", "comp_no": "08757436", "alerts": "", "accounts_ref_date": "28/11", "accounts_due": "28/08/2026", "conf_date": "26/01/2027", "conf_due": "09/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 46, "name": "BENGAL CURRY POT LIMITED", "comp_no": "10164490", "alerts": "", "accounts_ref_date": "27/05", "accounts_due": "27/02/2027", "conf_date": "26/01/2027", "conf_due": "09/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 169, "name": "MCDHABA INDIAN RESTAURANT LTD", "comp_no": "SC798919", "alerts": "", "accounts_ref_date": "29/02", "accounts_due": "30/11/2026", "conf_date": "12/02/2027", "conf_due": "26/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 206, "name": "PROSPECT STORE LTD", "comp_no": "13773879", "alerts": "Red", "accounts_ref_date": "29/11", "accounts_due": "29/08/2026", "conf_date": "22/02/2026", "conf_due": "08/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 225, "name": "RR RESTAURANT LIMITED", "comp_no": "07965986", "alerts": "Red", "accounts_ref_date": "27/02", "accounts_due": "27/11/2026", "conf_date": "01/03/2026", "conf_due": "15/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 246, "name": "SJ MOTOR SERVICES LTD", "comp_no": "12824538", "alerts": "", "accounts_ref_date": "30/08", "accounts_due": "30/05/2026", "conf_date": "18/09/2026", "conf_due": "02/10/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 262, "name": "SPICY VALLEY TODMORDEN LTD", "comp_no": "12627379", "alerts": "", "accounts_ref_date": "31/05", "accounts_due": "31/05/2026", "conf_date": "11/06/2026", "conf_due": "25/06/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 272, "name": "SYLHETI BAZAR LIMITED", "comp_no": "11184309", "alerts": "", "accounts_ref_date": "28/02", "accounts_due": "30/11/2026", "conf_date": "23/03/2026", "conf_due": "06/04/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 276, "name": "THE CHOWDURY ACCOUNTANTS LTD", "comp_no": "09441520", "alerts": "", "accounts_ref_date": "21/02", "accounts_due": "21/11/2026", "conf_date": "14/08/2026", "conf_due": "28/08/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 278, "name": "THE MEGNA LTD", "comp_no": "12457757", "alerts": "Amber", "accounts_ref_date": "25/02", "accounts_due": "25/11/2026", "conf_date": "15/03/2026", "conf_due": "29/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 291, "name": "UNITED SALVAGE LTD", "comp_no": "15061998", "alerts": "", "accounts_ref_date": "31/08", "accounts_due": "31/05/2026", "conf_date": "09/08/2026", "conf_due": "23/08/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 297, "name": "WO GROUP LIMITED", "comp_no": "12021205", "alerts": "", "accounts_ref_date": "29/05", "accounts_due": "29/05/2026", "conf_date": "09/09/2026", "conf_due": "23/09/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 301, "name": "YAS INTERNATIONAL LIMITED", "comp_no": "11079885", "alerts": "Amber", "accounts_ref_date": "28/11", "accounts_due": "28/08/2026", "conf_date": "09/03/2026", "conf_due": "23/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1", "days_until": 29}, {"id": 2, "name": "A1 GERMAN BREAKERS GROUP UK LTD", "comp_no": "15129309", "alerts": "", "accounts_ref_date": "30/09", "accounts_due": "30/06/2026", "conf_date": "11/09/2026", "conf_due": "25/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 45, "name": "BEGAL FAST FOOD OLDHAM LTD", "comp_no": "13616227", "alerts": "", "accounts_ref_date": "28/09", "accounts_due": "28/06/2026", "conf_date": "11/09/2026", "conf_due": "25/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 63, "name": "CHENNAI LANDLORD LTD", "comp_no": "13963731", "alerts": "Red", "accounts_ref_date": "30/03", "accounts_due": "30/12/2026", "conf_date": "07/03/2026", "conf_due": "21/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 152, "name": "LIJA CATERING LTD", "comp_no": "14330589", "alerts": "", "accounts_ref_date": "30/09", "accounts_due": "30/06/2026", "conf_date": "31/08/2026", "conf_due": "14/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 158, "name": "MAA LEGAL SERVICES LIMITED", "comp_no": "11728106", "alerts": "", "accounts_ref_date": "30/12", "accounts_due": "30/09/2026", "conf_date": "27/06/2026", "conf_due": "11/07/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 167, "name": "MB TAKEAWAY LTD", "comp_no": "12879940", "alerts": "", "accounts_ref_date": "28/09", "accounts_due": "28/06/2026", "conf_date": "04/10/2026", "conf_due": "18/10/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 195, "name": "NUSEER RAFIQ - (Travel Line Mini Bus)", "comp_no": "", "alerts": "Red", "accounts_ref_date": "", "accounts_due": "", "conf_date": "", "conf_due": "", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 205, "name": "PROJECT INTERIM LIMITED", "comp_no": "14740056", "alerts": "Amber", "accounts_ref_date": "31/03", "accounts_due": "31/03/2026", "conf_date": "17/03/2026", "conf_due": "31/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 235, "name": "SCHOLARED UK LTD", "comp_no": "14967711", "alerts": "Red", "accounts_ref_date": "28/06", "accounts_due": "28/03/2026", "conf_date": "21/02/2026", "conf_due": "07/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 244, "name": "SHAZNA TAKEAWAY LIMITED", "comp_no": "10087517", "alerts": "Amber", "accounts_ref_date": "30/03", "accounts_due": "30/03/2026", "conf_date": "04/08/2026", "conf_due": "18/08/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 306, "name": "ZIGGY\u2019S SCHOOLWEAR (BOLTON) LTD", "comp_no": "14751431", "alerts": "Amber", "accounts_ref_date": "31/03", "accounts_due": "31/03/2026", "conf_date": "25/05/2026", "conf_due": "08/06/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2", "days_until": 59}, {"id": 1, "name": "2020 OPTIX LTD", "comp_no": "07239795", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "30/04/2026", "conf_due": "14/05/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 10, "name": "AH TAKEAWAY LTD", "comp_no": "12267533", "alerts": "Amber", "accounts_ref_date": "29/10", "accounts_due": "29/07/2026", "conf_date": "23/11/2026", "conf_due": "07/12/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 25, "name": "ANMOL WARRINGTON LIMITED", "comp_no": "13355676", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "23/04/2026", "conf_due": "07/05/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 40, "name": "BALLY OFF LICENCE LTD", "comp_no": "13671931", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "10/10/2026", "conf_due": "24/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 48, "name": "BENGAL ROSE LTD", "comp_no": "13681584", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "14/10/2026", "conf_due": "28/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 58, "name": "BRTA LIMITED", "comp_no": "12716060", "alerts": "Red", "accounts_ref_date": "31/07", "accounts_due": "30/04/2027", "conf_date": "02/07/2026", "conf_due": "16/07/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 64, "name": "CHILLI INDIAN LTD", "comp_no": "13697837", "alerts": "Amber", "accounts_ref_date": "29/10", "accounts_due": "29/07/2026", "conf_date": "21/10/2026", "conf_due": "04/11/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 75, "name": "COPPICE BAZAR LTD", "comp_no": "14029671", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "28/03/2026", "conf_due": "11/04/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 79, "name": "D' GRAND HAVELI LTD", "comp_no": "12262936", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "08/02/2027", "conf_due": "22/02/2027", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 107, "name": "GLOBAL LEARNING PATHWAY LIMITED", "comp_no": "13358224", "alerts": "Amber", "accounts_ref_date": "27/04", "accounts_due": "27/04/2026", "conf_date": "09/12/2026", "conf_due": "23/12/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 126, "name": "IMON TANDOORI LIMITED", "comp_no": "11956917", "alerts": "Amber", "accounts_ref_date": "28/04", "accounts_due": "28/01/2027", "conf_date": "05/07/2026", "conf_due": "19/07/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 143, "name": "KINGFISHER BD RESTAURANT LTD", "comp_no": "14605750", "alerts": "Red", "accounts_ref_date": "31/01", "accounts_due": "31/10/2026", "conf_date": "19/01/2027", "conf_due": "02/02/2027", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 216, "name": "RAZAK & SONS LIMITED", "comp_no": "13676974", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "12/10/2026", "conf_due": "26/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}, {"id": 236, "name": "SEQUENTIAL SERVICES LIMITED", "comp_no": "12097769", "alerts": "Amber", "accounts_ref_date": "30/07", "accounts_due": "30/04/2027", "conf_date": "20/03/2026", "conf_due": "03/04/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3", "days_until": 90}];
+
+let filtered = [...VAT_DATA];
+let currentFilter = 'all';
+let currentSearch = '';
+let sortCol = 'days_until';
+let sortDir = 1;
+
+function init() {
+  renderKPIs();
+  render();
+}
+
+function renderKPIs() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const overdue = VAT_DATA.filter(c => c.days_until < 0).length;
+  const soon = VAT_DATA.filter(c => c.days_until >= 0 && c.days_until <= 30).length;
+  const g1 = VAT_DATA.filter(c => c.vat_stagger === 'Group 1').length;
+  const g2 = VAT_DATA.filter(c => c.vat_stagger === 'Group 2').length;
+  const g3 = VAT_DATA.filter(c => c.vat_stagger === 'Group 3').length;
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="k">Total VAT Clients</div><div class="v" style="color:var(--blue)">${VAT_DATA.length}</div><div class="sub">Registered for VAT</div></div>
+    <div class="kpi"><div class="k">Overdue</div><div class="v" style="color:var(--red)">${overdue}</div><div class="sub">Past filing date</div></div>
+    <div class="kpi"><div class="k">Due ≤ 30 Days</div><div class="v" style="color:var(--yellow)">${soon}</div><div class="sub">Action required soon</div></div>
+    <div class="kpi"><div class="k">Group 1</div><div class="v" style="color:#1d4ed8">${g1}</div><div class="sub">Jan/Apr/Jul/Oct</div></div>
+    <div class="kpi"><div class="k">Group 2</div><div class="v" style="color:#6d28d9">${g2}</div><div class="sub">Feb/May/Aug/Nov</div></div>
+    <div class="kpi"><div class="k">Group 3</div><div class="v" style="color:#15803d">${g3}</div><div class="sub">Mar/Jun/Sep/Dec</div></div>
+  `;
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function searchTable(q) {
+  currentSearch = q.toLowerCase();
+  render();
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  render();
+}
+
+function quarterProgress(vatDueStr) {
+  try {
+    const due = new Date(vatDueStr.split('/').reverse().join('-'));
+    // Quarter ends 1 month before due (VAT due = end of month after quarter end)
+    const qEnd = new Date(due); qEnd.setMonth(qEnd.getMonth() - 1);
+    const qStart = new Date(qEnd); qStart.setMonth(qStart.getMonth() - 3);
+    const now = new Date();
+    const total = qEnd - qStart;
+    const elapsed = Math.min(now - qStart, total);
+    const pct = Math.max(0, Math.min(100, Math.round(elapsed / total * 100)));
+    const color = pct > 90 ? 'var(--red)' : pct > 66 ? 'var(--yellow)' : 'var(--green)';
+    return `<div class="quarter-bar"><div class="quarter-fill" style="width:${pct}%;background:${color}"></div></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${pct}% through quarter</div>`;
+  } catch { return '—'; }
+}
+
+function daysBadge(days) {
+  if (days < 0) return `<span class="days-badge days-overdue">⚠ ${Math.abs(days)}d overdue</span>`;
+  if (days <= 7) return `<span class="days-badge days-soon">🔥 ${days}d left</span>`;
+  if (days <= 30) return `<span class="days-badge days-soon">⏰ ${days}d left</span>`;
+  if (days <= 90) return `<span class="days-badge days-ok">✓ ${days}d left</span>`;
+  return `<span class="days-badge days-future">${days}d left</span>`;
+}
+
+function render() {
+  let data = [...VAT_DATA];
+
+  // Filter
+  if (currentFilter === 'overdue') data = data.filter(c => c.days_until < 0);
+  else if (currentFilter === 'soon') data = data.filter(c => c.days_until >= 0 && c.days_until <= 30);
+  else if (currentFilter === 'ok') data = data.filter(c => c.days_until > 30 && c.days_until <= 90);
+  else if (currentFilter === 'g1') data = data.filter(c => c.vat_stagger === 'Group 1');
+  else if (currentFilter === 'g2') data = data.filter(c => c.vat_stagger === 'Group 2');
+  else if (currentFilter === 'g3') data = data.filter(c => c.vat_stagger === 'Group 3');
+
+  // Search
+  if (currentSearch) data = data.filter(c => c.name.toLowerCase().includes(currentSearch));
+
+  // Sort
+  data.sort((a, b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+
+  document.getElementById('count-badge').textContent = `${data.length} client${data.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('vat-tbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted)">No clients match this filter</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map((c, i) => {
+    const staggerClass = c.vat_stagger === 'Group 1' ? 'g1' : c.vat_stagger === 'Group 2' ? 'g2' : 'g3';
+    const alertDot = c.alerts === 'Red' ? '<span class="dot dot-red"></span>' : c.alerts === 'Amber' ? '<span class="dot dot-amber"></span>' : '<span class="dot dot-green"></span>';
+    return `<tr>
+      <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">${i+1}</td>
+      <td><a class="company-link" href="ltd-tracker.html?open=${c.comp_no}">${c.name}</a><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
+      <td><span class="stagger-badge ${staggerClass}">${c.vat_stagger}</span></td>
+      <td style="font-family:var(--mono);font-size:12px;font-weight:600">${c.vat_due}</td>
+      <td>${daysBadge(c.days_until)}</td>
+      <td>${quarterProgress(c.vat_due)}</td>
+      <td>${alertDot}${c.alerts || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+init();
+</script>
+</body>
+</html>
