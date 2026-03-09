@@ -252,7 +252,7 @@ Preparation and submission of Annual Accounts to HMRC and Companies House</texta
 const PRACTICE = {
   name: 'The Chowdury Accountants Ltd',
   tagline: 'We work with you, not just for you',
-  quals: 'AAT | Management Accountants',
+  quals: 'Chartered Management Accountants',
   address: '283 Featherstall Road North\nOldham\nOL9 6LN',
   tel: '0161 XXX XXXX',
   mob: '07XXX XXXXXX',
@@ -261,44 +261,49 @@ const PRACTICE = {
   signatory: 'Md Asadul Chowdury',
   title: 'Managing Director',
   why: [
-    'Fixed fee basis — no hidden charges',
-    'Unlimited phone and email support',
+    'Fixed fee basis — no hidden charges, ever',
+    'Unlimited phone, WhatsApp and email support',
     'Dedicated client manager for your account',
-    'Specialist in hospitality, restaurants and takeaways',
-    'All work completed on time, every time',
+    'Specialists in hospitality, restaurants and takeaways',
+    'All work completed accurately and on time, every time',
     'All work is 100% guaranteed',
     'Simple monthly payments via GoCardless direct debit',
+    'Cloud accounting and MTD-ready',
   ]
 };
 
 const SERVICES = [
   { sec:'Financial Accounting & Taxation', items:[
-    { id:'s1', name:'Company filleted accounts', body:'Companies House', fee:160, checked:true },
-    { id:'s2', name:'Company statutory accounts', body:'HMRC', fee:300, checked:true },
-    { id:'s3', name:'Company tax return & corporation tax computation', body:'HMRC', fee:335, checked:true },
-    { id:'s4', name:"Director's self assessment tax return (up to 2 directors)", body:'HMRC', fee:400, checked:true },
+    { id:'s1', name:'Annual accounts to Companies House', body:'Companies House', fee:500, checked:true },
+    { id:'s2', name:'Corporation tax return to HMRC', body:'HMRC', fee:600, checked:true },
+    { id:'s3', name:"Director's self assessment tax return", body:'HMRC', fee:600, checked:true },
   ]},
-  { sec:'Company Secretarial & Other', items:[
-    { id:'s5', name:'Confirmation statement', body:'Companies House', fee:55, checked:true },
-    { id:'s6', name:'Rental property accounts', body:'HMRC', fee:200, checked:false },
-    { id:'s7', name:'Payroll — monthly (up to 5 employees)', body:'HMRC', fee:50, checked:false },
-    { id:'s8', name:'VAT returns — quarterly', body:'HMRC', fee:120, checked:false },
-    { id:'s9', name:'Bookkeeping — monthly', body:'', fee:150, checked:false },
+  { sec:'Payroll & Compliance', items:[
+    { id:'s4', name:'Payroll — monthly RTI submission (up to 3 employees)', body:'HMRC', fee:300, checked:false },
+    { id:'s5', name:'Payroll — additional employee (per employee, per year)', body:'HMRC', fee:100, checked:false },
+    { id:'s6', name:'Quarterly VAT returns', body:'HMRC', fee:600, checked:false },
+  ]},
+  { sec:'Other Annual Services', items:[
+    { id:'s7', name:'Fee protection insurance', body:'', fee:200, checked:false },
+    { id:'s8', name:'Confirmation statement', body:'Companies House', fee:70, checked:false },
+    { id:'s9', name:'Registered office address', body:'', fee:100, checked:false },
   ]},
 ];
 
 const ONEOFFS = [
-  { id:'o1', name:'Company set up, PAYE & UTR registration', fee:230, checked:false },
-  { id:'o2', name:'Pension auto-enrolment declaration', fee:500, checked:false },
-  { id:'o3', name:'HMRC fee protection insurance (annual)', fee:200, checked:false },
-  { id:'o4', name:'Registered office address (annual)', fee:200, checked:false },
+  { id:'o1', name:'Company registration (1 director)', fee:150, checked:false },
+  { id:'o2', name:'Payroll registration', fee:100, checked:false },
+  { id:'o3', name:'VAT registration', fee:100, checked:false },
+  { id:'o4', name:'Company closure', fee:100, checked:false },
+  { id:'o5', name:'VAT deregistration', fee:100, checked:false },
+  { id:'o6', name:'PAYE closure', fee:100, checked:false },
 ];
 
 const ADDITIONAL = [
-  { id:'a1', name:'P11D expenses & benefits return', fee:120, checked:false },
-  { id:'a2', name:'Management accounts — monthly', fee:200, checked:false },
-  { id:'a3', name:'HMRC enquiry support (per hour)', fee:150, checked:false },
-  { id:'a4', name:'Company formation only', fee:100, checked:false },
+  { id:'a1', name:'Rental property accounts', body:'HMRC', fee:200, checked:false },
+  { id:'a2', name:'P11D expenses & benefits return', fee:120, checked:false },
+  { id:'a3', name:'Management accounts — monthly', fee:200, checked:false },
+  { id:'a4', name:'HMRC enquiry support (per hour)', fee:150, checked:false },
 ];
 
 let quoteStyle = 'standard';
