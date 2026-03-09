@@ -516,17 +516,32 @@ const SEED = [];
 
 // ─── Boot ───
 async function init() {
+  const dbg = (msg) => {
+    console.log(msg);
+    const el = document.getElementById('debug-status');
+    if(el) el.innerHTML += '<br>' + msg;
+  };
+  dbg('init() started');
   try {
-    const rows = await sbFetch('sa_clients?select=*&order=id.asc');
+    dbg('Fetching from Supabase...');
+    const rows = await sbFetch('sa_clients?select=*&order=id.asc&limit=5');
+    dbg('Got ' + (rows ? rows.length : 'null') + ' rows');
     if(rows && rows.length > 0){
-      DATA = rows.map(r=>{
+      dbg('Sample row keys: ' + Object.keys(rows[0]).join(', '));
+      dbg('tax_year field: ' + rows[0].tax_year);
+      dbg('tax_years field: ' + JSON.stringify(rows[0].tax_years));
+    }
+    const allRows = await sbFetch('sa_clients?select=*&order=id.asc');
+    dbg('Total rows: ' + (allRows ? allRows.length : 0));
+    if(allRows && allRows.length > 0){
+      DATA = allRows.map(r=>{
         r.documents = r.documents||[];
         r.businesses = r.businesses||[];
-        if(!Array.isArray(r.tax_years) || r.tax_years.length===0){
+        if(!Array.isArray(r.tax_years)||r.tax_years.length===0){
           const fee=180;
-          r.tax_years = r.tax_year||r.completed ? [{
-            year: r.tax_year||'2024/25', submitted_by: r.submitted_by||'',
-            completed: r.completed||'', status:'submitted',
+          r.tax_years = (r.tax_year||r.completed) ? [{
+            year:r.tax_year||'2024/25', submitted_by:r.submitted_by||'',
+            completed:r.completed||'', status:'submitted',
             fee, discount:0, discount_reason:'', final_fee:fee,
             invoice_date:'', invoice_number:'', amount_paid:0,
             payment_date:'', payment_method:'', outstanding:fee, notes:''
@@ -536,12 +551,18 @@ async function init() {
         r.status = r.status||'active';
         return r;
       });
-      renderAll();
+      dbg('DATA built: ' + DATA.length + ' clients');
+      try{ renderKPIsClients(); dbg('KPIs OK'); } catch(e){ dbg('KPIs ERROR: '+e.message); }
+      try{ renderClientsTable(); dbg('Table OK'); } catch(e){ dbg('Table ERROR: '+e.message); }
+      try{ renderFeesPage(); dbg('Fees OK'); } catch(e){ dbg('Fees ERROR: '+e.message); }
+      try{ renderReferralsPage(); dbg('Refs OK'); } catch(e){ dbg('Refs ERROR: '+e.message); }
+      try{ renderTrendsPage(); dbg('Trends OK'); } catch(e){ dbg('Trends ERROR: '+e.message); }
     } else {
+      dbg('No rows - showing seed button');
       showSeedButton();
     }
   } catch(e){
-    console.error('Load error:', e);
+    dbg('FATAL ERROR: ' + e.message);
     showSeedButton();
   }
 }
