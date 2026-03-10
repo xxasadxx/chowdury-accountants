@@ -395,7 +395,6 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     letter-spacing: 0.3px;
   }
 
-
   /* ══ PwC GLOBAL OVERRIDES ════════════════════════════════════════ */
   *, *::before, *::after { box-sizing: border-box; }
 
@@ -635,19 +634,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   });
 })();
 </script>
-  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
-  <a href="revenue-tracker.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.1)">💰 Revenue</a>
-  <a href="ltd-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🟢 VAT</a>
-  <a href="paye-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💼 PAYE</a>
-  <a href="sa-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📋 SA</a>
-  <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
-  <a href="quote-calculator.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💡 Quote</a>
-  <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
-  <a href="strategic-review.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📊 Strategy</a>
-
-</div>
-
+  </div>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
@@ -665,22 +652,13 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
       </div>
     </div>
     <div class="header-right">
+      <span class="ss ok" id="syncStatus" style="font-size:0.7rem;padding:3px 10px;border-radius:2px;font-weight:600;background:var(--green-light);color:var(--green)">Live</span>
+      <span id="headerBadge" style="font-size:0.7rem;color:var(--muted);margin-left:8px"></span>
       <span class="header-date" id="hdr-date"></span>
     </div>
   </div>
   <nav class="header-nav">
-        <a href="index.html">Portal</a>
-    <a href="revenue-tracker.html" class="active">Revenue</a>
-    <a href="ltd-tracker.html">Ltd Tracker</a>
-    <a href="vat-tracker.html">VAT</a>
-    <a href="paye-tracker.html">PAYE</a>
-    <a href="sa-tracker.html">SA</a>
-    <a href="ch-tracker.html">CH Tracker</a>
-    <a href="quote-calculator.html">Quote</a>
-    <a href="staff-management.html">Staff</a>
-    <a href="strategic-review.html">Strategy</a>
-    <a href="login.html" class="signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
-  </nav>
+        </nav>
 </header>
 
 <div class="tabs">
@@ -2251,7 +2229,6 @@ async function bulkMarkFirstMarchPaid(){
   showToast('Done! '+saved+' clients marked paid for Mar 2026 ✅','success');
   renderReports();
 }
-
 
 // ── Excel / PDF exports (enhanced) ──
 function getRevData(type){

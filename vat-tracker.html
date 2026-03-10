@@ -242,7 +242,6 @@ tr:hover td { background: #f8f9ff; }
     letter-spacing: 0.3px;
   }
 
-
   /* ══ PwC GLOBAL OVERRIDES ════════════════════════════════════════ */
   *, *::before, *::after { box-sizing: border-box; }
 
@@ -484,18 +483,7 @@ tr:hover td { background: #f8f9ff; }
     });
   })();
   </script>
-  <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
-  <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
-  <a href="ltd-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.1)">🟢 VAT</a>
-  <a href="paye-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💼 PAYE</a>
-  <a href="sa-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📋 SA</a>
-  <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
-  <a href="quote-calculator.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💡 Quote</a>
-  <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
-  <a href="strategic-review.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📊 Strategy</a>
-
-</div>
+  </div>
 
 <!-- KPI Row -->
 <div class="kpi-row" id="kpi-row"></div>
@@ -785,7 +773,6 @@ async function removeVatClient(id) {
     alert(`🗑 ${co.name} removed from VAT tracker.`);
   } catch(e) { alert('Error: ' + e.message); }
 }
-
 
 function exportVatExcel() {
   const rows = VAT_DATA.map((d,i) => ({'#':i+1,'Company Name':d.name,'Comp No':d.comp_no||'','VAT Due':d.vat_due||'','Stagger Group':d.vat_stagger||'','Days Until':d.days_until,'Alert':d.alerts||''}));
