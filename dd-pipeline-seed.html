@@ -8,7 +8,7 @@
   h2 { color: #1A3A6E; }
   .status { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 20px; margin: 20px 0; }
   .log { font-size: 13px; color: #374151; line-height: 1.8; max-height: 300px; overflow-y: auto; }
-  .success { color: #166534; font-weight: bold; font-size: 16px; }
+  .success { color: #166534; font-weight: bold; font-size: 15px; }
   .error { color: #991B1B; font-weight: bold; }
   .progress { background: #E2E8F0; border-radius: 4px; height: 12px; margin: 10px 0; }
   .progress-bar { background: #1A3A6E; height: 12px; border-radius: 4px; width: 0%; transition: width 0.3s; }
@@ -16,32 +16,22 @@
   button:disabled { background: #94A3B8; cursor: not-allowed; }
   .pill { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin: 2px; }
   .p1 { background: #DCFCE7; color: #14532D; }
-  .p2 { background: #FEF3C7; color: #78350F; }
   .p3 { background: #FEE2E2; color: #7F1D1D; }
   .warning { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 6px; padding: 12px; margin: 12px 0; font-size: 13px; color: #78350F; }
 </style>
 </head>
 <body>
 <h2>🔄 DD Pipeline Seed</h2>
-<p>This page will upload <strong>98 prioritised DD pipeline records</strong> to Supabase.</p>
-
+<p>Uploading <strong>98 prioritised DD pipeline records</strong> to Supabase.</p>
 <div class="status">
-  <strong>Records summary:</strong><br>
   <span class="pill p1">🟢 P1 Running Payroll: 35</span>
-  <span class="pill p2">🟡 P2 PAYE Reg, No Staff: 0</span>
   <span class="pill p3">🔴 P3 No Payroll: 63</span>
 </div>
-
-<div class="warning">
-  ⚠️ This will <strong>delete all existing pipeline records</strong> and replace with the 98 prioritised records. Only click once.
-</div>
-
+<div class="warning">⚠️ This will delete all existing pipeline records and replace with 98 prioritised records. Click once only.</div>
 <button id="btn" onclick="runSeed()">▶ Upload DD Pipeline</button>
-
 <div class="progress" style="display:none" id="progressWrap">
   <div class="progress-bar" id="progressBar"></div>
 </div>
-
 <div class="status" style="display:none" id="logBox">
   <div class="log" id="log"></div>
 </div>
@@ -53,73 +43,74 @@ const RECORDS = [{"company_name": "Yasmin Enterprise Ltd", "city": "", "fee": 50
 
 function log(msg, cls) {
   const el = document.getElementById('log');
-  const line = document.createElement('div');
-  if (cls) line.className = cls;
-  line.textContent = msg;
-  el.appendChild(line);
+  const d = document.createElement('div');
+  if (cls) d.className = cls;
+  d.textContent = msg;
+  el.appendChild(d);
   el.scrollTop = el.scrollHeight;
 }
 
-async function supaFetch(method, path, body) {
-  const res = await fetch(SUPA_URL + '/rest/v1/' + path, {
+async function api(method, path, body) {
+  const opts = {
     method,
     headers: {
       'apikey': SUPA_KEY,
       'Authorization': 'Bearer ' + SUPA_KEY,
       'Content-Type': 'application/json',
       'Prefer': method === 'POST' ? 'return=minimal' : ''
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!res.ok) {
-    const txt = await res.text();
-    throw new Error(txt);
-  }
-  return method === 'GET' ? res.json() : res.status;
+    }
+  };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  const res = await fetch(SUPA_URL + '/rest/v1/' + path, opts);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ': ' + await res.text());
+  try { return await res.json(); } catch(e) { return null; }
 }
 
 async function runSeed() {
   const btn = document.getElementById('btn');
   btn.disabled = true;
-  btn.textContent = 'Uploading...';
+  btn.textContent = 'Working...';
   document.getElementById('logBox').style.display = 'block';
   document.getElementById('progressWrap').style.display = 'block';
 
   try {
-    log('Checking existing pipeline records...');
-    const existing = await supaFetch('GET', 'dd_pipeline?select=id');
-    log('Found ' + existing.length + ' existing records.');
+    // Step 1: get existing IDs
+    log('Fetching existing pipeline records...');
+    const existing = await api('GET', 'dd_pipeline?select=id&limit=1000');
+    log('Found ' + (existing ? existing.length : 0) + ' existing records.');
 
-    if (existing.length > 0) {
-      log('Deleting existing records...');
-      await supaFetch('DELETE', 'dd_pipeline?id=gte.0');
-      log('Cleared ' + existing.length + ' existing records.');
+    // Step 2: delete each by id (handles both int and uuid)
+    if (existing && existing.length > 0) {
+      log('Deleting existing records one by one...');
+      for (const row of existing) {
+        await api('DELETE', 'dd_pipeline?id=eq.' + row.id);
+      }
+      log('Cleared ' + existing.length + ' records.');
     }
 
+    // Step 3: insert in batches of 20
     const total = RECORDS.length;
-    const batchSize = 20;
     let uploaded = 0;
-
-    for (let i = 0; i < total; i += batchSize) {
-      const batch = RECORDS.slice(i, i + batchSize);
-      await supaFetch('POST', 'dd_pipeline', batch);
+    log('Inserting ' + total + ' records...');
+    for (let i = 0; i < total; i += 20) {
+      const batch = RECORDS.slice(i, i + 20);
+      await api('POST', 'dd_pipeline', batch);
       uploaded += batch.length;
-      const pct = Math.round((uploaded / total) * 100);
-      document.getElementById('progressBar').style.width = pct + '%';
-      log('Uploaded ' + uploaded + ' / ' + total + ' records...');
+      document.getElementById('progressBar').style.width = Math.round(uploaded/total*100) + '%';
+      log('Uploaded ' + uploaded + ' / ' + total);
     }
 
-    log('✅ Done! ' + total + ' records uploaded successfully.', 'success');
-    log('P1 (Running Payroll): 35 companies — contact these first.', 'success');
-    log('P3 (No Payroll): 63 companies — property clients + new clients.', 'success');
-    log('You can now close this page and check the portal.', 'success');
-    btn.textContent = '✅ Upload Complete';
+    log('✅ All ' + total + ' records uploaded!', 'success');
+    log('P1 (Running Payroll): 35  |  P3 (No Payroll): 63', 'success');
+    log('Close this page and check the Revenue Tracker pipeline tab.', 'success');
+    btn.textContent = '✅ Done';
     btn.style.background = '#166534';
 
   } catch(e) {
     log('❌ Error: ' + e.message, 'error');
+    log('Check the browser console (F12) for more details.', 'error');
     btn.disabled = false;
-    btn.textContent = '▶ Retry Upload';
+    btn.textContent = '▶ Retry';
   }
 }
 </script>
