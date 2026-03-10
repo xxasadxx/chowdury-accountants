@@ -69,6 +69,18 @@
     --yellow-mid:   #FDE68A;
     --dc-bg:        #F9F9F9;
     --dc-color:     #252525;
+
+    /* ── Strategy page variables ── */
+    --deep:         #1E2A3B;
+    --body:         #334155;
+    --mid:          #1A56A0;
+    --mgrey:        #E2E8F0;
+    --lgrey:        #F8FAFC;
+    --gold:         #B07D2A;
+    --gold-lt:      #FEF9EC;
+    --green-lt:     #F0FDF4;
+    --blue-lt:      #EFF6FF;
+    --slate:        #64748B;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Inter',sans-serif;background:#F0F4F8;color:var(--body);font-size:14px;line-height:1.6;}
@@ -742,6 +754,198 @@
   .client-link:hover { color: var(--red) !important; text-decoration: underline !important; }
   /* ══════════════════════════════════════════════════════════════════ */
 
+</style>
+<style id="strategy-overrides">
+  /* ══ STRATEGY PAGE — DESIGN SYSTEM RESTORE ══════════════════════ */
+
+  /* Body & page */
+  body { font-family: 'Inter', var(--sans) !important; background: #EFF2F7 !important; color: var(--body) !important; }
+  .page-wrap { max-width: 1160px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  /* ── Cover block (dark panel) ── */
+  .cover { background: var(--deep) !important; border-radius: 6px !important; padding: 44px 44px 36px !important; border-left: 5px solid var(--gold) !important; }
+  .cover h1 { color: #FFFFFF !important; font-family: 'Playfair Display', Georgia, serif !important; font-size: 36px !important; font-weight: 900 !important; line-height: 1.15 !important; }
+  .cover-sub { color: #94A3B8 !important; font-size: 15px !important; }
+  .cover-meta { color: #64748B !important; border-top-color: rgba(255,255,255,0.1) !important; }
+  .cover-meta strong { color: #94A3B8 !important; }
+  .cover-badge { background: rgba(176,125,42,0.18) !important; color: var(--gold) !important; border-color: rgba(176,125,42,0.35) !important; }
+
+  /* ── KPI strip ── */
+  .kpi-strip { background: var(--mgrey) !important; border: 1px solid var(--mgrey) !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; border-radius: 6px !important; }
+  .kpi-card { background: #FFFFFF !important; border: none !important; border-top: none !important; }
+  .kpi-value { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .kpi-card.gold .kpi-value { color: var(--gold) !important; }
+  .kpi-card.green .kpi-value { color: var(--green) !important; }
+  .kpi-label { color: var(--slate) !important; }
+
+  /* ── Section cards ── */
+  .section-card { background: #FFFFFF !important; border-radius: 6px !important; border: 1px solid #DDE3ED !important; box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04) !important; margin-bottom: 24px !important; }
+
+  /* ── Section header (dark strip at top of each section card) ── */
+  .section-header { background: var(--deep) !important; padding: 16px 26px !important; border-bottom: 2px solid var(--gold) !important; margin-bottom: 0 !important; }
+  .section-title { color: #FFFFFF !important; font-family: 'Raleway', sans-serif !important; font-size: 15px !important; font-weight: 700 !important; letter-spacing: 0.01em !important; }
+  .section-num { background: var(--gold) !important; color: var(--deep) !important; font-weight: 800 !important; border-radius: 3px !important; }
+  .section-body { padding: 24px 26px !important; }
+
+  /* ── Tables in strategy ── */
+  .data-table th { background: var(--deep) !important; color: rgba(255,255,255,0.9) !important; font-size: 11.5px !important; padding: 10px 13px !important; letter-spacing: 0.04em !important; }
+  .data-table th.gold { background: var(--gold) !important; color: var(--deep) !important; }
+  .data-table td { color: var(--body) !important; border-bottom-color: var(--mgrey) !important; padding: 9px 13px !important; font-size: 13px !important; }
+  .data-table tr:nth-child(even) td { background: var(--lgrey) !important; }
+  .data-table tr:hover td { background: #FEF9EC !important; }
+  .data-table tr.total td { background: var(--gold-lt) !important; border-top-color: var(--gold) !important; }
+  .data-table .green { color: var(--green) !important; }
+  .data-table .gold-text { color: var(--gold) !important; }
+  .data-table .slate { color: var(--slate) !important; }
+
+  /* ── Metric cards ── */
+  .metric-card { background: var(--lgrey) !important; border-color: var(--mgrey) !important; }
+  .metric-card h5 { color: var(--slate) !important; }
+  .metric-card .val { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .metric-card .sub { color: var(--slate) !important; }
+  .metric-card.gold-card { background: var(--gold-lt) !important; border-color: var(--gold) !important; }
+  .metric-card.gold-card .val { color: var(--gold) !important; }
+  .metric-card.green-card { background: var(--green-lt) !important; border-color: #86EFAC !important; }
+  .metric-card.green-card .val { color: var(--green) !important; }
+  .metric-card.red-card { background: #FFF5F5 !important; border-color: #FCA5A5 !important; }
+  .metric-card.red-card .val { color: var(--red) !important; }
+
+  /* ── Callout boxes ── */
+  .callout { background: var(--gold-lt) !important; border-left-color: var(--gold) !important; color: #4A3200 !important; }
+
+  /* ── Findings grid ── */
+  .findings-grid { background: var(--mgrey) !important; }
+  .finding-col.positive { background: #F7FDF9 !important; }
+  .finding-col.risk { background: #FFFDF5 !important; }
+  .finding-col ul li { color: var(--body) !important; }
+
+  /* ── SWOT ── */
+  .swot-grid { background: var(--mgrey) !important; }
+  .swot-cell.s { background: #F7FDF9 !important; }
+  .swot-cell.w { background: #FFFDF5 !important; }
+  .swot-cell.o { background: var(--blue-lt) !important; }
+  .swot-cell.t { background: #FFFBF0 !important; }
+  .swot-cell ul li { color: var(--body) !important; }
+  .swot-cell.o h4 { color: var(--mid) !important; border-color: #BFDBFE !important; }
+
+  /* ── Org chart ── */
+  .org-md { background: var(--deep) !important; }
+  .org-md h4, .org-md p { color: #FFFFFF !important; }
+  .org-md p { color: #94A3B8 !important; }
+  .org-card.gold { background: var(--gold-lt) !important; }
+  .org-card.blue { background: var(--blue-lt) !important; }
+  .org-card.grey { background: var(--lgrey) !important; }
+  .org-card .name { color: var(--deep) !important; }
+  .org-card.gold .name { color: #7A4E00 !important; }
+  .org-card.blue .name { color: var(--mid) !important; }
+  .org-card ul li { color: var(--slate) !important; }
+
+  /* ── Valuation cards ── */
+  .val-card-header { background: var(--deep) !important; }
+  .val-card-header h5 { color: #94A3B8 !important; }
+  .val-card-body { background: var(--lgrey) !important; }
+  .val-range { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .val-multiple { color: var(--gold) !important; }
+  .val-note { color: var(--slate) !important; }
+  .val-card.featured .val-card-header { background: var(--gold) !important; }
+  .val-card.featured .val-card-header h5 { color: var(--deep) !important; }
+  .val-card.featured .val-card-body { background: var(--gold-lt) !important; }
+  .val-card.featured .val-range { color: var(--green) !important; }
+
+  /* ── Action plan ── */
+  .action-num { color: var(--gold) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .action-text strong { color: var(--deep) !important; }
+  .action-text small { color: var(--slate) !important; }
+  .action-owner { color: var(--slate) !important; }
+  .timing-now { color: var(--red) !important; }
+  .timing-soon { color: var(--gold) !important; }
+  .timing-mid { color: var(--mid) !important; }
+
+  /* ── Bridge ── */
+  .bridge-add { color: var(--green) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .bridge-cum { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .bridge-row.start .bridge-cum { color: var(--slate) !important; }
+  .bridge-row.final { background: var(--gold-lt) !important; }
+  .bridge-row.final .bridge-cum { color: var(--green) !important; }
+  .bridge-note { color: var(--slate) !important; }
+
+  /* ── Pyramid ── */
+  .pyramid-tier.t1 .pyramid-header { background: linear-gradient(135deg, var(--gold-lt), #FEF3C7) !important; }
+  .pyramid-tier.t1 .pyramid-badge { color: var(--gold) !important; }
+  .pyramid-tier.t2 .pyramid-header { background: var(--lgrey) !important; }
+  .pyramid-tier.t2 .pyramid-badge { color: var(--mid) !important; }
+  .pyramid-tier.t3 .pyramid-badge { color: var(--slate) !important; }
+  .pyramid-name { color: var(--deep) !important; }
+  .pyramid-clients { color: var(--slate) !important; }
+  .pyramid-rev { color: var(--green) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+
+  /* ── Tabs (strategy internal tabs) ── */
+  .tab-nav { background: var(--deep) !important; border-radius: 6px 6px 0 0 !important; }
+  .tab-btn { color: #94A3B8 !important; font-family: 'Inter', sans-serif !important; background: transparent !important; border-radius: 4px 4px 0 0 !important; }
+  .tab-btn.active { background: #FFFFFF !important; color: var(--deep) !important; }
+  .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1) !important; color: #FFFFFF !important; }
+  .tab-content.active { display: block !important; }
+  .tabbed-card { border-radius: 0 6px 6px 6px !important; }
+
+  /* ── Stage cards ── */
+  .stage-card h4 { color: var(--deep) !important; }
+  .stage-card p { color: var(--slate) !important; }
+  .stage-card.current { border-color: var(--green) !important; background: var(--green-lt) !important; }
+  .stage-card.next { border-color: var(--gold) !important; background: var(--gold-lt) !important; }
+  .stage-card .stage-rev { color: var(--gold) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+
+  /* ── Rule cards ── */
+  .rule-num { background: var(--deep) !important; color: var(--gold) !important; }
+  .rule-content h4 { color: var(--deep) !important; }
+  .rule-content p { color: var(--body) !important; }
+
+  /* ── LCV stages ── */
+  .lcv-stage-num { background: var(--deep) !important; color: var(--gold) !important; }
+  .lcv-rev { color: var(--green) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+
+  /* ── KPI scorecard ── */
+  .kpi-sc-body { background: #FFFFFF !important; }
+  .kpi-sc-current { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .kpi-sc-note { color: var(--slate) !important; }
+
+  /* ── Advantage cards ── */
+  .advantage-header { background: var(--deep) !important; }
+  .advantage-header h4 { color: #FFFFFF !important; }
+  .advantage-num { background: var(--gold) !important; color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .advantage-body { background: #FFFFFF !important; }
+
+  /* ── Addendum header ── */
+  .addendum-header { background: linear-gradient(135deg, var(--deep) 0%, #1E3A5F 100%) !important; border-left-color: var(--gold) !important; }
+  .addendum-header h2 { color: #FFFFFF !important; font-family: 'Playfair Display', Georgia, serif !important; }
+  .addendum-header p { color: #94A3B8 !important; }
+
+  /* ── Progress bars ── */
+  .progress-bar { background: var(--mgrey) !important; }
+  .progress-fill { background: linear-gradient(90deg, var(--gold), var(--green)) !important; }
+
+  /* ── Report footer ── */
+  .report-footer { background: var(--deep) !important; border-top-color: var(--gold) !important; }
+  .report-footer p { color: #64748B !important; }
+  .report-footer .conf { color: var(--gold) !important; }
+
+  /* ── Download bar ── */
+  .dl-bar { background: var(--deep) !important; border-top-color: var(--gold) !important; }
+  .dl-bar span { color: #94A3B8 !important; }
+
+  /* ── Body copy overrides for strategy context ── */
+  p, li { color: var(--body); line-height: 1.65; }
+  h1, h2, h3, h4, h5 { color: var(--deep) !important; }
+  .page-wrap h2 { font-family: 'Raleway', var(--display) !important; font-size: 1.1rem !important; color: var(--deep) !important; }
+
+  /* Flywheel */
+  .flywheel-node h5 { color: var(--deep) !important; }
+  .flywheel-node p { color: var(--body) !important; }
+
+  /* Tier badges */
+  .tier-gc { background: #D1FAE5 !important; color: #065F46 !important; }
+  .tier-so { background: #DBEAFE !important; color: #1E40AF !important; }
+
+  /* ══════════════════════════════════════════════════════════════════ */
 </style>
 <style id="portal-nav-css">
 #portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-family:'DM Sans','Mulish',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto;}
