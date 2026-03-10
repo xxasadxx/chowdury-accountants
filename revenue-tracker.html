@@ -331,6 +331,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
         <th class="sh" onclick="sortBy('dd','city')">City <span id="dd-sh_city"></span></th>
         <th class="sh" onclick="sortBy('dd','date')">Charge Date <span id="dd-sh_date">▲</span></th>
         <th class="sh" onclick="sortBy('dd','fee')">Fee <span id="dd-sh_fee"></span></th>
+        <th>Email</th>
         <th>Status</th>
         <th>Actions</th>
       </tr></thead>
@@ -377,6 +378,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
         <th class="sh" onclick="sortBy('so','city')">City <span id="so-sh_city"></span></th>
         <th class="sh" onclick="sortBy('so','date')">Payment Day <span id="so-sh_date">▲</span></th>
         <th class="sh" onclick="sortBy('so','fee')">Fee <span id="so-sh_fee"></span></th>
+        <th>Email</th>
         <th>Status</th>
         <th>Actions</th>
       </tr></thead>
@@ -433,6 +435,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
         <th class="sh" onclick="sortBy('combined','city')">City <span id="combined-sh_city"></span></th>
         <th class="sh" onclick="sortBy('combined','date')">Payment Day <span id="combined-sh_date">▲</span></th>
         <th class="sh" onclick="sortBy('combined','fee')">Fee <span id="combined-sh_fee"></span></th>
+        <th>Email</th>
         <th>Status</th>
       </tr></thead>
       <tbody id="c-tbody"></tbody>
@@ -607,6 +610,9 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <div class="form-row">
       <div class="form-group"><label>Payment Day</label><select class="finput" id="fDate"></select></div>
       <div class="form-group"><label>Client Since</label><input class="finput" id="fSince" placeholder="e.g. Mar 2026"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group full"><label>Email</label><input class="finput" id="fEmail" type="email" placeholder="e.g. client@email.com"></div>
     </div>
     <div class="form-row">
       <div class="form-group"><label>Status</label>
@@ -1095,6 +1101,7 @@ function renderTable(type){
       +'<td><span class="dbadge '+(DC_CLS[c.charge_date]||'d1')+'">'+c.charge_date+'</span></td>'
       +'<td><div class="fee-wrap"><div class="fee-bar-track"><div class="fee-bar-fill" style="width:'+(c.fee/mF*100)+'%"></div></div>'
       +'<span class="fee-num '+feeClass+'">£'+c.fee+(c.charge_date==='Weekly'?'/wk':'/mo')+'</span></div></td>'
+      +'<td style="color:var(--muted);font-size:0.72rem;max-width:150px;overflow:hidden;text-overflow:ellipsis" title="'+(c.email||'')+'">'+(c.email?'<a href="mailto:'+c.email+'" style="color:var(--blue);text-decoration:none;font-size:0.72rem">'+c.email+'</a>':'<span style="opacity:0.35">—</span>')+'</td>'
       +'<td><span class="sbadge '+(isInact?'inactive':'active')+'">'+(isInact?'inactive':'active')+'</span></td>'
       +'<td><div class="action-btns">'
       +'<button class="btn-edit" onclick="openEdit(\''+type+'\','+c.id+')">Edit</button>'
@@ -1109,7 +1116,7 @@ function openAdd(type){
   document.getElementById('modalTitle').textContent='Add '+(type==='dd'?'Direct Debit':'Standing Order')+' Client';
   document.getElementById('fName').value='';document.getElementById('fCity').value='';
   document.getElementById('fFee').value='';document.getElementById('fSince').value='Mar 2026';
-  document.getElementById('fStatus').value='active';
+  document.getElementById('fStatus').value='active';document.getElementById('fEmail').value='';
   const dates=type==='dd'?DD_DATES:SO_DATES;
   document.getElementById('fDate').innerHTML=dates.map(d=>'<option value="'+d+'">'+d+'</option>').join('');
   document.getElementById('fDate').value='15th';
@@ -1124,6 +1131,7 @@ function openEdit(type,id){
   document.getElementById('fName').value=c.company_name;document.getElementById('fCity').value=c.city||'';
   document.getElementById('fFee').value=c.fee;document.getElementById('fSince').value=c.client_since||'';
   document.getElementById('fStatus').value=c.status||'active';
+  document.getElementById('fEmail').value=c.email||'';
   const dates=type==='dd'?DD_DATES:SO_DATES;
   document.getElementById('fDate').innerHTML=dates.map(d=>'<option value="'+d+'">'+d+'</option>').join('');
   document.getElementById('fDate').value=c.charge_date;
@@ -1138,7 +1146,7 @@ async function saveClient(){
   if(!name){alert('Please enter a company name.');return;}if(!fee||fee<=0){alert('Please enter a valid fee.');return;}
   const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='Saving...';
   const table=editingType==='dd'?'Gocardless tracker':'standing_orders';
-  const p={company_name:name,city:city||'',fee:fee,charge_date:date,client_since:since||'',status:status};
+  const p={company_name:name,city:city||'',fee:fee,charge_date:date,client_since:since||'',status:status,email:document.getElementById('fEmail').value.trim()};
   try{
     if(editingId){
       await api(table,'?id=eq.'+editingId,{method:'PATCH',body:JSON.stringify(p)});
@@ -1817,29 +1825,17 @@ async function bulkMarkFirstMarchPaid(){
 
 // ── Excel / PDF exports (enhanced) ──
 function getRevData(type){
-  if(type==='dd') return DD||[];
-  if(type==='so') return SO||[];
-  if(type==='combined') return [...(DD||[]),...(SO||[])];
-  if(type==='failed') return FP||[];
-  if(type==='pipeline') return PIPELINE||[];
+  if(type==='dd') return ddData;
+  if(type==='so') return soData;
+  if(type==='combined') return [...(ddData||[]),...(soData||[])];
+  if(type==='failed') return failedData||[];
+  if(type==='pipeline') return pipelineData||[];
   return [];
 }
 function exportExcel(type){
   const data = getRevData(type);
   if(!data||!data.length){alert('No data to export');return;}
-  const isCombined = type==='combined';
-  const rows = data.map((r,i)=>({
-    '#':i+1,
-    'Client Name': r.company_name||r.client_name||r.name||'',
-    'City': r.city||'',
-    'Monthly (£)': r.fee||r.amount||0,
-    'Annual (£)': (r.fee||r.amount||0)*12,
-    'Payment Date': r.charge_date||'',
-    ...(isCombined?{'Type':r._type||'GC'}:{}),
-    'Status': r.status||'active',
-    'Email': r.email||'',
-    'Client Since': r.client_since||''
-  }));
+  const rows = data.map((r,i)=>({'#':i+1,'Client Name':r.client_name||r.name||'','Monthly (£)':r.monthly_amount||r.amount||0,'Method':r.method||type.toUpperCase(),'Status':r.status||'Active','Email':r.email||'','Notes':r.notes||''}));
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.json_to_sheet(rows);
   ws['!cols']=[{wch:4},{wch:40},{wch:14},{wch:10},{wch:10},{wch:30},{wch:25}];
@@ -1856,12 +1852,12 @@ function exportRevPDF(type){
   doc.setFontSize(13);doc.setFont('helvetica','bold');
   doc.text(`The Chowdury Accountants — Revenue: ${label}`,14,16);
   doc.setFontSize(9);doc.setFont('helvetica','normal');
-  const total = data.reduce((s,r)=>s+(parseFloat(r.fee||r.amount)||0),0);
+  const total = data.reduce((s,r)=>s+(parseFloat(r.monthly_amount||r.amount)||0),0);
   doc.text(`${data.length} clients · Total: £${total.toLocaleString('en-GB',{minimumFractionDigits:2})} · Generated ${new Date().toLocaleDateString('en-GB')}`,14,22);
   doc.autoTable({
     startY:26,
-    head:[['#','Client Name','Monthly (£)','City','Payment Date','Status']],
-    body:data.map((r,i)=>[i+1,r.company_name||r.client_name||r.name||'',parseFloat(r.fee||r.amount||0).toFixed(2),r.city||'',r.charge_date||'',r.status||'active']),
+    head:[['#','Client Name','Monthly (£)','Method','Status']],
+    body:data.map((r,i)=>[i+1,r.client_name||r.name||'',parseFloat(r.monthly_amount||r.amount||0).toFixed(2),r.method||type.toUpperCase(),r.status||'Active']),
     styles:{fontSize:8,cellPadding:2},
     headStyles:{fillColor:[30,36,51],textColor:255,fontStyle:'bold'},
     alternateRowStyles:{fillColor:[248,249,252]},

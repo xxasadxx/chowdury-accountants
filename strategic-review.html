@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategic & Financial Review — Chowdury Accountants</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
+  :root {
+    --deep:#0C1D3B; --mid:#1A3A6E; --gold:#C4922A; --gold-lt:#FDF8EE;
+    --slate:#4A5568; --body:#1A202C; --lgrey:#F7F9FC; --mgrey:#E2E8EF;
+    --white:#FFFFFF; --green:#166534; --green-lt:#F0FDF4;
+    --red:#991B1B; --blue-lt:#EFF6FF; --radius:4px;
+    --shadow:0 2px 8px rgba(12,29,59,0.10); --shadow-lg:0 8px 32px rgba(12,29,59,0.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Inter',sans-serif;background:#F0F4F8;color:var(--body);font-size:14px;line-height:1.6;}
+
+  /* NAV */
+  .nav{background:var(--deep);padding:0 24px;display:flex;align-items:center;height:52px;gap:4px;
+    border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100;flex-wrap:wrap;}
+  .nav a{color:#94A3B8;text-decoration:none;font-size:12px;font-weight:500;padding:6px 10px;
+    border-radius:var(--radius);transition:all 0.15s;white-space:nowrap;}
+  .nav a:hover{color:white;background:rgba(255,255,255,0.08);}
+  .nav a.active{color:var(--gold);background:rgba(196,146,42,0.12);}
+
+  /* LAYOUT */
+  .page-wrap{max-width:1200px;margin:0 auto;padding:32px 24px 80px;}
+
+  /* COVER */
+  .cover{background:var(--deep);border-radius:6px;padding:48px 48px 40px;margin-bottom:32px;
+    position:relative;overflow:hidden;border-left:5px solid var(--gold);}
+  .cover::before{content:'';position:absolute;top:0;right:0;bottom:0;width:35%;
+    background:linear-gradient(135deg,transparent 0%,rgba(196,146,42,0.06) 100%);pointer-events:none;}
+  .cover-badge{display:inline-block;background:rgba(196,146,42,0.15);color:var(--gold);font-size:11px;
+    font-weight:600;letter-spacing:0.12em;text-transform:uppercase;padding:4px 12px;border-radius:2px;
+    margin-bottom:20px;border:1px solid rgba(196,146,42,0.3);}
+  .cover h1{font-family:'Playfair Display',Georgia,serif;font-size:38px;font-weight:900;
+    color:var(--white);line-height:1.1;margin-bottom:8px;}
+  .cover-sub{font-size:15px;color:#94A3B8;margin-bottom:4px;}
+  .cover-meta{font-size:13px;color:#64748B;margin-top:20px;padding-top:20px;
+    border-top:1px solid rgba(255,255,255,0.1);display:flex;gap:32px;flex-wrap:wrap;}
+  .cover-meta strong{color:#94A3B8;font-weight:500;}
+
+  /* KPI STRIP */
+  .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--mgrey);
+    border-radius:6px;overflow:hidden;margin-bottom:32px;box-shadow:var(--shadow);}
+  .kpi-card{background:var(--white);padding:20px 16px;text-align:center;}
+  .kpi-value{font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;
+    color:var(--deep);line-height:1;margin-bottom:6px;}
+  .kpi-label{font-size:11px;color:var(--slate);font-weight:500;text-transform:uppercase;letter-spacing:0.06em;}
+  .kpi-card.gold .kpi-value{color:var(--gold);}
+  .kpi-card.green .kpi-value{color:var(--green);}
+
+  /* SECTION CARDS */
+  .section-card{background:var(--white);border-radius:6px;margin-bottom:28px;box-shadow:var(--shadow);overflow:hidden;}
+  .section-header{background:var(--deep);padding:18px 28px;display:flex;align-items:center;gap:12px;
+    border-bottom:2px solid var(--gold);}
+  .section-num{background:var(--gold);color:var(--deep);font-size:12px;font-weight:700;
+    width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .section-title{font-size:16px;font-weight:600;color:var(--white);letter-spacing:0.01em;}
+  .section-body{padding:28px;}
+
+  /* CALLOUT */
+  .callout{border-left:4px solid var(--gold);background:var(--gold-lt);padding:16px 20px;margin:20px 0;
+    border-radius:0 4px 4px 0;font-size:14px;font-style:italic;color:var(--deep);font-weight:500;line-height:1.6;}
+
+  /* TWO-COL GRID */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0;}
+
+  /* FINDINGS */
+  .findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--mgrey);
+    border-radius:4px;overflow:hidden;margin:20px 0;}
+  .finding-col{background:var(--white);padding:20px;}
+  .finding-col.positive{background:#FAFDF6;}
+  .finding-col.risk{background:#FDF9F7;}
+  .finding-col h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+    margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid;}
+  .finding-col.positive h4{color:var(--green);border-color:#BBF7D0;}
+  .finding-col.risk h4{color:var(--gold);border-color:#FDE68A;}
+  .finding-col ul{list-style:none;}
+  .finding-col ul li{font-size:13px;color:var(--body);padding:6px 0 6px 18px;position:relative;
+    border-bottom:1px solid rgba(0,0,0,0.04);line-height:1.5;}
+  .finding-col ul li:last-child{border-bottom:none;}
+  .finding-col.positive ul li::before{content:'✓';position:absolute;left:0;color:var(--green);font-weight:700;font-size:12px;}
+  .finding-col.risk ul li::before{content:'!';position:absolute;left:0;color:var(--gold);font-weight:700;font-size:12px;}
+
+  /* TABLES */
+  .data-table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0;}
+  .data-table th{background:var(--deep);color:var(--white);font-weight:600;font-size:12px;
+    padding:10px 12px;text-align:left;letter-spacing:0.02em;}
+  .data-table th.gold{background:var(--gold);color:var(--deep);}
+  .data-table td{padding:9px 12px;border-bottom:1px solid var(--mgrey);vertical-align:top;}
+  .data-table tr:nth-child(even) td{background:var(--lgrey);}
+  .data-table tr:last-child td{border-bottom:none;}
+  .data-table tr.total td{background:var(--gold-lt);font-weight:600;border-top:2px solid var(--gold);}
+  .data-table tr.highlight td{background:#EFF6FF;}
+  .data-table .num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+  .data-table .center{text-align:center;}
+  .data-table .green{color:var(--green);font-weight:600;}
+  .data-table .gold-text{color:var(--gold);font-weight:600;}
+  .data-table .slate{color:var(--slate);font-style:italic;font-size:12px;}
+  .data-table .bold{font-weight:600;}
+
+  /* METRIC GRIDS */
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;}
+  .metric-card{border:1px solid var(--mgrey);border-radius:4px;padding:16px;background:var(--lgrey);}
+  .metric-card h5{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--slate);font-weight:600;margin-bottom:6px;}
+  .metric-card .val{font-family:'Playfair Display',Georgia,serif;font-size:24px;font-weight:700;color:var(--deep);line-height:1;margin-bottom:4px;}
+  .metric-card .sub{font-size:12px;color:var(--slate);}
+  .metric-card.gold-card{border-color:var(--gold);background:var(--gold-lt);}
+  .metric-card.gold-card .val{color:var(--gold);}
+  .metric-card.green-card{border-color:#86EFAC;background:var(--green-lt);}
+  .metric-card.green-card .val{color:var(--green);}
+  .metric-card.red-card{border-color:#FCA5A5;background:#FFF5F5;}
+  .metric-card.red-card .val{color:var(--red);}
+
+  /* SWOT */
+  .swot-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--mgrey);border-radius:4px;overflow:hidden;}
+  .swot-cell{padding:20px;}
+  .swot-cell.s{background:#FAFDF6;} .swot-cell.w{background:#FDF9F7;}
+  .swot-cell.o{background:var(--blue-lt);} .swot-cell.t{background:#FFFBF0;}
+  .swot-cell h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
+    margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid;}
+  .swot-cell.s h4{color:var(--green);border-color:#86EFAC;}
+  .swot-cell.w h4{color:#92400E;border-color:#FDE68A;}
+  .swot-cell.o h4{color:var(--mid);border-color:#BFDBFE;}
+  .swot-cell.t h4{color:#78350F;border-color:#FCD34D;}
+  .swot-cell ul{list-style:none;}
+  .swot-cell ul li{font-size:13px;padding:4px 0 4px 16px;position:relative;color:var(--body);line-height:1.5;}
+  .swot-cell ul li::before{content:'›';position:absolute;left:2px;color:var(--slate);font-weight:700;}
+
+  /* ORG CHART */
+  .org-wrap{margin:20px 0;}
+  .org-md{background:var(--deep);color:var(--white);border-radius:4px;padding:16px 24px;text-align:center;
+    border-bottom:3px solid var(--gold);margin-bottom:2px;}
+  .org-md h4{font-size:14px;font-weight:600;color:var(--white);}
+  .org-md p{font-size:12px;color:#94A3B8;margin-top:4px;}
+  .org-connector{display:flex;justify-content:center;height:24px;position:relative;}
+  .org-connector::before{content:'';position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--mgrey);}
+  .org-connector::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--mgrey);}
+  .org-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .org-card{border-radius:4px;padding:14px 18px;border-top:3px solid;}
+  .org-card.gold{border-color:var(--gold);background:var(--gold-lt);}
+  .org-card.blue{border-color:var(--mid);background:var(--blue-lt);}
+  .org-card.grey{border-color:var(--mgrey);background:var(--lgrey);}
+  .org-card.dashed{border-style:dashed;border-color:var(--mid);background:var(--white);}
+  .org-card h5{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);margin-bottom:4px;}
+  .org-card .name{font-size:15px;font-weight:600;color:var(--deep);margin-bottom:8px;}
+  .org-card.gold .name{color:#92400E;}
+  .org-card.blue .name{color:var(--mid);}
+  .org-card ul{list-style:none;}
+  .org-card ul li{font-size:12px;color:var(--slate);padding:2px 0 2px 14px;position:relative;}
+  .org-card ul li::before{content:'·';position:absolute;left:2px;font-weight:700;}
+
+  /* VALUATION */
+  .val-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0;}
+  .val-card{border:1px solid var(--mgrey);border-radius:4px;overflow:hidden;}
+  .val-card-header{background:var(--deep);padding:10px 14px;}
+  .val-card-header h5{font-size:12px;font-weight:600;color:#94A3B8;}
+  .val-card-body{padding:14px;background:var(--lgrey);}
+  .val-range{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;color:var(--deep);margin-bottom:4px;}
+  .val-multiple{font-size:12px;color:var(--gold);font-weight:600;}
+  .val-note{font-size:12px;color:var(--slate);margin-top:8px;line-height:1.4;}
+  .val-card.featured .val-card-header{background:var(--gold);}
+  .val-card.featured .val-card-header h5{color:var(--deep);}
+  .val-card.featured .val-card-body{background:var(--gold-lt);}
+  .val-card.featured .val-range{color:var(--green);}
+
+  /* ACTION PLAN */
+  .action-item{display:grid;grid-template-columns:40px 1fr 100px 110px;gap:0;
+    border-bottom:1px solid var(--mgrey);align-items:center;}
+  .action-item:last-child{border-bottom:none;}
+  .action-num{font-size:18px;font-weight:700;color:var(--gold);padding:14px 0 14px 4px;
+    font-family:'Playfair Display',Georgia,serif;}
+  .action-text{padding:14px 16px;font-size:13px;line-height:1.5;}
+  .action-text strong{font-weight:600;color:var(--deep);}
+  .action-text small{display:block;font-size:12px;color:var(--slate);margin-top:3px;}
+  .action-owner{font-size:12px;color:var(--slate);padding:14px 8px;border-left:1px solid var(--mgrey);text-align:center;}
+  .action-timing{font-size:12px;font-weight:600;padding:14px 12px;border-left:1px solid var(--mgrey);text-align:center;}
+  .timing-now{color:var(--red);} .timing-soon{color:var(--gold);} .timing-mid{color:var(--mid);}
+
+  /* BRIDGE */
+  .bridge-row{display:grid;grid-template-columns:180px 120px 1fr;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--mgrey);gap:16px;font-size:13px;}
+  .bridge-row:last-child{border-bottom:none;font-weight:600;}
+  .bridge-add{font-weight:600;color:var(--green);font-family:'Playfair Display',Georgia,serif;font-size:15px;}
+  .bridge-cum{font-family:'Playfair Display',Georgia,serif;font-size:16px;font-weight:700;color:var(--deep);}
+  .bridge-row.start .bridge-cum{color:var(--slate);}
+  .bridge-row.final{background:var(--gold-lt);padding:14px 12px;border-radius:4px;margin-top:4px;}
+  .bridge-row.final .bridge-cum{color:var(--green);font-size:22px;}
+  .bridge-note{font-size:12px;color:var(--slate);}
+
+  /* TIER BADGES */
+  .tier-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:2px;}
+  .tier-gc{background:#D1FAE5;color:#065F46;} .tier-so{background:#DBEAFE;color:#1E40AF;}
+
+  /* ADDENDUM */
+  .addendum-header{background:linear-gradient(135deg,var(--deep) 0%,#1E3A5F 100%);border-radius:6px;
+    padding:40px 48px;margin-bottom:28px;border-left:5px solid var(--gold);position:relative;overflow:hidden;}
+  .addendum-header::after{content:'£1M';position:absolute;right:40px;top:50%;transform:translateY(-50%);
+    font-family:'Playfair Display',Georgia,serif;font-size:120px;font-weight:900;
+    color:rgba(196,146,42,0.08);pointer-events:none;line-height:1;}
+  .addendum-header h2{font-family:'Playfair Display',Georgia,serif;font-size:28px;font-weight:900;color:var(--white);margin-bottom:8px;}
+  .addendum-header p{font-size:14px;color:#94A3B8;}
+
+  /* ADVANTAGE CARDS */
+  .advantage-card{border:1px solid var(--mgrey);border-radius:6px;overflow:hidden;margin-bottom:20px;}
+  .advantage-header{background:var(--deep);padding:14px 20px;display:flex;align-items:center;gap:14px;}
+  .advantage-num{background:var(--gold);color:var(--deep);font-size:16px;font-weight:700;
+    width:34px;height:34px;border-radius:2px;display:flex;align-items:center;justify-content:center;
+    font-family:'Playfair Display',Georgia,serif;flex-shrink:0;}
+  .advantage-header h4{font-size:15px;font-weight:600;color:var(--white);}
+  .advantage-body{padding:20px;background:var(--white);}
+
+  /* TABS */
+  .tab-nav{display:flex;gap:2px;margin-bottom:0;background:var(--deep);padding:8px 12px 0;
+    border-radius:6px 6px 0 0;flex-wrap:wrap;}
+  .tab-btn{padding:8px 14px;border:none;cursor:pointer;font-size:12px;font-weight:600;
+    border-radius:4px 4px 0 0;background:transparent;color:#94A3B8;transition:all 0.15s;
+    font-family:'Inter',sans-serif;letter-spacing:0.02em;white-space:nowrap;}
+  .tab-btn.active{background:var(--white);color:var(--deep);}
+  .tab-btn:hover:not(.active){background:rgba(255,255,255,0.1);color:white;}
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+  .tabbed-card{border-radius:0 6px 6px 6px;}
+  .progress-bar{height:6px;background:var(--mgrey);border-radius:3px;overflow:hidden;margin:4px 0 8px;}
+  .progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--green));}
+
+  /* PYRAMID */
+  .pyramid-wrap{margin:20px 0;}
+  .pyramid-tier{margin-bottom:4px;border-radius:4px;overflow:hidden;border:1px solid var(--mgrey);}
+  .pyramid-header{display:grid;grid-template-columns:120px 1fr 120px 120px;align-items:center;padding:14px 20px;gap:16px;}
+  .pyramid-badge{font-size:20px;font-weight:900;font-family:'Playfair Display',Georgia,serif;}
+  .pyramid-tier.t1 .pyramid-header{background:linear-gradient(135deg,var(--gold-lt),#FEF3C7);}
+  .pyramid-tier.t1 .pyramid-badge{color:var(--gold);}
+  .pyramid-tier.t2 .pyramid-header{background:var(--lgrey);}
+  .pyramid-tier.t2 .pyramid-badge{color:var(--mid);}
+  .pyramid-tier.t3 .pyramid-header{background:#FAFAFA;}
+  .pyramid-tier.t3 .pyramid-badge{color:var(--slate);}
+  .pyramid-name{font-weight:600;font-size:14px;}
+  .pyramid-clients{font-size:13px;color:var(--slate);text-align:center;}
+  .pyramid-rev{font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:700;color:var(--green);text-align:right;}
+  .pyramid-body{padding:0 20px 16px;}
+  .pyramid-body table{width:100%;}
+
+  /* FLYWHEEL */
+  .flywheel-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;}
+  .flywheel-node{border-radius:6px;padding:16px;text-align:center;position:relative;}
+  .flywheel-node::after{content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+    font-size:18px;color:var(--gold);font-weight:700;z-index:1;}
+  .flywheel-node:last-child::after{content:'↩';right:-10px;}
+  .flywheel-node:nth-child(4n)::after{content:'↓';}
+  .flywheel-node:nth-child(5)::after{content:'←';}
+  .flywheel-node:nth-child(6)::after{content:'←';}
+  .flywheel-node:nth-child(7)::after{content:'←';}
+  .flywheel-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:700;margin:0 auto 8px;color:white;}
+  .flywheel-node h5{font-size:13px;font-weight:600;margin-bottom:6px;}
+  .flywheel-node p{font-size:12px;line-height:1.5;}
+  .fn-1{background:var(--gold-lt);} .fn-1 .flywheel-num{background:var(--gold);}
+  .fn-2{background:var(--green-lt);} .fn-2 .flywheel-num{background:var(--green);}
+  .fn-3{background:var(--blue-lt);} .fn-3 .flywheel-num{background:var(--mid);}
+  .fn-4{background:#FDF2F8;} .fn-4 .flywheel-num{background:#9333EA;}
+  .fn-5{background:#FFF7ED;} .fn-5 .flywheel-num{background:#EA580C;}
+  .fn-6{background:#EFF6FF;} .fn-6 .flywheel-num{background:var(--mid);}
+  .fn-7{background:var(--lgrey);} .fn-7 .flywheel-num{background:var(--slate);}
+  .fn-8{background:#FEF2F2;} .fn-8 .flywheel-num{background:var(--red);}
+
+  /* LCV */
+  .lcv-stage{display:grid;grid-template-columns:80px 1fr 160px;align-items:center;
+    padding:12px 0;border-bottom:1px solid var(--mgrey);gap:16px;}
+  .lcv-stage:last-child{border-bottom:none;}
+  .lcv-stage-num{width:40px;height:40px;border-radius:50%;background:var(--deep);color:var(--gold);
+    display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;
+    font-family:'Playfair Display',Georgia,serif;flex-shrink:0;}
+  .lcv-rev{font-family:'Playfair Display',Georgia,serif;font-size:20px;font-weight:700;color:var(--green);text-align:right;}
+
+  /* KPI SCORECARD */
+  .kpi-scorecard{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:20px 0;}
+  .kpi-sc-card{border-radius:6px;overflow:hidden;border:1px solid var(--mgrey);}
+  .kpi-sc-header{padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;}
+  .kpi-sc-body{padding:14px 12px;}
+  .kpi-sc-current{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:700;margin-bottom:2px;}
+  .kpi-sc-target{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;}
+  .kpi-sc-note{font-size:11px;color:var(--slate);margin-top:6px;line-height:1.4;}
+  .kpi-sc-bar{height:4px;border-radius:2px;background:var(--mgrey);margin-top:8px;overflow:hidden;}
+  .kpi-sc-fill{height:100%;border-radius:2px;}
+
+  /* SCALING RULES */
+  .rule-card{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--mgrey);align-items:start;}
+  .rule-card:last-child{border-bottom:none;}
+  .rule-num{width:40px;height:40px;background:var(--deep);color:var(--gold);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;
+    font-family:'Playfair Display',Georgia,serif;flex-shrink:0;}
+  .rule-content h4{font-size:14px;font-weight:600;color:var(--deep);margin-bottom:6px;}
+  .rule-content p{font-size:13px;color:var(--slate);line-height:1.6;}
+
+  /* GROWTH STAGES */
+  .stage-card{border-left:4px solid var(--gold);background:var(--white);padding:20px 24px;
+    border-radius:0 6px 6px 0;margin-bottom:16px;box-shadow:var(--shadow);}
+  .stage-card.current{border-color:var(--green);background:var(--green-lt);}
+  .stage-card.next{border-color:var(--gold);background:var(--gold-lt);}
+  .stage-card h4{font-size:15px;font-weight:700;color:var(--deep);margin-bottom:4px;}
+  .stage-card .stage-rev{font-family:'Playfair Display',Georgia,serif;font-size:20px;
+    font-weight:700;color:var(--gold);float:right;}
+  .stage-card p{font-size:13px;color:var(--slate);margin-top:8px;line-height:1.6;}
+
+  /* FOOTER */
+  .report-footer{background:var(--deep);border-radius:6px;padding:24px 28px;
+    display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--gold);
+    margin-top:32px;flex-wrap:wrap;gap:12px;}
+  .report-footer p{font-size:12px;color:#64748B;}
+  .report-footer .conf{font-size:11px;color:var(--gold);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;}
+
+  @media(max-width:768px){
+    .kpi-strip,.kpi-scorecard{grid-template-columns:repeat(3,1fr);}
+    .findings-grid,.swot-grid,.org-row,.val-grid,.metric-grid,.two-col,.flywheel-wrap{grid-template-columns:1fr;}
+    .action-item{grid-template-columns:36px 1fr;}
+    .action-owner,.action-timing{display:none;}
+    .bridge-row{grid-template-columns:1fr 100px;}
+    .bridge-note{display:none;}
+    .cover{padding:28px;}
+    .cover h1{font-size:26px;}
+    .pyramid-header{grid-template-columns:60px 1fr 80px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="index.html">🏠 Portal</a>
+  <a href="revenue-tracker.html">💰 Revenue</a>
+  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+  <a href="ch-tracker.html">⚖️ CH Tracker</a>
+  <a href="staff-management.html">👥 Staff</a>
+  <a href="quote-calculator.html">💡 Quote</a>
+  <a href="sa-tracker.html">📋 SA</a>
+  <a href="paye-tracker.html">💼 PAYE</a>
+  <a href="vat-tracker.html">🟢 VAT</a>
+  <a href="strategic-review.html" class="active">📊 Strategy</a>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-badge">Strictly Confidential — Board-Level Internal Document</div>
+    <h1>Strategic &amp; Financial Review</h1>
+    <p class="cover-sub">Financial Analysis · Performance Benchmarking · Growth Strategy · Practice Valuation · Vision to £1,000,000</p>
+    <p class="cover-sub" style="color:#64748B;font-size:13px;margin-top:4px;">The Chowdury Accountants Ltd · AAT Licensed · Oldham, Greater Manchester</p>
+    <div class="cover-meta">
+      <span><strong>Prepared by:</strong> Md Asadul Chowdury, Managing Director</span>
+      <span><strong>Date:</strong> March 2026</span>
+      <span><strong>Reg:</strong> 09441520</span>
+      <span><strong>Version:</strong> v11 FINAL</span>
+    </div>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="kpi-card"><div class="kpi-value">~600</div><div class="kpi-label">Active clients</div></div>
+    <div class="kpi-card gold"><div class="kpi-value">£314k</div><div class="kpi-label">Annual revenue</div></div>
+    <div class="kpi-card"><div class="kpi-value">£19,579</div><div class="kpi-label">Monthly recurring</div></div>
+    <div class="kpi-card green"><div class="kpi-value">33.9%</div><div class="kpi-label">Net margin</div></div>
+    <div class="kpi-card"><div class="kpi-value">74.7%</div><div class="kpi-label">Recurring ratio</div></div>
+    <div class="kpi-card gold"><div class="kpi-value">£523</div><div class="kpi-label">Revenue / client</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('exec',this)">📋 Executive Summary</button>
+    <button class="tab-btn" onclick="showTab('financials',this)">💷 Financials</button>
+    <button class="tab-btn" onclick="showTab('revenue',this)">📈 Recurring Revenue</button>
+    <button class="tab-btn" onclick="showTab('strategy',this)">⚖️ Strategy &amp; Valuation</button>
+    <button class="tab-btn" onclick="showTab('operations',this)">👥 Structure &amp; Plan</button>
+    <button class="tab-btn" onclick="showTab('kpis',this)">🎯 5 KPIs</button>
+    <button class="tab-btn" onclick="showTab('lcv',this)">💰 Lifetime Value</button>
+    <button class="tab-btn" onclick="showTab('pyramid',this)">🔺 Client Pyramid</button>
+    <button class="tab-btn" onclick="showTab('flywheel',this)">♻️ Flywheel</button>
+    <button class="tab-btn" onclick="showTab('vision',this)">🚀 Vision to £1M</button>
+    <button class="tab-btn" onclick="showTab('acceleration',this)">📅 12-Month Plan</button>
+    <button class="tab-btn" onclick="showTab('routine',this)">🕐 Weekly Routine</button>
+    <button class="tab-btn" onclick="showTab('appendix',this)">📎 Appendix</button>
+  </div>
+
+  <!-- ═══════════ EXEC SUMMARY ═══════════ -->
+  <div id="tab-exec" class="tab-content active">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">ES</div><div class="section-title">Executive Summary</div></div>
+      <div class="section-body">
+        <div class="callout">"a strong niche practice with excellent client loyalty and unusually high recurring revenue, but still materially under-monetised."</div>
+        <p style="font-size:14px;line-height:1.7;margin-bottom:16px;">The Chowdury Accountants Ltd has built a real practice asset: 600 active clients, £314,000 restated annual revenue, and £19,579/month of recurring income. The client base is durable, referral-led, and rooted in trust within the South Asian business community — especially hospitality across Greater Manchester.</p>
+        <p style="font-size:14px;line-height:1.7;margin-bottom:16px;"><strong>The core commercial problem is not weak demand, retention, or systems. It is pricing discipline.</strong> On the current base alone, correcting fees adds approximately £109,340/year with no new client acquisition required.</p>
+        <div class="findings-grid">
+          <div class="finding-col positive">
+            <h4>Five Strongest Findings</h4>
+            <ul>
+              <li>Recurring revenue of £19,579/month is top-quartile for a practice of this size.</li>
+              <li>Client retention is unusually strong; growth has been almost entirely referral-driven.</li>
+              <li>Defendable niche in hospitality and South Asian owner-managed businesses.</li>
+              <li>Net margin of 33.9% (before MD remuneration) confirms viability before any fee correction.</li>
+              <li>Infrastructure for the next level already exists: systems, trust, staff, branded office.</li>
+            </ul>
+          </div>
+          <div class="finding-col risk">
+            <h4>Five Most Important Risks</h4>
+            <ul>
+              <li>Ltd and payroll fees are below market — approximately £109k/year uncaptured.</li>
+              <li>Founder dependency suppresses valuation and operational scalability.</li>
+              <li>Client data is fragmented; phone coverage absent, email incomplete outside GC and payroll.</li>
+              <li>Practice is almost entirely compliance-led with little high-margin advisory income.</li>
+              <li>Loss of Hassan or Aminul would create an immediate operational pressure point.</li>
+            </ul>
+          </div>
+        </div>
+        <table class="data-table" style="margin-top:20px;">
+          <thead><tr><th>Metric</th><th class="center">Current 2026</th><th class="center">Post Fee Correction</th><th class="center gold">Vision 2030 / Upside</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Annual revenue</td><td class="center">£314,000</td><td class="center green">£423,000</td><td class="center green bold">£750k–£1,000,000</td></tr>
+            <tr><td class="bold">Net profit (before MD remuneration)</td><td class="center">~£107,000</td><td class="center green">~£216,000</td><td class="center green bold">~£300,000+</td></tr>
+            <tr><td class="bold">Monthly recurring revenue</td><td class="center">£19,579</td><td class="center">£21,000+</td><td class="center green bold">£25,000–£40,000</td></tr>
+            <tr class="total"><td>Indicative practice valuation</td><td class="center">£250k–£380k</td><td class="center">£340k–£470k</td><td class="center green">£750k–£975k</td></tr>
+          </tbody>
+        </table>
+        <div class="callout" style="margin-top:20px;">"The business does not require reinvention. It requires better pricing, better packaging, and more deliberate transfer of operational ownership away from the founder."</div>
+      </div>
+    </div>
+
+    <!-- Practice Overview in exec tab -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">1</div><div class="section-title">Practice Overview</div></div>
+      <div class="section-body">
+        <div class="two-col">
+          <table class="data-table">
+            <thead><tr><th>Practice item</th><th>Detail</th></tr></thead>
+            <tbody>
+              <tr><td>Registered name</td><td>The Chowdury Accountants Ltd</td></tr>
+              <tr><td>Company number</td><td>09441520</td></tr>
+              <tr><td>VAT number</td><td>403 392 620</td></tr>
+              <tr><td>Licence</td><td>AAT Licensed Accountants</td></tr>
+              <tr><td>Trademark</td><td>UK00004273557 — Class 35, Dec 2025</td></tr>
+              <tr><td>Address</td><td>283 Featherstall Road North, Oldham, OL1 2NH</td></tr>
+              <tr><td>Founded</td><td>2015</td></tr>
+            </tbody>
+          </table>
+          <table class="data-table">
+            <thead><tr><th>Team member</th><th>Role</th></tr></thead>
+            <tbody>
+              <tr><td class="bold">Md Asadul Chowdury</td><td>Managing Director</td></tr>
+              <tr><td>Hassan Ali</td><td>Ltd Co. &amp; VAT Manager</td></tr>
+              <tr><td>Aminul Choudhury</td><td>Payroll &amp; SA Manager</td></tr>
+              <tr><td>Syed Nawaz</td><td>Apprentice</td></tr>
+              <tr><td>Sadat Bhuiyan</td><td>Remote Accountant (Bangladesh)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FINANCIALS ═══════════ -->
+  <div id="tab-financials" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">4</div><div class="section-title">Financial Analysis and Profitability</div></div>
+      <div class="section-body">
+        <div class="metric-grid">
+          <div class="metric-card"><h5>Actual restated revenue</h5><div class="val">£314,000</div><div class="sub">FY2025/26 · bank-verified</div></div>
+          <div class="metric-card red-card"><h5>Operating costs</h5><div class="val">£207,408</div><div class="sub">66.1% of revenue (excl. MD rem.)</div></div>
+          <div class="metric-card gold-card"><h5>Net operating profit</h5><div class="val">£106,592</div><div class="sub">33.9% margin · before MD remuneration</div></div>
+          <div class="metric-card green-card"><h5>Post-correction revenue</h5><div class="val">£423,340</div><div class="sub">Same base · corrected rates only</div></div>
+          <div class="metric-card green-card"><h5>Post-correction profit</h5><div class="val">£215,932</div><div class="sub">51.0% margin · directional model</div></div>
+          <div class="metric-card"><h5>Recurring revenue %</h5><div class="val">74.7%</div><div class="sub">Significantly above 30–50% sector norm</div></div>
+        </div>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Revenue Composition</h3>
+        <table class="data-table">
+          <thead><tr><th>Service</th><th class="center">Clients</th><th class="center">Current fee</th><th class="num">Revenue</th><th class="center">Share of actual</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Ltd company accounts</td><td class="center">307</td><td class="center">£600</td><td class="num green">£184,200</td><td class="center">58.7%</td></tr>
+            <tr><td>PAYE / payroll</td><td class="center">243</td><td class="center">£300</td><td class="num">£72,900</td><td class="center">23.2%</td></tr>
+            <tr><td>Self-assessment</td><td class="center">383</td><td class="center">£150</td><td class="num">£57,450</td><td class="center">18.3%</td></tr>
+            <tr><td>VAT returns</td><td class="center">42</td><td class="center">£600/yr</td><td class="num">£25,200</td><td class="center">8.0%</td></tr>
+            <tr class="total"><td>Actual restated FY2025/26</td><td></td><td></td><td class="num">£314,000</td><td class="center">100%</td></tr>
+          </tbody>
+        </table>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Operating Cost Base</h3>
+        <table class="data-table">
+          <thead><tr><th>Cost category</th><th class="num">Monthly</th><th class="num">Annual</th><th>Comment</th></tr></thead>
+          <tbody>
+            <tr><td>Staff — Hassan, Aminul, Nawaz, Sadat</td><td class="num">£10,500</td><td class="num bold">£126,000</td><td class="slate">MD remuneration excluded and separate</td></tr>
+            <tr><td>Premises (rent to CPL + rates)</td><td class="num">£2,329</td><td class="num">£27,948</td><td class="slate">£2,000/mo rent + rates + utilities</td></tr>
+            <tr><td>Software and subscriptions</td><td class="num">£1,277</td><td class="num">£15,324</td><td class="slate">QBO, Bright Manager, Inform Direct</td></tr>
+            <tr><td>Companies House / Inform Direct</td><td class="num">£1,700</td><td class="num">£20,400</td><td class="slate">Filing fees and annual subscriptions</td></tr>
+            <tr><td>Lloyds business loan</td><td class="num">£971</td><td class="num">£11,652</td><td class="slate">Consolidation at 10.65% APR</td></tr>
+            <tr><td>Communications + fuel + other</td><td class="num">£507</td><td class="num">£6,084</td><td class="slate">Mobile, broadband, travel, insurance</td></tr>
+            <tr class="total"><td>Total operating cost</td><td class="num">£17,284</td><td class="num">£207,408</td><td class="slate">Lean relative to revenue and client volume</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ RECURRING REVENUE ═══════════ -->
+  <div id="tab-revenue" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">3</div><div class="section-title">Recurring Revenue and Cash-Flow Quality</div></div>
+      <div class="section-body">
+        <div class="metric-grid">
+          <div class="metric-card gold-card"><h5>Combined MRR</h5><div class="val">£19,579</div><div class="sub">163 GC + 45 SO clients</div></div>
+          <div class="metric-card"><h5>Annualised run-rate</h5><div class="val">£234,945</div><div class="sub">74.7% of total revenue</div></div>
+          <div class="metric-card green-card"><h5>Progress to £25k target</h5><div class="val">78.3%</div>
+            <div class="progress-bar"><div class="progress-fill" style="width:78.3%"></div></div>
+            <div class="sub">Gap: £5,421/month remaining</div>
+          </div>
+        </div>
+        <h3 style="margin:20px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">MRR Growth Journey</h3>
+        <table class="data-table">
+          <thead><tr><th>Stage</th><th class="center">Client profile</th><th class="num">MRR</th><th class="num">Annualised</th><th class="center">Status</th></tr></thead>
+          <tbody>
+            <tr><td>Pre-GC baseline</td><td class="center">~20 SO only</td><td class="num">~£2,000</td><td class="num">~£24,000</td><td class="center slate">Complete</td></tr>
+            <tr><td>FY2024/25</td><td class="center">68 GC + 45 SO</td><td class="num">~£9,800</td><td class="num">~£117,600</td><td class="center slate">Complete</td></tr>
+            <tr><td>October 2025</td><td class="center">146 GC + 45 SO</td><td class="num">£17,977</td><td class="num">£215,721</td><td class="center slate">Complete</td></tr>
+            <tr class="highlight"><td class="bold">March 2026 — confirmed</td><td class="center bold">163 GC + 45 SO</td><td class="num green bold">£19,579</td><td class="num green bold">£234,945</td><td class="center bold" style="color:var(--green)">✓ Confirmed</td></tr>
+            <tr class="total"><td>Vision 2030 target</td><td class="center">220+ clients</td><td class="num">£25,000</td><td class="num green">£300,000</td><td class="center gold-text">Target</td></tr>
+          </tbody>
+        </table>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Client Tier Segmentation — All 208 Recurring Clients</h3>
+        <table class="data-table">
+          <thead><tr><th>Tier</th><th>Annual value</th><th class="center">Clients</th><th class="num">Avg/mo</th><th class="num">Annual recurring</th><th class="center">% MRR</th><th class="center">GC/SO</th><th class="center">Priority</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--gold-lt)"><td class="bold gold-text">A</td><td>£1,800+ (£150+/mo)</td><td class="center bold">28</td><td class="num gold-text bold">£206</td><td class="num green bold">£69,279</td><td class="center">29.5%</td><td class="center">19/9</td><td class="center bold gold-text">Retain &amp; deepen</td></tr>
+            <tr><td class="bold">B</td><td>£900–1,799/yr</td><td class="center bold">126</td><td class="num bold">£89</td><td class="num green bold">£134,832</td><td class="center">57.4%</td><td class="center">110/16</td><td class="center">Retain &amp; grow</td></tr>
+            <tr><td>C</td><td>£360–899/yr</td><td class="center">41</td><td class="num">£58</td><td class="num">£28,574</td><td class="center">12.2%</td><td class="center">31/10</td><td class="center slate">Upsell</td></tr>
+            <tr><td>D</td><td>Below £360/yr</td><td class="center">13</td><td class="num">£14</td><td class="num">£2,260</td><td class="center">1.0%</td><td class="center">3/10</td><td class="center slate">Review</td></tr>
+            <tr class="total"><td>—</td><td>Total all tiers</td><td class="center bold">208</td><td class="num bold">£94</td><td class="num green bold">£234,945</td><td class="center bold">100%</td><td class="center bold">163/45</td><td></td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px;color:var(--slate);margin:12px 0;">The 69 clients at exactly £75/month: moving to £100/month adds <strong>£20,700/year</strong> with no new clients.</p>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Tier A — All 28 Clients (£150+/month)</h3>
+        <table class="data-table"><thead><tr><th></th><th>Client</th><th>Location</th><th class="num">Monthly</th><th class="num">Annual</th></tr></thead>
+        <tbody id="tierA-tbody"></tbody></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ STRATEGY & VALUATION ═══════════ -->
+  <div id="tab-strategy" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">5</div><div class="section-title">Pricing Strategy — £109,340 Commercial Correction</div></div>
+      <div class="section-body">
+        <table class="data-table">
+          <thead><tr><th>Service</th><th class="center">Current</th><th class="center">Recommended</th><th class="center">Increase</th><th class="num">Annual uplift</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Ltd company accounts</td><td class="center">£600</td><td class="center green bold">£800</td><td class="center gold-text">+£200 (33%)</td><td class="num green bold">£61,400</td></tr>
+            <tr><td class="bold">PAYE / payroll</td><td class="center">£300</td><td class="center green bold">£450</td><td class="center gold-text">+£150 (50%)</td><td class="num green bold">£36,450</td></tr>
+            <tr><td class="bold">Self-assessment</td><td class="center">£150</td><td class="center green bold">£180</td><td class="center gold-text">+£30 (20%)</td><td class="num green bold">£11,490</td></tr>
+            <tr><td>VAT returns</td><td class="center">£600</td><td class="center">£600</td><td class="center slate">No change</td><td class="num slate">Market rate confirmed</td></tr>
+            <tr class="total"><td colspan="4">Total annual uplift — same client base, no new clients</td><td class="num green bold">+£109,340</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">8</div><div class="section-title">SWOT Analysis</div></div>
+      <div class="section-body">
+        <div class="swot-grid">
+          <div class="swot-cell s"><h4>Strengths</h4><ul>
+            <li>Deep hospitality specialism and South Asian community positioning</li>
+            <li>High recurring revenue — well above 30–50% sector norm (74.7%)</li>
+            <li>Decade-long referral engine with low client acquisition cost</li>
+            <li>Lean cost base and healthy margin before MD remuneration</li>
+            <li>Bespoke portal, branded premises, registered trademark (Class 35)</li>
+          </ul></div>
+          <div class="swot-cell w"><h4>Weaknesses</h4><ul>
+            <li>Underpricing in Ltd and payroll — ~£109k/year uncaptured</li>
+            <li>High founder dependency in client relationships and decisions</li>
+            <li>No phone coverage; fragmented contact data across systems</li>
+            <li>Limited advisory revenue outside compliance work</li>
+            <li>Capacity pressure if key staff left unexpectedly</li>
+          </ul></div>
+          <div class="swot-cell o"><h4>Opportunities</h4><ul>
+            <li>Fee correction — immediate, no new clients required</li>
+            <li>Service bundling: Ltd + PAYE + SA + bookkeeping</li>
+            <li>Management accounts for 30–50 strongest clients</li>
+            <li>Bookkeeping using remote support at low marginal cost</li>
+            <li>MTD ITSA 2027 — advisory positioning opportunity</li>
+          </ul></div>
+          <div class="swot-cell t"><h4>Threats</h4><ul>
+            <li>Loss of Hassan or Aminul — immediate operational impact</li>
+            <li>Hospitality sector concentration if conditions tighten</li>
+            <li>Online competitors anchoring client expectations to lower prices</li>
+            <li>Increasing compliance complexity without matching fee discipline</li>
+            <li>Valuation suppression if founder dependency not actively reduced</li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">9</div><div class="section-title">Practice Valuation Scenarios</div></div>
+      <div class="section-body">
+        <p style="font-size:13px;color:var(--slate);margin-bottom:20px;">Indicative GFI multiple estimates. Not a formal valuation. All fees exclusive of VAT.</p>
+        <div class="val-grid">
+          <div class="val-card"><div class="val-card-header"><h5>Current — Founder Discount</h5></div><div class="val-card-body"><div class="val-range">£204k–£267k</div><div class="val-multiple">0.65–0.85× GFI</div><div class="val-note">Applicable if sold today with clear key-person risk.</div></div></div>
+          <div class="val-card"><div class="val-card-header"><h5>Current — Standard Range</h5></div><div class="val-card-body"><div class="val-range">£251k–£345k</div><div class="val-multiple">0.80–1.10× GFI</div><div class="val-note">If quality of transfer is evidenced well.</div></div></div>
+          <div class="val-card"><div class="val-card-header"><h5>Recurring Revenue Premium</h5></div><div class="val-card-body"><div class="val-range">£283k–£377k</div><div class="val-multiple">0.90–1.20× GFI</div><div class="val-note">If DD base is viewed as durable and clean.</div></div></div>
+          <div class="val-card featured"><div class="val-card-header"><h5>Post Fee Correction</h5></div><div class="val-card-body"><div class="val-range">£339k–£466k</div><div class="val-multiple">0.80–1.10× (£423k base)</div><div class="val-note">Immediate uplift from pricing discipline alone.</div></div></div>
+          <div class="val-card featured"><div class="val-card-header"><h5>Post Correction + Lower MD Risk</h5></div><div class="val-card-body"><div class="val-range">£381k–£508k</div><div class="val-multiple">0.90–1.20× (£423k base)</div><div class="val-note">Requires Hassan to independently hold portfolios.</div></div></div>
+          <div class="val-card featured"><div class="val-card-header"><h5>Vision 2030 — Systemised</h5></div><div class="val-card-body"><div class="val-range">£750k–£975k</div><div class="val-multiple">1.00–1.30× (£750k base)</div><div class="val-note">Upper end: transferability + data quality + staff depth.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ OPERATIONS & STRUCTURE ═══════════ -->
+  <div id="tab-operations" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">11</div><div class="section-title">Operating Structure, Delegation and Action Plan</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:20px;">The route to £750k or £1M is not limited by demand. It is limited by capacity and structure. At £500k, and again at £750k, the practice will face structural inflection points that require deliberate changes — not harder work.</p>
+        <h3 style="margin:0 0 16px;font-size:14px;font-weight:600;color:var(--deep);">Target Organisational Structure — 2026 to 2028</h3>
+        <div class="org-wrap">
+          <div class="org-md">
+            <h4>Managing Director — Md Asadul Chowdury</h4>
+            <p>Strategy · Tier A relationships · Business development · Pricing · Complex advisory</p>
+          </div>
+          <div class="org-connector"></div>
+          <div class="org-row">
+            <div class="org-card gold"><h5>Client Portfolio Manager</h5><div class="name">Hassan Ali</div><ul>
+              <li>60–80 Ltd portfolios independently managed</li><li>VAT returns and compliance</li>
+              <li>Tier B relationship management</li><li>Coordination with MD on complex matters</li>
+            </ul></div>
+            <div class="org-card blue"><h5>Compliance &amp; Payroll Manager</h5><div class="name">Aminul Choudhury</div><ul>
+              <li>All PAYE / payroll processing</li><li>Self-assessment returns workflow</li>
+              <li>Annual director income questionnaires</li><li>Onboarding and data quality</li>
+            </ul></div>
+          </div>
+          <div class="org-row">
+            <div class="org-card grey"><h5>Accounts Support</h5><div class="name" style="color:var(--slate);font-size:14px;">Sadat Bhuiyan (Remote) + Syed Nawaz</div><ul>
+              <li>Accounts preparation and bookkeeping</li><li>Admin support and data entry</li><li>Bookkeeping service delivery</li>
+            </ul></div>
+            <div class="org-card dashed"><h5>Second Senior Hire (Future)</h5><div class="name" style="color:var(--mid);font-size:13px;font-style:italic;">When MRR exceeds £22,000/month</div><ul>
+              <li>Additional capacity beyond £600k revenue</li><li>Qualified accountant or promoted apprentice</li><li>Enables MD to step back from day-to-day compliance</li>
+            </ul></div>
+          </div>
+        </div>
+        <h3 style="margin:28px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Priority Action Plan — Next 12 Months</h3>
+        <div id="action-plan"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 5 KPIs ═══════════ -->
+  <div id="tab-kpis" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">K</div><div class="section-title">The 5 KPIs That Predict Whether a Practice Reaches £1M</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:20px;">Most accountants track activity metrics: client numbers, hours worked, returns filed. Scaling firms watch a different set. These five KPIs are the real scoreboard for whether a practice is becoming a £1M firm or staying a £300k lifestyle business.</p>
+        <div class="kpi-scorecard" id="kpi-scorecard"></div>
+        <h3 style="margin:28px 0 16px;font-size:14px;font-weight:600;color:var(--deep);">What Happens If You Hit These Targets</h3>
+        <div class="callout">700 clients × £1,200 average revenue per client = £840,000. Add bookkeeping, advisory, and extra services: <strong>£1,000,000</strong>. Without fundamentally changing what the practice is.</div>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Benchmark Comparison</h3>
+        <table class="data-table">
+          <thead><tr><th>KPI</th><th class="center">Your Current</th><th class="center">Target</th><th class="center">£300k Firm</th><th class="center">£500k Firm</th><th class="center">£1M Firm</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Revenue per client</td><td class="center gold-text bold">£523</td><td class="center green bold">£1,000+</td><td class="center">£400–£700</td><td class="center">£800–£1,200</td><td class="center">£1,500–£2,500</td></tr>
+            <tr><td class="bold">Monthly recurring (MRR)</td><td class="center gold-text bold">£19,579</td><td class="center green bold">£40,000</td><td class="center">£10,000</td><td class="center">£20,000</td><td class="center">£40,000+</td></tr>
+            <tr><td class="bold">Revenue per employee</td><td class="center gold-text bold">£62,800</td><td class="center green bold">£100,000</td><td class="center">£60,000–£80,000</td><td class="center">£90,000–£120,000</td><td class="center">£130,000+</td></tr>
+            <tr><td class="bold">Recurring revenue ratio</td><td class="center gold-text bold">74.7%</td><td class="center green bold">80%+</td><td class="center">30–40%</td><td class="center">50–65%</td><td class="center">70–80%</td></tr>
+            <tr class="total"><td class="bold">Client concentration risk</td><td class="center" style="color:var(--green)">Healthy</td><td class="center green">Maintain</td><td colspan="3" class="center slate">Top 15% of clients should generate 60–80% of value</td></tr>
+          </tbody>
+        </table>
+        <div class="callout" style="margin-top:20px;"><strong>The key insight:</strong> Your growth is not constrained by demand. You already have enough clients, enough trust, and strong referrals. The constraint is monetisation and structure. Your recurring revenue ratio of 74.7% is already near <em>elite</em> level — almost no practice of this size achieves that.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ LIFETIME CLIENT VALUE ═══════════ -->
+  <div id="tab-lcv" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">£</div><div class="section-title">Lifetime Client Value — The Calculation That Changes Everything</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:20px;">Most accountants think in annual fees. Scaling firms think in lifetime client value (LCV). Once you see this number, three things become obvious: why referrals are priceless, why retention matters more than acquisition, and why underpricing is very expensive.</p>
+        <h3 style="margin:0 0 16px;font-size:14px;font-weight:600;color:var(--deep);">Typical Hospitality Client — 10-Year Lifecycle</h3>
+        <div id="lcv-stages"></div>
+        <div style="background:var(--gold-lt);border:2px solid var(--gold);border-radius:6px;padding:20px;margin:20px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;text-align:center;">
+          <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--slate);letter-spacing:0.06em;margin-bottom:8px;">10-Year Direct Revenue</div><div style="font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:700;color:var(--deep);">~£21,320</div></div>
+          <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--slate);letter-spacing:0.06em;margin-bottom:8px;">With Second Company + Referrals</div><div style="font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:700;color:var(--gold);">£40k–£70k</div></div>
+          <div><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--slate);letter-spacing:0.06em;margin-bottom:8px;">122 Hospitality Clients × £20k LCV</div><div style="font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:700;color:var(--green);">£2.4M+</div></div>
+        </div>
+        <h3 style="margin:20px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Why Underpricing Is Very Expensive</h3>
+        <table class="data-table">
+          <thead><tr><th>Scenario</th><th class="num">Annual cost</th><th class="num">10-year cost</th><th class="num">Across 307 Ltd clients</th></tr></thead>
+          <tbody>
+            <tr><td>Underpricing Ltd by £200/year</td><td class="num">£200</td><td class="num">£2,000</td><td class="num green bold">£614,000 lost</td></tr>
+            <tr><td>Underpricing payroll by £150/year</td><td class="num">£150</td><td class="num">£1,500</td><td class="num green bold">£364,500 lost</td></tr>
+            <tr class="total"><td>Total underpricing cost (10 years)</td><td></td><td></td><td class="num green bold">~£1,000,000 lost</td></tr>
+          </tbody>
+        </table>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Why Retention Is More Valuable Than Marketing</h3>
+        <div class="callout">If a client leaves after 2 years instead of staying 10: revenue lost = £21,320 − £1,600 = <strong>£19,720</strong>. So preventing one client from leaving is worth more than acquiring a new one. Retention is not just a satisfaction metric — it is a financial strategy.</div>
+        <h3 style="margin:20px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">The Service Ladder — Revenue Per Client at Each Stage</h3>
+        <table class="data-table">
+          <thead><tr><th>Bundle level</th><th>Services included</th><th class="num">Annual fee</th><th>Target clients</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Basic Ltd</td><td>Company accounts + corporation tax</td><td class="num">£800</td><td class="slate">New clients / startups</td></tr>
+            <tr><td class="bold">Core package</td><td>Accounts + payroll + director SA</td><td class="num green bold">£1,430</td><td class="slate">Tier B — most of current base</td></tr>
+            <tr><td class="bold">Growth package</td><td>Accounts + payroll + VAT + SA</td><td class="num green bold">£2,030</td><td class="slate">~80 clients ready now</td></tr>
+            <tr><td class="bold">Managed package</td><td>+ Bookkeeping + quarterly review</td><td class="num green bold">£3,000–£4,000</td><td class="slate">~30–50 strongest clients</td></tr>
+            <tr class="total"><td class="bold">Premium / advisory</td><td>Full service + management accounts + planning</td><td class="num green bold">£4,000–£6,000+</td><td class="slate">Top 10–15 Tier A clients</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ CLIENT PYRAMID ═══════════ -->
+  <div id="tab-pyramid" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">🔺</div><div class="section-title">The Client Pyramid — Where Your Future Revenue Comes From</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:20px;">Most practices think all clients are equally important. In reality, professional firms follow a Pareto distribution: 20% of clients produce 60–80% of revenue and almost all future growth. Understanding this changes where you spend your time.</p>
+        <div class="pyramid-wrap" id="pyramid-wrap"></div>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">What Scaling Firms Do With This Pyramid</h3>
+        <table class="data-table">
+          <thead><tr><th>Tier</th><th>Founder focus</th><th>Growth strategy</th><th>Who manages it</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--gold-lt)"><td class="bold gold-text">Tier 1 (Top 10–15%)</td><td class="bold">Personal relationships. Direct communication.</td><td class="slate">Deepen services. Advisory. Second companies.</td><td>Managing Director directly</td></tr>
+            <tr><td class="bold">Tier 2 (Middle 55–60%)</td><td>Delegate to Hassan.</td><td class="slate">Convert to bundles. Ltd+PAYE+SA packages.</td><td>Hassan + Aminul</td></tr>
+            <tr><td>Tier 3 (Bottom 25–30%)</td><td>Almost none.</td><td class="slate">Systemise. Automate. Junior staff + Bangladesh.</td><td>Aminul + Nawaz + Sadat</td></tr>
+          </tbody>
+        </table>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Revenue Uplift From Pyramid Optimisation</h3>
+        <table class="data-table">
+          <thead><tr><th>Tier</th><th>Clients</th><th class="num">Current avg/client</th><th class="num">Current total</th><th class="num">Target avg/client</th><th class="num">Target total</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--gold-lt)"><td class="bold gold-text">Tier 1 Strategic</td><td class="center">70</td><td class="num">£2,000</td><td class="num">£140,000</td><td class="num green bold">£4,000</td><td class="num green bold">£280,000</td></tr>
+            <tr><td class="bold">Tier 2 Core</td><td class="center">330</td><td class="num">£800</td><td class="num">£264,000</td><td class="num green bold">£1,500</td><td class="num green bold">£495,000</td></tr>
+            <tr><td>Tier 3 Basic</td><td class="center">200</td><td class="num">£180</td><td class="num">£36,000</td><td class="num">£250</td><td class="num">£50,000</td></tr>
+            <tr class="total"><td>Total</td><td class="center">600</td><td class="num">£523</td><td class="num">£440,000</td><td class="num green bold">£1,375</td><td class="num green bold">£825,000</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">Without adding a single new client — just optimising service depth and pricing across the existing pyramid — revenue could exceed <strong>£825,000</strong>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ FLYWHEEL ═══════════ -->
+  <div id="tab-flywheel" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">♻️</div><div class="section-title">The Practice Flywheel — Why Some Firms Grow Faster Every Year</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:20px;">The Practice Flywheel is the self-reinforcing cycle that makes some accounting firms grow faster every year while others stagnate. Once it starts working, each part of the business strengthens the next. The hardest part is starting it — and you already have.</p>
+        <div class="flywheel-wrap" id="flywheel-wrap"></div>
+        <div style="background:var(--lgrey);border-radius:6px;padding:20px;margin:20px 0;">
+          <h4 style="font-size:14px;font-weight:600;color:var(--deep);margin-bottom:12px;">Your Current Position on the Flywheel</h4>
+          <table class="data-table">
+            <thead><tr><th>Stage</th><th class="center">Status</th><th>Evidence</th></tr></thead>
+            <tbody>
+              <tr><td class="bold">1. Niche expertise</td><td class="center" style="color:var(--green);font-weight:700;">✓ Active</td><td class="slate">122 hospitality clients (40%); recognised sector specialism</td></tr>
+              <tr><td class="bold">2. Client success</td><td class="center" style="color:var(--green);font-weight:700;">✓ Active</td><td class="slate">Long-term relationships; clients growing with the practice</td></tr>
+              <tr><td class="bold">3. Industry reputation</td><td class="center" style="color:var(--green);font-weight:700;">✓ Active</td><td class="slate">Referral-driven growth since 2015; community trust evident</td></tr>
+              <tr><td class="bold">4. Better clients</td><td class="center" style="color:var(--green);font-weight:700;">✓ Active</td><td class="slate">Increasing complexity in client base; multi-company directors</td></tr>
+              <tr><td class="bold">5. Higher revenue per client</td><td class="center gold-text font-bold">⚠ In progress</td><td class="slate">Currently £523/client — pricing correction underway</td></tr>
+              <tr><td class="bold">6. Better systems &amp; staff</td><td class="center gold-text">⚠ In progress</td><td class="slate">Portal built; delegation to Hassan being formalised</td></tr>
+              <tr><td class="bold">7. Stronger client experience</td><td class="center" style="color:var(--green);">✓ Active</td><td class="slate">Strong retention; direct debit adoption at 27%</td></tr>
+              <tr class="total"><td class="bold">8. More referrals</td><td class="center" style="color:var(--green);">✓ Active</td><td class="slate">Community referral network compounding; low acquisition cost</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 style="margin:20px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Firm Growth Stages — Where You Are and Where You're Going</h3>
+        <div class="stage-card"><span class="stage-rev">£200k–£400k</span><h4>Stage 1 — Owner-Led Practice</h4><p>Founder handles most relationships. Staff mainly do production work. Works well until ~£450k revenue, then the founder becomes the bottleneck. <strong style="color:var(--green);">← This is currently your stage.</strong></p></div>
+        <div class="stage-card next"><span class="stage-rev">£500k–£1M</span><h4>Stage 2 — Portfolio Structure ← Your next stage</h4><p>Client ownership moves away from founder. Hassan independently manages 60–100 clients. MD focuses on strategy, pricing, key relationships. This transition is the most important structural change for growth. <strong style="color:var(--gold);">← Target: 2026–2027</strong></p></div>
+        <div class="stage-card"><span class="stage-rev">£1M–£3M</span><h4>Stage 3 — Departmental Structure</h4><p>Separate accounts, payroll, bookkeeping, and advisory teams. Team leaders emerge. Revenue per employee increases to £100k+. Practice begins to look like a small professional services firm.</p></div>
+        <div class="stage-card"><span class="stage-rev">£3M–£10M</span><h4>Stage 4 — Regional Firm</h4><p>Partners and directors each managing portfolios of £500k–£1M. Multiple locations or strong virtual presence. Brand recognised regionally in the niche.</p></div>
+        <div class="callout">Your firm already shows the early-stage version of Stages 2–3 structure. The four decisions that determine outcome: pricing discipline · services per client · real management layer · documented processes.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ VISION TO £1M ═══════════ -->
+  <div id="tab-vision" class="tab-content">
+    <div class="addendum-header">
+      <div class="cover-badge">Vision Addendum</div>
+      <h2>The Hidden Upside to £1M Revenue</h2>
+      <p>Four structural advantages the base-case model does not fully capture</p>
+    </div>
+    <div class="kpi-strip" style="grid-template-columns:repeat(5,1fr);">
+      <div class="kpi-card"><div class="kpi-value">£750k</div><div class="kpi-label">Base case 2030</div></div>
+      <div class="kpi-card gold"><div class="kpi-value">£1M</div><div class="kpi-label">Upside scenario</div></div>
+      <div class="kpi-card"><div class="kpi-value">4</div><div class="kpi-label">Structural advantages</div></div>
+      <div class="kpi-card green"><div class="kpi-value">2028–32</div><div class="kpi-label">Upside timeline</div></div>
+      <div class="kpi-card"><div class="kpi-value">Fewer</div><div class="kpi-label">New clients needed</div></div>
+    </div>
+    <div class="advantage-card"><div class="advantage-header"><div class="advantage-num">1</div><h4>Existing clients are under-expanded, not just underpriced</h4></div>
+      <div class="advantage-body">
+        <p style="font-size:13px;color:var(--body);margin-bottom:16px;line-height:1.6;">Most of the 600-client base still buys one service. Meaningful revenue growth can come entirely from within the existing base — no cold acquisition required.</p>
+        <table class="data-table">
+          <thead><tr><th>Current relationship</th><th>Natural next service</th><th class="num">Additional fee/yr</th><th>Realistic scope</th></tr></thead>
+          <tbody>
+            <tr><td>Ltd accounts only</td><td class="bold" style="color:var(--mid)">Ltd + payroll</td><td class="num green">£450</td><td class="slate">~80 of 307 Ltd clients have staff</td></tr>
+            <tr><td>Ltd + payroll only</td><td class="bold" style="color:var(--mid)">Add bookkeeping</td><td class="num green">£400</td><td class="slate">~120 eligible — no current bookkeeper</td></tr>
+            <tr><td>Ltd accounts only</td><td class="bold" style="color:var(--mid)">Add VAT registration</td><td class="num green">£600</td><td class="slate">~50 approaching VAT threshold</td></tr>
+            <tr><td>Director salary only (no SA)</td><td class="bold" style="color:var(--mid)">SA return as income grows</td><td class="num green">£180</td><td class="slate">~60 likely to qualify within 3 years</td></tr>
+            <tr><td>Compliance only</td><td class="bold" style="color:var(--mid)">Management accounts + review</td><td class="num green">£900</td><td class="slate">~30–50 strongest clients</td></tr>
+            <tr class="total"><td>Single-company director</td><td>Second / group company</td><td class="num green">£800+</td><td class="slate">Natural family business growth</td></tr>
+          </tbody>
+        </table>
+        <div class="callout" style="margin-top:16px;">If 30% of the current base deepens by even one service line over 4 years: <strong>+£100,000/year with no new client acquisition.</strong></div>
+      </div>
+    </div>
+    <div class="advantage-card"><div class="advantage-header"><div class="advantage-num">2</div><h4>The hospitality niche has compounding referral geometry</h4></div>
+      <div class="advantage-body">
+        <p style="font-size:13px;line-height:1.7;margin-bottom:12px;">In most markets: one satisfied client → one possible referral. In a dense, trust-driven community network, referrals behave as clusters, not lines.</p>
+        <div class="callout">Restaurant owner → cousin opens takeaway → landlord owns 3 properties → landlord's brother opens off-licence → supplier opens distribution company. That is a network effect, not a referral. Once you dominate a niche like this, it becomes extremely hard for competitors to break in.</div>
+        <p style="font-size:13px;line-height:1.7;margin-top:12px;color:var(--slate);">A formalised referral programme could accelerate new-client acquisition from 40 to 50–60 new Ltd clients per year — adding £50,000–£70,000 of additional annual revenue by 2030.</p>
+      </div>
+    </div>
+    <div class="advantage-card"><div class="advantage-header"><div class="advantage-num">3</div><h4>The client base has a built-in maturation curve</h4></div>
+      <div class="advantage-body">
+        <p style="font-size:13px;line-height:1.7;margin-bottom:16px;">The 600 current clients are not static. They are businesses at various stages of growth — each stage generating more complex, more valuable work. You are already positioned at the start of their journey.</p>
+        <table class="data-table">
+          <thead><tr><th>Stage</th><th>Emerging needs</th><th>Fee potential</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Early-stage (yr 1–3)</td><td>Compliance, payroll, accounts</td><td class="slate">£600–£800 · foundation relationship</td></tr>
+            <tr><td class="bold">Growing SME (yr 3–7)</td><td>VAT, bookkeeping, more complex payroll</td><td class="slate">£1,500–£2,500 · multi-service natural</td></tr>
+            <tr><td class="bold">Established (yr 7+)</td><td>Management accounts, structuring, 2nd companies</td><td class="slate">£3,000–£4,000 · high-value advisory</td></tr>
+            <tr><td class="bold">Director approaching maturity</td><td>Dividends, pension, exit planning</td><td class="slate">£2,000–£3,000 · personal advisory</td></tr>
+            <tr class="total"><td class="bold">Multi-entity group</td><td>Group accounts, intercompany, consolidated</td><td class="slate">£3,000–£6,000+ · premium compliance</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="advantage-card"><div class="advantage-header"><div class="advantage-num">4</div><h4>Unusually strong trust-to-fee conversion potential</h4></div>
+      <div class="advantage-body">
+        <p style="font-size:13px;line-height:1.7;margin-bottom:12px;">163 of ~600 clients (27%) have already agreed to direct debit collection — a behaviour that requires genuine trust. Growth has been almost entirely referral-driven. Retention is strong despite cheaper alternatives.</p>
+        <div class="callout">"If Asad says this is the price, then it must be fair." — Cultural trust, language connection, long relationships, and community reputation dramatically increase pricing power. This trust premium is not in the fee schedule, but it is real, durable, and one of the most defensible competitive advantages the practice holds.</div>
+      </div>
+    </div>
+    <!-- Revenue Bridge -->
+    <div class="section-card">
+      <div class="section-header"><div class="section-num">↑</div><div class="section-title">Upside Revenue Bridge — £314,000 to £1,000,000</div></div>
+      <div class="section-body">
+        <div style="display:grid;grid-template-columns:200px 130px 1fr;gap:0;border-bottom:2px solid var(--deep);padding-bottom:10px;margin-bottom:4px;">
+          <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;">Growth lever</div>
+          <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;">Addition</div>
+          <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;">Cumulative / basis</div>
+        </div>
+        <div id="bridge-container"></div>
+        <div class="callout" style="margin-top:24px;">"The route to £1,000,000 does not require a different business. It requires the same business — priced correctly, serviced more deeply, referred more systematically, and run with less dependence on one person."</div>
+        <h3 style="margin:24px 0 12px;font-size:14px;font-weight:600;color:var(--deep);">Realistic Trajectory</h3>
+        <table class="data-table">
+          <thead><tr><th>Year</th><th class="center">Focus</th><th class="num">Revenue target</th><th>Key milestone</th></tr></thead>
+          <tbody>
+            <tr class="highlight"><td class="bold">2026</td><td class="center">Fee correction + MRR growth</td><td class="num green bold">£420k–£450k</td><td class="slate">New pricing live; £75 cohort uplifted; GC at 180+</td></tr>
+            <tr><td class="bold">2027</td><td class="center">Service depth + delegation</td><td class="num green bold">£550k–£600k</td><td class="slate">Hassan managing 60+ portfolios; bookkeeping launched</td></tr>
+            <tr><td class="bold">2028</td><td class="center">Advisory + second hire</td><td class="num green bold">£700k</td><td class="slate">Management accounts for 30+ clients; second senior hired</td></tr>
+            <tr><td class="bold">2029</td><td class="center">Systemised scaling</td><td class="num green bold">£850k</td><td class="slate">Founder concentration materially reduced</td></tr>
+            <tr class="total"><td class="bold">2030–2032</td><td class="center">Regional platform</td><td class="num green bold">£1,000,000</td><td class="slate">All four structural advantages fully operational</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 12-MONTH ACCELERATION PLAN ═══════════ -->
+  <div id="tab-acceleration" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">📅</div><div class="section-title">12-Month Flywheel Acceleration Plan — 2026–2027</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:24px;">The intention and discipline matter most here. If you truly want the flywheel to spin as fast as possible while staying stable, the key is <strong>focused execution, not doing everything at once.</strong> These four phases are sequenced deliberately: monetise first, then expand, then build structure, then compound reputation.</p>
+
+        <!-- Phase 1 -->
+        <div style="border-left:4px solid var(--gold);padding-left:20px;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="background:var(--gold);color:var(--deep);font-size:13px;font-weight:700;padding:4px 12px;border-radius:2px;">PHASE 1</div>
+            <div><div style="font-size:16px;font-weight:700;color:var(--deep);">Monetisation — Months 1–3</div><div style="font-size:13px;color:var(--slate);">Highest ROI stage. Unlock revenue from clients you already have.</div></div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th style="width:40px;">#</th><th>Action</th><th class="num">Revenue impact</th><th>Timeline</th></tr></thead>
+            <tbody>
+              <tr style="background:var(--gold-lt)"><td class="bold gold-text center">1</td><td><strong>Apply new pricing to all new clients — no exceptions.</strong><br><span class="slate">Ltd £800, Payroll £450, SA £180. 40 new Ltd clients at £800 instead of £600 = +£8,000 immediately.</span></td><td class="num green bold">+£8,000/yr<br><span style="font-size:11px;font-weight:400;">on 40 new clients alone</span></td><td class="bold" style="color:var(--red);text-align:center;">Now</td></tr>
+              <tr><td class="bold gold-text center">2</td><td><strong>Move the 69-client £75/month cohort to £100/month on renewal.</strong><br><span class="slate">£25 × 69 × 12 = £20,700 additional annual recurring revenue. Clean, traceable, immediate.</span></td><td class="num green bold">+£20,700/yr</td><td class="bold" style="color:var(--gold);text-align:center;">Apr–Jun 2026</td></tr>
+              <tr style="background:var(--gold-lt)"><td class="bold gold-text center">3</td><td><strong>Convert 55+ clients to GoCardless — cross £25,000 MRR target.</strong><br><span class="slate">Gap is £5,421/month. ~55 clients at £100/month fills it. Very achievable over 6–12 months.</span></td><td class="num green bold">+£5,421/mo<br><span style="font-size:11px;font-weight:400;">to hit £25k MRR</span></td><td class="bold" style="color:var(--gold);text-align:center;">By Dec 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Phase 2 -->
+        <div style="border-left:4px solid var(--green);padding-left:20px;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="background:var(--green);color:white;font-size:13px;font-weight:700;padding:4px 12px;border-radius:2px;">PHASE 2</div>
+            <div><div style="font-size:16px;font-weight:700;color:var(--deep);">Service Expansion — Months 3–9</div><div style="font-size:13px;color:var(--slate);">Increase revenue per client. Same clients, more value delivered.</div></div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th style="width:40px;">#</th><th>Action</th><th class="num">Revenue impact</th><th>Timeline</th></tr></thead>
+            <tbody>
+              <tr><td class="bold" style="color:var(--green);text-align:center;">4</td><td><strong>Launch management accounts — start with 10 clients at £75–£100/month.</strong><br><span class="slate">Once proven, scale to 30 clients. 30 clients × £1,200/yr = £36,000–£45,000 per year.</span></td><td class="num green bold">£12k → £45k/yr</td><td class="bold" style="color:var(--mid);text-align:center;">H2 2026</td></tr>
+              <tr style="background:var(--green-lt)"><td class="bold" style="color:var(--green);text-align:center;">5</td><td><strong>Introduce bookkeeping packages — £150–£250/month.</strong><br><span class="slate">20 hospitality clients at average £200/month = £48,000/year. Delivered via Sadat remotely at low marginal cost.</span></td><td class="num green bold">+£48,000/yr</td><td class="bold" style="color:var(--mid);text-align:center;">H2 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Phase 3 -->
+        <div style="border-left:4px solid var(--mid);padding-left:20px;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="background:var(--mid);color:white;font-size:13px;font-weight:700;padding:4px 12px;border-radius:2px;">PHASE 3</div>
+            <div><div style="font-size:16px;font-weight:700;color:var(--deep);">Structure — Months 6–12</div><div style="font-size:13px;color:var(--slate);">Growth must be supported by structure. Remove the founder bottleneck.</div></div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th style="width:40px;">#</th><th>Action</th><th>Expected outcome</th><th>Timeline</th></tr></thead>
+            <tbody>
+              <tr><td class="bold" style="color:var(--mid);text-align:center;">6</td><td><strong>Elevate Hassan to Portfolio Manager — 60–80 Ltd clients.</strong><br><span class="slate">Client queries, accounts review, workflow supervision. Frees MD for strategy and high-value work.</span></td><td class="slate">Founder time freed for growth; capacity ceiling removed</td><td class="bold" style="color:var(--mid);text-align:center;">Dec 2026</td></tr>
+              <tr><td class="bold" style="color:var(--mid);text-align:center;">7</td><td><strong>Systemise onboarding — mandatory checklist for every new client.</strong><br><span class="slate">Email · mobile · director details · service agreement · DD mandate. Closes data gaps and improves billing control.</span></td><td class="slate">100% data capture; better compliance and communication</td><td class="bold" style="color:var(--mid);text-align:center;">May 2026</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Phase 4 -->
+        <div style="border-left:4px solid var(--slate);padding-left:20px;margin-bottom:32px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="background:var(--slate);color:white;font-size:13px;font-weight:700;padding:4px 12px;border-radius:2px;">PHASE 4</div>
+            <div><div style="font-size:16px;font-weight:700;color:var(--deep);">Reputation Growth — Months 6–12</div><div style="font-size:13px;color:var(--slate);">Strengthen the referral flywheel. Build the brand around the niche.</div></div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th style="width:40px;">#</th><th>Action</th><th>Strategic impact</th><th>Timeline</th></tr></thead>
+            <tbody>
+              <tr><td class="bold" style="color:var(--slate);text-align:center;">8</td><td><strong>Become "the hospitality accountant" — formalise the positioning.</strong><br><span class="slate">"Specialist accountants for restaurants, takeaways and growing owner-managed businesses." Lean into what is already true.</span></td><td class="slate">Referral clustering accelerates; niche defensibility increases</td><td class="bold" style="color:var(--slate);text-align:center;">Ongoing</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Conservative revenue projection -->
+        <h3 style="font-size:14px;font-weight:600;color:var(--deep);margin-bottom:16px;">Conservative Revenue Projection — 18–24 Months</h3>
+        <div id="accel-bridge"></div>
+
+        <div class="callout" style="margin-top:20px;">After reaching ~£507k within 18–24 months, scaling to £750k–£1M becomes structurally realistic. The four levers that make it happen: <strong>pricing discipline · recurring revenue growth · deeper services per client · leadership delegation.</strong></div>
+
+        <!-- Trajectory -->
+        <h3 style="font-size:14px;font-weight:600;color:var(--deep);margin:24px 0 12px;">Realistic Firm Trajectory — If This Plan Is Executed</h3>
+        <table class="data-table">
+          <thead><tr><th>Year</th><th class="num">Revenue</th><th>Primary focus</th><th>Key milestone</th></tr></thead>
+          <tbody>
+            <tr class="highlight"><td class="bold" style="color:var(--gold);">2026</td><td class="num green bold">£420k–£450k</td><td>Monetisation phase</td><td class="slate">New pricing live · £75 cohort uplifted · GC at 180+</td></tr>
+            <tr><td class="bold" style="color:var(--gold);">2027</td><td class="num green bold">£550k</td><td>Service depth</td><td class="slate">Hassan managing 60+ portfolios · bookkeeping launched</td></tr>
+            <tr><td class="bold" style="color:var(--gold);">2028</td><td class="num green bold">£700k</td><td>Advisory + second hire</td><td class="slate">Management accounts for 30+ · second senior hired</td></tr>
+            <tr><td class="bold" style="color:var(--gold);">2029</td><td class="num green bold">£850k</td><td>Systemised scaling</td><td class="slate">Founder concentration materially reduced</td></tr>
+            <tr class="total"><td class="bold" style="color:var(--green);">2030–2032</td><td class="num green bold">£1,000,000</td><td>Regional platform</td><td class="slate">All four structural advantages fully operational</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MANAGING PARTNER WEEKLY ROUTINE ═══════════ -->
+  <div id="tab-routine" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">🕐</div><div class="section-title">The Managing Partner Weekly Routine</div></div>
+      <div class="section-body">
+        <p style="font-size:14px;line-height:1.7;margin-bottom:8px;">When partners run £1M–£5M accountancy firms, their biggest skill is not technical accounting — it is <strong>how they use their time.</strong></p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:16px 0 24px;">
+          <div style="background:#FFF5F5;border:1px solid #FCA5A5;border-radius:4px;padding:16px;">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--red);margin-bottom:8px;">£300k Owner</div>
+            <p style="font-size:13px;color:var(--body);line-height:1.6;">Works <strong>inside</strong> the firm. Spends 80–90% of time <em>doing</em> work. Chief technician. Firm is capped by one person's capacity.</p>
+          </div>
+          <div style="background:var(--green-lt);border:1px solid #86EFAC;border-radius:4px;padding:16px;">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--green);margin-bottom:8px;">£1M Managing Partner</div>
+            <p style="font-size:13px;color:var(--body);line-height:1.6;">Works <strong>on</strong> the firm. Spends 50–70% of time managing the business itself. Leader. Firm scales independently of founder's hours.</p>
+          </div>
+        </div>
+
+        <div id="weekly-days"></div>
+
+        <!-- Summary view -->
+        <h3 style="font-size:14px;font-weight:600;color:var(--deep);margin:28px 0 16px;">Your Week at a Glance</h3>
+        <table class="data-table">
+          <thead><tr><th>Day</th><th>Theme</th><th>Hours</th><th>Primary activities</th></tr></thead>
+          <tbody>
+            <tr style="background:var(--gold-lt)"><td class="bold gold-text">Monday</td><td class="bold">Leadership &amp; Planning</td><td class="center">2–3 hrs</td><td class="slate">Team meeting · workflow overview · key deadlines · bottleneck resolution</td></tr>
+            <tr><td class="bold" style="color:var(--mid);">Tuesday</td><td class="bold">High-Value Client Work</td><td class="center">4–5 hrs</td><td class="slate">Multi-company clients · restaurant groups · tax planning · advisory</td></tr>
+            <tr><td class="bold" style="color:var(--green);">Wednesday</td><td class="bold">Business Development</td><td class="center">3–4 hrs</td><td class="slate">Client meetings · networking · hospitality community · key relationships</td></tr>
+            <tr><td class="bold" style="color:var(--slate);">Thursday</td><td class="bold">Systems &amp; Improvement</td><td class="center">3 hrs</td><td class="slate">Workflow improvement · staff training · pricing review · process documentation</td></tr>
+            <tr class="total"><td class="bold" style="color:var(--mid);">Friday</td><td class="bold">Strategy &amp; Review</td><td class="center">2–3 hrs</td><td class="slate">MRR check · revenue review · strategic thinking · growth planning</td></tr>
+          </tbody>
+        </table>
+
+        <!-- Monday meeting agenda -->
+        <h3 style="font-size:14px;font-weight:600;color:var(--deep);margin:24px 0 12px;">Monday Team Meeting — Recommended Agenda</h3>
+        <div style="background:var(--lgrey);border:1px solid var(--mgrey);border-radius:4px;padding:20px;">
+          <div style="display:grid;grid-template-columns:40px 1fr;gap:12px;margin-bottom:10px;align-items:center;" id="monday-agenda"></div>
+        </div>
+
+        <!-- What to avoid -->
+        <h3 style="font-size:14px;font-weight:600;color:var(--deep);margin:24px 0 12px;">Protect Your Time — What to Avoid</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--red);margin-bottom:10px;">Stop doing (or delegate):</div>
+            <ul style="list-style:none;">
+              ${['Routine bookkeeping work','Chasing small documents and minor admin','Answering every client message personally','Solving compliance queries that Hassan can handle','Manual data entry or filing tasks'].map(t=>`<li style="font-size:13px;padding:5px 0 5px 18px;position:relative;border-bottom:1px solid var(--mgrey);color:var(--body);"><span style="position:absolute;left:0;color:var(--red);font-weight:700;">✕</span>${t}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--green);margin-bottom:10px;">Focus your time on:</div>
+            <ul style="list-style:none;">
+              ${['Pricing strategy and fee reviews','Key Tier A client relationships','Growth decisions and hiring','New service development','Strategic thinking and planning'].map(t=>`<li style="font-size:13px;padding:5px 0 5px 18px;position:relative;border-bottom:1px solid var(--mgrey);color:var(--body);"><span style="position:absolute;left:0;color:var(--green);font-weight:700;">✓</span>${t}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Friday review metrics -->
+        <h3 style="font-size:14px;font-weight:600;color:var(--deep);margin:24px 0 12px;">Friday Practice Health Check — 5 Numbers to Review Every Week</h3>
+        <table class="data-table">
+          <thead><tr><th>Metric</th><th class="center">Where to find it</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Monthly recurring revenue (MRR)</td><td class="center">Revenue Tracker portal</td><td class="slate">The most important single indicator of practice health and trajectory</td></tr>
+            <tr><td class="bold">New clients added this week</td><td class="center">Ltd Tracker / onboarding log</td><td class="slate">Confirms whether the referral flywheel is spinning</td></tr>
+            <tr><td class="bold">Outstanding invoices</td><td class="center">QBO / billing</td><td class="slate">Cash flow indicator; identifies collection risk early</td></tr>
+            <tr><td class="bold">GoCardless collections vs plan</td><td class="center">GoCardless dashboard</td><td class="slate">Confirms recurring revenue is arriving; flags any failed payments</td></tr>
+            <tr class="total"><td class="bold">Staff workload and key deadlines</td><td class="center">Staff management portal</td><td class="slate">Identifies bottlenecks before they become client issues</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout" style="margin-top:24px;">May Allah put barakah in your efforts and allow the practice to grow in a way that benefits you, your family, your staff, and the community. The hardest part of building a professional firm is starting the flywheel. <strong>You already have.</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ APPENDIX ═══════════ -->
+  <div id="tab-appendix" class="tab-content">
+    <div class="section-card tabbed-card">
+      <div class="section-header"><div class="section-num">A</div><div class="section-title">Appendix — Assumptions and Definitions</div></div>
+      <div class="section-body">
+        <h4 style="font-size:14px;font-weight:600;color:var(--deep);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--mgrey);">A1. The £109,340 Fee Correction</h4>
+        <table class="data-table" style="margin-bottom:20px;">
+          <thead><tr><th>Service</th><th class="center">Clients</th><th class="center">Current</th><th class="center">New fee</th><th class="center">Uplift</th><th class="num">Annual total</th></tr></thead>
+          <tbody>
+            <tr><td>Ltd company accounts</td><td class="center">307</td><td class="center">£600</td><td class="center green bold">£800</td><td class="center gold-text">£200</td><td class="num green bold">£61,400</td></tr>
+            <tr><td>PAYE / payroll</td><td class="center">243</td><td class="center">£300</td><td class="center green bold">£450</td><td class="center gold-text">£150</td><td class="num green bold">£36,450</td></tr>
+            <tr><td>Self-assessment</td><td class="center">383</td><td class="center">£150</td><td class="center green bold">£180</td><td class="center gold-text">£30</td><td class="num green bold">£11,490</td></tr>
+            <tr><td>VAT returns</td><td class="center">42</td><td class="center">£600</td><td class="center">£600</td><td class="center">—</td><td class="num">No change</td></tr>
+            <tr class="total"><td>Total</td><td></td><td></td><td></td><td></td><td class="num green bold">+£109,340/yr</td></tr>
+          </tbody>
+        </table>
+        <h4 style="font-size:14px;font-weight:600;color:var(--deep);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--mgrey);">A2. What "Restated Revenue" Excludes</h4>
+        <table class="data-table" style="margin-bottom:20px;">
+          <thead><tr><th>Item</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td>Intercompany transfers (CPL to TCA)</td><td class="slate">Not trading income</td></tr>
+            <tr><td>VAT receipts collected on behalf of HMRC</td><td class="slate">A liability, not revenue</td></tr>
+            <tr><td>Lloyds consolidation loan proceeds (£45k)</td><td class="slate">Financing receipt, not trading income</td></tr>
+            <tr><td>Client disbursements and pass-throughs</td><td class="slate">Costs collected and passed to third parties</td></tr>
+            <tr><td>Non-recurring or exceptional receipts</td><td class="slate">Removed to arrive at clean trading income</td></tr>
+          </tbody>
+        </table>
+        <h4 style="font-size:14px;font-weight:600;color:var(--deep);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--mgrey);">A3. Valuation Methodology</h4>
+        <p style="font-size:13px;color:var(--slate);margin-bottom:16px;line-height:1.6;">Indicative estimates only. Not a formal valuation. Based on GFI (gross fee income) multiple methodology. Market ranges based on management observation and general sector commentary — not a third-party survey. For any transaction, commission an independent specialist valuer.</p>
+        <h4 style="font-size:14px;font-weight:600;color:var(--deep);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--mgrey);">A4. Definition of Recurring Revenue (MRR)</h4>
+        <table class="data-table">
+          <thead><tr><th>Term</th><th>Definition</th></tr></thead>
+          <tbody>
+            <tr><td class="bold">Included — GoCardless</td><td class="slate">163 clients. Confirmed from live portal data at March 2026. Average £90/month.</td></tr>
+            <tr><td class="bold">Included — Standing orders</td><td class="slate">45 clients. Confirmed from February 2026 schedule. Average £109/month.</td></tr>
+            <tr><td>Excluded — ad-hoc fees</td><td class="slate">One-off fees and irregular invoices excluded from MRR.</td></tr>
+            <tr><td>Excluded — annual invoices</td><td class="slate">Clients billed annually by invoice (not DD/SO) not counted in MRR.</td></tr>
+            <tr class="total"><td>Combined MRR (March 2026)</td><td><strong class="green">£19,579/month</strong> · £234,945 annualised · gap to £25k target: £5,421/month</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <div>
+      <div class="conf">Strictly Confidential — Internal Strategic Use Only</div>
+      <p style="margin-top:4px;">The Chowdury Accountants Ltd · 283 Featherstall Road North, Oldham, OL1 2NH</p>
+      <p>info@chowduryaccountants.co.uk · 0161 222 4647 · www.chowduryaccountants.co.uk</p>
+    </div>
+    <div style="text-align:right;">
+      <p style="color:var(--gold);font-weight:600;">Strategic &amp; Financial Review</p>
+      <p>March 2026 · v11 FINAL</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════ DATA ═══════
+const tierAData=[
+  ['SO','Anthony Close — Close Properties + Van Breakers','Doncaster','£736.60','£8,839'],
+  ['SO','Aram Rasul Ali — Aria Cash & Carry Ltd','Oldham','£500.00','£6,000'],
+  ['GC','SHAIKH HEALTHCARE LTD','Oldham','£375.00','£4,500'],
+  ['SO','Abdur Rouf — Sequential Services','Oldham','£249.99','£3,000'],
+  ['SO','Samiul & Robiul — 3 companies','Oldham','£215.00','£2,580'],
+  ['GC','Al amin foodstore ltd','Oldham','£200.00','£2,400'],
+  ['GC','Global Learning Pathway Ltd','Oldham','£195.00','£2,340'],
+  ['GC',"Ziggy's Schoolwear Bolton Ltd",'Bolton','£180.00','£2,160'],
+  ['SO','Bengal Curry Pot Ltd','Oldham','£180.00','£2,160'],
+  ['SO','ST Catering WA Ltd','Warrington','£180.00','£2,160'],
+  ['GC','Travel Line Minibus Services','Oldham','£175.00','£2,100'],
+  ['GC','UNION NEWS AGENT LTD','Oldham','£170.00','£2,040'],
+  ['GC','MRA Restaurant Ltd','Oldham','£165.00','£1,980'],
+  ['GC','EH Takeaway Ltd (weekly collection)','Oldham','£151.67','£1,820'],
+  ['GC','KINGFISHER BD RESTAURANT LTD','Congleton','£150.00','£1,800'],
+  ['GC','2020 Optix Ltd','Oldham','£150.00','£1,800'],
+  ['GC','COPPICE BAZAR LTD','Oldham','£150.00','£1,800'],
+  ['GC','Lija Catering Ltd','Southport','£150.00','£1,800'],
+  ['GC','Bengal Rose Ltd','Ulverston','£150.00','£1,800'],
+  ['GC','Prospect Store Ltd','Oldham','£150.00','£1,800'],
+  ['GC','Mcdhaba Ltd','Gretna','£150.00','£1,800'],
+  ['GC','Spice of India Cuerdley Ltd','Warrington','£150.00','£1,800'],
+  ['GC','Yas International Ltd','Oldham','£150.00','£1,800'],
+  ['GC','BRTA LTD','Oldham','£150.00','£1,800'],
+  ['GC','MAMU ENTERPRISES LTD','Kendal','£150.00','£1,800'],
+  ['SO','AH Takeaway Ltd','Oldham','£150.00','£1,800'],
+  ['SO','Spicy Valley Todmorden Ltd','Todmorden','£150.00','£1,800'],
+  ['SO','Imon Tandoori','Oldham','£150.00','£1,800'],
+];
+
+const actions=[
+  {n:'1',text:'Apply corrected prices to all new clients: £800 Ltd, £450 PAYE, £180 SA.',impact:'Stops further underpricing at source.',owner:'Asad',when:'Now',cls:'timing-now'},
+  {n:'2',text:"Issue fee review letters to existing base — 90 days' notice.",impact:'Largest single unlock — £109,340/year.',owner:'Asad',when:'Apr 2026',cls:'timing-soon'},
+  {n:'3',text:'Move the 69-client £75 cohort to £100/month on renewal.',impact:'Adds £20,700 annual recurring revenue.',owner:'Asad/Hassan',when:'2026',cls:'timing-soon'},
+  {n:'4',text:'Mandatory mobile and email fields on all new-client onboarding.',impact:'Closes complete absence of phone contact data.',owner:'Hassan/Aminul',when:'Immediate',cls:'timing-now'},
+  {n:'5',text:'Convert 17+ clients to GoCardless — MRR above £21,500.',impact:'Improves collection resilience; advances £25k target.',owner:'Asad',when:'Jun 2026',cls:'timing-soon'},
+  {n:'6',text:'Annual income-source questionnaire for all company directors.',impact:'Identifies SA obligations and cross-sell opportunities.',owner:'Aminul',when:'2026 cycle',cls:'timing-mid'},
+  {n:'7',text:'Pilot management accounts with 10 Tier A/B clients at £900/year.',impact:'Builds new margin stream; tests advisory appetite.',owner:'Asad',when:'H2 2026',cls:'timing-mid'},
+  {n:'8',text:'Clean Bright Manager — align to ~600 active clients.',impact:'Improves reporting quality and planning accuracy.',owner:'Aminul',when:'May 2026',cls:'timing-soon'},
+  {n:'9',text:'Document core workflows: accounts, payroll, SA, onboarding, billing.',impact:'Essential for scale, delegation, and buyer readiness.',owner:'Asad/team',when:'2026',cls:'timing-mid'},
+  {n:'10',text:'Develop Hassan into portfolio manager for 60–80 Ltd clients.',impact:'Most important action for reducing founder dependency.',owner:'Asad',when:'Ongoing',cls:'timing-mid'},
+];
+
+const bridgeData=[
+  {lever:'Starting position (FY2025/26)',add:'—',cum:'£314,000',note:'Confirmed restated revenue base',cls:'start'},
+  {lever:'Fee correction (Ltd, PAYE, SA)',add:'+£109,340',cum:'£423,340',note:'Same base; corrected rates only'},
+  {lever:'Organic growth (50+ new Ltd/yr × 4yrs)',add:'+£176,000',cum:'£599,340',note:'Corrected pricing + referral strength'},
+  {lever:'Service penetration — existing base',add:'+£120,000',cum:'£719,340',note:'30% of base deepens by one service'},
+  {lever:'Management accounts (50 clients)',add:'+£45,000',cum:'£764,340',note:'Pilot → scaled over 3 years'},
+  {lever:'Advisory layer (structuring, planning)',add:'+£60,000',cum:'£824,340',note:'10–15 high-value clients at £4–6k/yr'},
+  {lever:'SA maturation + director complexity',add:'+£25,000',cum:'£849,340',note:'Growing director SA and wealth complexity'},
+  {lever:'Referral premium + second companies',add:'+£80,000',cum:'£929,340',note:'Compounding community referrals'},
+  {lever:'Bookkeeping + payroll expansion',add:'+£70,000',cum:'£999,340',note:'150 bookkeeping clients; deeper payroll'},
+  {lever:'UPSIDE SCENARIO — c.2030–2032',add:'',cum:'~£1,000,000',note:'All conditions met; correct sequencing',cls:'final'},
+];
+
+const kpiData=[
+  {label:'Revenue per Client',current:'£523',target:'£1,000',pct:52,color:'#C4922A',note:'Pricing correction + service bundles',tClass:'green'},
+  {label:'Monthly Recurring',current:'£19,579',target:'£40,000',pct:49,color:'#1A3A6E',note:'Convert more clients to DD',tClass:'green'},
+  {label:'Revenue per Employee',current:'£62,800',target:'£100,000',pct:63,color:'#166534',note:'Fee correction alone gets to £84k',tClass:'green'},
+  {label:'Recurring Ratio',current:'74.7%',target:'80%+',pct:93,color:'#C4922A',note:'Already near elite level',tClass:'green'},
+  {label:'Client Concentration',current:'Healthy',target:'Maintain',pct:85,color:'#166534',note:'Top 28 = 29.5% of MRR — well distributed',tClass:'green'},
+];
+
+const lcvStages=[
+  {yr:'Years 1–2',name:'Startup',services:'Ltd accounts + corporation tax',fee:'£800/yr',total:'£1,600',desc:'Small takeaway / restaurant. Low fee. Foundation relationship.'},
+  {yr:'Years 2–4',name:'Hires staff',services:'Accounts + payroll + director SA',fee:'£1,430/yr',total:'£2,860',desc:'Business grows and takes on employees.'},
+  {yr:'Years 3–6',name:'VAT threshold',services:'Accounts + payroll + VAT + SA',fee:'£2,030/yr',total:'£4,060',desc:'Turnover crosses £90k VAT threshold.'},
+  {yr:'Years 7–10',name:'Established',services:'Full service + bookkeeping + advisory',fee:'~£3,200/yr',total:'£12,800',desc:'Owner wealth grows. Complexity increases. Advisory begins.'},
+];
+
+const pyramidData=[
+  {tier:'Tier 1',name:'Strategic Clients',cls:'t1',clients:'60–80',pct:'10–15%',rpc:'£2,000–£5,000+',total:'~£140k–£280k',desc:'Multi-company owners, hospitality groups, VAT + payroll clients. Primary referral engines. Advisory potential. Tier A from your current data.'},
+  {tier:'Tier 2',name:'Core Compliance',cls:'t2',clients:'300–350',pct:'55–60%',rpc:'£800–£1,500',total:'~£264k–£495k',desc:'Stable foundation. Ltd accounts + payroll + director SA. Major cross-sell opportunity with bundling. Bulk of current revenue.'},
+  {tier:'Tier 3',name:'Basic Clients',cls:'t3',clients:'~200',pct:'25–30%',rpc:'£150–£300',total:'~£36k–£50k',desc:'SA-only, self-employed, taxi/delivery drivers. Entry points into the network. Some will graduate upward. Systemise and automate.'},
+];
+
+const flywheelNodes=[
+  {cls:'fn-1',n:'1',title:'Niche Expertise',text:'Hospitalityspecialism + South Asian community trust'},
+  {cls:'fn-2',n:'2',title:'Client Success',text:'Clients grow → more complex → more services needed'},
+  {cls:'fn-3',n:'3',title:'Industry Reputation',text:'Word spreads within the network'},
+  {cls:'fn-4',n:'4',title:'Better Clients',text:'Higher-quality referrals; multi-business operators'},
+  {cls:'fn-5',n:'5',title:'Higher Revenue/Client',text:'More services; better pricing power'},
+  {cls:'fn-6',n:'6',title:'Better Systems & Staff',text:'Investment in people and processes'},
+  {cls:'fn-7',n:'7',title:'Stronger Experience',text:'Retention rises; satisfaction grows'},
+  {cls:'fn-8',n:'8',title:'More Referrals',text:'Flywheel completes; accelerates back to niche'},
+];
+
+// ═══════ RENDER ═══════
+function renderTierA(){
+  document.getElementById('tierA-tbody').innerHTML=tierAData.map(([t,n,l,m,a],i)=>`
+    <tr style="${i%2===0?'':'background:var(--lgrey)'}">
+      <td><span class="tier-badge tier-${t.toLowerCase()}">${t}</span></td>
+      <td class="bold">${n}</td><td class="slate">${l}</td>
+      <td class="num gold-text bold">${m}</td><td class="num green">${a}</td>
+    </tr>`).join('');
+}
+
+function renderActions(){
+  document.getElementById('action-plan').innerHTML=
+    `<div style="display:grid;grid-template-columns:40px 1fr 100px 110px;background:var(--deep);padding:10px 0;border-radius:4px 4px 0 0;">
+      <div style="color:var(--gold);font-size:11px;font-weight:700;padding:0 8px;">#</div>
+      <div style="color:white;font-size:11px;font-weight:700;padding:0 8px;">Action</div>
+      <div style="color:#94A3B8;font-size:11px;font-weight:700;text-align:center;">Owner</div>
+      <div style="color:#94A3B8;font-size:11px;font-weight:700;text-align:center;">When</div>
+    </div>`+
+    actions.map(a=>`<div class="action-item">
+      <div class="action-num">${a.n}</div>
+      <div class="action-text"><strong>${a.text}</strong><small>${a.impact}</small></div>
+      <div class="action-owner">${a.owner}</div>
+      <div class="action-timing ${a.cls}">${a.when}</div>
+    </div>`).join('');
+}
+
+function renderBridge(){
+  document.getElementById('bridge-container').innerHTML=bridgeData.map(r=>`
+    <div class="bridge-row ${r.cls||''}">
+      <div class="bridge-lever">${r.lever}</div>
+      <div class="bridge-add">${r.add}</div>
+      <div><span class="bridge-cum">${r.cum}</span><br><span class="bridge-note">${r.note}</span></div>
+    </div>`).join('');
+}
+
+function renderKPIs(){
+  document.getElementById('kpi-scorecard').innerHTML=kpiData.map(k=>`
+    <div class="kpi-sc-card">
+      <div class="kpi-sc-header" style="background:${k.color};color:white;">${k.label}</div>
+      <div class="kpi-sc-body">
+        <div class="kpi-sc-current" style="color:var(--deep);">${k.current}</div>
+        <div class="kpi-sc-target" style="color:${k.color};">Target: ${k.target}</div>
+        <div class="kpi-sc-bar"><div class="kpi-sc-fill" style="width:${k.pct}%;background:${k.color};"></div></div>
+        <div class="kpi-sc-note">${k.note}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderLCV(){
+  document.getElementById('lcv-stages').innerHTML=lcvStages.map((s,i)=>`
+    <div class="lcv-stage">
+      <div class="lcv-stage-num">${i+1}</div>
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:2px;">${s.yr} — ${s.name}</div>
+        <div style="font-size:12px;color:var(--mid);margin-bottom:2px;">${s.services}</div>
+        <div style="font-size:12px;color:var(--slate);">${s.desc}</div>
+      </div>
+      <div>
+        <div class="lcv-rev">${s.total}</div>
+        <div style="font-size:11px;color:var(--slate);text-align:right;">${s.fee}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderPyramid(){
+  document.getElementById('pyramid-wrap').innerHTML=pyramidData.map(p=>`
+    <div class="pyramid-tier ${p.cls}">
+      <div class="pyramid-header">
+        <div><div class="pyramid-badge">${p.tier}</div><div style="font-size:11px;color:var(--slate);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">${p.name}</div></div>
+        <div><div class="pyramid-name">${p.desc.slice(0,60)}…</div></div>
+        <div class="pyramid-clients" style="text-align:center;">${p.clients} clients<br><span style="font-size:11px;color:var(--slate);">${p.pct} of base</span></div>
+        <div class="pyramid-rev">${p.total}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderFlywheel(){
+  document.getElementById('flywheel-wrap').innerHTML=flywheelNodes.map(f=>`
+    <div class="flywheel-node ${f.cls}">
+      <div class="flywheel-num">${f.n}</div>
+      <h5>${f.title}</h5>
+      <p>${f.text}</p>
+    </div>`).join('');
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// ═══ ACCELERATION BRIDGE ═══
+const accelBridge=[
+  {lever:'Current revenue',add:'—',cum:'£314,000',cls:'start'},
+  {lever:'Fee correction (Ltd, PAYE, SA)',add:'+£109,000',cum:'£423,000',cls:''},
+  {lever:'Bookkeeping — 20 clients at £200/mo',add:'+£48,000',cum:'£471,000',cls:''},
+  {lever:'Management accounts — 30 clients at £100/mo',add:'+£36,000',cum:'£507,000',cls:''},
+  {lever:'Organic new client growth',add:'+£50,000',cum:'£557,000',cls:'final'},
+];
+function renderAccelBridge(){
+  const el=document.getElementById('accel-bridge');
+  if(!el) return;
+  el.innerHTML=`<div style="display:grid;grid-template-columns:220px 120px 1fr;gap:0;border-bottom:2px solid var(--deep);padding-bottom:8px;margin-bottom:4px;">
+    <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;">Growth lever</div>
+    <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;">Addition</div>
+    <div style="font-size:12px;font-weight:700;color:var(--slate);text-transform:uppercase;letter-spacing:0.06em;">Cumulative</div>
+  </div>`+accelBridge.map(r=>`
+  <div class="bridge-row ${r.cls||''}">
+    <div class="bridge-lever">${r.lever}</div>
+    <div class="bridge-add">${r.add}</div>
+    <div><span class="bridge-cum">${r.cum}</span></div>
+  </div>`).join('');
+}
+
+// ═══ WEEKLY DAYS ═══
+const weekDays=[
+  {day:'Monday',theme:'Leadership & Planning',color:'var(--gold)',bg:'var(--gold-lt)',hours:'2–3 hours',icon:'📋',
+    desc:'Start the week running the firm, not reacting to it.',
+    items:['Staff workflow overview — accounts ready for review, payroll deadlines, problem clients','Key deadlines for the week — CH filings, VAT submissions, client meetings','Bottlenecks in accounts or payroll production — address early','New client onboarding status — data capture complete?','Short meeting with Hassan and Aminul — 20–30 minutes maximum.']},
+  {day:'Tuesday',theme:'High-Value Client Work',color:'var(--mid)',bg:'var(--blue-lt)',hours:'4–5 hours',icon:'🏆',
+    desc:'Reserve time for the relationships that generate the most value and referrals.',
+    items:['Multi-company clients and restaurant groups — accounts review, tax planning','Property investors — structuring, dividend planning, SA considerations','Long-term Tier A clients who refer others — relationship maintenance','Complex advisory: expansion, restructuring, second companies','Avoid spending Tuesday on routine compliance queries.']},
+  {day:'Wednesday',theme:'Business Development',color:'var(--green)',bg:'var(--green-lt)',hours:'3–4 hours',icon:'🤝',
+    desc:'This is where scaling firms differ from static ones. One strong relationship per week compounds.',
+    items:['Meet potential clients within the hospitality community','Visit successful restaurant owners — show genuine interest in their business','Maintain relationships with suppliers, solicitors, and property contacts within the network','Follow up referrals and new client proposals','Even a 30-minute coffee meeting per week creates significant long-term value.']},
+  {day:'Thursday',theme:'Systems & Improvement',color:'var(--slate)',bg:'var(--lgrey)',hours:'3 hours',icon:'⚙️',
+    desc:'Small improvements create huge efficiency gains over 12 months.',
+    items:['Improve workflows — how does a file move from bookkeeping → prep → review → client?','Update pricing structures and service documentation','Review and optimise the software stack (QBO, Bright, portal)','Train staff — Hassan on portfolio management, Aminul on workflow systems','Document procedures — one process documented per week adds up fast.']},
+  {day:'Friday',theme:'Strategy & Financial Review',color:'var(--mid)',bg:'var(--blue-lt)',hours:'2–3 hours',icon:'📊',
+    desc:'End the week with clarity on where the practice stands — financially and strategically.',
+    items:['Review MRR, GoCardless collections, new clients added, outstanding invoices','Check staff workload and upcoming filing deadlines','Reflect on strategic priorities: what is behind plan? what is ahead?','Identify one decision that would move the firm forward','Use Friday afternoon for calm, uninterrupted thinking — not client work.']},
+];
+function renderWeeklyDays(){
+  const el=document.getElementById('weekly-days');
+  if(!el) return;
+  el.innerHTML=weekDays.map(d=>`
+    <div style="border:1px solid var(--mgrey);border-radius:6px;overflow:hidden;margin-bottom:16px;">
+      <div style="background:${d.color};padding:14px 20px;display:flex;align-items:center;gap:16px;">
+        <div style="font-size:24px;">${d.icon}</div>
+        <div><div style="font-size:16px;font-weight:700;color:white;">${d.day} — ${d.theme}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.75);">${d.hours}</div></div>
+      </div>
+      <div style="padding:16px 20px;background:${d.bg};">
+        <p style="font-size:13px;font-weight:500;color:var(--deep);margin-bottom:12px;">${d.desc}</p>
+        <ul style="list-style:none;">${d.items.map(it=>`<li style="font-size:13px;color:var(--body);padding:5px 0 5px 18px;position:relative;border-bottom:1px solid rgba(0,0,0,0.05);line-height:1.5;"><span style="position:absolute;left:0;color:${d.color};font-weight:700;">›</span>${it}</li>`).join('')}</ul>
+      </div>
+    </div>`).join('');
+}
+
+const mondayAgenda=['Accounts ready for review this week','Payroll deadlines and outstanding employer submissions','Problem clients or escalations needing MD attention','New client onboarding — data capture complete, DD mandates signed','Fee proposals outstanding or follow-ups needed'];
+function renderMondayAgenda(){
+  const el=document.getElementById('monday-agenda');
+  if(!el) return;
+  el.innerHTML=mondayAgenda.map((item,i)=>`
+    <div style="background:var(--gold);color:var(--deep);width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'Playfair Display',Georgia,serif;">${i+1}</div>
+    <div style="font-size:13px;padding:4px 0;">${item}</div>`).join('');
+}
+
+// init
+renderTierA(); renderActions(); renderBridge();
+renderKPIs(); renderLCV(); renderPyramid(); renderFlywheel();
+renderAccelBridge(); renderWeeklyDays(); renderMondayAgenda();
+
+</script>
+</body>
+</html>
