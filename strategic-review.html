@@ -324,6 +324,35 @@
     .cover h1{font-size:26px;}
     .pyramid-header{grid-template-columns:60px 1fr 80px;}
   }
+
+  /* DOWNLOAD BAR */
+  .dl-bar{background:var(--deep);border-top:2px solid var(--gold);padding:10px 24px;
+    display:flex;align-items:center;gap:12px;justify-content:flex-end;
+    position:sticky;bottom:0;z-index:200;flex-wrap:wrap;}
+  .dl-bar span{font-size:12px;color:#64748B;margin-right:auto;}
+  .dl-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:3px;
+    border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;
+    text-decoration:none;transition:all 0.15s;white-space:nowrap;}
+  .dl-btn.pdf{background:#991B1B;color:white;}
+  .dl-btn.pdf:hover{background:#7F1D1D;}
+  .dl-btn.word{background:#1A5C8A;color:white;}
+  .dl-btn.word:hover{background:#134060;}
+  .dl-btn.prt{background:#4A5568;color:white;}
+  .dl-btn.prt:hover{background:#2D3748;}
+
+  @media print {
+    .nav,.tab-nav,.dl-bar{display:none!important;}
+    body{background:white!important;}
+    .page-wrap{max-width:100%;padding:0;}
+    .tab-content{display:block!important;page-break-inside:avoid;margin-bottom:24pt;}
+    .section-card,.section-card.tabbed-card{box-shadow:none;border:1px solid #ccc;margin-bottom:12px;}
+    .cover{background:#0C1D3B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .section-header{background:#0C1D3B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .kpi-strip{grid-template-columns:repeat(3,1fr);}
+    table{page-break-inside:avoid;}
+    h1,h2,h3{page-break-after:avoid;}
+    .addendum-header{background:#0C1D3B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
 </style>
 </head>
 <body>
@@ -1336,5 +1365,115 @@ renderKPIs(); renderLCV(); renderPyramid(); renderFlywheel();
 renderAccelBridge(); renderWeeklyDays(); renderMondayAgenda();
 
 </script>
+
+<!-- DOWNLOAD BAR -->
+<div class="dl-bar">
+  <span>📊 Chowdury Accountants — Strategic Review v11 · March 2026 · Strictly Confidential</span>
+  <button class="dl-btn prt" onclick="printAll()">🖨️ Print</button>
+  <button class="dl-btn pdf" onclick="savePDF()">⬇️ Save as PDF</button>
+  <button class="dl-btn word" onclick="downloadWord()">⬇️ Download Word</button>
+</div>
+
+<script>
+function printAll(){
+  document.querySelectorAll('.tab-content').forEach(t=>{t.dataset.wasActive=t.classList.contains('active');t.classList.add('active');});
+  window.print();
+  setTimeout(()=>{
+    document.querySelectorAll('.tab-content').forEach(t=>{if(t.dataset.wasActive!=='true') t.classList.remove('active');});
+  },1000);
+}
+function savePDF(){
+  alert('In the print dialog that opens:\n\n1. Set Destination → Save as PDF\n2. Layout → Portrait\n3. Click Save\n\nAll sections will be included.');
+  printAll();
+}
+function downloadWord(){
+  const style=`
+    <style>
+    body{font-family:Arial,sans-serif;font-size:10pt;color:#1A202C;margin:2cm;}
+    h1{font-size:16pt;color:#0C1D3B;border-bottom:2pt solid #C4922A;padding-bottom:4pt;margin-top:20pt;page-break-before:always;}
+    h1:first-of-type{page-break-before:avoid;}
+    h2{font-size:12pt;color:#1A3A6E;margin-top:12pt;}
+    h3{font-size:11pt;color:#1A3A6E;margin-top:8pt;}
+    table{border-collapse:collapse;width:100%;margin:6pt 0;font-size:8.5pt;}
+    th{background:#0C1D3B;color:white;padding:4pt 6pt;text-align:left;font-weight:bold;-webkit-print-color-adjust:exact;}
+    td{padding:3pt 6pt;border:0.5pt solid #ccc;vertical-align:top;}
+    tr:nth-child(even) td{background:#F7F9FC;}
+    p{line-height:1.5;margin:3pt 0;}
+    ul{margin:4pt 0 4pt 14pt;} li{margin:2pt 0;}
+    .callout{border-left:3pt solid #C4922A;background:#FDF8EE;padding:6pt 10pt;margin:8pt 0;font-style:italic;font-weight:bold;}
+    .cover{background:#0C1D3B;color:white;padding:16pt;margin-bottom:16pt;-webkit-print-color-adjust:exact;}
+    .section-header{background:#0C1D3B;color:white;padding:8pt 12pt;-webkit-print-color-adjust:exact;}
+    .kpi-strip{display:flex;flex-wrap:wrap;gap:8pt;margin-bottom:12pt;}
+    .kpi-card{border:1pt solid #ccc;padding:8pt;min-width:100pt;text-align:center;}
+    </style>`;
+
+  const coverHTML=`
+    <div class="cover">
+      <p style="font-size:8pt;color:#A0B0C8;text-transform:uppercase;letter-spacing:0.1em;font-weight:bold;">STRICTLY CONFIDENTIAL — FOR INTERNAL STRATEGIC USE ONLY</p>
+      <p style="font-size:20pt;font-weight:bold;color:white;margin:8pt 0 4pt;">Strategic &amp; Financial Review</p>
+      <p style="font-size:11pt;color:#94A3B8;">The Chowdury Accountants Ltd · AAT Licensed · Oldham, Greater Manchester</p>
+      <p style="color:#94A3B8;margin-top:8pt;font-size:9pt;">Prepared by: Md Asadul Chowdury, Managing Director &nbsp;|&nbsp; March 2026 &nbsp;|&nbsp; v11 FINAL</p>
+    </div>
+    <table>
+      <tr><th>KPI</th><th>Current March 2026</th><th>Target</th></tr>
+      <tr><td>Annual Revenue</td><td>£314,000</td><td>£750k–£1M (Vision 2030)</td></tr>
+      <tr><td>Monthly Recurring Revenue</td><td>£19,579</td><td>£25,000 → £40,000</td></tr>
+      <tr><td>Active Clients</td><td>~600</td><td>~700</td></tr>
+      <tr><td>Recurring Revenue Ratio</td><td>74.7%</td><td>80%+</td></tr>
+      <tr><td>Revenue per Client</td><td>£523</td><td>£1,000+</td></tr>
+      <tr><td>Net Margin (before MD rem.)</td><td>33.9% (£106,592)</td><td>50%+ post fee correction</td></tr>
+      <tr><td>Post Fee Correction Revenue</td><td colspan="2">£423,340 (+£109,340 on same base)</td></tr>
+    </table>`;
+
+  const tabs=[
+    {id:'tab-exec',title:'Executive Summary'},
+    {id:'tab-financials',title:'Financial Analysis'},
+    {id:'tab-revenue',title:'Recurring Revenue'},
+    {id:'tab-strategy',title:'Strategy and Valuation'},
+    {id:'tab-operations',title:'Structure and Action Plan'},
+    {id:'tab-kpis',title:'The 5 KPIs That Predict a £1M Practice'},
+    {id:'tab-lcv',title:'Lifetime Client Value'},
+    {id:'tab-pyramid',title:'The Client Pyramid'},
+    {id:'tab-flywheel',title:'The Practice Flywheel'},
+    {id:'tab-acceleration',title:'12-Month Flywheel Acceleration Plan'},
+    {id:'tab-routine',title:'Managing Partner Weekly Routine'},
+    {id:'tab-vision',title:'Vision to £1M — The Hidden Upside'},
+    {id:'tab-appendix',title:'Appendix'},
+  ];
+
+  let body=coverHTML;
+  tabs.forEach(t=>{
+    const el=document.getElementById(t.id);
+    if(!el) return;
+    body+=`<h1>${t.title}</h1>`;
+    // Extract tables
+    el.querySelectorAll('table').forEach(tbl=>{body+=tbl.outerHTML;});
+    // Extract callouts
+    el.querySelectorAll('.callout').forEach(c=>{body+=`<div class="callout">${c.innerText}</div>`;});
+    // Extract paragraphs with meaningful text
+    el.querySelectorAll('p').forEach(p=>{if(p.innerText&&p.innerText.trim().length>30)body+=`<p>${p.innerText}</p>`;});
+  });
+
+  body+=`<p style="margin-top:20pt;font-size:8pt;color:#94A3B8;border-top:0.5pt solid #ccc;padding-top:6pt;">
+    The Chowdury Accountants Ltd · 283 Featherstall Road North, Oldham, OL1 2NH ·
+    info@chowduryaccountants.co.uk · 0161 222 4647 · www.chowduryaccountants.co.uk ·
+    Strategic and Financial Review v11 · March 2026 · Strictly Confidential
+  </p>`;
+
+  const html=`<html xmlns:o='urn:schemas-microsoft-com:office:office'
+    xmlns:w='urn:schemas-microsoft-com:office:word'
+    xmlns='http://www.w3.org/TR/REC-html40'>
+    <head><meta charset='utf-8'><title>Chowdury Accountants Strategic Review v11</title>
+    <!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View><w:Zoom>90</w:Zoom><w:DoNotOptimizeForBrowser/></w:WordDocument></xml><![endif]-->
+    ${style}</head><body>${body}</body></html>`;
+
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='Chowdury_Accountants_Strategic_Review_v11.doc'; a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
 </body>
 </html>
