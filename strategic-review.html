@@ -1096,44 +1096,219 @@
     </div>
   </div>
 
-  <!-- DOCUMENT DOWNLOADS -->
-  <div style="background:var(--white);border-radius:6px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;">
+  <!-- STRATEGIC DOCUMENT LIBRARY -->
+  <div id="doc-library" style="background:var(--white);border-radius:6px;box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;">
+
     <div style="background:var(--deep);padding:16px 28px;border-bottom:2px solid var(--gold);display:flex;align-items:center;gap:12px;">
-      <div style="background:var(--gold);color:var(--deep);font-size:12px;font-weight:700;width:28px;height:28px;border-radius:2px;display:flex;align-items:center;justify-content:center;">⬇</div>
-      <div style="font-size:15px;font-weight:600;color:var(--white);">Download Strategic Documents</div>
+      <div style="background:var(--gold);color:var(--deep);font-size:14px;font-weight:700;width:30px;height:30px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📚</div>
+      <div style="flex:1;">
+        <div style="font-size:15px;font-weight:600;color:var(--white);">Strategic Document Library</div>
+        <div style="font-size:11px;color:#64748B;margin-top:2px;">Practice reports · Industry insights · External analysis · Your own documents</div>
+      </div>
+      <button onclick="openAddDoc()" style="background:var(--gold);color:var(--deep);border:none;padding:8px 16px;border-radius:3px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">+ Add Document</button>
     </div>
-    <div style="padding:24px 28px;display:grid;grid-template-columns:1fr 1fr;gap:16px;">
 
-      <div style="border:1px solid var(--mgrey);border-radius:4px;padding:20px;display:flex;align-items:flex-start;gap:16px;background:var(--lgrey);">
-        <div style="font-size:36px;line-height:1;flex-shrink:0;">📘</div>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;color:var(--deep);margin-bottom:4px;">Strategic Review — Full Report</div>
-          <div style="font-size:12px;color:var(--slate);margin-bottom:2px;">Sections 1–13 · Executive Summary · Vision Addendum · Appendix</div>
-          <div style="font-size:11px;color:var(--slate);margin-bottom:14px;">March 2026 · v10 FINAL · 43 KB · Word Document (.docx)</div>
-          <a href="Chowdury_Accountants_Strategic_Review_v10_FINAL.docx" download
-             style="display:inline-block;background:var(--deep);color:white;text-decoration:none;font-size:12px;font-weight:600;padding:8px 16px;border-radius:3px;font-family:'Inter',sans-serif;">
-            ⬇️ Download Full Report
-          </a>
+    <div style="background:var(--lgrey);padding:8px 28px;border-bottom:1px solid var(--mgrey);display:flex;gap:6px;flex-wrap:wrap;">
+      <button class="lib-filter active" onclick="filterDocs('all',this)">All</button>
+      <button class="lib-filter" onclick="filterDocs('practice',this)">📘 Practice Reports</button>
+      <button class="lib-filter" onclick="filterDocs('external',this)">🤖 External Analysis</button>
+      <button class="lib-filter" onclick="filterDocs('industry',this)">🏭 Industry</button>
+      <button class="lib-filter" onclick="filterDocs('own',this)">✍️ My Documents</button>
+    </div>
+
+    <div id="doc-grid" style="padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;min-height:80px;"></div>
+  </div>
+
+  <!-- ADD DOCUMENT MODAL -->
+  <div id="add-doc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:6px;width:520px;max-width:94vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden;">
+      <div style="background:var(--deep);padding:16px 20px;border-bottom:2px solid var(--gold);display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:14px;font-weight:600;color:white;">Add Strategic Document</div>
+        <button onclick="closeAddDoc()" style="background:none;border:none;color:#94A3B8;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+      <div style="padding:20px;">
+        <div style="display:grid;gap:12px;">
+          <div>
+            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);display:block;margin-bottom:4px;">Document Title *</label>
+            <input id="doc-title" placeholder="e.g. ICAEW Practice Management Guide 2025" style="width:100%;border:1px solid var(--mgrey);border-radius:3px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);display:block;margin-bottom:4px;">Description</label>
+            <input id="doc-desc" placeholder="Brief description of what this document covers" style="width:100%;border:1px solid var(--mgrey);border-radius:3px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box;">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div>
+              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);display:block;margin-bottom:4px;">Category *</label>
+              <select id="doc-cat" style="width:100%;border:1px solid var(--mgrey);border-radius:3px;padding:8px 10px;font-size:13px;font-family:inherit;background:white;">
+                <option value="practice">📘 Practice Reports</option>
+                <option value="external">🤖 External Analysis</option>
+                <option value="industry">🏭 Industry</option>
+                <option value="own">✍️ My Documents</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);display:block;margin-bottom:4px;">Date</label>
+              <input id="doc-date" type="month" style="width:100%;border:1px solid var(--mgrey);border-radius:3px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box;">
+            </div>
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);display:block;margin-bottom:4px;">Link URL <span style="font-weight:400;text-transform:none;">(optional — for web articles or external reports)</span></label>
+            <input id="doc-url" placeholder="https://..." style="width:100%;border:1px solid var(--mgrey);border-radius:3px;padding:8px 10px;font-size:13px;font-family:inherit;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);display:block;margin-bottom:4px;">Upload File <span style="font-weight:400;text-transform:none;">(PDF, Word, Excel — stored in your browser)</span></label>
+            <input id="doc-file" type="file" accept=".pdf,.doc,.docx,.xlsx,.xls,.pptx,.txt" style="width:100%;border:1px solid var(--mgrey);border-radius:3px;padding:8px 10px;font-size:13px;font-family:inherit;background:white;box-sizing:border-box;">
+            <div style="font-size:11px;color:var(--slate);margin-top:4px;">⚠️ Files are saved in your browser locally. They will persist on this device but not sync across devices.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end;">
+          <button onclick="closeAddDoc()" style="background:var(--lgrey);border:1px solid var(--mgrey);padding:8px 18px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancel</button>
+          <button onclick="saveDoc()" style="background:var(--deep);color:white;border:none;padding:8px 22px;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Save Document</button>
         </div>
       </div>
-
-      <div style="border:1px solid var(--mgrey);border-radius:4px;padding:20px;display:flex;align-items:flex-start;gap:16px;background:var(--lgrey);">
-        <div style="font-size:36px;line-height:1;flex-shrink:0;">📗</div>
-        <div style="flex:1;">
-          <div style="font-size:14px;font-weight:700;color:var(--deep);margin-bottom:4px;">Strategic Review — Addendum v11</div>
-          <div style="font-size:12px;color:var(--slate);margin-bottom:2px;">Section 14: 12-Month Acceleration Plan · Section 15: Managing Partner Routine</div>
-          <div style="font-size:11px;color:var(--slate);margin-bottom:14px;">March 2026 · v11 Addendum · 19 KB · Word Document (.docx)</div>
-          <a href="Chowdury_Accountants_Strategic_Review_v11_Addendum.docx" download
-             style="display:inline-block;background:var(--gold);color:var(--deep);text-decoration:none;font-size:12px;font-weight:600;padding:8px 16px;border-radius:3px;font-family:'Inter',sans-serif;">
-            ⬇️ Download Addendum
-          </a>
-        </div>
-      </div>
-
     </div>
   </div>
 
-  <div class="report-footer">
+  <style>
+    .lib-filter{background:none;border:1px solid transparent;padding:5px 12px;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;color:var(--slate);font-family:inherit;transition:all 0.15s;}
+    .lib-filter:hover{background:white;border-color:var(--mgrey);}
+    .lib-filter.active{background:var(--deep);color:white;border-color:var(--deep);}
+    .doc-card{border:1px solid var(--mgrey);border-radius:4px;overflow:hidden;background:white;display:flex;flex-direction:column;transition:box-shadow 0.15s;}
+    .doc-card:hover{box-shadow:0 4px 16px rgba(12,29,59,0.12);}
+    .doc-card-top{padding:16px;flex:1;}
+    .doc-card-footer{padding:10px 16px;background:var(--lgrey);border-top:1px solid var(--mgrey);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .doc-dl-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:2px;font-size:11px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:inherit;}
+    .doc-del-btn{margin-left:auto;background:none;border:none;color:#94A3B8;font-size:22px;cursor:pointer;padding:0 2px;line-height:1;}
+    .doc-del-btn:hover{color:#991B1B;}
+  </style>
+
+  <script>
+  var BUILTIN=[
+    {id:"b1",title:"Strategic Review — Full Report (v10 FINAL)",
+     desc:"Sections 1–13, Executive Summary, Vision Addendum, Appendix. Practice overview, financials, recurring revenue, pricing strategy, SWOT, valuation scenarios, Vision 2030 growth plan.",
+     cat:"practice",date:"March 2026",icon:"📘",builtin:true,
+     url:"Chowdury_Accountants_Strategic_Review_v10_FINAL.docx",filetype:"docx"},
+    {id:"b2",title:"Strategic Review — Addendum v11",
+     desc:"Section 14: 12-Month Flywheel Acceleration Plan (4 phases). Section 15: Managing Partner Weekly Routine — transitioning from £300k owner to £1M managing partner.",
+     cat:"practice",date:"March 2026",icon:"📗",builtin:true,
+     url:"Chowdury_Accountants_Strategic_Review_v11_Addendum.docx",filetype:"docx"},
+    {id:"b3",title:"ChatGPT Strategic Analysis — Practice Growth & Flywheel",
+     desc:"External AI-generated strategic analysis covering: niche dominance patterns, client lifetime value, the client pyramid, practice flywheel model, 5 KPIs for £1M, scaling blueprint, and managing partner weekly routine.",
+     cat:"external",date:"March 2026",icon:"🤖",builtin:true,placeholder:true,
+     url:null,filetype:null},
+  ];
+
+  var CAT={
+    practice:{label:"Practice Reports",color:"#1A3A6E",bg:"#EFF6FF"},
+    external:{label:"External Analysis",color:"#92400E",bg:"#FEF3C7"},
+    industry:{label:"Industry",color:"#166534",bg:"#F0FDF4"},
+    own:{label:"My Documents",color:"#4A5568",bg:"#F7F9FC"}
+  };
+  var FICON={pdf:"📕",docx:"📘",doc:"📘",xlsx:"📗",xls:"📗",pptx:"📙",txt:"📄",link:"🔗"};
+
+  function getSaved(){try{return JSON.parse(localStorage.getItem("ca_docs")||"[]")}catch(e){return[]}}
+  function setSaved(d){try{localStorage.setItem("ca_docs",JSON.stringify(d))}catch(e){}}
+  function allDocs(){return BUILTIN.concat(getSaved())}
+  var curFilter="all";
+
+  function renderGrid(f){
+    curFilter=f||"all";
+    var docs=allDocs().filter(function(d){return curFilter==="all"||d.cat===curFilter;});
+    var g=document.getElementById("doc-grid");
+    if(!g)return;
+    if(!docs.length){
+      g.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--slate);font-size:13px;">No documents here yet. Click <strong>+ Add Document</strong> to add one.</div>';
+      return;
+    }
+    g.innerHTML=docs.map(function(d){
+      var c=CAT[d.cat]||CAT.own;
+      var icon=d.icon||FICON[d.filetype]||"📄";
+      var foot="";
+      if(d.placeholder){
+        foot='<span style="font-size:11px;color:var(--slate);font-style:italic;">Upload your copy to link it here</span>'
+            +'<button class="doc-dl-btn" style="background:var(--gold);color:var(--deep);margin-left:auto;" onclick="prefill(\''+d.id+'\')">📎 Upload PDF</button>';
+      } else if(d.blobUrl){
+        foot='<a href="'+d.blobUrl+'" download="'+(d.filename||d.title)+'" class="doc-dl-btn" style="background:var(--deep);color:white;">⬇️ Download</a>'
+            +'<span style="font-size:11px;color:var(--slate);">'+(d.filetype||"").toUpperCase()+'</span>';
+      } else if(d.url){
+        var attr=d.url.startsWith("http")?"target=\"_blank\"":"download";
+        foot='<a href="'+d.url+'" '+attr+' class="doc-dl-btn" style="background:var(--deep);color:white;">⬇️ Download</a>'
+            +'<span style="font-size:11px;color:var(--slate);">'+(d.filetype||"DOCX").toUpperCase()+'</span>';
+      } else {
+        foot='<span style="font-size:11px;color:var(--slate);font-style:italic;">No file linked</span>';
+      }
+      if(!d.builtin){
+        foot+='<button class="doc-del-btn" onclick="delDoc(\''+d.id+'\')" title="Remove">&times;</button>';
+      }
+      return '<div class="doc-card">'
+        +'<div class="doc-card-top">'
+        +'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:'+c.color+';background:'+c.bg+';display:inline-block;padding:2px 8px;border-radius:2px;margin-bottom:8px;">'+c.label+'</div>'
+        +'<div style="font-size:13px;font-weight:700;color:var(--deep);margin-bottom:6px;line-height:1.4;">'+icon+' '+d.title+'</div>'
+        +'<div style="font-size:12px;color:var(--slate);line-height:1.5;margin-bottom:6px;">'+(d.desc||'')+'</div>'
+        +'<div style="font-size:11px;color:#94A3B8;">'+(d.date||'')+'</div>'
+        +'</div>'
+        +'<div class="doc-card-footer">'+foot+'</div>'
+        +'</div>';
+    }).join("");
+  }
+
+  function filterDocs(f,btn){
+    document.querySelectorAll(".lib-filter").forEach(function(b){b.classList.remove("active");});
+    if(btn)btn.classList.add("active");
+    renderGrid(f);
+  }
+
+  function openAddDoc(){
+    document.getElementById("add-doc-modal").style.display="flex";
+    document.getElementById("doc-date").value=new Date().toISOString().slice(0,7);
+  }
+  function closeAddDoc(){
+    document.getElementById("add-doc-modal").style.display="none";
+    ["doc-title","doc-desc","doc-url"].forEach(function(i){document.getElementById(i).value="";});
+    document.getElementById("doc-file").value="";
+  }
+  function prefill(id){
+    var d=BUILTIN.find(function(x){return x.id===id;});
+    if(!d)return;
+    openAddDoc();
+    document.getElementById("doc-title").value=d.title+" (my copy)";
+    document.getElementById("doc-desc").value=d.desc;
+    document.getElementById("doc-cat").value=d.cat;
+  }
+  function saveDoc(){
+    var title=document.getElementById("doc-title").value.trim();
+    if(!title){alert("Please enter a document title.");return;}
+    var cat=document.getElementById("doc-cat").value;
+    var desc=document.getElementById("doc-desc").value.trim();
+    var date=document.getElementById("doc-date").value;
+    var url=document.getElementById("doc-url").value.trim();
+    var file=document.getElementById("doc-file").files[0];
+    var ext=file?file.name.split(".").pop().toLowerCase():(url?"link":null);
+    var id="d"+Date.now();
+    var doc={id:id,title:title,desc:desc,cat:cat,date:date,filetype:ext,icon:FICON[ext]||"📄",url:url||null,builtin:false};
+    if(file){
+      var r=new FileReader();
+      r.onload=function(e){
+        doc.blobUrl=e.target.result;
+        doc.filename=file.name;
+        var s=getSaved();s.push(doc);setSaved(s);renderGrid(curFilter);closeAddDoc();
+      };
+      r.readAsDataURL(file);
+    } else {
+      var s=getSaved();s.push(doc);setSaved(s);renderGrid(curFilter);closeAddDoc();
+    }
+  }
+  function delDoc(id){
+    if(!confirm("Remove this document from the library?"))return;
+    setSaved(getSaved().filter(function(d){return d.id!==id;}));
+    renderGrid(curFilter);
+  }
+
+  renderGrid("all");
+  </script>
+
+
+    <div class="report-footer">
     <div>
       <div class="conf">Strictly Confidential — Internal Strategic Use Only</div>
       <p style="margin-top:4px;">The Chowdury Accountants Ltd · 283 Featherstall Road North, Oldham, OL1 2NH</p>
