@@ -6,12 +6,31 @@
 <title>Strategic & Financial Review — Chowdury Accountants</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap');
-  :root {
-    --deep:#0C1D3B; --mid:#1A3A6E; --gold:#C4922A; --gold-lt:#FDF8EE;
-    --slate:#4A5568; --body:#1A202C; --lgrey:#F7F9FC; --mgrey:#E2E8EF;
-    --white:#FFFFFF; --green:#166534; --green-lt:#F0FDF4;
-    --red:#991B1B; --blue-lt:#EFF6FF; --radius:4px;
-    --shadow:0 2px 8px rgba(12,29,59,0.10); --shadow-lg:0 8px 32px rgba(12,29,59,0.16);
+    :root {
+    --bg: #F5F5F5;
+    --surface: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink2: #3D3D3D;
+    --muted: #8A8A8A;
+    --border: #E0E0E0;
+    --gold: #FFE600;
+    --gold-dark: #D4C000;
+    --gold-light: #FFFDE0;
+    --green: #1A7A4A;
+    --green-light: #E6F5EE;
+    --blue: #0F4C8A;
+    --blue-light: #E5EFF8;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --amber: #D4820A;
+    --amber-light: #FEF3DC;
+    --slate: #5A5A6A;
+    --slate-light: #F0F0F4;
+    --dark: #2E2E38;
+    --sans: 'Barlow', sans-serif;
+    --display: 'Barlow Condensed', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Barlow Condensed', sans-serif;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Inter',sans-serif;background:#F0F4F8;color:var(--body);font-size:14px;line-height:1.6;}
@@ -353,6 +372,119 @@
     h1,h2,h3{page-break-after:avoid;}
     .addendum-header{background:#0C1D3B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   }
+
+  /* ── EY GLOBAL OVERRIDES ─────────────────────────────── */
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); }
+
+  /* Buttons */
+  .btn, button.btn, .add-btn, .btn-save, .btn-primary {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.4px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-save, .btn-primary { background: var(--gold); color: var(--dark); }
+  .btn-save:hover, .btn-primary:hover { background: var(--gold-dark); }
+  .add-btn { background: var(--dark); color: #fff; border-radius: 2px; }
+  .add-btn:hover { background: #1a1a24; }
+
+  /* Cards / surfaces */
+  .card, .stat-card, .kpi-card, .summary-card {
+    background: var(--surface);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  /* Tables */
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans); }
+  thead th {
+    background: var(--dark);
+    color: rgba(255,255,255,0.85);
+    font-family: var(--display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    border: none;
+  }
+  thead th:first-child { border-left: 3px solid var(--gold); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--gold-light); }
+  tbody td { padding: 9px 12px; font-size: 0.82rem; }
+
+  /* Section headers */
+  .section-header h2, h2, h3 { font-family: var(--display); font-weight: 700; }
+
+  /* Tabs / pills */
+  .tab, .pill {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+  }
+  .tab.active, .pill.active {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    border-color: var(--gold) !important;
+  }
+
+  /* Logo mark EY style */
+  .logo-mark {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    border-radius: 0 !important;
+    font-family: var(--display) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  /* Input fields */
+  input, select, textarea {
+    font-family: var(--sans);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    font-size: 0.83rem;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(255,230,0,0.15);
+  }
+
+  /* Modal */
+  .modal-overlay { backdrop-filter: blur(3px); }
+  .modal, .modal-box {
+    border-radius: 2px;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  /* Toast / alerts */
+  .toast { border-radius: 2px; font-family: var(--sans); }
+
+  /* Badges */
+  .badge, .dbadge, .status-badge {
+    border-radius: 2px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.68rem;
+    letter-spacing: 0.3px;
+  }
+
 </style>
 </head>
 <body>

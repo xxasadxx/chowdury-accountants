@@ -6,30 +6,36 @@
 <title>Chowdury Accountants — Practice Portal</title>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,700;1,300&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #f5f3ee;
-    --surface: #ffffff;
-    --ink: #1a1a18;
-    --ink2: #4a4a45;
-    --muted: #9a9a92;
-    --border: #e5e2d8;
-    --gold: #c8963c;
-    --gold-light: #f5e9d3;
-    --green: #2d6a4f;
-    --green-light: #d8f0e6;
-    --blue: #1d4ed8;
-    --blue-light: #dbeafe;
-    --red: #b91c1c;
-    --red-light: #fee2e2;
-    --amber: #d97706;
-    --amber-light: #fef3c7;
-    --slate: #475569;
-    --slate-light: #f1f5f9;
-    --serif: 'Fraunces', Georgia, serif;
-    --sans: 'DM Sans', sans-serif;
-    --mono: 'DM Mono', monospace;
+    :root {
+    --bg: #F5F5F5;
+    --surface: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink2: #3D3D3D;
+    --muted: #8A8A8A;
+    --border: #E0E0E0;
+    --gold: #FFE600;
+    --gold-dark: #D4C000;
+    --gold-light: #FFFDE0;
+    --green: #1A7A4A;
+    --green-light: #E6F5EE;
+    --blue: #0F4C8A;
+    --blue-light: #E5EFF8;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --amber: #D4820A;
+    --amber-light: #FEF3DC;
+    --slate: #5A5A6A;
+    --slate-light: #F0F0F4;
+    --dark: #2E2E38;
+    --sans: 'Barlow', sans-serif;
+    --display: 'Barlow Condensed', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Barlow Condensed', sans-serif;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -42,102 +48,106 @@
     overflow-x: hidden;
   }
 
-  /* HEADER */
+    /* ── EY HEADER ─────────────────────────────────────── */
   header {
-    background: var(--ink);
+    background: var(--dark);
     padding: 0;
     position: sticky;
     top: 0;
-    z-index: 9999;
+    z-index: 100;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
+  .header-band {
+    height: 4px;
+    background: var(--gold);
+  }
   .header-top {
-    padding: 0 40px;
-    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 12px 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
   }
-  .header-nav {
-    padding: 0 40px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(0,0,0,0.2);
-  }
-  .header-nav a {
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    padding: 4px 12px;
-    border-radius: 5px;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.15s;
-    font-family: var(--sans);
-  }
-  .header-nav a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-  .header-nav a.active { color: #fff; background: rgba(255,255,255,0.12); }
-  .header-nav .signout {
-    margin-left: auto;
-    color: rgba(255,255,255,0.25) !important;
-    font-size: 11px;
-  }
-  .header-nav .signout:hover { color: #f87171 !important; background: transparent !important; }
-
   .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
   }
-
   .logo-mark {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     background: var(--gold);
-    border-radius: 8px;
+    color: var(--dark);
+    font-family: var(--display);
+    font-size: 1.05rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--serif);
-    font-weight: 600;
-    font-size: 18px;
-    color: var(--ink);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
   }
-
-  .logo-text {
-    display: flex;
-    flex-direction: column;
-    line-height: 1.1;
-  }
-
   .logo-text .name {
-    font-family: var(--serif);
-    font-size: 15px;
-    font-weight: 600;
-    color: #fff;
-    letter-spacing: -0.01em;
+    display: block;
+    font-family: var(--display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #FFFFFF;
+    letter-spacing: 0.3px;
+    line-height: 1.2;
   }
-
   .logo-text .sub {
-    font-size: 10px;
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 400;
     color: rgba(255,255,255,0.45);
-    letter-spacing: 0.1em;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
+    margin-top: 1px;
   }
-
   .header-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
   }
-
   .header-date {
-    font-size: 12px;
-    color: rgba(255,255,255,0.4);
     font-family: var(--mono);
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.5px;
   }
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 28px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    background: var(--dark);
+  }
+  .header-nav::-webkit-scrollbar { display: none; }
+  .header-nav a {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    padding: 10px 14px;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+  }
+  .header-nav a:hover { color: #fff; border-bottom-color: rgba(255,230,0,0.4); }
+  .header-nav a.active { color: #fff; border-bottom-color: var(--gold); }
+  .header-nav .signout {
+    margin-left: auto;
+    color: rgba(255,255,255,0.3) !important;
+    font-size: 0.72rem !important;
+    border-bottom-color: transparent !important;
+    padding: 10px 6px !important;
+  }
+  .header-nav .signout:hover { color: #ff6b6b !important; border-bottom-color: transparent !important; }
 
   /* HERO */
   .hero {
@@ -456,35 +466,149 @@
     footer { padding: 24px 20px; flex-direction: column; gap: 8px; text-align: center; }
     .tool-grid { grid-template-columns: 1fr; }
   }
+
+  /* ── EY GLOBAL OVERRIDES ─────────────────────────────── */
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); }
+
+  /* Buttons */
+  .btn, button.btn, .add-btn, .btn-save, .btn-primary {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.4px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-save, .btn-primary { background: var(--gold); color: var(--dark); }
+  .btn-save:hover, .btn-primary:hover { background: var(--gold-dark); }
+  .add-btn { background: var(--dark); color: #fff; border-radius: 2px; }
+  .add-btn:hover { background: #1a1a24; }
+
+  /* Cards / surfaces */
+  .card, .stat-card, .kpi-card, .summary-card {
+    background: var(--surface);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  /* Tables */
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans); }
+  thead th {
+    background: var(--dark);
+    color: rgba(255,255,255,0.85);
+    font-family: var(--display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    border: none;
+  }
+  thead th:first-child { border-left: 3px solid var(--gold); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--gold-light); }
+  tbody td { padding: 9px 12px; font-size: 0.82rem; }
+
+  /* Section headers */
+  .section-header h2, h2, h3 { font-family: var(--display); font-weight: 700; }
+
+  /* Tabs / pills */
+  .tab, .pill {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+  }
+  .tab.active, .pill.active {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    border-color: var(--gold) !important;
+  }
+
+  /* Logo mark EY style */
+  .logo-mark {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    border-radius: 0 !important;
+    font-family: var(--display) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  /* Input fields */
+  input, select, textarea {
+    font-family: var(--sans);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    font-size: 0.83rem;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(255,230,0,0.15);
+  }
+
+  /* Modal */
+  .modal-overlay { backdrop-filter: blur(3px); }
+  .modal, .modal-box {
+    border-radius: 2px;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  /* Toast / alerts */
+  .toast { border-radius: 2px; font-family: var(--sans); }
+
+  /* Badges */
+  .badge, .dbadge, .status-badge {
+    border-radius: 2px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.68rem;
+    letter-spacing: 0.3px;
+  }
+
 </style>
 </head>
 <body>
 <header>
+  <div class="header-band"></div>
   <div class="header-top">
-  <div class="logo">
-    <div class="logo-mark">CA</div>
-    <div class="logo-text">
-      <span class="name">Chowdury Accountants</span>
-      <span class="sub">Practice Portal</span>
+    <div class="logo">
+      <div class="logo-mark">CA</div>
+      <div class="logo-text">
+        <span class="name">Chowdury Accountants</span>
+        <span class="sub">Practice Portal</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="header-date" id="hdr-date"></span>
     </div>
   </div>
-  <div class="header-right">
-    <span class="header-date" id="hdr-date"></span>
-  </div>
-  </div><!-- end header-top -->
-  <div class="header-nav">
-        <a href="index.html" style="color:#fff;text-decoration:none;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.1)">🏠 Portal</a>
-  <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
-  <a href="ltd-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🟢 VAT</a>
-  <a href="paye-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💼 PAYE</a>
-  <a href="sa-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📋 SA</a>
-  <a href="ch-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">⚖️ CH Tracker</a>
-  <a href="quote-calculator.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💡 Quote</a>
-  <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
-  <a href="strategic-review.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📊 Strategy</a>
-<a href="login.html" class="signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
-  </div>
+  <nav class="header-nav">
+    <a href="index.html" class="active">Portal</a>
+    <a href="revenue-tracker.html" class="">Revenue</a>
+    <a href="ltd-tracker.html" class="">Ltd Tracker</a>
+    <a href="vat-tracker.html" class="">VAT</a>
+    <a href="paye-tracker.html" class="">PAYE</a>
+    <a href="sa-tracker.html" class="">SA</a>
+    <a href="ch-tracker.html" class="">CH Tracker</a>
+    <a href="quote-calculator.html" class="">Quote</a>
+    <a href="staff-management.html" class="">Staff</a>
+    <a href="strategic-review.html" class="">Strategy</a>
+    <a href="login.html" class="signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+  </nav>
 </header>
 <script>
 (function(){

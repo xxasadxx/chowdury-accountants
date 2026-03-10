@@ -5,19 +5,40 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Ltd Co Tracker — The Chowdury Accountants</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#f4f6fa;--surface:#fff;--surface2:#f8f9fc;--border:#e2e6ef;--border2:#d0d6e3;
-  --text:#1e2433;--text2:#4b5563;--muted:#9ca3af;
-  --blue:#3b82f6;--green:#16a34a;--red:#ef4444;--amber:#f59e0b;
-  --purple:#7c3aed;--teal:#0d9488;--indigo:#4f46e5;--orange:#ea580c;
-  --sans:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--radius:10px;
-}
+  :root {
+    --bg: #F5F5F5;
+    --surface: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink2: #3D3D3D;
+    --muted: #8A8A8A;
+    --border: #E0E0E0;
+    --gold: #FFE600;
+    --gold-dark: #D4C000;
+    --gold-light: #FFFDE0;
+    --green: #1A7A4A;
+    --green-light: #E6F5EE;
+    --blue: #0F4C8A;
+    --blue-light: #E5EFF8;
+    --red: #C0392B;
+    --red-light: #FDECEA;
+    --amber: #D4820A;
+    --amber-light: #FEF3DC;
+    --slate: #5A5A6A;
+    --slate-light: #F0F0F4;
+    --dark: #2E2E38;
+    --sans: 'Barlow', sans-serif;
+    --display: 'Barlow Condensed', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Barlow Condensed', sans-serif;
+  }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
 #portal-nav{background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.15);flex-wrap:wrap}
 .nav-brand{display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,.1)}
@@ -115,7 +136,120 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 .trend-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
 @media(max-width:600px){.fg,.fg3,.fg4{grid-template-columns:1fr}.modal{margin:0}.modal-body{max-height:55vh}}
 </style>
-<style>#portal-nav a,#portal-nav a:visited,#portal-nav a:link{color:rgba(255,255,255,.5)!important;text-decoration:none!important}#portal-nav a:hover{color:#fff!important;background:rgba(255,255,255,.08);border-radius:5px;text-decoration:none!important}</style>
+<style>#portal-nav a,#portal-nav a:visited,#portal-nav a:link{color:rgba(255,255,255,.5)!important;text-decoration:none!important}#portal-nav a:hover{color:#fff!important;background:rgba(255,255,255,.08);border-radius:5px;text-decoration:none!important}
+  /* ── EY GLOBAL OVERRIDES ─────────────────────────────── */
+  body { font-family: var(--sans); background: var(--bg); color: var(--ink); }
+
+  /* Buttons */
+  .btn, button.btn, .add-btn, .btn-save, .btn-primary {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.4px;
+    border-radius: 2px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-save, .btn-primary { background: var(--gold); color: var(--dark); }
+  .btn-save:hover, .btn-primary:hover { background: var(--gold-dark); }
+  .add-btn { background: var(--dark); color: #fff; border-radius: 2px; }
+  .add-btn:hover { background: #1a1a24; }
+
+  /* Cards / surfaces */
+  .card, .stat-card, .kpi-card, .summary-card {
+    background: var(--surface);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+
+  /* Tables */
+  table { border-collapse: collapse; width: 100%; font-family: var(--sans); }
+  thead th {
+    background: var(--dark);
+    color: rgba(255,255,255,0.85);
+    font-family: var(--display);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    border: none;
+  }
+  thead th:first-child { border-left: 3px solid var(--gold); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:hover { background: var(--gold-light); }
+  tbody td { padding: 9px 12px; font-size: 0.82rem; }
+
+  /* Section headers */
+  .section-header h2, h2, h3 { font-family: var(--display); font-weight: 700; }
+
+  /* Tabs / pills */
+  .tab, .pill {
+    font-family: var(--sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 2px;
+    letter-spacing: 0.3px;
+  }
+  .tab.active, .pill.active {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    border-color: var(--gold) !important;
+  }
+
+  /* Logo mark EY style */
+  .logo-mark {
+    background: var(--gold) !important;
+    color: var(--dark) !important;
+    border-radius: 0 !important;
+    font-family: var(--display) !important;
+    font-weight: 700 !important;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+  /* Input fields */
+  input, select, textarea {
+    font-family: var(--sans);
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    font-size: 0.83rem;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(255,230,0,0.15);
+  }
+
+  /* Modal */
+  .modal-overlay { backdrop-filter: blur(3px); }
+  .modal, .modal-box {
+    border-radius: 2px;
+    border-top: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  /* Toast / alerts */
+  .toast { border-radius: 2px; font-family: var(--sans); }
+
+  /* Badges */
+  .badge, .dbadge, .status-badge {
+    border-radius: 2px;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.68rem;
+    letter-spacing: 0.3px;
+  }
+
+</style>
 </head>
 <body>
 <div id="portal-nav">
