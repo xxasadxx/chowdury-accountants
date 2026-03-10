@@ -2,6 +2,23 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<div id="portal-nav">
+  <div class="nav-brand">
+    <span class="nav-title">Chowdury Accountants</span>
+    <span class="nav-sub">Practice Portal</span>
+  </div>
+  <a href="index.html">🏠 Portal</a>
+  <a href="revenue-tracker.html" class="active">💰 Revenue</a>
+  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+  <a href="vat-tracker.html">🟢 VAT</a>
+  <a href="paye-tracker.html">💼 PAYE</a>
+  <a href="sa-tracker.html">📋 SA</a>
+  <a href="ch-tracker.html">⚖️ CH Tracker</a>
+  <a href="quote-calculator.html">💡 Quote</a>
+  <a href="staff-management.html">👥 Staff</a>
+  <a href="strategic-review.html">📊 Strategy</a>
+  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+</div>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chowdury Accountants · Revenue Tracker</title>
@@ -282,372 +299,22 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<style>#portal-nav a,#portal-nav a:visited,#portal-nav a:link{color:rgba(255,255,255,.5)!important;text-decoration:none!important}#portal-nav a:hover{color:#fff!important;background:rgba(255,255,255,.08);border-radius:5px;text-decoration:none!important}
-  /* ── EY GLOBAL OVERRIDES ─────────────────────────────── */
-  body { font-family: var(--sans); background: var(--bg); color: var(--ink); }
-
-  /* Buttons */
-  .btn, button.btn, .add-btn, .btn-save, .btn-primary {
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 0.78rem;
-    letter-spacing: 0.4px;
-    border-radius: 2px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-save, .btn-primary { background: var(--gold); color: var(--dark); }
-  .btn-save:hover, .btn-primary:hover { background: var(--gold-dark); }
-  .add-btn { background: var(--dark); color: #fff; border-radius: 2px; }
-  .add-btn:hover { background: #1a1a24; }
-
-  /* Cards / surfaces */
-  .card, .stat-card, .kpi-card, .summary-card {
-    background: var(--surface);
-    border-radius: 2px;
-    border: 1px solid var(--border);
-    border-top: 3px solid var(--gold);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-  }
-
-  /* Tables */
-  table { border-collapse: collapse; width: 100%; font-family: var(--sans); }
-  thead th {
-    background: var(--dark);
-    color: rgba(255,255,255,0.85);
-    font-family: var(--display);
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 10px 12px;
-    border: none;
-  }
-  thead th:first-child { border-left: 3px solid var(--gold); }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
-  tbody tr:hover { background: var(--gold-light); }
-  tbody td { padding: 9px 12px; font-size: 0.82rem; }
-
-  /* Section headers */
-  .section-header h2, h2, h3 { font-family: var(--display); font-weight: 700; }
-
-  /* Tabs / pills */
-  .tab, .pill {
-    font-family: var(--sans);
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 2px;
-    letter-spacing: 0.3px;
-  }
-  .tab.active, .pill.active {
-    background: var(--gold) !important;
-    color: var(--dark) !important;
-    border-color: var(--gold) !important;
-  }
-
-  /* Logo mark EY style */
-  .logo-mark {
-    background: var(--gold) !important;
-    color: var(--dark) !important;
-    border-radius: 0 !important;
-    font-family: var(--display) !important;
-    font-weight: 700 !important;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
-
-  /* Input fields */
-  input, select, textarea {
-    font-family: var(--sans);
-    border-radius: 2px;
-    border: 1px solid var(--border);
-    font-size: 0.83rem;
-    transition: border-color 0.15s;
-  }
-  input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 2px rgba(255,230,0,0.15);
-  }
-
-  /* Modal */
-  .modal-overlay { backdrop-filter: blur(3px); }
-  .modal, .modal-box {
-    border-radius: 2px;
-    border-top: 3px solid var(--gold);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
-  }
-
-  /* Toast / alerts */
-  .toast { border-radius: 2px; font-family: var(--sans); }
-
-  /* Badges */
-  .badge, .dbadge, .status-badge {
-    border-radius: 2px;
-    font-family: var(--sans);
-    font-weight: 600;
-    font-size: 0.68rem;
-    letter-spacing: 0.3px;
-  }
-
-  /* ══ PwC GLOBAL OVERRIDES ════════════════════════════════════════ */
-  *, *::before, *::after { box-sizing: border-box; }
-
-  body {
-    font-family: var(--sans) !important;
-    background: var(--bg) !important;
-    color: var(--ink) !important;
-  }
-
-  /* ── Typography ── */
-  h1, h2, h3, h4, .section-header h2, .hero-text h1 {
-    font-family: var(--display) !important;
-    letter-spacing: -0.3px;
-  }
-  h1 em { color: var(--red) !important; font-style: normal !important; }
-
-  /* ── Cards / Surfaces ── */
-  .tool-card, .card, .stat-card, .kpi-card, .summary-card,
-  .tbl-wrap, .tab-content, .section {
-    background: var(--surface) !important;
-    border-radius: 0 !important;
-    border: 1px solid var(--border) !important;
-    box-shadow: 0 1px 6px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04) !important;
-  }
-  .tool-card { border-top: 3px solid var(--red) !important; border-radius: 0 !important; }
-  .tool-card::before { display: none !important; }
-  .tool-card:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 8px 32px rgba(208,74,2,0.12) !important;
-    border-color: var(--red) !important;
-  }
-  .tool-card.coming { border-top-color: var(--border) !important; }
-
-  /* ── Card icons ── */
-  .card-icon { border-radius: 4px !important; }
-
-  /* ── Status badges ── */
-  .status-live { background: var(--green-light) !important; color: var(--green) !important; }
-  .card-status, .status-badge { border-radius: 2px !important; }
-
-  /* ── Quick links ── */
-  .quick-link { border-radius: 2px !important; }
-  .quick-link:hover {
-    border-color: var(--red) !important;
-    color: var(--red) !important;
-    background: var(--red-light) !important;
-  }
-
-  /* ── Buttons ── */
-  button, .btn, .add-btn, .btn-save, .btn-primary, .btn-edit, .btn-del, .btn-toggle {
-    font-family: var(--sans) !important;
-    font-weight: 600 !important;
-    border-radius: 2px !important;
-    letter-spacing: 0.2px !important;
-    cursor: pointer !important;
-    transition: all 0.15s !important;
-  }
-  .btn-save, .btn-primary {
-    background: var(--red) !important;
-    color: #fff !important;
-    border: none !important;
-  }
-  .btn-save:hover, .btn-primary:hover { background: var(--red-dark) !important; }
-  .add-btn {
-    background: var(--ink) !important;
-    color: #fff !important;
-    border: none !important;
-    border-radius: 2px !important;
-  }
-  .add-btn:hover { background: #3a3a3a !important; }
-  .btn-edit {
-    background: var(--blue-light) !important;
-    color: var(--blue) !important;
-    border: none !important;
-    font-size: 0.72rem !important;
-    padding: 4px 10px !important;
-  }
-  .btn-del {
-    background: var(--red-light) !important;
-    color: var(--red) !important;
-    border: none !important;
-    font-size: 0.72rem !important;
-    padding: 4px 10px !important;
-  }
-
-  /* ── Tables ── */
-  table { width: 100% !important; border-collapse: collapse !important; font-family: var(--sans) !important; }
-  thead th {
-    background: var(--ink) !important;
-    color: rgba(255,255,255,0.9) !important;
-    font-family: var(--display) !important;
-    font-size: 0.7rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.8px !important;
-    text-transform: uppercase !important;
-    padding: 11px 14px !important;
-    border: none !important;
-    white-space: nowrap;
-  }
-  thead th:first-child { border-left: 4px solid var(--red) !important; }
-  tbody tr { border-bottom: 1px solid #F0F0F0 !important; transition: background 0.1s !important; }
-  tbody tr:hover { background: var(--red-light) !important; }
-  tbody td { padding: 10px 14px !important; font-size: 0.82rem !important; vertical-align: middle; }
-
-  /* ── Tabs ── */
-  .tab-bar, .tab-list { border-bottom: 2px solid var(--border) !important; }
-  .tab {
-    font-family: var(--sans) !important;
-    font-weight: 600 !important;
-    font-size: 0.8rem !important;
-    border-radius: 0 !important;
-    border-bottom: 2px solid transparent !important;
-    margin-bottom: -2px !important;
-    padding: 10px 20px !important;
-    color: var(--ink2) !important;
-    transition: all 0.15s !important;
-  }
-  .tab:hover { color: var(--red) !important; background: var(--red-light) !important; }
-  .tab.active {
-    color: var(--red) !important;
-    border-bottom-color: var(--red) !important;
-    background: transparent !important;
-  }
-
-  /* ── Pills / filters ── */
-  .pill {
-    font-family: var(--sans) !important;
-    font-size: 0.74rem !important;
-    font-weight: 600 !important;
-    border-radius: 2px !important;
-    border: 1px solid var(--border) !important;
-    padding: 5px 14px !important;
-    cursor: pointer;
-    transition: all 0.15s !important;
-    background: #fff !important;
-    color: var(--ink2) !important;
-  }
-  .pill:hover { border-color: var(--red) !important; color: var(--red) !important; }
-  .pill.active {
-    background: var(--red) !important;
-    color: #fff !important;
-    border-color: var(--red) !important;
-  }
-
-  /* ── Inputs ── */
-  input, select, textarea, .finput {
-    font-family: var(--sans) !important;
-    border-radius: 2px !important;
-    border: 1px solid var(--border) !important;
-    font-size: 0.83rem !important;
-    background: #fff !important;
-    transition: border-color 0.15s, box-shadow 0.15s !important;
-    color: var(--ink) !important;
-  }
-  input:focus, select:focus, textarea:focus, .finput:focus {
-    outline: none !important;
-    border-color: var(--red) !important;
-    box-shadow: 0 0 0 3px rgba(208,74,2,0.1) !important;
-  }
-
-  /* ── Search input ── */
-  .srch { border-radius: 2px !important; }
-
-  /* ── Modal ── */
-  .modal-overlay { backdrop-filter: blur(4px) !important; background: rgba(0,0,0,0.3) !important; }
-  .modal, .modal-box, [id$="Modal"] > div {
-    border-radius: 0 !important;
-    border-top: 4px solid var(--red) !important;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.18) !important;
-  }
-
-  /* ── Section headers ── */
-  .section-header { border-bottom: 2px solid var(--border) !important; padding-bottom: 12px !important; margin-bottom: 20px !important; }
-  .section-header h2 { font-family: var(--display) !important; font-weight: 700 !important; font-size: 1.1rem !important; color: var(--ink) !important; }
-  .section-tag { border-radius: 2px !important; background: var(--red-light) !important; color: var(--red) !important; border: none !important; font-weight: 600 !important; }
-
-  /* ── Scrollbar ── */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 0; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--red); }
-
-  /* ── Stat values ── */
-  .v, .fee-num, .stat-val { font-family: var(--mono) !important; }
-  .v.gold, .v.green { color: var(--red) !important; }
-  .card-stat .v.green { color: var(--green) !important; }
-  .card-stat .v.gold { color: var(--amber) !important; }
-
-  /* ── Hero title ── */
-  .hero-text h1 { font-size: clamp(32px, 4vw, 52px) !important; font-weight: 800 !important; line-height: 1.1 !important; }
-
-  /* ── Footer ── */
-  footer { border-top: 1px solid var(--border) !important; }
-
-  /* ── Tooltips / toasts ── */
-  .toast { border-radius: 2px !important; border-left: 4px solid var(--red) !important; }
-  .toast.success { border-left-color: var(--green) !important; }
-  .toast.danger { border-left-color: var(--red) !important; }
-
-  /* ── Logo mark ── */
-  .logo-mark {
-    background: var(--red) !important;
-    color: #fff !important;
-    border-radius: 0 !important;
-    font-family: var(--display) !important;
-    font-weight: 800 !important;
-  }
-
-  /* ── No results ── */
-  .no-results { font-family: var(--sans) !important; color: var(--muted) !important; }
-
-  /* ── cnt-lbl ── */
-  .cnt-lbl { font-family: var(--mono) !important; font-size: 0.72rem !important; color: var(--muted) !important; }
-
-  /* ── client-link ── */
-  .client-link { color: var(--blue) !important; font-weight: 600 !important; cursor: pointer !important; }
-  .client-link:hover { color: var(--red) !important; text-decoration: underline !important; }
-  /* ══════════════════════════════════════════════════════════════════ */
-
+<style id="portal-nav-css">
+#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-family:'DM Sans','Mulish',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto;}
+#portal-nav::-webkit-scrollbar{height:3px;}
+#portal-nav::-webkit-scrollbar-track{background:#1a1a18;}
+#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px;}
+.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0;}
+.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap;}
+.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
+#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500;}
+#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08);}
+#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13);}
+.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0;}
+.nav-signout:hover{color:rgba(255,255,255,.6)!important;background:rgba(255,255,255,.06)!important;}
 </style>
 </head>
 <body>
-<div id="portal-nav" style="background:#1a1a18;padding:10px 24px;display:flex;align-items:center;gap:8px;font-family:DM Sans,sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
-  <div style="display:flex;flex-direction:column;margin-right:16px;padding-right:16px;border-right:1px solid rgba(255,255,255,0.1)">
-      <span style="color:#c8963c;font-weight:700;font-size:13px;letter-spacing:0.02em;line-height:1.2">Chowdury Accountants</span>
-      <span style="color:rgba(255,255,255,0.3);font-size:10px;letter-spacing:0.06em;text-transform:uppercase">Practice Portal</span>
-    </div>
-<script>
-(function(){
-  const page = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('#portal-nav a').forEach(a => {
-    const href = a.getAttribute('href');
-    if (href && page.includes(href.replace('.html','')) || (page === '' || page === 'index.html') && href === 'index.html') {
-      a.style.background = 'rgba(255,255,255,0.12)';
-      a.style.color = '#fff';
-    }
-  });
-})();
-</script>
-  <a href="index.html">🏠 Portal</a>
-  <a href="revenue-tracker.html">💰 Revenue</a>
-  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html">🟢 VAT</a>
-  <a href="paye-tracker.html">💼 PAYE</a>
-  <a href="sa-tracker.html">📋 SA</a>
-  <a href="ch-tracker.html">⚖️ CH Tracker</a>
-  <a href="quote-calculator.html">💡 Quote</a>
-  <a href="staff-management.html">👥 Staff</a>
-  <a href="strategic-review.html">📊 Strategy</a>
-  <a href="login.html" onclick="sessionStorage.removeItem('ca_auth')" style="margin-left:auto;color:rgba(255,255,255,0.3)!important">Sign out</a>
-</div>
-
-
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="lt" id="lt">Connecting to database...</div>
