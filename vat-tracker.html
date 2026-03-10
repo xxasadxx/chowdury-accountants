@@ -4,38 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VAT Tracker — The Chowdury Accountants</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🟢</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🟢</text></svg>">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --bg: #F5F5F5;
-    --surface: #FFFFFF;
-    --ink: #1A1A1A;
-    --ink2: #3D3D3D;
-    --muted: #8A8A8A;
-    --border: #E0E0E0;
-    --gold: #FFE600;
-    --gold-dark: #D4C000;
-    --gold-light: #FFFDE0;
-    --green: #1A7A4A;
-    --green-light: #E6F5EE;
-    --blue: #0F4C8A;
-    --blue-light: #E5EFF8;
-    --red: #C0392B;
-    --red-light: #FDECEA;
-    --amber: #D4820A;
+    :root {
+    --bg:          #F4F4F4;
+    --surface:     #FFFFFF;
+    --ink:         #252525;
+    --ink2:        #4A4A4A;
+    --muted:       #7A7A7A;
+    --border:      #DEDEDE;
+    --red:         #D04A02;
+    --red-dark:    #A83900;
+    --red-light:   #FCEEE8;
+    --green:       #1D7A47;
+    --green-light: #E5F4EC;
+    --blue:        #155FA0;
+    --blue-light:  #E5EFF8;
+    --amber:       #C07A00;
     --amber-light: #FEF3DC;
-    --slate: #5A5A6A;
+    --gold:        #D04A02;
+    --gold-light:  #FCEEE8;
+    --gold-dark:   #A83900;
+    --slate:       #5A5A6A;
     --slate-light: #F0F0F4;
-    --dark: #2E2E38;
-    --sans: 'Barlow', sans-serif;
-    --display: 'Barlow Condensed', sans-serif;
-    --mono: 'IBM Plex Mono', monospace;
-    --serif: 'Barlow Condensed', sans-serif;
+    --dark:        #252525;
+    --sans:   'Mulish', sans-serif;
+    --display:'Raleway', sans-serif;
+    --serif:  'Raleway', sans-serif;
+    --mono:   'Fira Code', monospace;
   }
 body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
 
@@ -207,6 +207,226 @@ tr:hover td { background: #f8f9ff; }
     font-size: 0.68rem;
     letter-spacing: 0.3px;
   }
+
+
+  /* ══ PwC GLOBAL OVERRIDES ════════════════════════════════════════ */
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    font-family: var(--sans) !important;
+    background: var(--bg) !important;
+    color: var(--ink) !important;
+  }
+
+  /* ── Typography ── */
+  h1, h2, h3, h4, .section-header h2, .hero-text h1 {
+    font-family: var(--display) !important;
+    letter-spacing: -0.3px;
+  }
+  h1 em { color: var(--red) !important; font-style: normal !important; }
+
+  /* ── Cards / Surfaces ── */
+  .tool-card, .card, .stat-card, .kpi-card, .summary-card,
+  .tbl-wrap, .tab-content, .section {
+    background: var(--surface) !important;
+    border-radius: 0 !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04) !important;
+  }
+  .tool-card { border-top: 3px solid var(--red) !important; border-radius: 0 !important; }
+  .tool-card::before { display: none !important; }
+  .tool-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 32px rgba(208,74,2,0.12) !important;
+    border-color: var(--red) !important;
+  }
+  .tool-card.coming { border-top-color: var(--border) !important; }
+
+  /* ── Card icons ── */
+  .card-icon { border-radius: 4px !important; }
+
+  /* ── Status badges ── */
+  .status-live { background: var(--green-light) !important; color: var(--green) !important; }
+  .card-status, .status-badge { border-radius: 2px !important; }
+
+  /* ── Quick links ── */
+  .quick-link { border-radius: 2px !important; }
+  .quick-link:hover {
+    border-color: var(--red) !important;
+    color: var(--red) !important;
+    background: var(--red-light) !important;
+  }
+
+  /* ── Buttons ── */
+  button, .btn, .add-btn, .btn-save, .btn-primary, .btn-edit, .btn-del, .btn-toggle {
+    font-family: var(--sans) !important;
+    font-weight: 600 !important;
+    border-radius: 2px !important;
+    letter-spacing: 0.2px !important;
+    cursor: pointer !important;
+    transition: all 0.15s !important;
+  }
+  .btn-save, .btn-primary {
+    background: var(--red) !important;
+    color: #fff !important;
+    border: none !important;
+  }
+  .btn-save:hover, .btn-primary:hover { background: var(--red-dark) !important; }
+  .add-btn {
+    background: var(--ink) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 2px !important;
+  }
+  .add-btn:hover { background: #3a3a3a !important; }
+  .btn-edit {
+    background: var(--blue-light) !important;
+    color: var(--blue) !important;
+    border: none !important;
+    font-size: 0.72rem !important;
+    padding: 4px 10px !important;
+  }
+  .btn-del {
+    background: var(--red-light) !important;
+    color: var(--red) !important;
+    border: none !important;
+    font-size: 0.72rem !important;
+    padding: 4px 10px !important;
+  }
+
+  /* ── Tables ── */
+  table { width: 100% !important; border-collapse: collapse !important; font-family: var(--sans) !important; }
+  thead th {
+    background: var(--ink) !important;
+    color: rgba(255,255,255,0.9) !important;
+    font-family: var(--display) !important;
+    font-size: 0.7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.8px !important;
+    text-transform: uppercase !important;
+    padding: 11px 14px !important;
+    border: none !important;
+    white-space: nowrap;
+  }
+  thead th:first-child { border-left: 4px solid var(--red) !important; }
+  tbody tr { border-bottom: 1px solid #F0F0F0 !important; transition: background 0.1s !important; }
+  tbody tr:hover { background: var(--red-light) !important; }
+  tbody td { padding: 10px 14px !important; font-size: 0.82rem !important; vertical-align: middle; }
+
+  /* ── Tabs ── */
+  .tab-bar, .tab-list { border-bottom: 2px solid var(--border) !important; }
+  .tab {
+    font-family: var(--sans) !important;
+    font-weight: 600 !important;
+    font-size: 0.8rem !important;
+    border-radius: 0 !important;
+    border-bottom: 2px solid transparent !important;
+    margin-bottom: -2px !important;
+    padding: 10px 20px !important;
+    color: var(--ink2) !important;
+    transition: all 0.15s !important;
+  }
+  .tab:hover { color: var(--red) !important; background: var(--red-light) !important; }
+  .tab.active {
+    color: var(--red) !important;
+    border-bottom-color: var(--red) !important;
+    background: transparent !important;
+  }
+
+  /* ── Pills / filters ── */
+  .pill {
+    font-family: var(--sans) !important;
+    font-size: 0.74rem !important;
+    font-weight: 600 !important;
+    border-radius: 2px !important;
+    border: 1px solid var(--border) !important;
+    padding: 5px 14px !important;
+    cursor: pointer;
+    transition: all 0.15s !important;
+    background: #fff !important;
+    color: var(--ink2) !important;
+  }
+  .pill:hover { border-color: var(--red) !important; color: var(--red) !important; }
+  .pill.active {
+    background: var(--red) !important;
+    color: #fff !important;
+    border-color: var(--red) !important;
+  }
+
+  /* ── Inputs ── */
+  input, select, textarea, .finput {
+    font-family: var(--sans) !important;
+    border-radius: 2px !important;
+    border: 1px solid var(--border) !important;
+    font-size: 0.83rem !important;
+    background: #fff !important;
+    transition: border-color 0.15s, box-shadow 0.15s !important;
+    color: var(--ink) !important;
+  }
+  input:focus, select:focus, textarea:focus, .finput:focus {
+    outline: none !important;
+    border-color: var(--red) !important;
+    box-shadow: 0 0 0 3px rgba(208,74,2,0.1) !important;
+  }
+
+  /* ── Search input ── */
+  .srch { border-radius: 2px !important; }
+
+  /* ── Modal ── */
+  .modal-overlay { backdrop-filter: blur(4px) !important; background: rgba(0,0,0,0.3) !important; }
+  .modal, .modal-box, [id$="Modal"] > div {
+    border-radius: 0 !important;
+    border-top: 4px solid var(--red) !important;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.18) !important;
+  }
+
+  /* ── Section headers ── */
+  .section-header { border-bottom: 2px solid var(--border) !important; padding-bottom: 12px !important; margin-bottom: 20px !important; }
+  .section-header h2 { font-family: var(--display) !important; font-weight: 700 !important; font-size: 1.1rem !important; color: var(--ink) !important; }
+  .section-tag { border-radius: 2px !important; background: var(--red-light) !important; color: var(--red) !important; border: none !important; font-weight: 600 !important; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--red); }
+
+  /* ── Stat values ── */
+  .v, .fee-num, .stat-val { font-family: var(--mono) !important; }
+  .v.gold, .v.green { color: var(--red) !important; }
+  .card-stat .v.green { color: var(--green) !important; }
+  .card-stat .v.gold { color: var(--amber) !important; }
+
+  /* ── Hero title ── */
+  .hero-text h1 { font-size: clamp(32px, 4vw, 52px) !important; font-weight: 800 !important; line-height: 1.1 !important; }
+
+  /* ── Footer ── */
+  footer { border-top: 1px solid var(--border) !important; }
+
+  /* ── Tooltips / toasts ── */
+  .toast { border-radius: 2px !important; border-left: 4px solid var(--red) !important; }
+  .toast.success { border-left-color: var(--green) !important; }
+  .toast.danger { border-left-color: var(--red) !important; }
+
+  /* ── Logo mark ── */
+  .logo-mark {
+    background: var(--red) !important;
+    color: #fff !important;
+    border-radius: 0 !important;
+    font-family: var(--display) !important;
+    font-weight: 800 !important;
+  }
+
+  /* ── No results ── */
+  .no-results { font-family: var(--sans) !important; color: var(--muted) !important; }
+
+  /* ── cnt-lbl ── */
+  .cnt-lbl { font-family: var(--mono) !important; font-size: 0.72rem !important; color: var(--muted) !important; }
+
+  /* ── client-link ── */
+  .client-link { color: var(--blue) !important; font-weight: 600 !important; cursor: pointer !important; }
+  .client-link:hover { color: var(--red) !important; text-decoration: underline !important; }
+  /* ══════════════════════════════════════════════════════════════════ */
 
 </style>
 </head>
