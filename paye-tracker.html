@@ -110,6 +110,7 @@ tr.data-row:hover{background:#f0fdf9;cursor:pointer}
   <button class="filter-btn" onclick="setFilter('zero',this)">0 Employees</button>
   <button class="filter-btn" onclick="setFilter('large',this)">5+ Employees</button>
   <button class="filter-btn" onclick="setFilter('missing',this)">⚠️ Missing Info</button>
+  <button class="filter-btn" style="border-color:#94A3B8;color:#94A3B8" onclick="setFilter('inactive',this)">💤 Inactive</button>
   <input class="search-box" type="text" placeholder="🔍 Search employer, PAYE ref..." oninput="searchTable(this.value)">
   <span class="count-badge" id="count-badge">— employers</span>
   <div style="margin-left:auto;display:flex;gap:6px">
@@ -254,7 +255,24 @@ async function loadData() {
   applyFilter();
   try {
     const rows = await sbFetch('paye_clients?select=*&order=id.asc');
-    if (rows && rows.length > 0) { DATA = rows; applyFilter(); }
+    if (rows && rows.length > 0) {
+      // Cross-reference with ltd_clients to flag ceased/left companies
+      try {
+        const ltdRows = await sbFetch('ltd_clients?select=id,name,status&order=id.asc');
+        rows.forEach(r=>{
+          const match = ltdRows.find(l=>{
+            const ln=(l.name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
+            const en=(r.employer_name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
+            return ln&&en&&(ln.includes(en)||en.includes(ln));
+          });
+          if(match && ['ceased','left','dormant'].includes(match.status)){
+            r.client_status = match.status;
+            r._ltd_status = match.status;
+          }
+        });
+      } catch(e){ console.warn('Ltd cross-ref failed:',e.message); }
+      DATA = rows; applyFilter();
+    }
   } catch(e) { console.warn('Supabase load failed, using seed:', e.message); }
 }
 
@@ -264,6 +282,7 @@ function applyFilter() {
   else if (currentFilter==='zero') d = d.filter(r=>parseInt(r.num_paye||0)===0);
   else if (currentFilter==='large') d = d.filter(r=>parseInt(r.num_paye||0)>=5);
   else if (currentFilter==='missing') d = d.filter(r=>!r.phone||!r.contact_name);
+  else if (currentFilter==='inactive') d = d.filter(r=>r.client_status==='inactive'||r.client_status==='ceased'||r.client_status==='left');
   if (currentSearch) {
     const q = currentSearch.toLowerCase();
     d = d.filter(r=>r.employer_name?.toLowerCase().includes(q)||r.paye_ref?.toLowerCase().includes(q)||r.acc_office_ref?.toLowerCase().includes(q)||r.email?.toLowerCase().includes(q));
@@ -311,7 +330,7 @@ function render() {
     const empBadge = emp===0 ? `<span style="color:var(--muted);font-size:11px">—</span>` : `<span class="paye-chip">👤 ${emp}</span>`;
     return `<tr class="data-row" onclick="openModal(${r.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td style="font-weight:600;max-width:200px">${esc(r.employer_name)}</td>
+      <td style="font-weight:600;max-width:200px">${esc(r.employer_name)}${r._ltd_status?'<span style="margin-left:6px;font-size:10px;padding:1px 6px;border-radius:3px;background:#F1F5F9;color:#64748B;font-weight:700;">'+(r._ltd_status==='ceased'?'🛑 Ceased':r._ltd_status==='left'?'🚪 Left':'💤 '+r._ltd_status)+'</span>':''}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--teal)">${esc(r.paye_ref||'—')}</td>
       <td style="font-family:var(--mono);font-size:10px;color:var(--text2)">${esc(r.acc_office_ref||'—')}</td>
       <td>${empBadge}</td>

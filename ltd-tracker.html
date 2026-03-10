@@ -157,7 +157,9 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <select class="year-select" id="ltd-status-filter" onchange="setStatusFromDropdown(this.value)">
       <option value="all">All Clients</option>
       <option value="active" selected>✅ Active</option>
-      <option value="left">❌ Left / Inactive</option>
+      <option value="left">🚪 Left</option>
+      <option value="ceased">🛑 Ceased</option>
+      <option value="dormant">💤 Dormant</option>
     </select>
     <input class="search-box" type="text" placeholder="🔍 Search name, comp no..." oninput="setSearch(this.value)">
     <span class="count-badge" id="clients-count">—</span>
@@ -200,6 +202,10 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
       <option value="all">All</option>
       <option value="outstanding">Outstanding</option>
       <option value="paid">Fully Paid</option>
+      <option value="active_only">✅ Active Only</option>
+      <option value="ceased">🛑 Ceased</option>
+      <option value="left">🚪 Left</option>
+      <option value="dormant">💤 Dormant</option>
     </select>
     <select class="year-select" id="fees-sector-filter" onchange="renderFeesPage()">
       <option value="all">All Sectors</option>
@@ -304,7 +310,12 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
           </select>
         </div>
         <div class="field"><label>Client Status</label>
-          <select id="cm-status"><option value="active">Active</option><option value="left">Left</option><option value="paused">Paused</option></select>
+          <select id="cm-status" onchange="toggleLeftFields(this.value)">
+            <option value="active">✅ Active</option>
+            <option value="left">🚪 Left</option>
+            <option value="ceased">🛑 Ceased</option>
+            <option value="dormant">💤 Dormant</option>
+          </select>
         </div>
         <div class="field"><label>Year Left</label><input id="cm-left-year" type="text" placeholder="e.g. 2024"></div>
         <div class="field"><label>Reason for Leaving</label>
@@ -333,6 +344,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
       <div class="fg">
         <div class="field"><label>PAYE Registered</label>
           <select id="cm-paye"><option value="false">No</option><option value="true">Yes</option></select>
+          <div id="cm-paye-xref" style="margin-top:4px;font-size:11px;color:var(--muted)">—</div>
         </div>
         <div class="field"><label>VAT Registered</label>
           <select id="cm-vat" onchange="toggleVatRow()"><option value="false">No</option><option value="true">Yes</option></select>
@@ -486,7 +498,7 @@ async function sbFetch(path,opts={}){
   if(!t||t==='null')return[];try{return JSON.parse(t);}catch(e){return[];}
 }
 
-let DATA=[], currentId=null;
+let DATA=[], currentId=null, PAYE_CLIENTS=[];
 let filterSector='all', filterAlert='', filterStatus='all', searchQ='';
 let sortCol='name', sortDir=1;
 let feesSearch='', feesSortCol='name', feesSortDir=1;
@@ -519,6 +531,11 @@ async function init(){
       populatePeriodFilter();renderAll();
     }
   }catch(e){console.warn('SB overlay failed:',e.message);}
+  // Step 3: load paye_clients for cross-reference
+  try{
+    PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref,status&order=id.asc');
+    renderAll();
+  }catch(e){console.warn('PAYE cross-ref load failed:',e.message);}
   // Auto-sync CH data if stale (9am window)
   autoSyncIfStale();
 }
@@ -590,7 +607,14 @@ function sectorBadge(s){
   return`<span class="badge ${m[s]||'badge-grey'}">${l[s]||s}</span>`;
 }
 function alertBadge(a){if(!a)return'';const m={Green:'badge-green',Amber:'badge-amber',Red:'badge-red'};return`<span class="badge ${m[a]||''}">${a}</span>`;}
-function statusBadge(s){const m={active:'badge-green',left:'badge-red',paused:'badge-amber'};return`<span class="badge ${m[s]||'badge-grey'}">${s||'active'}</span>`;}
+function statusBadge(s){const m={active:'badge-green',left:'badge-red',ceased:'badge-grey',dormant:'badge-amber'};const l={active:'✅ Active',left:'🚪 Left',ceased:'🛑 Ceased',dormant:'💤 Dormant'};return`<span class="badge ${m[s]||'badge-grey'}">${l[s]||s||'active'}</span>`;}
+function toggleLeftFields(val){
+  const show = val==='left' || val==='ceased';
+  ['cm-left-year','cm-leave-reason'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.closest('.field').style.display=show?'':'none';
+  });
+}
 function methodBadge(m){if(!m)return'—';const c={cash:'badge-green',bank_transfer:'badge-blue',dd:'badge-teal',cheque:'badge-grey'};const l={cash:'💵 Cash',bank_transfer:'🏦 Bank Transfer',dd:'🔄 DD',cheque:'📄 Cheque'};return`<span class="badge ${c[m]||'badge-grey'}">${l[m]||m}</span>`;}
 function actTypeLabel(t){return{accounts_filed:'📊 Accounts Filed',cs_filed:'📋 CS Filed',vat_filed:'🟢 VAT Filed',payroll_filed:'💼 Payroll',email_sent:'📧 Email',call_made:'📞 Call',docs_received:'📁 Docs',note:'📝 Note'}[t]||t;}
 
@@ -676,6 +700,8 @@ function getFeeRows(){
       const out=parseFloat(y.outstanding)||0,paid=parseFloat(y.amount_paid)||0;
       if(st==='outstanding'&&out<=0)return;
       if(st==='paid'&&out>0)return;
+      if(st==='active_only'&&(c.status||'active')!=='active')return;
+      if(['ceased','left','dormant'].includes(st)&&(c.status||'active')!==st)return;
       if(feesSearch){const q=feesSearch.toLowerCase();if(!c.name?.toLowerCase().includes(q))return;}
       rows.push({client:c,year:y});
     });
@@ -836,11 +862,24 @@ function openClientModal(id){
   document.getElementById('cm-comp-no').value=c.comp_no||'';
   document.getElementById('cm-sector').value=c.sector||'other';
   document.getElementById('cm-status').value=c.status||'active';
+  toggleLeftFields(c.status||'active');
   document.getElementById('cm-left-year').value=c.left_year||'';
   document.getElementById('cm-leave-reason').value=c.reason_for_leaving||'';
   document.getElementById('cm-alerts').value=c.alerts||'';
   document.getElementById('cm-accounts-ref').value=c.accounts_ref_date||'';
   document.getElementById('cm-paye').value=c.paye_registered?'true':'false';
+  // Cross-reference with paye_clients table
+  const payeMatch=PAYE_CLIENTS.find(p=>{
+    const pn=(p.employer_name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
+    const cn=(c.name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
+    return pn&&cn&&(pn.includes(cn)||cn.includes(pn));
+  });
+  const xrefEl=document.getElementById('cm-paye-xref');
+  if(xrefEl){
+    if(payeMatch) xrefEl.innerHTML='✅ Found in PAYE Tracker: <strong>'+esc(payeMatch.employer_name)+'</strong>'+(payeMatch.paye_ref?' · '+esc(payeMatch.paye_ref):'');
+    else if(c.paye_registered) xrefEl.innerHTML='⚠️ Marked as registered but not found in PAYE Tracker';
+    else xrefEl.innerHTML='ℹ️ Not found in PAYE Tracker';
+  }
   document.getElementById('cm-vat').value=c.vat_registered?'true':'false';
   document.getElementById('cm-vat-stagger').value=c.vat_stagger||'';
   document.getElementById('cm-notes').value=c.notes||'';
@@ -1107,7 +1146,31 @@ async function saveClient(){
     referred_by:document.getElementById('cm-referred-by').value.trim(),
     ref_year:document.getElementById('cm-ref-year').value.trim(),
   });
-  await sbSave(c);closeClientModal();renderAll();
+  const newStatus=c.status;
+  const prevStatus=DATA.find(x=>x.id===currentId)?._prevStatus;
+  await sbSave(c);
+
+  // Cascade to PAYE if status changed to ceased/left/dormant
+  if(['ceased','left','dormant'].includes(newStatus) && newStatus!==prevStatus){
+    const match=PAYE_CLIENTS.find(p=>{
+      const pn=(p.employer_name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
+      const cn=(c.name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
+      return pn&&cn&&(pn.includes(cn)||cn.includes(pn));
+    });
+    if(match){
+      const label=newStatus==='ceased'?'Ceased':newStatus==='left'?'Left':'Dormant';
+      const confirm_cascade=confirm(`${c.name} is now marked as ${label}.\n\nAlso mark "${match.employer_name}" as inactive in the PAYE Tracker?`);
+      if(confirm_cascade){
+        try{
+          await sbFetch(`paye_clients?id=eq.${match.id}`,{method:'PATCH',body:JSON.stringify({client_status:newStatus}),headers:{'Prefer':'return=minimal'}});
+          match.client_status=newStatus;
+          match._ltd_status=newStatus;
+        }catch(e){console.warn('PAYE cascade failed:',e.message);}
+      }
+    }
+  }
+
+  closeClientModal();renderAll();
   btn.textContent='💾 Save';btn.disabled=false;
 }
 async function sbSave(c){

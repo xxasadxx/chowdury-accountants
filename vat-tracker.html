@@ -190,7 +190,7 @@ async function loadVatData() {
   // Then try to enrich from Supabase
   try {
     const allRows = await sbFetch('ltd_clients?select=*');
-    const withVat = allRows.filter(r => r.vat_due && r.vat_due.trim() !== '');
+    const withVat = allRows.filter(r => r.vat_due && r.vat_due.trim() !== '' && !['ceased','left'].includes(r.status||'active'));
     if (withVat.length > 0) {
       VAT_DATA = withVat.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
       filtered = [...VAT_DATA];
