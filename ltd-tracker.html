@@ -213,6 +213,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <div class="ml-auto" style="display:flex;gap:6px">
       <button id="sync-btn" class="btn btn-secondary" onclick="syncFromCH()">🔄 Sync CH</button>
       <button class="btn btn-secondary" onclick="syncPayeRegistered()" title="Auto-mark PAYE registered based on PAYE Tracker">💼 Sync PAYE</button>
+      <button class="btn btn-secondary" onclick="syncVatRegistered()" title="Auto-mark VAT registered based on VAT Tracker">🧾 Sync VAT</button>
       <button class="btn btn-blue" onclick="openAddModal()">+ Add Company</button>
       <button class="btn btn-secondary" onclick="exportClientsExcel()">⬇ Excel</button>
       <button class="btn btn-secondary" onclick="exportClientsPDF()">🖨 PDF</button>
@@ -1607,6 +1608,51 @@ async function syncPayeRegistered(){
   statusEl.style.color='var(--green)';
   statusEl.textContent='✓ PAYE sync: '+done+' updated'+(errors?' ('+errors+' errors)':'');
   alert('PAYE sync complete!\n'+done+' clients marked as PAYE registered'+(errors?'\n'+errors+' errors (check console)':'')+(alreadySet.length?'\n'+alreadySet.length+' were already set':''));
+}
+
+async function syncVatRegistered(){
+  const statusEl=document.getElementById('sync-status');
+  statusEl.textContent='Loading VAT clients...';
+  // Get all companies with vat_due set in ltd_clients (these are VAT registered)
+  let vatClients=[];
+  try{
+    const rows=await sbFetch('ltd_clients?select=comp_no,vat_due,vat_stagger&limit=1000');
+    vatClients=(rows||[]).filter(r=>r.comp_no&&r.vat_due&&r.vat_due.trim()!=='');
+  }catch(e){alert('Could not load VAT clients: '+e.message);return;}
+
+  if(!vatClients.length){alert('No VAT clients found in database.');return;}
+
+  statusEl.textContent='Syncing VAT...';
+  // Build set of comp_nos that are VAT registered
+  const vatCompNos=new Set(vatClients.map(r=>r.comp_no.trim()));
+  const staggerMap={};
+  vatClients.forEach(r=>{if(r.vat_stagger)staggerMap[r.comp_no.trim()]=r.vat_stagger;});
+
+  // Find Ltd clients that should be marked VAT registered
+  const toUpdate=DATA.filter(c=>c.comp_no&&vatCompNos.has(c.comp_no.trim())&&!c.vat_registered);
+  const alreadySet=DATA.filter(c=>c.comp_no&&vatCompNos.has(c.comp_no.trim())&&c.vat_registered);
+
+  if(!toUpdate.length){
+    alert('Nothing to update — all matching clients are already marked as VAT registered.\n('+alreadySet.length+' already set)');
+    statusEl.textContent='';return;
+  }
+
+  let done=0,errors=0;
+  for(const c of toUpdate){
+    try{
+      const payload={comp_no:c.comp_no,vat_registered:true};
+      if(staggerMap[c.comp_no.trim()])payload.vat_stagger=staggerMap[c.comp_no.trim()];
+      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(payload),headers:{'Prefer':'resolution=merge-duplicates,return=minimal'}});
+      // Update local data
+      const local=DATA.find(x=>x.comp_no===c.comp_no);
+      if(local){local.vat_registered=true;if(payload.vat_stagger)local.vat_stagger=payload.vat_stagger;}
+      done++;
+    }catch(e){errors++;}
+  }
+  renderAll();
+  statusEl.style.color='var(--green)';
+  statusEl.textContent='✓ VAT sync: '+done+' updated'+(errors?' ('+errors+' errors)':'');
+  alert('VAT sync complete!\n'+done+' clients marked as VAT registered'+(alreadySet.length?'\n'+alreadySet.length+' were already set':''));
 }
 
 async function autoSyncIfStale(){
