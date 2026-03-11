@@ -681,16 +681,6 @@ function renderAccountsFiled(clientName) {
 
   const data = ACCOUNTS_DATA[matchKey];
   const records = data.records || [];
-  // Update Company tab summary
-  const lastFiled = records.filter(r => r.last_submission).sort((a,b)=>b.last_submission.localeCompare(a.last_submission))[0];
-  const sumEl = document.getElementById('cm-last-accounts-summary');
-  if (sumEl && lastFiled) {
-    const d = new Date(lastFiled.last_submission);
-    const fmt = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    sumEl.innerHTML = `<span style="color:var(--green);font-weight:600">${fmt}</span> · Y/E ${lastFiled.period_end ? lastFiled.period_end.substring(0,7) : lastFiled.year} · <span style="color:var(--muted)">${shortUser(lastFiled.user)}</span>`;
-  } else if (sumEl) {
-    sumEl.innerHTML = '<span style="color:var(--amber)">Pending</span>';
-  }
 
   const userColour = u => {
     if (!u) return '#94A3B8';
@@ -709,6 +699,17 @@ function renderAccountsFiled(clientName) {
     if (u.toLowerCase().includes('aminul')) return 'Aminul';
     return u.split(' ')[0];
   };
+
+  // Update Company tab summary (now shortUser is defined)
+  const lastFiled = records.filter(r => r.last_submission).sort((a,b)=>b.last_submission.localeCompare(a.last_submission))[0];
+  const sumEl = document.getElementById('cm-last-accounts-summary');
+  if (sumEl && lastFiled) {
+    const d = new Date(lastFiled.last_submission);
+    const fmt = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    sumEl.innerHTML = '<span style="color:var(--green);font-weight:600">'+fmt+'</span> · Y/E '+(lastFiled.period_end ? lastFiled.period_end.substring(0,7) : lastFiled.year)+' · <span style="color:var(--muted)">'+shortUser(lastFiled.user)+'</span>';
+  } else if (sumEl) {
+    sumEl.innerHTML = '<span style="color:var(--amber)">Pending</span>';
+  }
 
   const statusBadgeAcc = s => {
     if (s === 'Complete') return '<span style="background:#DCFCE7;color:#166534;font-size:10px;padding:1px 7px;border-radius:3px;font-weight:700;">✅ Filed</span>';
