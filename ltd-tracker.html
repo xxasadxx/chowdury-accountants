@@ -143,7 +143,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 .modal-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
 .modal-tab:hover{color:var(--ink)}
 .modal-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
-.modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto}
+.modal-body{padding:20px 24px;max-height:75vh;overflow-y:auto;scrollbar-width:thin}
 .modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
 .modal-tab-content{display:none}
 .modal-tab-content.active{display:block}
@@ -391,13 +391,12 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
           <select id="cm-alerts"><option value="">None</option><option>Green</option><option>Amber</option><option>Red</option></select>
         </div>
         <div class="field"><label>Accounts Year End</label><input id="cm-accounts-ref" type="text" placeholder="e.g. 30/04"></div>
-        <div class="field"><label>Last Accounts Filed</label><div id="cm-last-accounts-summary" style="font-size:12px;padding:6px 0;color:var(--muted)">—</div></div>
+        <div class="field f1"><label>Last Accounts Filed</label><div id="cm-last-accounts-summary" style="font-size:12px;padding:6px 0;color:var(--muted)">—</div></div>
       </div>
       <div class="sec-label" style="margin-top:14px">Registrations</div>
-      <div class="fg">
+      <div class="fg3">
         <div class="field"><label>PAYE Registered</label>
           <select id="cm-paye"><option value="false">No</option><option value="true">Yes</option></select>
-          <div id="cm-paye-xref" style="margin-top:4px;font-size:11px;color:var(--muted)">—</div>
         </div>
         <div class="field"><label>VAT Registered</label>
           <select id="cm-vat" onchange="toggleVatRow()"><option value="false">No</option><option value="true">Yes</option></select>
@@ -411,6 +410,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
           </select>
         </div>
       </div>
+      <div id="cm-paye-xref" style="margin-top:6px;font-size:11px;color:var(--muted);padding:4px 0">—</div>
       <div class="sec-label" style="margin-top:14px">Notes</div>
       <div class="field"><label>Notes</label><textarea id="cm-notes" placeholder="Any notes..."></textarea></div>
     </div>
