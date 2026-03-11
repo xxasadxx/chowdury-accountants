@@ -1376,8 +1376,9 @@ async function saveClient(){
   btn.textContent='💾 Save';btn.disabled=false;
 }
 async function sbSave(c){
-  // Never include comp_no (PK) or name in PATCH payload
+  // Never include name in payload; comp_no is the PK for upsert
   const payload={
+    comp_no:c.comp_no,
     sector:c.sector,
     status:c.status,
     left_year:c.left_year||'',
@@ -1396,7 +1397,8 @@ async function sbSave(c){
     director_address:c.director_address||''
   };
   try{
-    await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(c.comp_no)}`,{method:'PATCH',body:JSON.stringify(payload)});
+    // Upsert: inserts if row doesn't exist, updates if it does
+    await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(payload),headers:{'Prefer':'resolution=merge-duplicates'}});
   }catch(e){
     alert('Save failed: '+e.message);
   }
