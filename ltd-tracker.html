@@ -582,12 +582,18 @@ async function init(){
   }
   // Step 2: try to overlay with any saved Supabase edits
   try{
-    const rows=await sbFetch('ltd_clients?select=id,fee_years,sector,status,left_year,reason_for_leaving,referred_by,ref_year,referral_fee_paid,director_name,director_mobile,director_email,director_dob,director_ni,director_address,vat_registered,paye_registered,vat_stagger,notes,alerts,accounts_due,conf_due,conf_date,vat_due&order=id.asc');
+    const rows=await sbFetch('ltd_clients?select=comp_no,fee_years,sector,status,left_year,reason_for_leaving,referred_by,ref_year,referral_fee_paid,director_name,director_mobile,director_email,director_dob,director_ni,director_address,vat_registered,paye_registered,vat_stagger,notes,alerts,accounts_due,conf_due,conf_date,vat_due&order=comp_no.asc');
     if(rows&&rows.length>0){
       rows.forEach(r=>{
-        const local=DATA.find(d=>d.id===r.id);
-        if(local&&r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0){
-          Object.assign(local,r);
+        const local=DATA.find(d=>d.comp_no===r.comp_no);
+        if(local){
+          // Always overlay editable fields from Supabase — these take precedence over seed
+          const fields=['sector','status','left_year','reason_for_leaving','referred_by','ref_year',
+            'referral_fee_paid','director_name','director_mobile','director_email','director_dob',
+            'director_ni','director_address','vat_registered','paye_registered','vat_stagger',
+            'notes','alerts','accounts_due','conf_due','conf_date','vat_due'];
+          fields.forEach(f=>{if(r[f]!==undefined&&r[f]!==null&&r[f]!=='')local[f]=r[f];});
+          if(r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0)local.fee_years=r.fee_years;
         }
       });
       populatePeriodFilter();renderAll();
