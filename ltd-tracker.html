@@ -575,19 +575,18 @@ async function init(){
     const chunks = await Promise.all([0,1,2,3,4,5,6].map(i=>fetch(`ltd-seed-${i}.json`).then(r=>r.ok?r.json():[])));
     DATA = chunks.flat();
     if(!DATA.length) throw new Error('No seed data loaded');
-    populatePeriodFilter();renderAll();
+    // Don't render yet — wait for Supabase overlay to avoid flash of wrong data
   }catch(e){
     document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load: '+e.message+'</td></tr>';
     return;
   }
-  // Step 2: overlay Supabase edits (sector, status, paye, vat, notes etc) onto seed data
+  // Step 2: overlay Supabase edits then render once
   try{
     const rows=await sbFetch('ltd_clients?select=*&order=comp_no.asc&limit=1000');
     if(rows&&rows.length>0){
       rows.forEach(r=>{
         const local=DATA.find(d=>d.comp_no===r.comp_no);
         if(local){
-          // Always apply these editable fields from Supabase over seed
           ['sector','status','left_year','reason_for_leaving','referred_by','ref_year',
            'referral_fee_paid','director_name','director_mobile','director_email',
            'director_dob','director_ni','director_address','vat_registered',
@@ -597,9 +596,10 @@ async function init(){
           if(r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0)local.fee_years=r.fee_years;
         }
       });
-      populatePeriodFilter();renderAll();
     }
   }catch(e){console.warn('SB overlay failed:',e.message);}
+  // Render once after overlay (with or without Supabase data)
+  populatePeriodFilter();renderAll();
   // Step 3: load paye_clients for cross-reference
   try{
     PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref,status&order=id.asc');
