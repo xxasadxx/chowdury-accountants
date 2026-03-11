@@ -106,7 +106,7 @@
   /* KPI STRIP */
   .kpi-strip{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--mgrey);
     border-radius:6px;overflow:hidden;margin-bottom:32px;box-shadow:var(--shadow);}
-  .kpi-card{background:var(--white);padding:20px 16px;text-align:center;}
+  .kpi-card{background:var(--bg);padding:20px 16px;text-align:center;}
   .kpi-value{font-family:'Playfair Display',Georgia,serif;font-size:26px;font-weight:700;
     color:var(--deep);line-height:1;margin-bottom:6px;}
   .kpi-label{font-size:11px;color:#4A5568;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;}
@@ -114,7 +114,7 @@
   .kpi-card.green .kpi-value{color:var(--green);}
 
   /* SECTION CARDS */
-  .section-card{background:var(--white);border-radius:6px;margin-bottom:28px;box-shadow:var(--shadow);overflow:hidden;}
+  .section-card{background:var(--bg);border-radius:6px;margin-bottom:28px;box-shadow:var(--shadow);overflow:hidden;}
   .section-header{background:var(--deep);padding:18px 28px;display:flex;align-items:center;gap:12px;
     border-bottom:2px solid var(--gold);}
   .section-num{background:var(--gold);color:var(--deep);font-size:12px;font-weight:700;
@@ -132,7 +132,7 @@
   /* FINDINGS */
   .findings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--mgrey);
     border-radius:4px;overflow:hidden;margin:20px 0;}
-  .finding-col{background:var(--white);padding:20px;}
+  .finding-col{background:var(--bg);padding:20px;}
   .finding-col.positive{background:#FAFDF6;}
   .finding-col.risk{background:#FDF9F7;}
   .finding-col h4{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;
@@ -205,7 +205,7 @@
   .org-card.gold{border-color:var(--gold);background:var(--gold-lt);}
   .org-card.blue{border-color:var(--mid);background:var(--blue-lt);}
   .org-card.grey{border-color:var(--mgrey);background:var(--lgrey);}
-  .org-card.dashed{border-style:dashed;border-color:var(--mid);background:var(--white);}
+  .org-card.dashed{border-style:dashed;border-color:var(--mid);background:var(--bg);}
   .org-card h5{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--slate);margin-bottom:4px;}
   .org-card .name{font-size:15px;font-weight:600;color:var(--deep);margin-bottom:8px;}
   .org-card.gold .name{color:#92400E;}
@@ -272,7 +272,7 @@
     width:34px;height:34px;border-radius:2px;display:flex;align-items:center;justify-content:center;
     font-family:'Playfair Display',Georgia,serif;flex-shrink:0;}
   .advantage-header h4{font-size:15px;font-weight:600;color:var(--white);}
-  .advantage-body{padding:20px;background:var(--white);}
+  .advantage-body{padding:20px;background:var(--bg);}
 
   /* TABS */
   .tab-nav{display:flex;gap:2px;margin-bottom:0;background:var(--deep);padding:8px 12px 0;
@@ -280,7 +280,7 @@
   .tab-btn{padding:8px 14px;border:none;cursor:pointer;font-size:12px;font-weight:600;
     border-radius:4px 4px 0 0;background:transparent;color:#94A3B8;transition:all 0.15s;
     font-family:'Inter',sans-serif;letter-spacing:0.02em;white-space:nowrap;}
-  .tab-btn.active{background:var(--white);color:var(--deep);}
+  .tab-btn.active{background:var(--bg);color:var(--deep);}
   .tab-btn:hover:not(.active){background:rgba(255,255,255,0.1);color:white;}
   .tab-content{display:none;}
   .tab-content.active{display:block;}
@@ -358,7 +358,7 @@
   .rule-content p{font-size:13px;color:var(--slate);line-height:1.6;}
 
   /* GROWTH STAGES */
-  .stage-card{border-left:4px solid var(--gold);background:var(--white);padding:20px 24px;
+  .stage-card{border-left:4px solid var(--gold);background:var(--bg);padding:20px 24px;
     border-radius:0 6px 6px 0;margin-bottom:16px;box-shadow:var(--shadow);}
   .stage-card.current{border-color:var(--green);background:var(--green-lt);}
   .stage-card.next{border-color:var(--gold);background:var(--gold-lt);}
@@ -403,7 +403,7 @@
 
   @media print {
     .nav,.tab-nav,.dl-bar{display:none!important;}
-    body{background:white!important;}
+    body{background:var(--bg)!important;}
     .page-wrap{max-width:100%;padding:0;}
     .tab-content{display:block!important;page-break-inside:avoid;margin-bottom:24pt;}
     .section-card,.section-card.tabbed-card{box-shadow:none;border:1px solid #ccc;margin-bottom:12px;}
@@ -434,14 +434,14 @@
 
   /* ── KPI strip ── */
   .kpi-strip { background: var(--mgrey) !important; border: 1px solid var(--mgrey) !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; border-radius: 6px !important; }
-  .kpi-card { background: #FFFFFF !important; border: none !important; border-top: none !important; }
+  .kpi-card { background: var(--bg) !important; border: none !important; border-top: none !important; }
   .kpi-value { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
   .kpi-card.gold .kpi-value { color: var(--gold) !important; }
   .kpi-card.green .kpi-value { color: var(--green) !important; }
   .kpi-label { color: var(--slate) !important; }
 
   /* ── Section cards ── */
-  .section-card { background: #FFFFFF !important; border-radius: 6px !important; border: 1px solid #DDE3ED !important; box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04) !important; margin-bottom: 24px !important; }
+  .section-card { background: var(--bg) !important; border-radius: 6px !important; border: 1px solid #DDE3ED !important; box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04) !important; margin-bottom: 24px !important; }
 
   /* ── Section header (dark strip at top of each section card) ── */
   .section-header { background: var(--deep) !important; padding: 16px 26px !important; border-bottom: 2px solid var(--gold) !important; margin-bottom: 0 !important; }
@@ -478,13 +478,13 @@
   /* ── Findings grid ── */
   .findings-grid { background: var(--mgrey) !important; }
   .finding-col.positive { background: #F7FDF9 !important; }
-  .finding-col.risk { background: #FFFDF5 !important; }
+  .finding-col.risk { background: var(--bg)DF5 !important; }
   .finding-col ul li { color: var(--body) !important; }
 
   /* ── SWOT ── */
   .swot-grid { background: var(--mgrey) !important; }
   .swot-cell.s { background: #F7FDF9 !important; }
-  .swot-cell.w { background: #FFFDF5 !important; }
+  .swot-cell.w { background: var(--bg)DF5 !important; }
   .swot-cell.o { background: var(--blue-lt) !important; }
   .swot-cell.t { background: #FFFBF0 !important; }
   .swot-cell ul li { color: var(--body) !important; }
@@ -544,7 +544,7 @@
   /* ── Tabs (strategy internal tabs) ── */
   .tab-nav { background: var(--deep) !important; border-radius: 6px 6px 0 0 !important; }
   .tab-btn { color: #94A3B8 !important; font-family: 'Inter', sans-serif !important; background: transparent !important; border-radius: 4px 4px 0 0 !important; }
-  .tab-btn.active { background: #FFFFFF !important; color: var(--deep) !important; }
+  .tab-btn.active { background: var(--bg) !important; color: var(--deep) !important; }
   .tab-btn:hover:not(.active) { background: rgba(255,255,255,0.1) !important; color: #FFFFFF !important; }
   .tab-content.active { display: block !important; }
   .tabbed-card { border-radius: 0 6px 6px 6px !important; }
@@ -566,7 +566,7 @@
   .lcv-rev { color: var(--green) !important; font-family: 'Playfair Display', Georgia, serif !important; }
 
   /* ── KPI scorecard ── */
-  .kpi-sc-body { background: #FFFFFF !important; }
+  .kpi-sc-body { background: var(--bg) !important; }
   .kpi-sc-current { color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
   .kpi-sc-note { color: var(--slate) !important; }
 
@@ -574,7 +574,7 @@
   .advantage-header { background: var(--deep) !important; }
   .advantage-header h4 { color: #FFFFFF !important; }
   .advantage-num { background: var(--gold) !important; color: var(--deep) !important; font-family: 'Playfair Display', Georgia, serif !important; }
-  .advantage-body { background: #FFFFFF !important; }
+  .advantage-body { background: var(--bg) !important; }
 
   /* ── Addendum header ── */
   .addendum-header { background: linear-gradient(135deg, var(--deep) 0%, #1E3A5F 100%) !important; border-left-color: var(--gold) !important; }
@@ -1445,9 +1445,9 @@
 
   <style>
     .lib-filter{background:none;border:1px solid transparent;padding:5px 12px;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;color:var(--slate);font-family:inherit;transition:all 0.15s;}
-    .lib-filter:hover{background:white;border-color:var(--mgrey);}
+    .lib-filter:hover{background:var(--bg);border-color:var(--mgrey);}
     .lib-filter.active{background:var(--deep);color:white;border-color:var(--deep);}
-    .doc-card{border:1px solid var(--mgrey);border-radius:4px;overflow:hidden;background:white;display:flex;flex-direction:column;transition:box-shadow 0.15s;}
+    .doc-card{border:1px solid var(--mgrey);border-radius:4px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;transition:box-shadow 0.15s;}
     .doc-card:hover{box-shadow:0 4px 16px rgba(12,29,59,0.12);}
     .doc-card-top{padding:16px;flex:1;}
     .doc-card-footer{padding:10px 16px;background:var(--lgrey);border-top:1px solid var(--mgrey);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}

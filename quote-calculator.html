@@ -76,7 +76,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13
 .preview{background:#dde3ef;padding:24px;overflow-y:auto}
 
 /* Cards */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:12px}
+.card{background:var(--bg);border:1px solid var(--border);border-radius:10px;margin-bottom:12px}
 .card-h{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text2)}
 .card-b{padding:14px}
 
@@ -107,7 +107,7 @@ textarea{resize:vertical;min-height:50px}
 .sec-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 0 3px}
 
 /* Totals */
-.tbox{background:var(--surface2);border-radius:8px;padding:12px;margin-top:8px}
+.tbox{background:var(--bg);border-radius:8px;padding:12px;margin-top:8px}
 .tr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
 .tr.big{font-weight:700;font-size:14px;padding-top:8px;margin-top:4px;border-top:1px solid var(--border2)}
 .mbox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px;margin-top:8px;text-align:center;display:none}
@@ -148,7 +148,7 @@ textarea{resize:vertical;min-height:50px}
 .pfoot{margin-top:32px;padding-top:10px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:8pt;color:#777}
 
 @media print{
-  body{background:#fff}
+  body{background:var(--bg)}
   .layout{display:block}
   .builder,#nav{display:none!important}
   .preview{background:#fff;padding:0}

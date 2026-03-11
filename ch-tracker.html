@@ -54,7 +54,7 @@
   body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
 
   header {
-    background: var(--surface);
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
     padding: 0 24px;
     display: flex;
@@ -72,7 +72,7 @@
   header .hdr-stat .v { font-family: var(--mono); font-size: 14px; font-weight: 600; }
 
   .tabs {
-    background: var(--surface);
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
     padding: 0 24px;
     display: flex;
@@ -97,7 +97,7 @@
   /* CARDS */
   .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .card {
-    background: var(--surface);
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     padding: 16px;
@@ -117,7 +117,7 @@
     padding: 6px 14px;
     border-radius: 6px;
     border: 1px solid var(--border);
-    background: var(--surface);
+    background: var(--bg);
     cursor: pointer;
     font-size: 12px;
     font-weight: 600;
@@ -153,9 +153,9 @@
 
   /* TABLE */
   .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-  table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--bg); }
   th {
-    background: var(--surface2);
+    background: var(--bg);
     padding: 10px 12px;
     text-align: left;
     font-weight: 600;
@@ -256,7 +256,7 @@
 
   /* MONTHLY GRID */
   .month-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
-  .month-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .month-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
   .month-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
   .month-row { display: flex; justify-content: space-between; margin-bottom: 7px; align-items: center; }
   .month-row .k { color: var(--text2); font-size: 12px; }
@@ -318,7 +318,7 @@
 
   /* Cards / surfaces */
   .card, .stat-card, .kpi-card, .summary-card {
-    background: var(--surface);
+    background: var(--bg);
     border-radius: 2px;
     border: 1px solid var(--border);
     border-top: 3px solid var(--gold);
@@ -428,7 +428,7 @@
   /* ── Cards / Surfaces ── */
   .tool-card, .card, .stat-card, .kpi-card, .summary-card,
   .tbl-wrap, .tab-content, .section {
-    background: var(--surface) !important;
+    background: var(--bg) !important;
     border-radius: 0 !important;
     border: 1px solid var(--border) !important;
     box-shadow: 0 1px 6px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04) !important;

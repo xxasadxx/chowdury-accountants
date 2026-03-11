@@ -85,20 +85,20 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 #portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
 
 /* PAGE TABS */
-.page-tabs{display:flex;gap:0;background:var(--surface);border-bottom:2px solid var(--border);padding:0 20px}
+.page-tabs{display:flex;gap:0;background:var(--bg);border-bottom:2px solid var(--border);padding:0 20px}
 .page-tab{padding:13px 18px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
 .page-tab:hover{color:var(--text)}
 .page-tab.active{color:var(--purple);border-bottom-color:var(--purple)}
 
 /* KPI */
 .kpi-row{display:flex;gap:10px;padding:14px 20px;flex-wrap:wrap}
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;flex:1;min-width:120px}
+.kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:13px 16px;flex:1;min-width:120px}
 .kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .kpi .v{font-size:20px;font-weight:700;margin:3px 0 1px}
 .kpi .sub{font-size:10px;color:var(--muted)}
 
 /* TOOLBAR */
-.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:9px 20px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.toolbar{background:var(--bg);border-bottom:1px solid var(--border);padding:9px 20px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .filter-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--border2);background:none;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;color:var(--text2);transition:all .15s;white-space:nowrap}
 .filter-btn.active,.filter-btn:hover{background:var(--purple);color:#fff;border-color:var(--purple)}
 .search-box{padding:6px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;width:210px}
@@ -115,7 +115,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 /* TABLE */
 .table-wrap{overflow-x:auto;padding:0 20px 30px}
 table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:var(--surface2);padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--border);cursor:pointer;white-space:nowrap}
+th{background:var(--bg);padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--border);cursor:pointer;white-space:nowrap}
 th:hover{color:var(--purple)}
 td{padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
 tr.data-row:hover{background:#f5f3ff;cursor:pointer}
@@ -169,7 +169,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
 .field input[type=number]{font-family:var(--mono)}
 
 /* Year fee card */
-.year-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
+.year-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px}
 .year-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .year-card-title{font-size:13px;font-weight:700;color:var(--purple)}
 .fee-summary{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
@@ -178,18 +178,18 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
 .fee-sum-item .fv{font-weight:700;font-size:13px}
 
 /* Business card */
-.biz-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;position:relative}
+.biz-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:8px;position:relative}
 .biz-card-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px}
 .biz-card-del:hover{color:var(--red)}
 
 /* Referral */
-.ref-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;font-size:12px}
+.ref-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;font-size:12px}
 .ref-name{font-weight:600}
 .ref-meta{font-size:10px;color:var(--muted);margin-top:2px}
 
 /* Trends */
 .trend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
-.trend-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.trend-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
 .trend-year{font-size:11px;color:var(--muted);font-weight:600;margin-bottom:8px}
 .trend-num{font-size:24px;font-weight:700}
 .trend-stats{display:flex;justify-content:center;gap:10px;margin-top:8px;font-size:11px}
@@ -205,17 +205,17 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
 .upload-area{border:2px dashed var(--border2);border-radius:8px;padding:12px;text-align:center;cursor:pointer;transition:all .15s;margin-top:6px}
 .upload-area:hover{border-color:var(--purple);background:#faf5ff}
 .upload-area input{display:none}
-.doc-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;font-size:11px;margin-bottom:5px}
+.doc-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-size:11px;margin-bottom:5px}
 .doc-item a{color:var(--blue);text-decoration:none;flex:1;font-weight:500}
 
 /* FEES PAGE */
 .fees-summary{display:flex;gap:10px;padding:14px 20px;flex-wrap:wrap}
 .outstanding-client-row{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px}
-.outstanding-client-row:hover{background:var(--surface2);cursor:pointer}
+.outstanding-client-row:hover{background:var(--bg);cursor:pointer}
 
 /* REFERRALS PAGE */
 .ref-table-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid var(--border);font-size:12px}
-.ref-table-row:hover{background:var(--surface2)}
+.ref-table-row:hover{background:var(--bg)}
 
 /* TRENDS PAGE */
 .trends-wrap{padding:16px 20px}
