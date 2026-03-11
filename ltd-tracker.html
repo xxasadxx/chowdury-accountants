@@ -1380,8 +1380,8 @@ async function saveClient(){
 async function sbSave(c){
   // Only send columns confirmed in original schema — CH dates managed by CH sync
   const payload={
-    name:c.name,
-    comp_no:c.comp_no,
+  // Never include comp_no (PK) or name in PATCH payload
+  const payload={
     sector:c.sector,
     status:c.status,
     left_year:c.left_year||'',
@@ -1401,13 +1401,9 @@ async function sbSave(c){
   };
   try{
     await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(c.comp_no)}`,{method:'PATCH',body:JSON.stringify(payload)});
+    alert('✅ Saved! Sector: '+c.sector+'\nComp: '+c.comp_no+'\nRefresh to confirm it sticks.');
   }catch(e){
-    console.warn('Save failed:',e.message);
-    // Try minimal fallback — just sector + status + paye/vat flags
-    try{
-      const min={sector:c.sector,status:c.status,vat_registered:!!c.vat_registered,paye_registered:!!c.paye_registered,notes:c.notes||''};
-      await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(c.comp_no)}`,{method:'PATCH',body:JSON.stringify(min)});
-    }catch(e2){alert('Save failed: '+e2.message+'\n\nPlease reload Supabase schema cache:\nSupabase Dashboard → Settings → API → Reload schema cache');}
+    alert('Save failed: '+e.message);
   }
 }
 async function deleteClient(){
