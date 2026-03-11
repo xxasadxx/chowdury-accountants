@@ -1368,8 +1368,21 @@ async function saveClient(){
   btn.textContent='💾 Save';btn.disabled=false;
 }
 async function sbSave(c){
-  try{await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(c),headers:{'Prefer':'return=minimal'}});}
-  catch(e){console.warn('Save failed:',e.message);}
+  // Only PATCH the flat fields — never send fee_years (handled separately)
+  const payload={
+    name:c.name, comp_no:c.comp_no, sector:c.sector, status:c.status,
+    left_year:c.left_year, reason_for_leaving:c.reason_for_leaving,
+    referred_by:c.referred_by, ref_year:c.ref_year,
+    alerts:c.alerts, accounts_due:c.accounts_due, accounts_ref_date:c.accounts_ref_date,
+    conf_due:c.conf_due, conf_date:c.conf_date, vat_due:c.vat_due,
+    vat_registered:c.vat_registered, paye_registered:c.paye_registered,
+    vat_stagger:c.vat_stagger, notes:c.notes,
+    director_name:c.director_name, director_mobile:c.director_mobile,
+    director_email:c.director_email, director_dob:c.director_dob,
+    director_ni:c.director_ni, director_address:c.director_address
+  };
+  try{await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(payload),headers:{'Prefer':'return=minimal'}});}
+  catch(e){console.warn('Save failed:',e.message);alert('Save failed: '+e.message);}
 }
 async function deleteClient(){
   const c=DATA.find(x=>x.id===currentId);if(!c||!confirm(`Remove ${c.name}?`))return;
@@ -1504,15 +1517,17 @@ async function syncFromCH(){
 }
 
 async function syncPayeRegistered(){
+  const statusEl=document.getElementById('sync-status');
   // Make sure PAYE_CLIENTS is loaded
   if(!PAYE_CLIENTS||PAYE_CLIENTS.length===0){
-    try{PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref&order=id.asc');}
-    catch(e){showToast('Could not load PAYE clients: '+e.message,'danger');return;}
+    try{
+      statusEl.textContent='Loading PAYE clients...';
+      PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref&order=id.asc');
+    }catch(e){alert('Could not load PAYE clients: '+e.message);return;}
   }
   const clean=n=>(n||'').toLowerCase().replace(/\bltd\b|\blimited\b|\.\s*/g,'').replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
   const toUpdate=[];
   const alreadySet=[];
-  const noMatch=[];
   for(const c of DATA){
     if(c.status==='left'||c.status==='ceased')continue;
     const cn=clean(c.name);
@@ -1523,19 +1538,20 @@ async function syncPayeRegistered(){
     if(match){
       if(c.paye_registered===true){alreadySet.push(c.name);}
       else{toUpdate.push({id:c.id,name:c.name,matchedTo:match.employer_name});}
-    } else if(!c.paye_registered){
-      noMatch.push(c.name);
     }
   }
   if(toUpdate.length===0){
-    showToast('All matched clients already marked as PAYE registered ✅ ('+alreadySet.length+' already set)','success');
+    statusEl.style.color='var(--green)';
+    statusEl.textContent='✓ All matched clients already PAYE registered ('+alreadySet.length+' already set)';
+    alert('Nothing to update — all matching clients are already marked as PAYE registered.\n('+alreadySet.length+' already set)');
     return;
   }
   const msg='Found '+toUpdate.length+' Ltd client'+(toUpdate.length!==1?'s':'')+' to mark as PAYE registered:\n\n'+
-    toUpdate.slice(0,10).map(u=>'• '+u.name+' → '+u.matchedTo).join('\n')+
-    (toUpdate.length>10?'\n…and '+(toUpdate.length-10)+' more':'')+
+    toUpdate.slice(0,15).map(u=>'• '+u.name).join('\n')+
+    (toUpdate.length>15?'\n…and '+(toUpdate.length-15)+' more':'')+
     '\n\nProceed?';
   if(!confirm(msg))return;
+  statusEl.textContent='Syncing PAYE...';
   let done=0,errors=0;
   for(const u of toUpdate){
     try{
@@ -1546,7 +1562,9 @@ async function syncPayeRegistered(){
     }catch(e){errors++;console.warn('PAYE sync failed for',u.name,e.message);}
   }
   renderAll();
-  showToast('PAYE sync complete: '+done+' updated'+(errors?' ('+errors+' errors)':'')+(alreadySet.length?' · '+alreadySet.length+' already set':''),'success');
+  statusEl.style.color='var(--green)';
+  statusEl.textContent='✓ PAYE sync: '+done+' updated'+(errors?' ('+errors+' errors)':'');
+  alert('PAYE sync complete!\n'+done+' clients marked as PAYE registered'+(errors?'\n'+errors+' errors (check console)':'')+(alreadySet.length?'\n'+alreadySet.length+' were already set':''));
 }
 
 async function autoSyncIfStale(){
