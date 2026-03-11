@@ -1574,8 +1574,8 @@ async function syncPayeRegistered(){
   let done=0,errors=0;
   for(const u of toUpdate){
     try{
-      await sbFetch('ltd_clients?comp_no=eq.'+encodeURIComponent(u.comp_no),{method:'PATCH',body:JSON.stringify({paye_registered:true})});
-      const local=DATA.find(x=>x.id===u.id);
+      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify({comp_no:u.comp_no,paye_registered:true}),headers:{'Prefer':'resolution=merge-duplicates'}});
+      const local=DATA.find(x=>x.comp_no===u.comp_no);
       if(local)local.paye_registered=true;
       done++;
     }catch(e){errors++;console.warn('PAYE sync failed for',u.name,e.message);}
