@@ -356,7 +356,7 @@ function render() {
     const alertDot = c.alerts === 'Red' ? '<span class="dot dot-red"></span>' : c.alerts === 'Amber' ? '<span class="dot dot-amber"></span>' : '<span class="dot dot-green"></span>';
     return `<tr>
       <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">${i+1}</td>
-      <td><a class="company-link" href="ltd-tracker.html?open=${c.comp_no}" target="_blank">${c.name} ↗</a><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
+      <td><a class="company-link" href="ltd-tracker.html?open=${c.comp_no}" target="_blank" onclick="event.stopPropagation()">${c.name} ↗</a><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
       <td><span class="stagger-badge ${staggerClass}">${c.vat_stagger}</span></td>
       <td style="font-family:var(--mono);font-size:12px;font-weight:600">${c.vat_due}</td>
       <td>${daysBadge(c.days_until)}</td>
