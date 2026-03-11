@@ -1372,13 +1372,12 @@ async function saveClient(){
   btn.textContent='💾 Save';btn.disabled=false;
 }
 async function sbSave(c){
-  // Only PATCH the flat fields — never send fee_years (handled separately)
+  // Only PATCH editable flat fields — CH date fields (accounts_due, conf_due etc) managed by CH sync
   const payload={
     name:c.name, comp_no:c.comp_no, sector:c.sector, status:c.status,
     left_year:c.left_year, reason_for_leaving:c.reason_for_leaving,
     referred_by:c.referred_by, ref_year:c.ref_year,
-    alerts:c.alerts, accounts_due:c.accounts_due, accounts_ref_date:c.accounts_ref_date,
-    conf_due:c.conf_due, conf_date:c.conf_date, vat_due:c.vat_due,
+    alerts:c.alerts, vat_due:c.vat_due,
     vat_registered:c.vat_registered, paye_registered:c.paye_registered,
     vat_stagger:c.vat_stagger, notes:c.notes,
     director_name:c.director_name, director_mobile:c.director_mobile,
