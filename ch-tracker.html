@@ -660,28 +660,14 @@
   <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
 </div>
 <body>
-<header>
-  <div class="header-band"></div>
-  <div class="header-top">
-    <div class="logo">
-      <div class="logo-mark">CA</div>
-      <div class="logo-text">
-        <span class="name">Chowdury Accountants</span>
-        <span class="sub">Practice Portal</span>
-      </div>
-    </div>
-    <div class="header-right" style="display:flex;align-items:center;gap:16px">
-      <div style="text-align:right;font-size:0.72rem">
-        <span style="color:var(--muted)">Net Profit: </span>
-        <span id="hdr-profit" style="font-weight:700;color:var(--green);font-family:var(--mono)">—</span>
-        &nbsp;|&nbsp;
-        <span style="color:var(--muted)">Uncharged: </span>
-        <span id="hdr-unc" style="font-weight:700;color:var(--amber);font-family:var(--mono)">—</span>
-      </div>
-    </div>
+<header style="display:flex;align-items:center;justify-content:flex-end;padding:6px 24px;border-bottom:1px solid var(--border);background:var(--bg);">
+  <div style="font-size:0.72rem">
+    <span style="color:var(--muted)">Net Profit: </span>
+    <span id="hdr-profit" style="font-weight:700;color:var(--green);font-family:var(--mono)">—</span>
+    &nbsp;|&nbsp;
+    <span style="color:var(--muted)">Uncharged: </span>
+    <span id="hdr-unc" style="font-weight:700;color:var(--amber);font-family:var(--mono)">—</span>
   </div>
-  <nav class="header-nav">
-        </nav>
 </header>
 
 <div class="tabs">
