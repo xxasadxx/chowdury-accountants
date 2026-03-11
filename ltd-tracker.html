@@ -1613,11 +1613,14 @@ async function autoSyncIfStale(){
   try{
     const rows=await sbFetch('ltd_ch_cache?select=synced_at&order=synced_at.desc&limit=1');
     const last=rows?.[0]?.synced_at;
-    if(last){const hoursSince=(new Date()-new Date(last))/3600000;if(hoursSince<20)return;}
-    // Check if it's around 9am (8:30-9:30)
-    const hr=new Date().getHours();
-    if(hr<8||hr>10)return; // only auto-sync in the 9am window
-    document.getElementById('sync-status').textContent='Auto-syncing...';
+    if(last){
+      const hoursSince=(new Date()-new Date(last))/3600000;
+      const el=document.getElementById('sync-status');
+      if(el) el.textContent=`Last synced: ${new Date(last).toLocaleDateString('en-GB')} ${new Date(last).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;
+      if(hoursSince<22)return; // auto-synced within last 22hrs, skip
+    }
+    // Only auto-sync from browser if it's been more than 22 hours (scheduled function missed)
+    document.getElementById('sync-status').textContent='Auto-syncing (overdue)...';
     await syncFromCH();
   }catch(e){console.warn('Auto-sync skipped:',e.message);}
 }

@@ -6,3 +6,6 @@
 
 [context.production]
   environment = { NODE_VERSION = "18" }
+
+[functions."ch-sync-scheduled"]
+  schedule = "0 0 * * *"
