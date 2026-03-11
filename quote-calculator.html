@@ -121,7 +121,7 @@ textarea{resize:vertical;min-height:50px}
 .btn2:hover{border-color:var(--blue);color:var(--blue)}
 
 /* Quote paper */
-.paper{background:#fff;max-width:700px;margin:0 auto;padding:44px 50px;box-shadow:0 4px 24px rgba(0,0,0,.13);font-family:'Times New Roman',serif;font-size:11pt;line-height:1.6;color:#111;min-height:900px}
+.paper{background:#FDFDF5;max-width:700px;margin:0 auto;padding:44px 50px;box-shadow:0 4px 24px rgba(0,0,0,.13);font-family:'Times New Roman',serif;font-size:11pt;line-height:1.6;color:#111;min-height:900px}
 .ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;padding-bottom:14px;border-bottom:3px solid #1a1a18}
 .pn{font-size:17pt;font-weight:bold;color:#1a1a18;font-family:'Plus Jakarta Sans',sans-serif}
 .pt{font-size:9pt;color:#666;font-style:italic;margin-top:2px}
@@ -145,7 +145,11 @@ textarea{resize:vertical;min-height:50px}
 .psign{margin-top:30px;font-size:10.5pt}
 .psname{font-weight:bold;font-size:12pt;margin-top:26px}
 .psrole{font-size:10pt;color:#444}
-.pfoot{margin-top:32px;padding-top:10px;border-top:1px solid #ddd;display:flex;justify-content:space-between;font-size:8pt;color:#777}
+.pfoot{margin-top:32px;}
+.pfoot-divider{display:flex;align-items:center;height:10px;margin-bottom:6px;}
+.pfoot-gold{flex:0 0 40%;height:3px;background:linear-gradient(to right,#c8963c,#e8b84b);align-self:center;}
+.pfoot-black{flex:1;height:10px;background:#1a1a18;clip-path:polygon(8% 0,100% 0,100% 100%,0 100%);}
+.pfoot-text{text-align:center;font-size:8pt;color:#444;font-family:'Plus Jakarta Sans',Arial,sans-serif;margin-top:5px;}
 
 @media print{
   body{background:var(--bg)}
@@ -530,9 +534,15 @@ function renderStd(checked, oo, add, net, vat, total, monthly) {
 
   $('paper').innerHTML = `
     <div class="ph">
-      <div><div class="pn">${P.name}</div><div class="pt">${P.tag}</div></div>
-      <div class="pc">${contactHtml}<br>Tel: ${P.tel}<br>Mob: ${P.mob}<br>${P.email}<br>${P.web}</div>
+      <img src="ca-logo.png" class="ph-logo" alt="Chowdury Accountants">
+      <div class="ph-contact">
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">🌐</span><span>${P.web}</span></div>
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📞</span><span>${P.tel}</span></div>
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">✉</span><span>${P.email}</span></div>
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📍</span><span>283 Featherstall Road North, Oldham, OL1 2NH</span></div>
+      </div>
     </div>
+    <div class="ph-divider"><div class="ph-divider-black"></div><div class="ph-divider-gold"></div></div>
     ${addrHtml?`<div class="paddr">${addrHtml}</div>`:''}
     <div class="pmeta">${fmtDate($('cd').value)}${$('cr').value?'<br>Ref: '+esc($('cr').value):''}</div>
     <div class="pdear">${greet},</div>
@@ -551,7 +561,10 @@ function renderStd(checked, oo, add, net, vat, total, monthly) {
     </div>
     <div style="margin-top:16px"><p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p><ul class="pul">${whyHtml}</ul></div>
     <div class="psign"><p>I look forward to hearing from you. Please do not hesitate to contact us with any queries.</p><p style="margin-top:10px">Yours sincerely,</p><div class="psname">${P.sig}</div><div class="psrole">${P.role}</div></div>
-    <div class="pfoot"><span>The Chowdury Accountants Ltd T/A Chowdury Accountants | Reg: 09441520 | VAT: 403392620</span><span>${P.addr.replace(/\n/g,' | ')}</span></div>
+    <div class="pfoot">
+      <div class="pfoot-divider"><div class="pfoot-gold"></div><div class="pfoot-black"></div></div>
+      <div class="pfoot-text">The Chowdury Accountants Ltd T/A Chowdury Accountants &nbsp;|&nbsp; Company Reg No: 09441520 &nbsp;|&nbsp; VAT No: 403392620</div>
+    </div>
   `;
 }
 
@@ -581,9 +594,15 @@ function renderBsp(oof, oov, oot, mnet, mvat) {
 
   $('paper').innerHTML = `
     <div class="ph">
-      <div><div class="pn">${P.name}</div><div class="pt">${P.tag}</div></div>
-      <div class="pc">${contactHtml}<br>Tel: ${P.tel}<br>Mob: ${P.mob}<br>${P.email}<br>${P.web}</div>
+      <img src="ca-logo.png" class="ph-logo" alt="Chowdury Accountants">
+      <div class="ph-contact">
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">🌐</span><span>${P.web}</span></div>
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📞</span><span>${P.tel}</span></div>
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">✉</span><span>${P.email}</span></div>
+        <div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📍</span><span>283 Featherstall Road North, Oldham, OL1 2NH</span></div>
+      </div>
     </div>
+    <div class="ph-divider"><div class="ph-divider-black"></div><div class="ph-divider-gold"></div></div>
     ${addrHtml?`<div class="paddr">${addrHtml}</div>`:''}
     <div class="pmeta">${fmtDate($('cd').value)}${$('cr').value?'<br>Ref: '+esc($('cr').value):''}</div>
     <div class="pdear">${greet},</div>
@@ -598,7 +617,10 @@ function renderBsp(oof, oov, oot, mnet, mvat) {
     </div>
     <div style="margin-top:16px"><p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p><ul class="pul">${whyHtml}</ul></div>
     <div class="psign"><p>I look forward to hearing from you. Please do not hesitate to contact us with any queries.</p><p style="margin-top:10px">Yours sincerely,</p><div class="psname">${P.sig}</div><div class="psrole">${P.role}</div></div>
-    <div class="pfoot"><span>The Chowdury Accountants Ltd T/A Chowdury Accountants | Reg: 09441520 | VAT: 403392620</span><span>${P.addr.replace(/\n/g,' | ')}</span></div>
+    <div class="pfoot">
+      <div class="pfoot-divider"><div class="pfoot-gold"></div><div class="pfoot-black"></div></div>
+      <div class="pfoot-text">The Chowdury Accountants Ltd T/A Chowdury Accountants &nbsp;|&nbsp; Company Reg No: 09441520 &nbsp;|&nbsp; VAT No: 403392620</div>
+    </div>
   `;
 }
 </script>
