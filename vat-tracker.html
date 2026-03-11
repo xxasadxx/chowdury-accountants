@@ -126,6 +126,20 @@ tr:hover td { background: #f8f9ff; }
 /* Progress bar for quarter */
 .quarter-bar { background: var(--surface2); border-radius: 4px; height: 6px; width: 80px; overflow: hidden; margin-top: 2px; }
 .quarter-fill { height: 100%; border-radius: 4px; }
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:#1a1a1a}
+.modal-sub{font-size:11px;color:#6b7280;margin-top:3px;font-family:monospace}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280}
+.modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto}
+.modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end}
+.vd-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vd-field label{font-size:10px;font-weight:600;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:4px}
+.vd-field .val{font-size:13px;font-weight:600;color:#1a1a1a;padding:6px 10px;background:#f9fafb;border-radius:6px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -357,7 +371,7 @@ function render() {
     const alertDot = c.alerts === 'Red' ? '<span class="dot dot-red"></span>' : c.alerts === 'Amber' ? '<span class="dot dot-amber"></span>' : '<span class="dot dot-green"></span>';
     return `<tr>
       <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">${i+1}</td>
-      <td><span class="company-link">${c.name}</span><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
+      <td><span class="company-link" onclick="openVatDetail(${c.id})" style="cursor:pointer">${c.name}</span><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
       <td><span class="stagger-badge ${staggerClass}">${c.vat_stagger}</span></td>
       <td style="font-family:var(--mono);font-size:12px;font-weight:600">${c.vat_due}</td>
       <td>${daysBadge(c.days_until)}</td>
@@ -479,6 +493,27 @@ function exportVatPDF() {
   });
   doc.save(`VATClients_${new Date().toISOString().slice(0,10)}.pdf`);
 }
+
+function openVatDetail(id) {
+  const co = VAT_DATA.find(x => x.id === id) || VAT_DATA_SEED.find(x => x.id === id);
+  if (!co) return;
+  document.getElementById('vd-name').textContent = co.name;
+  document.getElementById('vd-sub').textContent = 'Co. No: ' + (co.comp_no || '—');
+  document.getElementById('vd-stagger').textContent = co.vat_stagger || '—';
+  document.getElementById('vd-due').textContent = co.vat_due || '—';
+  document.getElementById('vd-accounts-ref').textContent = co.accounts_ref_date || '—';
+  document.getElementById('vd-accounts-due').textContent = co.accounts_due || '—';
+  document.getElementById('vd-conf-date').textContent = co.conf_date || '—';
+  document.getElementById('vd-conf-due').textContent = co.conf_due || '—';
+  document.getElementById('vd-comp-no').textContent = co.comp_no || '—';
+  document.getElementById('vd-alerts').textContent = co.alerts || '—';
+  const chLink = document.getElementById('vd-ch-link');
+  chLink.href = co.comp_no ? 'https://find-and-update.company-information.service.gov.uk/company/' + co.comp_no : '#';
+  document.getElementById('vat-detail-modal-bg').classList.add('open');
+}
+function closeVatDetail() {
+  document.getElementById('vat-detail-modal-bg').classList.remove('open');
+}
 </script>
 
 <!-- Add VAT Client Modal -->
@@ -566,7 +601,81 @@ function exportVatPDF() {
   </div>
 </div>
 
+
+<!-- VAT DETAIL MODAL -->
+<div class="modal-bg" id="vat-detail-modal-bg" onclick="if(event.target===this)closeVatDetail()">
+<div class="modal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title" id="vd-name">Company</div>
+      <div class="modal-sub" id="vd-sub">—</div>
+    </div>
+    <button class="modal-close" onclick="closeVatDetail()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px">🟢 VAT Details</div>
+    <div class="vd-row">
+      <div class="vd-field"><label>VAT Quarter Group</label><div class="val" id="vd-stagger">—</div></div>
+      <div class="vd-field"><label>Next VAT Due</label><div class="val" id="vd-due">—</div></div>
+    </div>
+    <div class="vd-row">
+      <div class="vd-field"><label>Accounts Year End</label><div class="val" id="vd-accounts-ref">—</div></div>
+      <div class="vd-field"><label>Accounts Due</label><div class="val" id="vd-accounts-due">—</div></div>
+    </div>
+    <div class="vd-row">
+      <div class="vd-field"><label>Conf. Statement Date</label><div class="val" id="vd-conf-date">—</div></div>
+      <div class="vd-field"><label>Conf. Statement Due</label><div class="val" id="vd-conf-due">—</div></div>
+    </div>
+    <div class="vd-row">
+      <div class="vd-field"><label>Company Number</label><div class="val" id="vd-comp-no">—</div></div>
+      <div class="vd-field"><label>Alert Status</label><div class="val" id="vd-alerts">—</div></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a id="vd-ch-link" href="#" style="font-size:11px;color:#155FA0;text-decoration:none;margin-right:auto">🔗 View on Companies House</a>
+    <button onclick="closeVatDetail()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Close</button>
+  </div>
+</div>
+</div>
+
 </body>
 </html>
+
+<!-- VAT DETAIL MODAL -->
+<div class="modal-bg" id="vat-detail-modal-bg" onclick="if(event.target===this)closeVatDetail()">
+<div class="modal">
+  <div class="modal-header">
+    <div>
+      <div class="modal-title" id="vd-name">Company</div>
+      <div class="modal-sub" id="vd-sub">—</div>
+    </div>
+    <button class="modal-close" onclick="closeVatDetail()">✕</button>
+  </div>
+  <div class="modal-body">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px">🟢 VAT Details</div>
+    <div class="vd-row">
+      <div class="vd-field"><label>VAT Quarter Group</label><div class="val" id="vd-stagger">—</div></div>
+      <div class="vd-field"><label>Next VAT Due</label><div class="val" id="vd-due">—</div></div>
+    </div>
+    <div class="vd-row">
+      <div class="vd-field"><label>Accounts Year End</label><div class="val" id="vd-accounts-ref">—</div></div>
+      <div class="vd-field"><label>Accounts Due</label><div class="val" id="vd-accounts-due">—</div></div>
+    </div>
+    <div class="vd-row">
+      <div class="vd-field"><label>Conf. Statement Date</label><div class="val" id="vd-conf-date">—</div></div>
+      <div class="vd-field"><label>Conf. Statement Due</label><div class="val" id="vd-conf-due">—</div></div>
+    </div>
+    <div class="vd-row">
+      <div class="vd-field"><label>Company Number</label><div class="val" id="vd-comp-no">—</div></div>
+      <div class="vd-field"><label>Alert Status</label><div class="val" id="vd-alerts">—</div></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a id="vd-ch-link" href="#" style="font-size:11px;color:#155FA0;text-decoration:none;margin-right:auto">🔗 View on Companies House</a>
+    <button onclick="closeVatDetail()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Close</button>
+  </div>
+</div>
+</div>
+
 </body>
 </html>

@@ -126,57 +126,27 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 .trend-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
 @media(max-width:600px){.fg3{grid-template-columns:1fr 1fr}.fg4{grid-template-columns:1fr 1fr}}
 
-/* ── MODAL ── */
-.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;box-sizing:border-box;}
-.modal-bg.open{display:flex;}
-.modal-bg.maximised-bg{padding:0!important;align-items:stretch!important;}
-.modal{background:var(--surface);border-radius:14px;width:calc(100% - 0px);max-width:960px;box-shadow:0 24px 64px rgba(0,0,0,.25);margin:0 auto;overflow:hidden;box-sizing:border-box;}
-.modal.maximised{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;border-radius:0!important;z-index:3000!important;margin:0!important;}
-.modal.maximised .modal-body{max-height:calc(100vh - 130px)!important;}
-.modal-header{padding:18px 24px 0;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
-.modal-title{font-size:17px;font-weight:700;}
-.modal-sub{font-size:11px;color:var(--muted);margin:3px 0 0;font-family:var(--mono);}
-.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);}
-.modal-expand{background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);margin-right:4px;padding:2px 6px;border-radius:4px;transition:all .15s;}
-.modal-expand:hover{color:var(--text);background:var(--border);}
-.modal-tabs{display:flex;gap:0;margin-top:14px;overflow-x:auto;flex-wrap:nowrap;}
-.modal-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;}
-.modal-tab:hover{color:var(--text);}
-.modal-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-.modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto;}
-.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center;}
-.modal-tab-content{display:none;}
-.modal-tab-content.active{display:block;}
-</style>
-<style id="portal-nav-css">
-#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-family:'DM Sans','Mulish',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto;}
-#portal-nav::-webkit-scrollbar{height:3px;}
-#portal-nav::-webkit-scrollbar-track{background:#1a1a18;}
-#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px;}
-.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0;}
-.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap;}
-.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
-#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500;}
-#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08);}
-#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13);}
-.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0;}
-.nav-signout:hover{color:rgba(255,255,255,.6)!important;background:rgba(255,255,255,.06)!important;}
-</style>
-</head>
-<body><div id="portal-nav">
-  <img src="ca-logo.png" alt="Chowdury Accountants" style="height:28px;width:auto;object-fit:contain;object-position:center;margin-right:12px;padding-right:12px;border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;max-width:140px;">
-  <a href="index.html">🏠 Portal</a>
-  <a href="revenue-tracker.html">💰 Revenue</a>
-  <a href="ltd-tracker.html" class="active">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html">🟢 VAT</a>
-  <a href="paye-tracker.html">💼 PAYE</a>
-  <a href="sa-tracker.html">📋 SA</a>
-  <a href="ch-tracker.html">⚖️ CH Tracker</a>
-  <a href="quote-calculator.html">💡 Quote</a>
-  <a href="staff-management.html">👥 Staff</a>
-  <a href="strategic-review.html">📊 Strategy</a>
-  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
-</div>
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal-bg.maximised-bg{padding:0!important}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:960px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.modal.maximised{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;border-radius:0!important;z-index:3000!important;margin:0!important}
+.modal.maximised .modal-body{max-height:calc(100vh - 130px)!important}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700}
+.modal-sub{font-size:11px;color:var(--muted);margin-top:3px;font-family:var(--mono)}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.modal-expand{background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);margin-right:4px;padding:2px 6px;border-radius:4px;transition:all .15s}
+.modal-expand:hover{color:var(--ink);background:var(--border)}
+.modal-tabs{display:flex;gap:0;margin-top:0;border-bottom:1px solid var(--border);overflow-x:auto;flex-wrap:nowrap}
+.modal-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
+.modal-tab:hover{color:var(--ink)}
+.modal-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.modal-tab-content{display:none}
+.modal-tab-content.active{display:block}
 
 <div class="page-tabs">
   <div class="page-tab active" onclick="showPage('clients',this)">🏢 Companies</div>
