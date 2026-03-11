@@ -591,7 +591,11 @@ async function init(){
            'referral_fee_paid','director_name','director_mobile','director_email',
            'director_dob','director_ni','director_address','vat_registered',
            'paye_registered','vat_stagger','notes'].forEach(f=>{
-            if(r[f]!==undefined&&r[f]!==null&&r[f]!=='')local[f]=r[f];
+            if(r[f]!==undefined&&r[f]!==null&&r[f]!==''){
+              // Don't let a generic 'other' from Supabase overwrite a SIC-derived sector from seed
+              if(f==='sector'&&r[f]==='other'&&local[f]&&local[f]!=='other') return;
+              local[f]=r[f];
+            }
           });
           if(r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0)local.fee_years=r.fee_years;
         }
