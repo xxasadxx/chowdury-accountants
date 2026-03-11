@@ -1544,7 +1544,15 @@ async function syncPayeRegistered(){
       PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref&order=id.asc');
     }catch(e){alert('Could not load PAYE clients: '+e.message);return;}
   }
-  const clean=n=>(n||'').toLowerCase().replace(/\bltd\b|\blimited\b|\.\s*/g,'').replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
+  const clean=n=>(n||'').toLowerCase().replace(/\bltd\b|\blimited\b|\bgroup\b|\bnw\b|\buk\b/g,'').replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
+  const squish=n=>n.replace(/\s/g,''); // remove all spaces for comparison
+  const wordScore=(a,b)=>{
+    const wa=a.split(' ').filter(w=>w.length>2);
+    const wb=b.split(' ').filter(w=>w.length>2);
+    if(!wa.length||!wb.length)return 0;
+    const matches=wa.filter(w=>wb.includes(w)).length;
+    return matches/Math.max(wa.length,wb.length);
+  };
   const toUpdate=[];
   const alreadySet=[];
   for(const c of DATA){
@@ -1552,7 +1560,12 @@ async function syncPayeRegistered(){
     const cn=clean(c.name);
     const match=PAYE_CLIENTS.find(p=>{
       const pn=clean(p.employer_name);
-      return pn&&cn&&(pn===cn||pn.includes(cn)||cn.includes(pn));
+      if(!pn||!cn)return false;
+      if(pn===cn)return true;                          // exact
+      if(squish(pn)===squish(cn))return true;          // same without spaces
+      if(pn.includes(cn)||cn.includes(pn))return true; // substring
+      if(wordScore(cn,pn)>=0.6)return true;            // 60%+ words match
+      return false;
     });
     if(match){
       if(c.paye_registered===true){alreadySet.push(c.name);}
