@@ -1763,9 +1763,9 @@ async function convertToGC(id){
   const p=PIPELINE.find(x=>x.id===id);if(!p)return;
   if(!confirm('Move '+p.company_name+' to GoCardless tab?'))return;
   try{
-    const r=await api('"Gocardless tracker"','',{method:'POST',body:JSON.stringify({
+    const r=await api('Gocardless tracker','',{method:'POST',body:JSON.stringify({
       company_name:p.company_name,city:p.city,fee:p.fee,
-      charge_date:p.charge_date,client_since:'Mar 2026',status:'active'
+      charge_date:p.charge_date,client_since:new Date().toLocaleString('en-GB',{month:'short',year:'numeric'}),status:'active'
     })});
     DD.unshift(r[0]);
     await api('dd_pipeline','?id=eq.'+id,{method:'DELETE'});
