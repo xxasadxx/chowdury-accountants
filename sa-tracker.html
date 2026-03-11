@@ -275,7 +275,12 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
     <button class="filter-btn" onclick="setTypeFilter('landlord',this)">🏠 Landlord</button>
     <button class="filter-btn" onclick="setTypeFilter('employed',this)">💼 Employed</button>
     <button class="filter-btn" onclick="setTypeFilter('multiple',this)">⚡ Multiple</button>
-    <button class="filter-btn" onclick="setStatusFilter('left',this)" style="border-color:var(--red);color:var(--red)">Left</button>
+    <select class="year-select" id="sa-status-filter" onchange="setStatusFromDropdown(this.value)">
+      <option value="all">All Clients</option>
+      <option value="active" selected>✅ Active</option>
+      <option value="left">❌ Left</option>
+      <option value="paused">⏸ Paused</option>
+    </select>
     <input class="search-box" type="text" placeholder="🔍 Search name, UTR..." oninput="setSearch(this.value)">
     <span class="count-badge" id="clients-count">—</span>
     <div class="ml-auto" style="display:flex;gap:6px">
@@ -572,7 +577,7 @@ async function sbFetch(path,opts={}){
 let DATA = [];
 let currentId = null;
 let filterType = 'all';
-let filterStatus = 'all';
+let filterStatus = 'active';
 let filterYear = 'all';
 let searchQ = '';
 let sortCol = 'name';
@@ -689,7 +694,7 @@ function getFiltered(){
   const yr=document.getElementById('year-filter')?.value||'all';
   if(yr!=='all')d=d.filter(c=>(c.tax_years||[]).some(y=>y.year===yr));
   if(filterType!=='all')d=d.filter(c=>c.client_type===filterType);
-  const st=document.getElementById('status-filter')?.value||'all';if(st!=='all')d=d.filter(c=>(c.status||'active')===st);
+  if(filterStatus!=='all')d=d.filter(c=>(c.status||'active')===filterStatus);
   if(searchQ){const q=searchQ.toLowerCase();d=d.filter(c=>c.name?.toLowerCase().includes(q)||c.utr?.includes(q)||c.forename?.toLowerCase().includes(q)||c.surname?.toLowerCase().includes(q));}
   d.sort((a,b)=>{
     let av=a[sortCol]||'',bv=b[sortCol]||'';
@@ -699,6 +704,11 @@ function getFiltered(){
 }
 
 function setTypeFilter(t,el){filterType=t;filterStatus='all';document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderClientsTable();renderKPIsClients();}
+function setStatusFromDropdown(val){
+  filterStatus=val;
+  renderClientsTable();
+  renderKPIsClients();
+}
 function setStatusFilter(s,el){filterStatus=s;filterType='all';document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderClientsTable();}
 function setSearch(q){searchQ=q;renderClientsTable();}
 function applyFilter(){renderClientsTable();renderKPIsClients();}
