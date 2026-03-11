@@ -398,7 +398,7 @@ function render() {
     const empBadge = emp===0 ? `<span style="color:var(--muted);font-size:11px">—</span>` : `<span class="paye-chip">👤 ${emp}</span>`;
     return `<tr class="data-row" onclick="openModal(${r.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td style="font-weight:600;max-width:200px">${esc(r.employer_name)}${r._ltd_status?'<span style="margin-left:6px;font-size:10px;padding:1px 6px;border-radius:3px;background:#F1F5F9;color:#64748B;font-weight:700;">'+(r._ltd_status==='ceased'?'🛑 Ceased':r._ltd_status==='left'?'🚪 Left':'💤 '+r._ltd_status)+'</span>':''}</td>
+      <td style="max-width:200px">${esc(r.employer_name)}${r._ltd_status?'<span style="margin-left:6px;font-size:10px;padding:1px 6px;border-radius:3px;background:#F1F5F9;color:#64748B;font-weight:700;">'+(r._ltd_status==='ceased'?'🛑 Ceased':r._ltd_status==='left'?'🚪 Left':'💤 '+r._ltd_status)+'</span>':''}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--teal)">${esc(r.paye_ref||'—')}</td>
       <td style="font-family:var(--mono);font-size:10px;color:var(--text2)">${esc(r.acc_office_ref||'—')}</td>
       <td>${empBadge}</td>

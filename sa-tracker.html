@@ -758,7 +758,7 @@ function renderClientsTable(){
     const years=(c.tax_years||[]).map(y=>`<span class="badge badge-grey" style="font-size:9px;margin:1px">${y.year}</span>`).join('');
     return`<tr class="data-row" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td style="font-weight:600">${esc(c.name||c.forename+' '+c.surname)}</td>
+      <td style="">${esc(c.name||c.forename+' '+c.surname)}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--purple)">${esc(c.utr||'—')}</td>
       <td>${clientTypeBadge(c.client_type)}</td>
       <td>${statusBadge(c.status)}</td>
@@ -822,7 +822,7 @@ function renderFeesPage(){
     const disc=parseFloat(y.discount)||0;
     return`<tr class="data-row" onclick="openClientModal(${c.id});setTimeout(()=>showModalTab('fees',document.querySelector('.modal-tab:nth-child(4)')),300)">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td style="font-weight:600">${esc(c.name)}</td>
+      <td style="">${esc(c.name)}</td>
       <td><span class="badge badge-grey">${esc(y.year)}</span></td>
       <td style="font-family:var(--mono)">${fmt(y.fee)}</td>
       <td style="font-family:var(--mono);color:var(--red)">${disc>0?'-'+fmt(disc):'—'}</td>
@@ -876,7 +876,7 @@ function renderReferralsPage(){
     const joinYear=(c.tax_years||[])[0]?.year||'—';
     return`<tr class="ref-table-row" style="cursor:pointer" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px;padding:9px 12px">${i+1}</td>
-      <td style="padding:9px 12px;font-weight:600">${esc(c.name)}</td>
+      <td style="padding:9px 12px">${esc(c.name)}</td>
       <td style="padding:9px 12px">${esc(c.referred_by)}</td>
       <td style="padding:9px 12px"><span class="badge badge-grey">${joinYear}</span></td>
       <td style="padding:9px 12px;font-family:var(--mono)">${fmt(fee)}</td>
