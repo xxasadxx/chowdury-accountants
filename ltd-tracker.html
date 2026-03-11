@@ -17,6 +17,7 @@
     :root {
     --bg:          #FBFAE8;
     --surface:     #FFFFFF;
+    --text:         #252525;
     --ink:         #252525;
     --ink2:        #4A4A4A;
     --muted:       #7A7A7A;
@@ -490,7 +491,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
   <div class="modal-footer">
     <button class="btn btn-danger" onclick="deleteClient()">🗑 Remove</button>
     <span style="flex:1"></span>
-    <a id="cm-ch-link" href="#" target="_blank" style="font-size:11px;color:var(--blue);text-decoration:none">🔗 View on CH</a>
+    <a id="cm-ch-link" href="#" style="font-size:11px;color:var(--blue);text-decoration:none">🔗 View on CH</a>
     <button class="btn btn-secondary" onclick="closeClientModal()">Cancel</button>
     <button class="btn btn-blue" id="cm-save-btn" onclick="saveClient()">💾 Save</button>
   </div>
@@ -811,7 +812,7 @@ function renderClientsTable(){
     return`<tr class="data-row" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
       <td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</td>
-      <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${c.comp_no?`<a href="https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue)">${esc(c.comp_no)}</a>`:'—'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${c.comp_no?`<a href="https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}" onclick="event.stopPropagation()" style="color:var(--blue)">${esc(c.comp_no)}</a>`:'—'}</td>
       <td>${sectorBadge(c.sector)}</td>
       <td>${statusBadge(c.status)}</td>
       <td class="${dc}">${esc(c.accounts_due||'—')}</td>
@@ -1243,7 +1244,7 @@ function renderReferralsMade(c){
 function renderDocList(docs){
   const el=document.getElementById('cm-doc-list');
   if(!docs||!docs.length){el.innerHTML='<p style="font-size:12px;color:var(--muted);margin-bottom:8px">No documents uploaded yet</p>';return;}
-  el.innerHTML=docs.map((d,i)=>`<div class="doc-item"><span>📄</span><a href="${d.url||'#'}" target="_blank">${esc(d.name)}</a><span style="color:var(--muted);font-size:10px">${d.uploaded||''}</span><button onclick="removeDoc(${i})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px">✕</button></div>`).join('');
+  el.innerHTML=docs.map((d,i)=>`<div class="doc-item"><span>📄</span><a href="${d.url||'#'}">${esc(d.name)}</a><span style="color:var(--muted);font-size:10px">${d.uploaded||''}</span><button onclick="removeDoc(${i})" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:12px">✕</button></div>`).join('');
 }
 function removeDoc(i){const c=DATA.find(x=>x.id===currentId);if(!c)return;c.documents=(c.documents||[]).filter((_,j)=>j!==i);renderDocList(c.documents);}
 async function handleDocUpload(files){
