@@ -90,6 +90,11 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 .modal-title{font-size:17px;font-weight:700}
 .modal-sub{font-size:11px;color:var(--muted);margin:3px 0 0;font-family:var(--mono)}
 .modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);float:right;margin-top:-2px}
+.modal-expand{background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);float:right;margin-top:0;margin-right:6px;padding:2px 6px;border-radius:4px;transition:all .15s;}
+.modal-expand:hover{color:var(--text);background:var(--border);}
+.modal.maximised{max-width:100vw!important;width:100vw!important;height:100vh!important;margin:0!important;border-radius:0!important;}
+.modal.maximised .modal-body{max-height:calc(100vh - 130px)!important;}
+.modal-bg.maximised-bg{padding:0!important;align-items:stretch!important;}
 .modal-tabs{display:flex;gap:0;margin-top:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap}
 .modal-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s}
 .modal-tab:hover{color:var(--text)}.modal-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
@@ -312,6 +317,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 <div class="modal">
   <div class="modal-header">
     <button class="modal-close" onclick="closeClientModal()">✕</button>
+    <button class="modal-expand" id="modal-expand-btn" onclick="toggleExpandModal()" title="Maximise">⛶</button>
     <div class="modal-title" id="cm-title">Company</div>
     <div class="modal-sub" id="cm-sub">—</div>
     <div class="modal-tabs">
@@ -1017,6 +1023,15 @@ function openClientModal(id){
   document.getElementById('cm-ch-link').href=c.comp_no?`https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}`:'#';
   showModalTab('company',document.querySelector('.modal-tab'));
   document.getElementById('client-modal-bg').classList.add('open');
+}
+function toggleExpandModal(){
+  const modal = document.querySelector('#client-modal-bg .modal');
+  const bg = document.getElementById('client-modal-bg');
+  const btn = document.getElementById('modal-expand-btn');
+  const isMax = modal.classList.toggle('maximised');
+  bg.classList.toggle('maximised-bg', isMax);
+  btn.textContent = isMax ? '⊡' : '⛶';
+  btn.title = isMax ? 'Restore' : 'Maximise';
 }
 function closeClientModal(){document.getElementById('client-modal-bg').classList.remove('open');currentId=null;}
 function showModalTab(id,el){
