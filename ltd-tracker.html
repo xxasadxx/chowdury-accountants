@@ -616,7 +616,7 @@ async function seedDatabase(){
     btn.textContent=`Inserting \${seed.length} companies...`;
     for(let i=0;i<seed.length;i+=50){
       const batch=seed.slice(i,i+50);
-      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(batch),headers:{'Prefer':'return=minimal'}});
+      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(batch)});
       btn.textContent=`Inserted \${Math.min(i+50,seed.length)}/\${seed.length}...`;
     }
     await init();
@@ -1356,7 +1356,7 @@ async function saveClient(){
       const confirm_cascade=confirm(`${c.name} is now marked as ${label}.\n\nAlso mark "${match.employer_name}" as inactive in the PAYE Tracker?`);
       if(confirm_cascade){
         try{
-          await sbFetch(`paye_clients?id=eq.${match.id}`,{method:'PATCH',body:JSON.stringify({client_status:newStatus}),headers:{'Prefer':'return=minimal'}});
+          await sbFetch(`paye_clients?id=eq.${match.id}`,{method:'PATCH',body:JSON.stringify({client_status:newStatus})});
           match.client_status=newStatus;
           match._ltd_status=newStatus;
         }catch(e){console.warn('PAYE cascade failed:',e.message);}
@@ -1381,12 +1381,12 @@ async function sbSave(c){
     director_email:c.director_email, director_dob:c.director_dob,
     director_ni:c.director_ni, director_address:c.director_address
   };
-  try{await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(payload),headers:{'Prefer':'return=minimal'}});}
+  try{await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(payload)});}
   catch(e){console.warn('Save failed:',e.message);alert('Save failed: '+e.message);}
 }
 async function deleteClient(){
   const c=DATA.find(x=>x.id===currentId);if(!c||!confirm(`Remove ${c.name}?`))return;
-  try{await sbFetch(`ltd_clients?id=eq.${currentId}`,{method:'DELETE',headers:{'Prefer':'return=minimal'}});}catch(e){}
+  try{await sbFetch(`ltd_clients?id=eq.${currentId}`,{method:'DELETE'});}catch(e){}
   DATA=DATA.filter(x=>x.id!==currentId);closeClientModal();renderAll();
 }
 
@@ -1555,7 +1555,7 @@ async function syncPayeRegistered(){
   let done=0,errors=0;
   for(const u of toUpdate){
     try{
-      await sbFetch('ltd_clients?id=eq.'+u.id,{method:'PATCH',body:JSON.stringify({paye_registered:true}),headers:{'Prefer':'return=minimal'}});
+      await sbFetch('ltd_clients?id=eq.'+u.id,{method:'PATCH',body:JSON.stringify({paye_registered:true})});
       const local=DATA.find(x=>x.id===u.id);
       if(local)local.paye_registered=true;
       done++;
