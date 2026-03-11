@@ -603,6 +603,7 @@ async function init(){
   // Step 3: load paye_clients for cross-reference
   try{
     PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref,status&order=id.asc');
+    if(!PAYE_CLIENTS||PAYE_CLIENTS.length===0){const r=await fetch('paye-seed.json');PAYE_CLIENTS=await r.json();}
     if(currentId) try{renderPayeXref(currentId);}catch(e){}
   }catch(e){console.warn('PAYE cross-ref load failed:',e.message);}
   autoSyncIfStale();
@@ -1541,7 +1542,12 @@ async function syncPayeRegistered(){
   if(!PAYE_CLIENTS||PAYE_CLIENTS.length===0){
     try{
       statusEl.textContent='Loading PAYE clients...';
-      PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref&order=id.asc');
+      PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref,status&order=id.asc');
+      // If Supabase table is empty, fall back to seed file
+      if(!PAYE_CLIENTS||PAYE_CLIENTS.length===0){
+        const r=await fetch('paye-seed.json');
+        PAYE_CLIENTS=await r.json();
+      }
     }catch(e){alert('Could not load PAYE clients: '+e.message);return;}
   }
   const clean=n=>(n||'').toLowerCase().replace(/\bltd\b|\blimited\b|\bgroup\b|\bnw\b|\buk\b/g,'').replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
