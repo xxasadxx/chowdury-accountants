@@ -81,7 +81,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .kpi .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 
 /* Toolbar */
-.toolbar { background: var(--surface); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toolbar { background: var(--bg); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .filter-btn { padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 11px; font-weight: 600; background: var(--surface2); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
 .filter-btn:hover { border-color: var(--blue); color: var(--blue); }
 .filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
@@ -93,11 +93,11 @@ body { background: var(--bg); color: var(--text); font-family: var(--sans); font
 .count-badge { font-size: 11px; color: var(--text-muted); margin-left: auto; font-weight: 600; }
 
 /* Table */
-.table-wrap { padding: 16px 20px 20px; overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.table-wrap { padding: 16px 20px 20px; overflow-x: auto; background: var(--surface); border-radius: 10px; border: 1px solid var(--border); margin: 0 20px 20px; }
+table { width: 100%; border-collapse: collapse; }
 th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
 th:hover { color: var(--blue); }
-td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; }
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; background: var(--surface); }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: #f8f9ff; }
 
