@@ -575,7 +575,6 @@ async function init(){
     const chunks = await Promise.all([0,1,2,3,4,5,6].map(i=>fetch(`ltd-seed-${i}.json`).then(r=>r.ok?r.json():[])));
     DATA = chunks.flat();
     if(!DATA.length) throw new Error('No seed data loaded');
-    alert('DEBUG: Loaded '+DATA.length+' records from seed. First: '+DATA[0].name+' ('+DATA[0].comp_no+')');
     populatePeriodFilter();renderAll();
   }catch(e){
     document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load: '+e.message+'</td></tr>';
@@ -1398,7 +1397,6 @@ async function sbSave(c){
   };
   try{
     await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(c.comp_no)}`,{method:'PATCH',body:JSON.stringify(payload)});
-    alert('✅ Saved! Sector: '+c.sector+'\nComp: '+c.comp_no+'\nRefresh to confirm it sticks.');
   }catch(e){
     alert('Save failed: '+e.message);
   }
