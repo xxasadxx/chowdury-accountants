@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PAYE Batch Update</title>
+<style>
+body{font-family:monospace;padding:20px;background:#1a1a1a;color:#0f0}
+.log{white-space:pre-wrap;font-size:13px}
+button{background:#D04A02;color:#fff;border:none;padding:12px 24px;font-size:15px;cursor:pointer;border-radius:8px;margin-bottom:20px}
+.done{color:#4CAF50}
+.error{color:#f44}
+</style>
+</head>
+<body>
+<h2 style="color:#fff">PAYE Batch Update — 48 companies</h2>
+<p style="color:#aaa">Sets paye_registered = true for companies confirmed in Bright Manager payroll</p>
+<button onclick="runUpdate()">▶ Run PAYE Update</button>
+<div class="log" id="log"></div>
+
+<script>
+const SUPA_URL = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const IDS = [6, 7, 10, 27, 28, 31, 34, 37, 43, 48, 49, 50, 72, 75, 84, 87, 88, 95, 109, 110, 122, 126, 130, 140, 144, 150, 151, 157, 158, 173, 179, 184, 201, 203, 225, 227, 240, 242, 244, 247, 250, 251, 268, 272, 276, 278, 300, 306];
+
+const log = document.getElementById('log');
+function lg(msg, cls='') { log.innerHTML += `<span class="${cls}">${msg}</span>\n`; }
+
+async function runUpdate() {
+  document.querySelector('button').disabled = true;
+  lg(`Starting PAYE update for ${IDS.length} companies...\n`);
+  
+  let ok = 0, fail = 0;
+  for (let i = 0; i < IDS.length; i++) {
+    const id = IDS[i];
+    try {
+      const r = await fetch(`${SUPA_URL}/rest/v1/ltd_clients?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPA_KEY,
+          'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({paye_registered: true})
+      });
+      if (r.ok) { ok++; lg(`[${i+1}/${IDS.length}] ID ${id} ✓`); }
+      else { fail++; lg(`[${i+1}/${IDS.length}] ID ${id} FAILED: ${r.status}`, 'error'); }
+    } catch(e) {
+      fail++;
+      lg(`[${i+1}/${IDS.length}] ID ${id} ERROR: ${e.message}`, 'error');
+    }
+    await new Promise(r => setTimeout(r, 50));
+  }
+  
+  lg(`\n${ok}/${IDS.length} updated successfully.`, ok === IDS.length ? 'done' : 'error');
+  if (ok === IDS.length) lg('✅ All done! Go back to Ltd Tracker and hard refresh.', 'done');
+}
+</script>
+</body>
+</html>
