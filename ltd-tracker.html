@@ -212,6 +212,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <span id="sync-status" style="font-size:11px;color:var(--muted)"></span>
     <div class="ml-auto" style="display:flex;gap:6px">
       <button id="sync-btn" class="btn btn-secondary" onclick="syncFromCH()">🔄 Sync CH</button>
+      <button class="btn btn-secondary" onclick="syncPayeRegistered()" title="Auto-mark PAYE registered based on PAYE Tracker">💼 Sync PAYE</button>
       <button class="btn btn-blue" onclick="openAddModal()">+ Add Company</button>
       <button class="btn btn-secondary" onclick="exportClientsExcel()">⬇ Excel</button>
       <button class="btn btn-secondary" onclick="exportClientsPDF()">🖨 PDF</button>
@@ -1500,6 +1501,52 @@ async function syncFromCH(){
   }catch(e){statusEl.style.color='var(--red)';statusEl.textContent='Save failed: '+e.message;}
   renderAll();
   btn.disabled=false;btn.textContent='🔄 Sync CH';
+}
+
+async function syncPayeRegistered(){
+  // Make sure PAYE_CLIENTS is loaded
+  if(!PAYE_CLIENTS||PAYE_CLIENTS.length===0){
+    try{PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref&order=id.asc');}
+    catch(e){showToast('Could not load PAYE clients: '+e.message,'danger');return;}
+  }
+  const clean=n=>(n||'').toLowerCase().replace(/\bltd\b|\blimited\b|\.\s*/g,'').replace(/[^a-z0-9\s]/g,'').replace(/\s+/g,' ').trim();
+  const toUpdate=[];
+  const alreadySet=[];
+  const noMatch=[];
+  for(const c of DATA){
+    if(c.status==='left'||c.status==='ceased')continue;
+    const cn=clean(c.name);
+    const match=PAYE_CLIENTS.find(p=>{
+      const pn=clean(p.employer_name);
+      return pn&&cn&&(pn===cn||pn.includes(cn)||cn.includes(pn));
+    });
+    if(match){
+      if(c.paye_registered===true){alreadySet.push(c.name);}
+      else{toUpdate.push({id:c.id,name:c.name,matchedTo:match.employer_name});}
+    } else if(!c.paye_registered){
+      noMatch.push(c.name);
+    }
+  }
+  if(toUpdate.length===0){
+    showToast('All matched clients already marked as PAYE registered ✅ ('+alreadySet.length+' already set)','success');
+    return;
+  }
+  const msg='Found '+toUpdate.length+' Ltd client'+(toUpdate.length!==1?'s':'')+' to mark as PAYE registered:\n\n'+
+    toUpdate.slice(0,10).map(u=>'• '+u.name+' → '+u.matchedTo).join('\n')+
+    (toUpdate.length>10?'\n…and '+(toUpdate.length-10)+' more':'')+
+    '\n\nProceed?';
+  if(!confirm(msg))return;
+  let done=0,errors=0;
+  for(const u of toUpdate){
+    try{
+      await sbFetch('ltd_clients?id=eq.'+u.id,{method:'PATCH',body:JSON.stringify({paye_registered:true}),headers:{'Prefer':'return=minimal'}});
+      const local=DATA.find(x=>x.id===u.id);
+      if(local)local.paye_registered=true;
+      done++;
+    }catch(e){errors++;console.warn('PAYE sync failed for',u.name,e.message);}
+  }
+  renderAll();
+  showToast('PAYE sync complete: '+done+' updated'+(errors?' ('+errors+' errors)':'')+(alreadySet.length?' · '+alreadySet.length+' already set':''),'success');
 }
 
 async function autoSyncIfStale(){
