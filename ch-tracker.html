@@ -645,6 +645,8 @@
 </style>
 </head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+
+<body>
 <div id="portal-nav">
   <img src="ca-logo.png" alt="Chowdury Accountants" style="height:28px;width:auto;object-fit:contain;object-position:center;margin-right:12px;padding-right:12px;border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;max-width:140px;">
   <a href="index.html">🏠 Portal</a>
@@ -659,7 +661,7 @@
   <a href="strategic-review.html">📊 Strategy</a>
   <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
 </div>
-<body>
+
 <header style="display:flex;align-items:center;justify-content:flex-end;padding:6px 24px;border-bottom:1px solid var(--border);background:var(--bg);">
   <div style="font-size:0.72rem">
     <span style="color:var(--muted)">Net Profit: </span>
