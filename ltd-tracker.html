@@ -1377,8 +1377,6 @@ async function saveClient(){
   btn.textContent='💾 Save';btn.disabled=false;
 }
 async function sbSave(c){
-  // Only send columns confirmed in original schema — CH dates managed by CH sync
-  const payload={
   // Never include comp_no (PK) or name in PATCH payload
   const payload={
     sector:c.sector,
