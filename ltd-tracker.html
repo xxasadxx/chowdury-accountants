@@ -319,8 +319,8 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 </div>
 
 <!-- CLIENT MODAL -->
-<div class="modal-bg" id="client-modal-bg" onclick="if(event.target===this)closeClientModal()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;box-sizing:border-box">
-<div class="modal" style="background:#fff;border-radius:14px;width:100%;max-width:960px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden">
+<div class="modal-bg" id="client-modal-bg" onclick="if(event.target===this)closeClientModal()">
+<div class="modal">
   <div class="modal-header">
     <div>
       <div class="modal-title" id="cm-title">Company</div>
@@ -592,6 +592,8 @@ async function init(){
   try{
     PAYE_CLIENTS=await sbFetch('paye_clients?select=id,employer_name,paye_ref,status&order=id.asc');
     renderAll();
+    // Refresh PAYE xref if modal is open
+    if(currentId) try{renderPayeXref(currentId);}catch(e){}
   }catch(e){console.warn('PAYE cross-ref load failed:',e.message);}
   // Auto-sync CH data if stale (9am window)
   autoSyncIfStale();
@@ -989,6 +991,20 @@ function renderTrendsPage(){
 }
 
 // ─── CLIENT MODAL ───
+function renderPayeXref(id){
+  const c=DATA.find(x=>x.id===id); if(!c) return;
+  const clean=n=>(n||'').toLowerCase().replace(/\bltd\b|\blimited\b|\.\s*/g,'').replace(/\s+/g,' ').trim();
+  const cn=clean(c.name);
+  const payeMatch=PAYE_CLIENTS.find(p=>{
+    const pn=clean(p.employer_name);
+    return pn&&cn&&(pn===cn||pn.includes(cn)||cn.includes(pn));
+  });
+  const xrefEl=document.getElementById('cm-paye-xref');
+  if(!xrefEl) return;
+  if(payeMatch) xrefEl.innerHTML='✅ Found in PAYE Tracker: <strong>'+esc(payeMatch.employer_name)+'</strong>'+(payeMatch.paye_ref?' · '+esc(payeMatch.paye_ref):'');
+  else if(c.paye_registered) xrefEl.innerHTML='⚠️ Marked as registered — not yet found in PAYE Tracker (loading...)';
+  else xrefEl.innerHTML='ℹ️ Not found in PAYE Tracker';
+}
 function openClientModal(id){
   const c=DATA.find(x=>x.id===id);if(!c)return;
   currentId=id;
@@ -1007,17 +1023,7 @@ function openClientModal(id){
   document.getElementById('cm-accounts-ref').value=c.accounts_ref_date||'';
   document.getElementById('cm-paye').value=c.paye_registered?'true':'false';
   // Cross-reference with paye_clients table
-  const payeMatch=PAYE_CLIENTS.find(p=>{
-    const pn=(p.employer_name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
-    const cn=(c.name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();
-    return pn&&cn&&(pn.includes(cn)||cn.includes(pn));
-  });
-  const xrefEl=document.getElementById('cm-paye-xref');
-  if(xrefEl){
-    if(payeMatch) xrefEl.innerHTML='✅ Found in PAYE Tracker: <strong>'+esc(payeMatch.employer_name)+'</strong>'+(payeMatch.paye_ref?' · '+esc(payeMatch.paye_ref):'');
-    else if(c.paye_registered) xrefEl.innerHTML='⚠️ Marked as registered but not found in PAYE Tracker';
-    else xrefEl.innerHTML='ℹ️ Not found in PAYE Tracker';
-  }
+  renderPayeXref(id);
   document.getElementById('cm-vat').value=c.vat_registered?'true':'false';
   document.getElementById('cm-vat-stagger').value=c.vat_stagger||'';
   document.getElementById('cm-notes').value=c.notes||'';
@@ -1045,7 +1051,7 @@ function openClientModal(id){
   // CH link
   document.getElementById('cm-ch-link').href=c.comp_no?`https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}`:'#';
   showModalTab('company',document.querySelector('.modal-tab'));
-  const _mbg=document.getElementById('client-modal-bg');_mbg.classList.add('open');_mbg.style.display='flex';
+  document.getElementById('client-modal-bg').classList.add('open');
 }
 function toggleExpandModal(){
   const modal = document.querySelector('#client-modal-bg .modal');
@@ -1056,7 +1062,7 @@ function toggleExpandModal(){
   btn.textContent = isMax ? '⊡' : '⛶';
   btn.title = isMax ? 'Restore' : 'Maximise';
 }
-function closeClientModal(){const _mbg2=document.getElementById('client-modal-bg');_mbg2.classList.remove('open');_mbg2.style.display='none';currentId=null;}
+function closeClientModal(){document.getElementById('client-modal-bg').classList.remove('open');currentId=null;}
 function showModalTab(id,el){
   document.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));

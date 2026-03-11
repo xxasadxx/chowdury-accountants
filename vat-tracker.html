@@ -140,6 +140,20 @@ tr:hover td { background: #f8f9ff; }
 .vd-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
 .vd-field label{font-size:10px;font-weight:600;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:4px}
 .vd-field .val{font-size:13px;font-weight:600;color:#1a1a1a;padding:6px 10px;background:#f9fafb;border-radius:6px}
+
+/* VAT EDIT MODAL */
+.vat-modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.vat-modal-bg.open{display:flex}
+.vat-modal{background:#fff;border-radius:14px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.vat-modal-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:flex-start;justify-content:space-between}
+.vat-modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto}
+.vat-modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.vf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vf-full{grid-column:1/-1}
+.vf-label{font-size:10px;font-weight:600;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:4px}
+.vf-input{width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#f9fafb}
+.vf-input:focus{outline:none;border-color:#155FA0;background:#fff}
+.vf-select{width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#f9fafb;cursor:pointer}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -371,14 +385,14 @@ function render() {
     const alertDot = c.alerts === 'Red' ? '<span class="dot dot-red"></span>' : c.alerts === 'Amber' ? '<span class="dot dot-amber"></span>' : '<span class="dot dot-green"></span>';
     return `<tr>
       <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">${i+1}</td>
-      <td><span class="company-link" onclick="openVatDetail(${c.id})" style="cursor:pointer">${c.name}</span><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
+      <td><span class="company-link" onclick="openVatModal(${c.id})" style="cursor:pointer">${c.name}</span><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
       <td><span class="stagger-badge ${staggerClass}">${c.vat_stagger}</span></td>
       <td style="font-family:var(--mono);font-size:12px;font-weight:600">${c.vat_due}</td>
       <td>${daysBadge(c.days_until)}</td>
       <td>${quarterProgress(c.vat_due)}</td>
       <td>${alertDot}${c.alerts || '—'}</td>
       <td style="white-space:nowrap">
-        <button onclick="openEditVat(${c.id})" style="background:none;border:1px solid var(--border2);border-radius:5px;padding:3px 8px;color:var(--text-muted);cursor:pointer;font-size:11px;margin-right:4px">✏️</button>
+        <button onclick="openVatModal(${c.id})" style="background:none;border:1px solid var(--border2);border-radius:5px;padding:3px 8px;color:var(--text-muted);cursor:pointer;font-size:11px;margin-right:4px">✏️</button>
         <button onclick="removeVatClient(${c.id})" style="background:none;border:1px solid #ef4444;border-radius:5px;padding:3px 8px;color:#ef4444;cursor:pointer;font-size:11px">✕</button>
       </td>
     </tr>`;
@@ -494,25 +508,76 @@ function exportVatPDF() {
   doc.save(`VATClients_${new Date().toISOString().slice(0,10)}.pdf`);
 }
 
-function openVatDetail(id) {
-  const co = VAT_DATA.find(x => x.id === id) || VAT_DATA_SEED.find(x => x.id === id);
+
+function openVatModal(id) {
+  const co = (VAT_DATA.length ? VAT_DATA : VAT_DATA_SEED).find(x => x.id === id);
   if (!co) return;
-  document.getElementById('vd-name').textContent = co.name;
-  document.getElementById('vd-sub').textContent = 'Co. No: ' + (co.comp_no || '—');
-  document.getElementById('vd-stagger').textContent = co.vat_stagger || '—';
-  document.getElementById('vd-due').textContent = co.vat_due || '—';
-  document.getElementById('vd-accounts-ref').textContent = co.accounts_ref_date || '—';
-  document.getElementById('vd-accounts-due').textContent = co.accounts_due || '—';
-  document.getElementById('vd-conf-date').textContent = co.conf_date || '—';
-  document.getElementById('vd-conf-due').textContent = co.conf_due || '—';
-  document.getElementById('vd-comp-no').textContent = co.comp_no || '—';
-  document.getElementById('vd-alerts').textContent = co.alerts || '—';
-  const chLink = document.getElementById('vd-ch-link');
-  chLink.href = co.comp_no ? 'https://find-and-update.company-information.service.gov.uk/company/' + co.comp_no : '#';
-  document.getElementById('vat-detail-modal-bg').classList.add('open');
+  document.getElementById('vm-id').value = id;
+  document.getElementById('vm-title').textContent = co.name;
+  document.getElementById('vm-sub').textContent = 'Co. No: ' + (co.comp_no || '—');
+  document.getElementById('vm-name').value = co.name || '';
+  document.getElementById('vm-comp-no').value = co.comp_no || '';
+  document.getElementById('vm-stagger').value = co.vat_stagger || 'Group 1';
+  document.getElementById('vm-alerts').value = co.alerts || 'Green';
+  document.getElementById('vm-vat-due').value = co.vat_due || '';
+  document.getElementById('vm-accounts-ref').value = co.accounts_ref_date || '';
+  document.getElementById('vm-accounts-due').value = co.accounts_due || '';
+  document.getElementById('vm-conf-date').value = co.conf_date || '';
+  document.getElementById('vm-conf-due').value = co.conf_due || '';
+  const ch = document.getElementById('vm-ch-link');
+  ch.href = co.comp_no ? 'https://find-and-update.company-information.service.gov.uk/company/' + co.comp_no : '#';
+  document.getElementById('vat-modal-bg').classList.add('open');
 }
-function closeVatDetail() {
-  document.getElementById('vat-detail-modal-bg').classList.remove('open');
+function closeVatModal() {
+  document.getElementById('vat-modal-bg').classList.remove('open');
+}
+async function saveVatClient() {
+  const id = parseInt(document.getElementById('vm-id').value);
+  const updates = {
+    name: document.getElementById('vm-name').value.trim(),
+    comp_no: document.getElementById('vm-comp-no').value.trim(),
+    vat_stagger: document.getElementById('vm-stagger').value,
+    alerts: document.getElementById('vm-alerts').value,
+    vat_due: document.getElementById('vm-vat-due').value.trim(),
+    accounts_ref_date: document.getElementById('vm-accounts-ref').value.trim(),
+    accounts_due: document.getElementById('vm-accounts-due').value.trim(),
+    conf_date: document.getElementById('vm-conf-date').value.trim(),
+    conf_due: document.getElementById('vm-conf-due').value.trim()
+  };
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/ltd_clients?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('Save failed');
+    // Update local data
+    const idx = VAT_DATA.findIndex(x => x.id === id);
+    if (idx >= 0) Object.assign(VAT_DATA[idx], updates);
+    const idx2 = VAT_DATA_SEED.findIndex(x => x.id === id);
+    if (idx2 >= 0) Object.assign(VAT_DATA_SEED[idx2], updates);
+    filtered = [...VAT_DATA];
+    renderKPIs(); render();
+    closeVatModal();
+  } catch(e) {
+    alert('Save failed: ' + e.message);
+  }
+}
+async function removeVatClient() {
+  const id = parseInt(document.getElementById('vm-id').value);
+  const name = document.getElementById('vm-name').value;
+  if (!confirm('Remove ' + name + ' from VAT tracker?')) return;
+  try {
+    await fetch(SUPA_URL + '/rest/v1/ltd_clients?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ vat_registered: false })
+    });
+    VAT_DATA = VAT_DATA.filter(x => x.id !== id);
+    filtered = [...VAT_DATA];
+    renderKPIs(); render();
+    closeVatModal();
+  } catch(e) { alert('Remove failed: ' + e.message); }
 }
 </script>
 
@@ -602,38 +667,72 @@ function closeVatDetail() {
 </div>
 
 
-<!-- VAT DETAIL MODAL -->
-<div class="modal-bg" id="vat-detail-modal-bg" onclick="if(event.target===this)closeVatDetail()">
-<div class="modal">
-  <div class="modal-header">
+
+
+<!-- VAT EDIT MODAL -->
+<div class="vat-modal-bg" id="vat-modal-bg" onclick="if(event.target===this)closeVatModal()">
+<div class="vat-modal">
+  <div class="vat-modal-header">
     <div>
-      <div class="modal-title" id="vd-name">Company</div>
-      <div class="modal-sub" id="vd-sub">—</div>
+      <div style="font-size:16px;font-weight:700;color:#1a1a1a" id="vm-title">VAT Client</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:3px;font-family:monospace" id="vm-sub">—</div>
     </div>
-    <button class="modal-close" onclick="closeVatDetail()">✕</button>
+    <button onclick="closeVatModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
   </div>
-  <div class="modal-body">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px">🟢 VAT Details</div>
-    <div class="vd-row">
-      <div class="vd-field"><label>VAT Quarter Group</label><div class="val" id="vd-stagger">—</div></div>
-      <div class="vd-field"><label>Next VAT Due</label><div class="val" id="vd-due">—</div></div>
+  <div class="vat-modal-body">
+    <input type="hidden" id="vm-id">
+    <div class="vf-grid">
+      <div class="vf-full">
+        <label class="vf-label">Company Name</label>
+        <input class="vf-input" id="vm-name" type="text">
+      </div>
+      <div>
+        <label class="vf-label">Company Number</label>
+        <input class="vf-input" id="vm-comp-no" type="text">
+      </div>
+      <div>
+        <label class="vf-label">VAT Quarter Group</label>
+        <select class="vf-select" id="vm-stagger">
+          <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
+          <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
+          <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Alert Status</label>
+        <select class="vf-select" id="vm-alerts">
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Next VAT Due</label>
+        <input class="vf-input" id="vm-vat-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Year End</label>
+        <input class="vf-input" id="vm-accounts-ref" type="text" placeholder="DD/MM">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Due</label>
+        <input class="vf-input" id="vm-accounts-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Conf. Statement Date</label>
+        <input class="vf-input" id="vm-conf-date" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div class="vf-full">
+        <label class="vf-label">Conf. Statement Due</label>
+        <input class="vf-input" id="vm-conf-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
     </div>
-    <div class="vd-row">
-      <div class="vd-field"><label>Accounts Year End</label><div class="val" id="vd-accounts-ref">—</div></div>
-      <div class="vd-field"><label>Accounts Due</label><div class="val" id="vd-accounts-due">—</div></div>
-    </div>
-    <div class="vd-row">
-      <div class="vd-field"><label>Conf. Statement Date</label><div class="val" id="vd-conf-date">—</div></div>
-      <div class="vd-field"><label>Conf. Statement Due</label><div class="val" id="vd-conf-due">—</div></div>
-    </div>
-    <div class="vd-row">
-      <div class="vd-field"><label>Company Number</label><div class="val" id="vd-comp-no">—</div></div>
-      <div class="vd-field"><label>Alert Status</label><div class="val" id="vd-alerts">—</div></div>
-    </div>
+    <a id="vm-ch-link" href="#" target="_blank" style="font-size:11px;color:#155FA0;text-decoration:none;display:inline-block;margin-top:4px">🔗 View on Companies House ↗</a>
   </div>
-  <div class="modal-footer">
-    <a id="vd-ch-link" href="#" style="font-size:11px;color:#155FA0;text-decoration:none;margin-right:auto">🔗 View on Companies House</a>
-    <button onclick="closeVatDetail()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Close</button>
+  <div class="vat-modal-footer">
+    <button onclick="removeVatClient()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;margin-right:auto">🗑 Remove</button>
+    <button onclick="closeVatModal()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Cancel</button>
+    <button onclick="saveVatClient()" style="background:#155FA0;color:#fff;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600">💾 Save Changes</button>
   </div>
 </div>
 </div>
@@ -641,38 +740,72 @@ function closeVatDetail() {
 </body>
 </html>
 
-<!-- VAT DETAIL MODAL -->
-<div class="modal-bg" id="vat-detail-modal-bg" onclick="if(event.target===this)closeVatDetail()">
-<div class="modal">
-  <div class="modal-header">
+
+
+<!-- VAT EDIT MODAL -->
+<div class="vat-modal-bg" id="vat-modal-bg" onclick="if(event.target===this)closeVatModal()">
+<div class="vat-modal">
+  <div class="vat-modal-header">
     <div>
-      <div class="modal-title" id="vd-name">Company</div>
-      <div class="modal-sub" id="vd-sub">—</div>
+      <div style="font-size:16px;font-weight:700;color:#1a1a1a" id="vm-title">VAT Client</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:3px;font-family:monospace" id="vm-sub">—</div>
     </div>
-    <button class="modal-close" onclick="closeVatDetail()">✕</button>
+    <button onclick="closeVatModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
   </div>
-  <div class="modal-body">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:10px">🟢 VAT Details</div>
-    <div class="vd-row">
-      <div class="vd-field"><label>VAT Quarter Group</label><div class="val" id="vd-stagger">—</div></div>
-      <div class="vd-field"><label>Next VAT Due</label><div class="val" id="vd-due">—</div></div>
+  <div class="vat-modal-body">
+    <input type="hidden" id="vm-id">
+    <div class="vf-grid">
+      <div class="vf-full">
+        <label class="vf-label">Company Name</label>
+        <input class="vf-input" id="vm-name" type="text">
+      </div>
+      <div>
+        <label class="vf-label">Company Number</label>
+        <input class="vf-input" id="vm-comp-no" type="text">
+      </div>
+      <div>
+        <label class="vf-label">VAT Quarter Group</label>
+        <select class="vf-select" id="vm-stagger">
+          <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
+          <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
+          <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Alert Status</label>
+        <select class="vf-select" id="vm-alerts">
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Next VAT Due</label>
+        <input class="vf-input" id="vm-vat-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Year End</label>
+        <input class="vf-input" id="vm-accounts-ref" type="text" placeholder="DD/MM">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Due</label>
+        <input class="vf-input" id="vm-accounts-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Conf. Statement Date</label>
+        <input class="vf-input" id="vm-conf-date" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div class="vf-full">
+        <label class="vf-label">Conf. Statement Due</label>
+        <input class="vf-input" id="vm-conf-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
     </div>
-    <div class="vd-row">
-      <div class="vd-field"><label>Accounts Year End</label><div class="val" id="vd-accounts-ref">—</div></div>
-      <div class="vd-field"><label>Accounts Due</label><div class="val" id="vd-accounts-due">—</div></div>
-    </div>
-    <div class="vd-row">
-      <div class="vd-field"><label>Conf. Statement Date</label><div class="val" id="vd-conf-date">—</div></div>
-      <div class="vd-field"><label>Conf. Statement Due</label><div class="val" id="vd-conf-due">—</div></div>
-    </div>
-    <div class="vd-row">
-      <div class="vd-field"><label>Company Number</label><div class="val" id="vd-comp-no">—</div></div>
-      <div class="vd-field"><label>Alert Status</label><div class="val" id="vd-alerts">—</div></div>
-    </div>
+    <a id="vm-ch-link" href="#" target="_blank" style="font-size:11px;color:#155FA0;text-decoration:none;display:inline-block;margin-top:4px">🔗 View on Companies House ↗</a>
   </div>
-  <div class="modal-footer">
-    <a id="vd-ch-link" href="#" style="font-size:11px;color:#155FA0;text-decoration:none;margin-right:auto">🔗 View on Companies House</a>
-    <button onclick="closeVatDetail()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Close</button>
+  <div class="vat-modal-footer">
+    <button onclick="removeVatClient()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;margin-right:auto">🗑 Remove</button>
+    <button onclick="closeVatModal()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Cancel</button>
+    <button onclick="saveVatClient()" style="background:#155FA0;color:#fff;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600">💾 Save Changes</button>
   </div>
 </div>
 </div>
