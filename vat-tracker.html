@@ -114,7 +114,7 @@ tr:hover td { background: #f8f9ff; }
 .g2 { background: #f3e8ff; color: #6d28d9; }
 .g3 { background: #f0fdf4; color: #15803d; }
 
-.company-link { color: var(--text); font-weight: 600; text-decoration: none; cursor: pointer; }
+.company-link { color: var(--text); font-weight: 400; text-decoration: none; cursor: pointer; }
 .company-link:hover { text-decoration: underline; }
 
 /* Status dot */
@@ -387,7 +387,7 @@ function render() {
       <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">${i+1}</td>
       <td><span class="company-link" onclick="openVatModal(${c.id})" style="cursor:pointer">${c.name}</span><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
       <td><span class="stagger-badge ${staggerClass}">${c.vat_stagger}</span></td>
-      <td style="font-family:var(--mono);font-size:12px;font-weight:600">${c.vat_due}</td>
+      <td style="font-family:var(--mono);font-size:12px">${c.vat_due}</td>
       <td>${daysBadge(c.days_until)}</td>
       <td>${quarterProgress(c.vat_due)}</td>
       <td>${alertDot}${c.alerts || '—'}</td>

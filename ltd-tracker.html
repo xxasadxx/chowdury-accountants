@@ -827,7 +827,7 @@ function renderClientsTable(){
     const dc=dateClass(c.accounts_due), cc=dateClass(c.conf_due), vc=dateClass(c.vat_due);
     return`<tr class="data-row" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td style="font-weight:600;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</td>
+      <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</td>
       <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${c.comp_no?`<a href="https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}" onclick="event.stopPropagation()" style="color:var(--blue)">${esc(c.comp_no)}</a>`:'—'}</td>
       <td>${sectorBadge(c.sector)}</td>
       <td>${statusBadge(c.status)}</td>
@@ -888,7 +888,7 @@ function renderFeesPage(){
     const disc=parseFloat(y.discount)||0;
     return`<tr class="data-row" onclick="openClientModal(${c.id});setTimeout(()=>showModalTab('fees',document.querySelectorAll('.modal-tab')[3]),300)">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
-      <td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</td>
       <td><span class="badge badge-grey">${esc(y.period_end||'—')}</span></td>
       <td style="font-family:var(--mono)">${fmt(y.accounts_fee)}</td>
       <td style="font-family:var(--mono)">${(parseFloat(y.cs_fee)||0)>0?fmt(y.cs_fee):'—'}</td>
@@ -935,7 +935,7 @@ function renderReferralsPage(){
     const fee=getClientTotalFee(c),comm=fee*0.1;
     return`<tr class="data-row" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px;padding:8px 11px">${i+1}</td>
-      <td style="padding:8px 11px;font-weight:600">${esc(c.name)}</td>
+      <td style="padding:8px 11px">${esc(c.name)}</td>
       <td style="padding:8px 11px">${esc(c.referred_by)}</td>
       <td style="padding:8px 11px">${sectorBadge(c.sector)}</td>
       <td style="padding:8px 11px;font-family:var(--mono)">${fmt(fee)}</td>
