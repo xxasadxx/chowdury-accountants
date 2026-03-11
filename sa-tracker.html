@@ -278,8 +278,8 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
     <select class="year-select" id="sa-status-filter" onchange="setStatusFromDropdown(this.value)">
       <option value="all">All Clients</option>
       <option value="active" selected>✅ Active</option>
-      <option value="left">❌ Left</option>
-      <option value="paused">⏸ Paused</option>
+      <option value="closed">🔒 Closed</option>
+      <option value="left">🚪 Left</option>
     </select>
     <input class="search-box" type="text" placeholder="🔍 Search name, UTR..." oninput="setSearch(this.value)">
     <span class="count-badge" id="clients-count">—</span>
@@ -451,18 +451,26 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
           </select>
         </div>
         <div class="field"><label>Client Status</label>
-          <select id="cm-status"><option value="active">Active</option><option value="left">Left</option><option value="paused">Paused</option></select>
+          <select id="cm-status" onchange="toggleLeaveFields()">
+  <option value="active">Active</option>
+  <option value="closed">Closed</option>
+  <option value="left">Left</option>
+</select>
         </div>
         <div class="field" id="cm-left-year-wrap"><label>Year Left</label><input id="cm-left-year" type="text" placeholder="e.g. 2023/24"></div>
         <div class="field" id="cm-leave-reason-wrap"><label>Reason for Leaving</label>
           <select id="cm-leave-reason">
             <option value="">—</option>
             <option>Too expensive</option>
-            <option>Moved away</option>
+            <option>Moved to another accountant</option>
             <option>No longer trading</option>
-            <option>Went to another accountant</option>
+            <option>Went insolvent / struck off</option>
             <option>Passed away</option>
             <option>Retired</option>
+            <option>Moved away</option>
+            <option>Poor service / complaint</option>
+            <option>Non-responsive / lost contact</option>
+            <option>Other</option>
             <option>Employed (no longer SE)</option>
             <option>Ltd company formed</option>
             <option>Poor service / complaint</option>
@@ -675,7 +683,7 @@ const fmt=n=>n!=null?'£'+Number(n).toLocaleString('en-GB',{minimumFractionDigit
 function clientTypeLabel(t){return{self_employed:'🧑‍💼 SE',director:'🏢 Director',landlord:'🏠 Landlord',employed:'💼 Employed',multiple:'⚡ Multiple'}[t]||t||'—';}
 function clientTypeBadge(t){const m={self_employed:'badge-blue',director:'badge-purple',landlord:'badge-teal',employed:'badge-grey',multiple:'badge-amber'};return`<span class="badge ${m[t]||'badge-grey'}">${clientTypeLabel(t)}</span>`;}
 function alertBadge(a){if(!a)return'';const m={Green:'badge-green',Amber:'badge-amber',Red:'badge-red'};return`<span class="badge ${m[a]||''}">${a}</span>`;}
-function statusBadge(s){const m={active:'badge-green',left:'badge-red',paused:'badge-amber'};return`<span class="badge ${m[s]||'badge-grey'}">${s||'active'}</span>`;}
+function statusBadge(s){const m={active:'badge-green',left:'badge-red',closed:'badge-grey'};const l={active:'✅ Active',left:'🚪 Left',closed:'🔒 Closed'};return`<span class="badge ${m[s]||'badge-grey'}">${l[s]||s||'active'}</span>`;}
 function methodBadge(m){if(!m)return'—';const c={cash:'badge-green',bank_transfer:'badge-blue',dd:'badge-teal',cheque:'badge-grey'};const l={cash:'💵 Cash',bank_transfer:'🏦 Bank Transfer',dd:'🔄 DD',cheque:'📄 Cheque'};return`<span class="badge ${c[m]||'badge-grey'}">${l[m]||m}</span>`;}
 
 function getClientOutstanding(client){
@@ -704,6 +712,14 @@ function getFiltered(){
 }
 
 function setTypeFilter(t,el){filterType=t;filterStatus='all';document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderClientsTable();renderKPIsClients();}
+function toggleLeaveFields(){
+  const val = document.getElementById('cm-status')?.value;
+  const show = val === 'left' || val === 'closed';
+  ['cm-left-year-wrap','cm-leave-reason-wrap'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.style.display = show ? '' : 'none';
+  });
+}
 function setStatusFromDropdown(val){
   filterStatus=val;
   renderClientsTable();
