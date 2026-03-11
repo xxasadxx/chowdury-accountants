@@ -1394,19 +1394,19 @@ async function sbSave(c){
     director_address:c.director_address||''
   };
   try{
-    await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(payload)});
+    await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(c.comp_no)}`,{method:'PATCH',body:JSON.stringify(payload)});
   }catch(e){
     console.warn('Save failed:',e.message);
     // Try minimal fallback — just sector + status + paye/vat flags
     try{
       const min={sector:c.sector,status:c.status,vat_registered:!!c.vat_registered,paye_registered:!!c.paye_registered,notes:c.notes||''};
-      await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(min)});
+      await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(c.comp_no)}`,{method:'PATCH',body:JSON.stringify(min)});
     }catch(e2){alert('Save failed: '+e2.message+'\n\nPlease reload Supabase schema cache:\nSupabase Dashboard → Settings → API → Reload schema cache');}
   }
 }
 async function deleteClient(){
   const c=DATA.find(x=>x.id===currentId);if(!c||!confirm(`Remove ${c.name}?`))return;
-  try{await sbFetch(`ltd_clients?id=eq.${currentId}`,{method:'DELETE'});}catch(e){}
+  try{await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(DATA.find(x=>x.id===currentId)?.comp_no||currentId)}`,{method:'DELETE'});}catch(e){}
   DATA=DATA.filter(x=>x.id!==currentId);closeClientModal();renderAll();
 }
 
@@ -1557,7 +1557,7 @@ async function syncPayeRegistered(){
     });
     if(match){
       if(c.paye_registered===true){alreadySet.push(c.name);}
-      else{toUpdate.push({id:c.id,name:c.name,matchedTo:match.employer_name});}
+      else{toUpdate.push({id:c.id,comp_no:c.comp_no,name:c.name,matchedTo:match.employer_name});}
     }
   }
   if(toUpdate.length===0){
@@ -1575,7 +1575,7 @@ async function syncPayeRegistered(){
   let done=0,errors=0;
   for(const u of toUpdate){
     try{
-      await sbFetch('ltd_clients?id=eq.'+u.id,{method:'PATCH',body:JSON.stringify({paye_registered:true})});
+      await sbFetch('ltd_clients?comp_no=eq.'+encodeURIComponent(u.comp_no),{method:'PATCH',body:JSON.stringify({paye_registered:true})});
       const local=DATA.find(x=>x.id===u.id);
       if(local)local.paye_registered=true;
       done++;
