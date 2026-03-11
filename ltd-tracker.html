@@ -1612,40 +1612,24 @@ async function syncPayeRegistered(){
 
 async function syncVatRegistered(){
   const statusEl=document.getElementById('sync-status');
-  statusEl.textContent='Loading VAT clients...';
-  // Get all companies with vat_due set in ltd_clients (these are VAT registered)
-  let vatClients=[];
-  try{
-    const rows=await sbFetch('ltd_clients?select=comp_no,vat_due,vat_stagger&limit=1000');
-    vatClients=(rows||[]).filter(r=>r.comp_no&&r.vat_due&&r.vat_due.trim()!=='');
-  }catch(e){alert('Could not load VAT clients: '+e.message);return;}
-
-  if(!vatClients.length){alert('No VAT clients found in database.');return;}
-
   statusEl.textContent='Syncing VAT...';
-  // Build set of comp_nos that are VAT registered
-  const vatCompNos=new Set(vatClients.map(r=>r.comp_no.trim()));
-  const staggerMap={};
-  vatClients.forEach(r=>{if(r.vat_stagger)staggerMap[r.comp_no.trim()]=r.vat_stagger;});
-
-  // Find Ltd clients that should be marked VAT registered
-  const toUpdate=DATA.filter(c=>c.comp_no&&vatCompNos.has(c.comp_no.trim())&&!c.vat_registered);
-  const alreadySet=DATA.filter(c=>c.comp_no&&vatCompNos.has(c.comp_no.trim())&&c.vat_registered);
-
+  // Use seed DATA — companies with vat_due set are VAT registered
+  const vatClients=DATA.filter(c=>c.comp_no&&c.vat_due&&c.vat_due.trim()!=='');
+  if(!vatClients.length){alert('No VAT clients found in seed data.');return;}
+  const toUpdate=vatClients.filter(c=>!c.vat_registered);
+  const alreadySet=vatClients.filter(c=>c.vat_registered);
   if(!toUpdate.length){
     alert('Nothing to update — all matching clients are already marked as VAT registered.\n('+alreadySet.length+' already set)');
     statusEl.textContent='';return;
   }
-
   let done=0,errors=0;
   for(const c of toUpdate){
     try{
       const payload={comp_no:c.comp_no,vat_registered:true};
-      if(staggerMap[c.comp_no.trim()])payload.vat_stagger=staggerMap[c.comp_no.trim()];
+      if(c.vat_stagger)payload.vat_stagger=c.vat_stagger;
       await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(payload),headers:{'Prefer':'resolution=merge-duplicates,return=minimal'}});
-      // Update local data
       const local=DATA.find(x=>x.comp_no===c.comp_no);
-      if(local){local.vat_registered=true;if(payload.vat_stagger)local.vat_stagger=payload.vat_stagger;}
+      if(local)local.vat_registered=true;
       done++;
     }catch(e){errors++;}
   }
