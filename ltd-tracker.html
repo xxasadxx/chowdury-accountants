@@ -131,7 +131,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 .modal-bg.open{display:flex}
 .modal-bg.maximised-bg{padding:0!important}
 .modal{background:var(--surface);border-radius:14px;width:100%;max-width:960px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
-.modal.maximised{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;border-radius:0!important;z-index:3000!important;margin:0!important}
+.modal.maximised{position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;max-width:100vw!important;border-radius:0!important;z-index:3000!important;margin:0!important;background:#fff!important;overflow:hidden!important;transform:none!important}
 .modal.maximised .modal-body{max-height:calc(100vh - 130px)!important}
 .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
 .modal-title{font-size:16px;font-weight:700}
@@ -1088,15 +1088,14 @@ function toggleExpandModal(){
   bg.classList.toggle('maximised-bg', isMax);
   btn.textContent = isMax ? '⊡' : '⛶';
   btn.title = isMax ? 'Restore' : 'Maximise';
-  if(!isMax){
+  if(isMax){
+    // Clear all inline styles so .maximised CSS takes over cleanly
+    modal.style.cssText = '';
+    bg.style.overflowY = 'hidden';
+  } else {
     // Restore centred inline styles
-    modal.style.position='fixed';
-    modal.style.top='20px';
-    modal.style.left='50%';
-    modal.style.transform='translateX(-50%)';
-    modal.style.width='calc(100vw - 40px)';
-    modal.style.maxWidth='960px';
-    modal.style.margin='0';
+    modal.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);width:calc(100vw - 40px);max-width:960px;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;z-index:2001;margin:0';
+    bg.style.overflowY = 'auto';
   }
 }
 function closeClientModal(){const _bg2=document.getElementById('client-modal-bg');
