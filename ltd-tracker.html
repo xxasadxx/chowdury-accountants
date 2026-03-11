@@ -591,7 +591,7 @@ async function init(){
            'referral_fee_paid','director_name','director_mobile','director_email',
            'director_dob','director_ni','director_address','vat_registered',
            'paye_registered','vat_stagger','notes'].forEach(f=>{
-            if(r[f]!==undefined&&r[f]!==null)local[f]=r[f];
+            if(r[f]!==undefined&&r[f]!==null&&r[f]!=='')local[f]=r[f];
           });
           if(r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0)local.fee_years=r.fee_years;
         }
@@ -1593,7 +1593,7 @@ async function syncPayeRegistered(){
   let done=0,errors=0;
   for(const u of toUpdate){
     try{
-      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify({comp_no:u.comp_no,paye_registered:true}),headers:{'Prefer':'resolution=merge-duplicates'}});
+      await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify({comp_no:u.comp_no,paye_registered:true}),headers:{'Prefer':'resolution=merge-duplicates,return=minimal'}});
       const local=DATA.find(x=>x.comp_no===u.comp_no);
       if(local)local.paye_registered=true;
       done++;
