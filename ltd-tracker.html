@@ -1052,9 +1052,32 @@ function openClientModal(id){
   document.getElementById('cm-ch-link').href=c.comp_no?`https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}`:'#';
   showModalTab('company',document.querySelector('.modal-tab'));
   const _bg = document.getElementById('client-modal-bg');
-  _bg.style.cssText = 'display:flex!important;position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;background:rgba(0,0,0,.55)!important;z-index:2000!important;align-items:flex-start!important;justify-content:center!important;padding:20px!important;overflow-y:auto!important;box-sizing:border-box!important';
+  // Overlay: full screen dark background
+  _bg.style.display = 'block';
+  _bg.style.position = 'fixed';
+  _bg.style.top = '0';
+  _bg.style.left = '0';
+  _bg.style.width = '100%';
+  _bg.style.height = '100%';
+  _bg.style.background = 'rgba(0,0,0,0.55)';
+  _bg.style.zIndex = '2000';
+  _bg.style.overflowY = 'auto';
+  // Modal box: fixed, centred with left:50% + translateX(-50%)
   const _mo = _bg.querySelector('.modal');
-  if(_mo) _mo.style.cssText = 'background:#fff!important;border-radius:14px!important;width:100%!important;max-width:960px!important;box-shadow:0 20px 60px rgba(0,0,0,.25)!important;margin:auto!important;overflow:hidden!important';
+  if(_mo){
+    _mo.style.position = 'fixed';
+    _mo.style.top = '20px';
+    _mo.style.left = '50%';
+    _mo.style.transform = 'translateX(-50%)';
+    _mo.style.width = 'calc(100vw - 40px)';
+    _mo.style.maxWidth = '960px';
+    _mo.style.background = '#fff';
+    _mo.style.borderRadius = '14px';
+    _mo.style.boxShadow = '0 20px 60px rgba(0,0,0,0.25)';
+    _mo.style.overflow = 'hidden';
+    _mo.style.zIndex = '2001';
+    _mo.style.margin = '0';
+  }
   _bg.classList.add('open');
 }
 function toggleExpandModal(){
@@ -1065,8 +1088,22 @@ function toggleExpandModal(){
   bg.classList.toggle('maximised-bg', isMax);
   btn.textContent = isMax ? '⊡' : '⛶';
   btn.title = isMax ? 'Restore' : 'Maximise';
+  if(!isMax){
+    // Restore centred inline styles
+    modal.style.position='fixed';
+    modal.style.top='20px';
+    modal.style.left='50%';
+    modal.style.transform='translateX(-50%)';
+    modal.style.width='calc(100vw - 40px)';
+    modal.style.maxWidth='960px';
+    modal.style.margin='0';
+  }
 }
-function closeClientModal(){const _bg2=document.getElementById('client-modal-bg');_bg2.style.cssText='display:none';_bg2.classList.remove('open');currentId=null;}
+function closeClientModal(){const _bg2=document.getElementById('client-modal-bg');
+  _bg2.style.display='none';
+  const _mo2=_bg2.querySelector('.modal');
+  if(_mo2){_mo2.style.position='';_mo2.style.top='';_mo2.style.left='';_mo2.style.transform='';}
+  _bg2.classList.remove('open');currentId=null;}
 function showModalTab(id,el){
   document.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
