@@ -593,8 +593,10 @@ async function init(){
            'director_dob','director_ni','director_address','vat_registered',
            'paye_registered','vat_stagger','notes'].forEach(f=>{
             if(r[f]!==undefined&&r[f]!==null&&r[f]!==''){
-              // Don't let a generic 'other' from Supabase overwrite a SIC-derived sector from seed
+              // Don't let Supabase 'other' overwrite a SIC-derived sector from seed
               if(f==='sector'&&r[f]==='other'&&local[f]&&local[f]!=='other') return;
+              // Don't let Supabase 'active' overwrite seed 'left'/'ceased'
+              if(f==='status'&&r[f]==='active'&&['left','ceased'].includes(local[f])) return;
               local[f]=r[f];
             }
           });
