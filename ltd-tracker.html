@@ -1372,20 +1372,37 @@ async function saveClient(){
   btn.textContent='💾 Save';btn.disabled=false;
 }
 async function sbSave(c){
-  // Only PATCH editable flat fields — CH date fields (accounts_due, conf_due etc) managed by CH sync
+  // Only send columns confirmed in original schema — CH dates managed by CH sync
   const payload={
-    name:c.name, comp_no:c.comp_no, sector:c.sector, status:c.status,
-    left_year:c.left_year, reason_for_leaving:c.reason_for_leaving,
-    referred_by:c.referred_by, ref_year:c.ref_year,
-    alerts:c.alerts, vat_due:c.vat_due,
-    vat_registered:c.vat_registered, paye_registered:c.paye_registered,
-    vat_stagger:c.vat_stagger, notes:c.notes,
-    director_name:c.director_name, director_mobile:c.director_mobile,
-    director_email:c.director_email, director_dob:c.director_dob,
-    director_ni:c.director_ni, director_address:c.director_address
+    name:c.name,
+    comp_no:c.comp_no,
+    sector:c.sector,
+    status:c.status,
+    left_year:c.left_year||'',
+    reason_for_leaving:c.reason_for_leaving||'',
+    referred_by:c.referred_by||'',
+    ref_year:c.ref_year||'',
+    vat_registered:!!c.vat_registered,
+    paye_registered:!!c.paye_registered,
+    vat_stagger:c.vat_stagger||'',
+    notes:c.notes||'',
+    director_name:c.director_name||'',
+    director_mobile:c.director_mobile||'',
+    director_email:c.director_email||'',
+    director_dob:c.director_dob||'',
+    director_ni:c.director_ni||'',
+    director_address:c.director_address||''
   };
-  try{await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(payload)});}
-  catch(e){console.warn('Save failed:',e.message);alert('Save failed: '+e.message);}
+  try{
+    await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(payload)});
+  }catch(e){
+    console.warn('Save failed:',e.message);
+    // Try minimal fallback — just sector + status + paye/vat flags
+    try{
+      const min={sector:c.sector,status:c.status,vat_registered:!!c.vat_registered,paye_registered:!!c.paye_registered,notes:c.notes||''};
+      await sbFetch(`ltd_clients?id=eq.${c.id}`,{method:'PATCH',body:JSON.stringify(min)});
+    }catch(e2){alert('Save failed: '+e2.message+'\n\nPlease reload Supabase schema cache:\nSupabase Dashboard → Settings → API → Reload schema cache');}
+  }
 }
 async function deleteClient(){
   const c=DATA.find(x=>x.id===currentId);if(!c||!confirm(`Remove ${c.name}?`))return;
