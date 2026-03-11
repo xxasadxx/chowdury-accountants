@@ -573,12 +573,12 @@ async function init(){
   // Load directly from Supabase — seed files no longer used
   try{
     document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted)">Loading...</td></tr>';
-    const rows=await sbFetch('ltd_clients?select=id,comp_no,name,fee_years,sector,status,left_year,reason_for_leaving,referred_by,ref_year,referral_fee_paid,director_name,director_mobile,director_email,director_dob,director_ni,director_address,vat_registered,paye_registered,vat_stagger,notes,alerts,accounts_due,conf_due,conf_date,vat_due&order=name.asc&limit=1000');
+    const rows=await sbFetch('ltd_clients?select=*&order=comp_no.asc&limit=1000');
     if(!rows||rows.length===0) throw new Error('No data returned from database');
     DATA=rows;
     populatePeriodFilter();renderAll();
   }catch(e){
-    document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load: '+e.message+'</td></tr>';
+    document.getElementById('clients-tbody').innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:red">Failed to load: '+e.message+'<br><small>Check browser console for details</small></td></tr>';
     return;
   }
   // Load paye_clients for cross-reference
