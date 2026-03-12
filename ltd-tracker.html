@@ -1475,7 +1475,7 @@ async function deleteClient(){
 }
 
 // ─── ADD CLIENT ───
-function openAddModal(){alert('clicked!');document.getElementById('add-modal-bg').classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
+function openAddModal(){const m=document.getElementById('add-modal-bg');m.style.display='flex';m.style.position='fixed';m.style.top='0';m.style.left='0';m.style.width='100%';m.style.height='100%';m.style.background='rgba(0,0,0,.55)';m.style.zIndex='9998';m.style.alignItems='flex-start';m.style.justifyContent='center';m.style.padding='20px';m.style.overflowY='auto';m.classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
 function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');}
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
