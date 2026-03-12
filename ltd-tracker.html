@@ -501,6 +501,15 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 </div>
 
 
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()">
+<div class="modal" style="max-width:520px">
+  <div class="modal-header" style="padding-bottom:16px">
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+    <div class="modal-title">➕ Add Ltd Company</div>
+  </div>
+
 <script>
 const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
@@ -1433,8 +1442,8 @@ async function deleteClient(){
 function openAddModal(){
   const _bg=document.getElementById('add-modal-bg');
   const _mo=_bg.querySelector('.modal');
-  _bg.style.cssText='display:flex!important;position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;background:rgba(0,0,0,.55)!important;z-index:9998!important;align-items:flex-start!important;justify-content:center!important;padding:20px!important;overflow-y:auto!important;box-sizing:border-box!important';
-  _mo.style.cssText='background:#fff!important;border-radius:14px!important;width:100%!important;max-width:520px!important;box-shadow:0 20px 60px rgba(0,0,0,.25)!important;margin:auto!important;overflow:hidden!important;display:block!important';
+  _bg.style.cssText='display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9998;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;box-sizing:border-box';
+  _mo.style.cssText='background:#fff;border-radius:14px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden';
   document.getElementById('ch-search-input').value='';
   document.getElementById('ch-search-results').innerHTML='';
   document.getElementById('add-form-fields').style.display='none';
@@ -1791,13 +1800,6 @@ document.addEventListener('DOMContentLoaded',init);
 
 
 
-<!-- ADD MODAL -->
-<div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()">
-<div class="modal" style="max-width:520px">
-  <div class="modal-header" style="padding-bottom:16px">
-    <button class="modal-close" onclick="closeAddModal()">✕</button>
-    <div class="modal-title">➕ Add Ltd Company</div>
-  </div>
   <div class="modal-body" style="max-height:none">
     <div style="display:flex;gap:8px;margin-bottom:8px">
       <input id="ch-search-input" type="text" placeholder="Search Companies House by name or number..." class="search-box" style="flex:1;width:auto" onkeydown="if(event.key==='Enter')searchCH()">
