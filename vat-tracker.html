@@ -291,23 +291,38 @@ async function loadVatData() {
 
       // Add any NEW clients from Supabase not in seed (vat_registered=true)
       const seedCompNos = new Set(VAT_DATA_SEED.map(s => s.comp_no));
-      sbRows.forEach(r => {
-        if (r.vat_registered && r.comp_no && !seedCompNos.has(r.comp_no) && r.vat_stagger) {
-          if (!['ceased','left'].includes(r.status||'active')) {
-            // Calculate vat_due from stagger
-            const staggerDues = {'Group 1':'07/06/2026','Group 2':'07/05/2026','Group 3':'07/06/2026'};
-            result.push({
-              id: r.comp_no,
-              name: r.name || r.comp_no,
-              comp_no: r.comp_no,
-              vat_stagger: r.vat_stagger,
-              vat_due: staggerDues[r.vat_stagger] || '',
-              alerts: r.alerts || '',
-              status: r.status || 'active'
-            });
-          }
-        }
-      });
+      const newClients = sbRows.filter(r =>
+        r.vat_registered === true && r.comp_no && !seedCompNos.has(r.comp_no) &&
+        !['ceased','left'].includes(r.status||'active')
+      );
+      if (newClients.length > 0) {
+        // Load all ltd seeds to get names and details
+        let allLtdData = [];
+        try {
+          const seedFiles = [0,1,2,3,4,5,6];
+          const fetches = await Promise.all(seedFiles.map(i => fetch(`/ltd-seed-${i}.json`).then(r=>r.ok?r.json():[])));
+          allLtdData = fetches.flat();
+        } catch(e) { console.warn('Could not load ltd seeds:', e.message); }
+        const ltdMap = {};
+        allLtdData.forEach(r => { if(r.comp_no) ltdMap[r.comp_no] = r; });
+
+        const staggerDues = {'Group 1':'07/04/2026','Group 2':'07/05/2026','Group 3':'07/06/2026'};
+        newClients.forEach(r => {
+          const ltd = ltdMap[r.comp_no] || {};
+          const stagger = r.vat_stagger || ltd.vat_stagger || '';
+          result.push({
+            id: r.comp_no,
+            name: ltd.name || r.comp_no,
+            comp_no: r.comp_no,
+            vat_stagger: stagger,
+            vat_due: staggerDues[stagger] || '',
+            alerts: ltd.alerts || r.alerts || '',
+            accounts_due: ltd.accounts_due || '',
+            conf_due: ltd.conf_due || '',
+            status: r.status || 'active'
+          });
+        });
+      }
 
       if (result.length > 0) {
         VAT_DATA = result.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
