@@ -1039,6 +1039,8 @@ function openClientModal(id){
   document.getElementById('cm-alerts').value=c.alerts||'';
   document.getElementById('cm-accounts-ref').value=c.accounts_ref_date||'';
   document.getElementById('cm-paye').value=c.paye_registered?'true':'false';
+  c._prevVatReg=!!c.vat_registered;
+  c._prevPayeReg=!!c.paye_registered;
   // Cross-reference with paye_clients table
   renderPayeXref(id);
   document.getElementById('cm-vat').value=c.vat_registered?'true':'false';
@@ -1358,7 +1360,10 @@ async function saveClient(){
   });
   const newStatus=c.status;
   const prevStatus=DATA.find(x=>x.id===currentId)?._prevStatus;
+  const prevVatReg  = DATA.find(x=>x.id===currentId)?._prevVatReg  ?? false;
+  const prevPayeReg = DATA.find(x=>x.id===currentId)?._prevPayeReg ?? false;
   await sbSave(c);
+  await cascadeToTrackers(c, prevVatReg, prevPayeReg);
 
   // Cascade to PAYE if status changed to ceased/left/dormant
   if(['ceased','left','dormant'].includes(newStatus) && newStatus!==prevStatus){
@@ -1411,6 +1416,84 @@ async function sbSave(c){
     alert('Save failed: '+e.message);
   }
 }
+
+// ─── CASCADE TO VAT & PAYE TRACKERS ───
+function nextVatDue(stagger) {
+  // Returns next VAT due date (always 7th) based on stagger group
+  const today = new Date();
+  const m = today.getMonth(); // 0-indexed
+  const y = today.getFullYear();
+  // Group months (0-indexed)
+  const groups = {
+    'Group 1': [0,3,6,9],   // Jan,Apr,Jul,Oct
+    'Group 2': [1,4,7,10],  // Feb,May,Aug,Nov
+    'Group 3': [2,5,8,11]   // Mar,Jun,Sep,Dec
+  };
+  const months = groups[stagger];
+  if (!months) return '';
+  // Find next due month
+  for (let i = 0; i < 12; i++) {
+    const checkM = (m + i) % 12;
+    const checkY = y + Math.floor((m + i) / 12);
+    if (months.includes(checkM)) {
+      const due = new Date(checkY, checkM, 7);
+      if (due > today) {
+        return `${String(due.getDate()).padStart(2,'0')}/${String(due.getMonth()+1).padStart(2,'0')}/${due.getFullYear()}`;
+      }
+    }
+  }
+  return '';
+}
+
+async function cascadeToTrackers(c, prevVatReg, prevPayeReg) {
+  const vatNowOn  = c.vat_registered  && !prevVatReg;
+  const payeNowOn = c.paye_registered && !prevPayeReg;
+
+  // ── VAT cascade ──
+  if (vatNowOn && c.comp_no) {
+    // Calculate next VAT due if not set
+    if (!c.vat_due && c.vat_stagger) {
+      const due = nextVatDue(c.vat_stagger);
+      if (due) {
+        c.vat_due = due;
+        try {
+          await sbFetch('ltd_clients', {
+            method: 'POST',
+            body: JSON.stringify({ comp_no: c.comp_no, vat_due: due, vat_stagger: c.vat_stagger }),
+            headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' }
+          });
+        } catch(e) { console.warn('VAT due cascade failed:', e.message); }
+      }
+    }
+    console.log(`✅ ${c.name} added to VAT tracker (${c.vat_stagger}, due ${c.vat_due})`);
+  }
+
+  // ── PAYE cascade ──
+  if (payeNowOn && c.name) {
+    try {
+      // Check if already in paye_clients
+      const existing = (PAYE_CLIENTS || []).find(p =>
+        (p.employer_name || '').toLowerCase().replace(/ltd|limited|\./g,'').trim() ===
+        (c.name || '').toLowerCase().replace(/ltd|limited|\./g,'').trim()
+      );
+      if (!existing) {
+        const newPaye = {
+          employer_name: c.name,
+          comp_no: c.comp_no || '',
+          client_status: 'active'
+        };
+        const [saved] = await sbFetch('paye_clients', {
+          method: 'POST',
+          body: JSON.stringify(newPaye),
+          headers: { 'Prefer': 'return=representation' }
+        });
+        if (saved && PAYE_CLIENTS) PAYE_CLIENTS.push(saved);
+        console.log(`✅ ${c.name} added to PAYE tracker`);
+      }
+    } catch(e) { console.warn('PAYE cascade failed:', e.message); }
+  }
+}
+
 async function deleteClient(){
   const c=DATA.find(x=>x.id===currentId);if(!c||!confirm(`Remove ${c.name}?`))return;
   try{await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(DATA.find(x=>x.id===currentId)?.comp_no||currentId)}`,{method:'DELETE'});}catch(e){}
