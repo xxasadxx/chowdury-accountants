@@ -268,30 +268,49 @@ async function loadVatData() {
   filtered = [...VAT_DATA];
   renderKPIs();
   render();
-  // Then try to enrich from Supabase — show all vat_registered=true clients
+  // Then merge with Supabase — seed is base, Supabase adds new or removes (vat_registered=false)
   try {
-    const allRows = await sbFetch('ltd_clients?select=*&vat_registered=eq.true&limit=500');
-    if (allRows && allRows.length > 0) {
-      // Merge seed data with Supabase — seed has vat_due dates, Supabase has registrations
-      // Build a map of comp_no -> seed record for vat_due lookup
-      const seedMap = {};
-      VAT_DATA_SEED.forEach(s => { if(s.comp_no) seedMap[s.comp_no] = s; });
-      const merged = allRows
-        .filter(r => !['ceased','left'].includes(r.status||'active'))
-        .map(r => {
-          const seed = seedMap[r.comp_no] || {};
-          return {
-            ...seed,
-            ...r,
-            vat_due: r.vat_due || seed.vat_due || '',
-            vat_stagger: r.vat_stagger || seed.vat_stagger || '',
-            name: seed.name || r.name || r.comp_no,
-            days_until: parseDaysUntil(r.vat_due || seed.vat_due || '')
-          };
-        })
-        .filter(r => r.vat_stagger); // must have stagger to show
-      if (merged.length > 0) {
-        VAT_DATA = merged;
+    const sbRows = await sbFetch('ltd_clients?select=comp_no,name,vat_registered,vat_stagger,status&limit=1000');
+    if (sbRows && sbRows.length > 0) {
+      // Build map of comp_no -> supabase row
+      const sbMap = {};
+      sbRows.forEach(r => { if(r.comp_no) sbMap[r.comp_no] = r; });
+
+      // Start with seed, apply Supabase overrides
+      let result = VAT_DATA_SEED.map(s => {
+        const sb = sbMap[s.comp_no];
+        if (!sb) return s; // not in Supabase, keep seed as-is
+        // If Supabase explicitly marks not VAT registered, exclude
+        if (sb.vat_registered === false) return null;
+        return {
+          ...s,
+          vat_stagger: sb.vat_stagger || s.vat_stagger || '',
+          status: sb.status || s.status || 'active'
+        };
+      }).filter(r => r && r.vat_stagger && !['ceased','left'].includes(r.status||'active'));
+
+      // Add any NEW clients from Supabase not in seed (vat_registered=true)
+      const seedCompNos = new Set(VAT_DATA_SEED.map(s => s.comp_no));
+      sbRows.forEach(r => {
+        if (r.vat_registered && r.comp_no && !seedCompNos.has(r.comp_no) && r.vat_stagger) {
+          if (!['ceased','left'].includes(r.status||'active')) {
+            // Calculate vat_due from stagger
+            const staggerDues = {'Group 1':'07/06/2026','Group 2':'07/05/2026','Group 3':'07/06/2026'};
+            result.push({
+              id: r.comp_no,
+              name: r.name || r.comp_no,
+              comp_no: r.comp_no,
+              vat_stagger: r.vat_stagger,
+              vat_due: staggerDues[r.vat_stagger] || '',
+              alerts: r.alerts || '',
+              status: r.status || 'active'
+            });
+          }
+        }
+      });
+
+      if (result.length > 0) {
+        VAT_DATA = result.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
         filtered = [...VAT_DATA];
         renderKPIs();
         render();
