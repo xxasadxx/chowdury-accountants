@@ -291,10 +291,14 @@ async function loadVatData() {
 
       // Add any NEW clients from Supabase not in seed (vat_registered=true)
       const seedCompNos = new Set(VAT_DATA_SEED.map(s => s.comp_no));
+      const allVatTrue = sbRows.filter(r => r.vat_registered === true);
+      console.log('🔍 VAT debug — Supabase rows total:', sbRows.length, '| vat_registered=true:', allVatTrue.length);
+      console.log('🔍 VAT true clients:', allVatTrue.map(r => `${r.comp_no} stagger=${r.vat_stagger} inSeed=${seedCompNos.has(r.comp_no)}`));
       const newClients = sbRows.filter(r =>
         r.vat_registered === true && r.comp_no && !seedCompNos.has(r.comp_no) &&
         !['ceased','left'].includes(r.status||'active')
       );
+      console.log('🔍 New VAT clients (not in seed):', newClients.map(r => r.comp_no));
       if (newClients.length > 0) {
         // Load all ltd seeds to get names and details
         let allLtdData = [];
