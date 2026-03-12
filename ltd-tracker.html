@@ -1430,8 +1430,17 @@ async function deleteClient(){
 }
 
 // ─── ADD CLIENT ───
-function openAddModal(){const _m=document.getElementById('add-modal-bg');if(!_m){alert('no modal');return;}_m.classList.add('open');const _inner=_m.querySelector('.modal');if(!_inner){alert('no inner');return;}_inner.style.cssText='';const r=_inner.getBoundingClientRect();alert('top='+Math.round(r.top)+' left='+Math.round(r.left)+' w='+Math.round(r.width)+' h='+Math.round(r.height));document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
-function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');}
+function openAddModal(){
+  const _bg=document.getElementById('add-modal-bg');
+  const _mo=_bg.querySelector('.modal');
+  _bg.style.cssText='display:flex!important;position:fixed!important;top:0!important;left:0!important;width:100%!important;height:100%!important;background:rgba(0,0,0,.55)!important;z-index:9998!important;align-items:flex-start!important;justify-content:center!important;padding:20px!important;overflow-y:auto!important;box-sizing:border-box!important';
+  _mo.style.cssText='background:#fff!important;border-radius:14px!important;width:100%!important;max-width:520px!important;box-shadow:0 20px 60px rgba(0,0,0,.25)!important;margin:auto!important;overflow:hidden!important;display:block!important';
+  document.getElementById('ch-search-input').value='';
+  document.getElementById('ch-search-results').innerHTML='';
+  document.getElementById('add-form-fields').style.display='none';
+  ['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;
+}function closeAddModal(){const _bg=document.getElementById('add-modal-bg');_bg.removeAttribute('style');_bg.classList.remove('open');const _mo=_bg.querySelector('.modal');if(_mo)_mo.removeAttribute('style');}
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
   if(!name){alert('Company name required');return;}
