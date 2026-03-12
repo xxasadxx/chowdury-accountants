@@ -326,7 +326,7 @@ async function loadData() {
     if (rows && rows.length > 0) {
       // Cross-reference with ltd_clients to flag ceased/left companies
       try {
-        const ltdRows = await sbFetch('ltd_clients?select=id,name,status&order=id.asc');
+        const ltdRows = await sbFetch('ltd_clients?select=id,comp_no,status&order=id.asc');
         rows.forEach(r=>{
           const match = ltdRows.find(l=>{
             const ln=(l.name||'').toLowerCase().replace(/ltd|limited|\./g,'').trim();

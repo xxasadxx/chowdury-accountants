@@ -270,7 +270,7 @@ async function loadVatData() {
   render();
   // Then merge with Supabase — seed is base, Supabase adds new or removes (vat_registered=false)
   try {
-    const sbRows = await sbFetch('ltd_clients?select=comp_no,name,vat_registered,vat_stagger,status&limit=1000');
+    const sbRows = await sbFetch('ltd_clients?select=comp_no,vat_registered,vat_stagger,status&limit=1000');
     if (sbRows && sbRows.length > 0) {
       // Build map of comp_no -> supabase row
       const sbMap = {};
