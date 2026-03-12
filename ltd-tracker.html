@@ -1530,7 +1530,7 @@ async function saveNewClient(){
   };
   try{const[s]=await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(newC),headers:{'Prefer':'return=representation'}});DATA.push(s||{...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});}
   catch(e){DATA.push({...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});}
-  closeAddModal();renderAll();
+  closeAddModal();setSearch("");document.querySelector(".search-box").value="";renderAll();
 }
 
 // ─── CH SEARCH & SYNC ───
