@@ -1508,8 +1508,9 @@ function closeAddModal(){document.getElementById('add-modal-bg').classList.remov
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
   if(!name){alert('Company name required');return;}
-  const compNo=document.getElementById('af-compno').value.trim().toUpperCase();
-  if(compNo&&DATA.find(d=>d.comp_no===compNo)){alert('This company number already exists');return;}
+  let compNo=document.getElementById('af-compno').value.trim().toUpperCase();
+  if(!compNo){compNo='MANUAL-'+Date.now();}
+  if(DATA.find(d=>d.comp_no===compNo)){alert('This company number already exists');return;}
   const fee=parseFloat(document.getElementById('af-fee').value)||600;
   const csFee=40;
   const final_fee=fee+csFee;
@@ -1528,8 +1529,14 @@ async function saveNewClient(){
     left_year:'',reason_for_leaving:'',ref_year:'',referral_fee_paid:false,documents:[],
     fee_years:[{period_end:'',status:'pending',assigned_to:'',accounts_fee:fee,cs_fee:csFee,vat_fee:0,payroll_fee:0,bookkeeping_fee:0,other_fee:0,discount:0,discount_reason:'',total_fee:final_fee,final_fee,invoice_date:'',invoice_number:'',amount_paid:0,payment_date:'',payment_method:'',outstanding:final_fee,notes:''}]
   };
-  try{const[s]=await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(newC),headers:{'Prefer':'return=representation'}});DATA.push(s||{...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});}
-  catch(e){DATA.push({...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});}
+  try{
+    const[s]=await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(newC),headers:{'Prefer':'return=representation'}});
+    DATA.push(s||{...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});
+    await cascadeToTrackers(newC,false,false);
+  }catch(e){
+    alert('Save failed: '+e.message);
+    return;
+  }
   closeAddModal();setSearch("");document.querySelector(".search-box").value="";renderAll();
 }
 
