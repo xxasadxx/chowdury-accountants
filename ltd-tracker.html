@@ -500,8 +500,6 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 </div>
 </div>
 
-
-
 <!-- ADD MODAL -->
 <div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()">
 <div class="modal" style="max-width:520px">
@@ -509,6 +507,44 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <button class="modal-close" onclick="closeAddModal()">✕</button>
     <div class="modal-title">➕ Add Ltd Company</div>
   </div>
+  <div class="modal-body" style="max-height:none">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="ch-search-input" type="text" placeholder="Search Companies House by name or number..." class="search-box" style="flex:1;width:auto" onkeydown="if(event.key==='Enter')searchCH()">
+      <button class="btn btn-blue" onclick="searchCH()">🔍 Search</button>
+      <button class="btn btn-secondary" onclick="showManualAddForm()">✍️ Manual</button>
+    </div>
+    <div id="ch-search-results" style="margin-bottom:10px"></div>
+    <div id="add-form-fields" style="display:none">
+      <div id="add-form-title" style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--green)"></div>
+      <div class="fg">
+        <div class="field f1"><label>Company Name *</label><input id="af-name" type="text"></div>
+        <div class="field"><label>Company Number *</label><input id="af-compno" type="text" style="font-family:var(--mono)"></div>
+        <div class="field"><label>Accounts Due</label><input id="af-acc-due" type="text" placeholder="DD/MM/YYYY"></div>
+        <div class="field"><label>CS Due</label><input id="af-conf-due" type="text" placeholder="DD/MM/YYYY"></div>
+        <div class="field"><label>Year End (DD/MM)</label><input id="af-acc-ref" type="text" placeholder="30/04"></div>
+        <div class="field"><label>Alert</label>
+          <select id="af-alerts"><option value="">None</option><option>Green</option><option>Amber</option><option>Red</option></select>
+        </div>
+        <div class="field"><label>Sector</label>
+          <select id="af-sector">
+            <option value="hospitality">🍛 Hospitality</option><option value="property">🏠 Property</option>
+            <option value="retail">🛒 Retail</option><option value="healthcare">🏥 Healthcare</option>
+            <option value="beauty">💇 Beauty</option><option value="construction">🔨 Construction</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Accounts Fee (£)</label><input id="af-fee" type="number" value="600"></div>
+        <div class="field"><label>Director Name</label><input id="af-dir-name" type="text"></div>
+        <div class="field"><label>Referred By</label><input id="af-referred-by" type="text"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+    <button class="btn btn-blue" onclick="saveNewClient()">✅ Add Company</button>
+  </div>
+</div>
+</div>
 
 <script>
 const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
@@ -1003,8 +1039,6 @@ function openClientModal(id){
   document.getElementById('cm-alerts').value=c.alerts||'';
   document.getElementById('cm-accounts-ref').value=c.accounts_ref_date||'';
   document.getElementById('cm-paye').value=c.paye_registered?'true':'false';
-  c._prevVatReg=!!c.vat_registered;
-  c._prevPayeReg=!!c.paye_registered;
   // Cross-reference with paye_clients table
   renderPayeXref(id);
   document.getElementById('cm-vat').value=c.vat_registered?'true':'false';
@@ -1035,10 +1069,32 @@ function openClientModal(id){
   document.getElementById('cm-ch-link').href=c.comp_no?`https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}`:'#';
   showModalTab('company',document.querySelector('.modal-tab'));
   const _bg = document.getElementById('client-modal-bg');
-  _bg.removeAttribute('style');
-  _bg.classList.remove('maximised-bg');
+  // Overlay: full screen dark background
+  _bg.style.display = 'block';
+  _bg.style.position = 'fixed';
+  _bg.style.top = '0';
+  _bg.style.left = '0';
+  _bg.style.width = '100%';
+  _bg.style.height = '100%';
+  _bg.style.background = 'rgba(0,0,0,0.55)';
+  _bg.style.zIndex = '2000';
+  _bg.style.overflowY = 'auto';
+  // Modal box: fixed, centred with left:50% + translateX(-50%)
   const _mo = _bg.querySelector('.modal');
-  if(_mo){ _mo.removeAttribute('style'); _mo.classList.remove('maximised'); }
+  if(_mo){
+    _mo.style.position = 'fixed';
+    _mo.style.top = '20px';
+    _mo.style.left = '50%';
+    _mo.style.transform = 'translateX(-50%)';
+    _mo.style.width = 'calc(100vw - 40px)';
+    _mo.style.maxWidth = '960px';
+    _mo.style.background = '#fff';
+    _mo.style.borderRadius = '14px';
+    _mo.style.boxShadow = '0 20px 60px rgba(0,0,0,0.25)';
+    _mo.style.overflow = 'hidden';
+    _mo.style.zIndex = '2001';
+    _mo.style.margin = '0';
+  }
   _bg.classList.add('open');
 }
 function toggleExpandModal(){
@@ -1059,16 +1115,11 @@ function toggleExpandModal(){
     bg.style.overflowY = 'auto';
   }
 }
-function closeClientModal(){
-  const _bg2=document.getElementById('client-modal-bg');
-  _bg2.classList.remove('open','maximised-bg');
-  _bg2.removeAttribute('style');
+function closeClientModal(){const _bg2=document.getElementById('client-modal-bg');
+  _bg2.style.display='none';
   const _mo2=_bg2.querySelector('.modal');
-  if(_mo2){_mo2.classList.remove('maximised');_mo2.removeAttribute('style');}
-  const btn=document.getElementById('modal-expand-btn');
-  if(btn){btn.textContent='⛶';btn.title='Maximise';}
-  currentId=null;
-}
+  if(_mo2){_mo2.style.position='';_mo2.style.top='';_mo2.style.left='';_mo2.style.transform='';}
+  _bg2.classList.remove('open');currentId=null;}
 function showModalTab(id,el){
   document.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
@@ -1307,10 +1358,7 @@ async function saveClient(){
   });
   const newStatus=c.status;
   const prevStatus=DATA.find(x=>x.id===currentId)?._prevStatus;
-  const prevVatReg  = DATA.find(x=>x.id===currentId)?._prevVatReg  ?? false;
-  const prevPayeReg = DATA.find(x=>x.id===currentId)?._prevPayeReg ?? false;
   await sbSave(c);
-  await cascadeToTrackers(c, prevVatReg, prevPayeReg);
 
   // Cascade to PAYE if status changed to ceased/left/dormant
   if(['ceased','left','dormant'].includes(newStatus) && newStatus!==prevStatus){
@@ -1363,75 +1411,6 @@ async function sbSave(c){
     alert('Save failed: '+e.message);
   }
 }
-
-// ─── CASCADE TO VAT & PAYE TRACKERS ───
-function nextVatDue(stagger) {
-  // Returns next VAT due date (always 7th) based on stagger group
-  const today = new Date();
-  const m = today.getMonth(); // 0-indexed
-  const y = today.getFullYear();
-  // Group months (0-indexed)
-  const groups = {
-    'Group 1': [0,3,6,9],   // Jan,Apr,Jul,Oct
-    'Group 2': [1,4,7,10],  // Feb,May,Aug,Nov
-    'Group 3': [2,5,8,11]   // Mar,Jun,Sep,Dec
-  };
-  const months = groups[stagger];
-  if (!months) return '';
-  // Find next due month
-  for (let i = 0; i < 12; i++) {
-    const checkM = (m + i) % 12;
-    const checkY = y + Math.floor((m + i) / 12);
-    if (months.includes(checkM)) {
-      const due = new Date(checkY, checkM, 7);
-      if (due > today) {
-        return `${String(due.getDate()).padStart(2,'0')}/${String(due.getMonth()+1).padStart(2,'0')}/${due.getFullYear()}`;
-      }
-    }
-  }
-  return '';
-}
-
-async function cascadeToTrackers(c, prevVatReg, prevPayeReg) {
-  const vatNowOn  = c.vat_registered  && !prevVatReg;
-  const payeNowOn = c.paye_registered && !prevPayeReg;
-
-  // ── VAT cascade ──
-  // vat_registered=true is already saved by sbSave — VAT tracker reads by that flag
-  // Just calculate a local vat_due for display if stagger is set
-  if (vatNowOn && c.comp_no) {
-    if (!c.vat_due && c.vat_stagger) {
-      c.vat_due = nextVatDue(c.vat_stagger);
-    }
-    console.log(`✅ ${c.name} marked VAT registered → will appear in VAT tracker on refresh`);
-  }
-
-  // ── PAYE cascade ──
-  if (payeNowOn && c.name) {
-    try {
-      // Check if already in paye_clients
-      const existing = (PAYE_CLIENTS || []).find(p =>
-        (p.employer_name || '').toLowerCase().replace(/ltd|limited|\./g,'').trim() ===
-        (c.name || '').toLowerCase().replace(/ltd|limited|\./g,'').trim()
-      );
-      if (!existing) {
-        const newPaye = {
-          employer_name: c.name,
-          comp_no: c.comp_no || '',
-          client_status: 'active'
-        };
-        const [saved] = await sbFetch('paye_clients', {
-          method: 'POST',
-          body: JSON.stringify(newPaye),
-          headers: { 'Prefer': 'return=representation' }
-        });
-        if (saved && PAYE_CLIENTS) PAYE_CLIENTS.push(saved);
-        console.log(`✅ ${c.name} added to PAYE tracker`);
-      }
-    } catch(e) { console.warn('PAYE cascade failed:', e.message); }
-  }
-}
-
 async function deleteClient(){
   const c=DATA.find(x=>x.id===currentId);if(!c||!confirm(`Remove ${c.name}?`))return;
   try{await sbFetch(`ltd_clients?comp_no=eq.${encodeURIComponent(DATA.find(x=>x.id===currentId)?.comp_no||currentId)}`,{method:'DELETE'});}catch(e){}
@@ -1439,17 +1418,8 @@ async function deleteClient(){
 }
 
 // ─── ADD CLIENT ───
-function openAddModal(){
-  const _bg=document.getElementById('add-modal-bg');
-  const _mo=_bg.querySelector('.modal');
-  _bg.style.cssText='display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:9998;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;box-sizing:border-box';
-  _mo.style.cssText='background:#fff;border-radius:14px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden';
-  document.getElementById('ch-search-input').value='';
-  document.getElementById('ch-search-results').innerHTML='';
-  document.getElementById('add-form-fields').style.display='none';
-  ['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;
-}function closeAddModal(){const _bg=document.getElementById('add-modal-bg');_bg.removeAttribute('style');_bg.classList.remove('open');const _mo=_bg.querySelector('.modal');if(_mo)_mo.removeAttribute('style');}
+function openAddModal(){document.getElementById('add-modal-bg').classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
+function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');}
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
   if(!name){alert('Company name required');return;}
@@ -1798,43 +1768,3 @@ document.addEventListener('DOMContentLoaded',init);
   <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
   <a href="strategic-review.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📊 Strategy</a>
 
-
-
-  <div class="modal-body" style="max-height:none">
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <input id="ch-search-input" type="text" placeholder="Search Companies House by name or number..." class="search-box" style="flex:1;width:auto" onkeydown="if(event.key==='Enter')searchCH()">
-      <button class="btn btn-blue" onclick="searchCH()">🔍 Search</button>
-      <button class="btn btn-secondary" onclick="showManualAddForm()">✍️ Manual</button>
-    </div>
-    <div id="ch-search-results" style="margin-bottom:10px"></div>
-    <div id="add-form-fields" style="display:none">
-      <div id="add-form-title" style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--green)"></div>
-      <div class="fg">
-        <div class="field f1"><label>Company Name *</label><input id="af-name" type="text"></div>
-        <div class="field"><label>Company Number *</label><input id="af-compno" type="text" style="font-family:var(--mono)"></div>
-        <div class="field"><label>Accounts Due</label><input id="af-acc-due" type="text" placeholder="DD/MM/YYYY"></div>
-        <div class="field"><label>CS Due</label><input id="af-conf-due" type="text" placeholder="DD/MM/YYYY"></div>
-        <div class="field"><label>Year End (DD/MM)</label><input id="af-acc-ref" type="text" placeholder="30/04"></div>
-        <div class="field"><label>Alert</label>
-          <select id="af-alerts"><option value="">None</option><option>Green</option><option>Amber</option><option>Red</option></select>
-        </div>
-        <div class="field"><label>Sector</label>
-          <select id="af-sector">
-            <option value="hospitality">🍛 Hospitality</option><option value="property">🏠 Property</option>
-            <option value="retail">🛒 Retail</option><option value="healthcare">🏥 Healthcare</option>
-            <option value="beauty">💇 Beauty</option><option value="construction">🔨 Construction</option>
-            <option value="other">📦 Other</option>
-          </select>
-        </div>
-        <div class="field"><label>Accounts Fee (£)</label><input id="af-fee" type="number" value="600"></div>
-        <div class="field"><label>Director Name</label><input id="af-dir-name" type="text"></div>
-        <div class="field"><label>Referred By</label><input id="af-referred-by" type="text"></div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-    <button class="btn btn-blue" onclick="saveNewClient()">✅ Add Company</button>
-  </div>
-</div>
-</div>
