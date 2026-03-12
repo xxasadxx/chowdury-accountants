@@ -1430,7 +1430,7 @@ async function deleteClient(){
 }
 
 // ─── ADD CLIENT ───
-function openAddModal(){document.getElementById('add-modal-bg').classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
+function openAddModal(){const _m=document.getElementById('add-modal-bg');console.log('el found:',!!_m);if(_m){_m.classList.add('open');console.log('classes:',_m.className);console.log('computed display:',window.getComputedStyle(_m).display);console.log('offsetParent:',_m.offsetParent);}document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
 function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');}
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
