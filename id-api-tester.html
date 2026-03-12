@@ -137,8 +137,8 @@ async function authenticate() {
     });
     const data = await res.json();
     showRaw('auth-raw', data);
-    if (res.ok && data.accessToken) {
-      token = data.accessToken;
+    if (res.ok && data.accessToken || data.AccessToken) {
+      token = data.accessToken || data.AccessToken;
       show('auth-status', '✅ Authenticated!', 'ok');
       enableAll(); tick('b1');
     } else {
