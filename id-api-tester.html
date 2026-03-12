@@ -180,8 +180,10 @@ async function addCompany() {
   if (!compNo) { show('add-status','⚠️ Enter a company number','err'); return; }
   show('add-status','⏳ Adding...','info');
   try {
-    let result2 = await callProxy('companies', 'POST', { companyNumber: compNo });
-    if (result2.status === 404) result2 = await callProxy('company', 'POST', { companyNumber: compNo });
+    // Try different add endpoints
+    let result2 = await callProxy('company/add', 'POST', { companyNumber: compNo });
+    if (result2.status === 404 || result2.status === 405) result2 = await callProxy('company', 'PUT', { companyNumber: compNo });
+    if (result2.status === 404 || result2.status === 405) result2 = await callProxy('companies/' + encodeURIComponent(compNo), 'PUT', {});
     const { status, data } = result2;
     showRaw('add-raw', data);
     if (status === 200 || status === 201 || status === 409) {
@@ -197,8 +199,9 @@ async function removeCompany() {
   if (!confirm('Remove ' + compNo + ' from Inform Direct sandbox?')) return;
   show('remove-status','⏳ Removing...','info');
   try {
-    let result3 = await callProxy('companies/' + encodeURIComponent(compNo), 'DELETE');
-    if (result3.status === 404) result3 = await callProxy('company', 'DELETE', null, 'companyNumber=' + encodeURIComponent(compNo));
+    let result3 = await callProxy('company/remove', 'DELETE', { companyNumber: compNo });
+    if (result3.status === 404 || result3.status === 405) result3 = await callProxy('companies/' + encodeURIComponent(compNo), 'DELETE');
+    if (result3.status === 404 || result3.status === 405) result3 = await callProxy('company', 'DELETE', null, 'companyNumber=' + encodeURIComponent(compNo));
     const { status, data } = result3;
     showRaw('remove-raw', data);
     if (status === 200 || status === 204 || status === 404) {
