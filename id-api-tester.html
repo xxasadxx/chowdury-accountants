@@ -165,7 +165,10 @@ async function getCompany() {
   if (!compNo) { show('company-status','⚠️ Enter a company number','err'); return; }
   show('company-status','⏳ Loading...','info');
   try {
-    const { status, data } = await callProxy('company', 'GET', null, 'companyNumber=' + encodeURIComponent(compNo));
+    // Try both endpoint formats
+    let result = await callProxy('companies/' + encodeURIComponent(compNo), 'GET');
+    if (result.status === 404) result = await callProxy('company', 'GET', null, 'companyNumber=' + encodeURIComponent(compNo));
+    const { status, data } = result;
     showRaw('company-raw', data);
     if (status === 200) { show('company-status', '✅ Found: ' + (data.companyName || data.name || compNo), 'ok'); tick('b3'); }
     else { show('company-status', '❌ ' + (data.message || status), 'err'); }
@@ -177,7 +180,9 @@ async function addCompany() {
   if (!compNo) { show('add-status','⚠️ Enter a company number','err'); return; }
   show('add-status','⏳ Adding...','info');
   try {
-    const { status, data } = await callProxy('company', 'POST', { companyNumber: compNo });
+    let result2 = await callProxy('companies', 'POST', { companyNumber: compNo });
+    if (result2.status === 404) result2 = await callProxy('company', 'POST', { companyNumber: compNo });
+    const { status, data } = result2;
     showRaw('add-raw', data);
     if (status === 200 || status === 201 || status === 409) {
       show('add-status', status === 409 ? '✅ Already exists (counts as pass)' : '✅ Added!', 'ok');
@@ -192,7 +197,9 @@ async function removeCompany() {
   if (!confirm('Remove ' + compNo + ' from Inform Direct sandbox?')) return;
   show('remove-status','⏳ Removing...','info');
   try {
-    const { status, data } = await callProxy('company', 'DELETE', null, 'companyNumber=' + encodeURIComponent(compNo));
+    let result3 = await callProxy('companies/' + encodeURIComponent(compNo), 'DELETE');
+    if (result3.status === 404) result3 = await callProxy('company', 'DELETE', null, 'companyNumber=' + encodeURIComponent(compNo));
+    const { status, data } = result3;
     showRaw('remove-raw', data);
     if (status === 200 || status === 204 || status === 404) {
       show('remove-status', status === 404 ? '✅ Not found (acceptable in sandbox)' : '✅ Removed!', 'ok');
