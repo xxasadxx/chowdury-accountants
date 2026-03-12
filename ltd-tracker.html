@@ -1071,32 +1071,10 @@ function openClientModal(id){
   document.getElementById('cm-ch-link').href=c.comp_no?`https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}`:'#';
   showModalTab('company',document.querySelector('.modal-tab'));
   const _bg = document.getElementById('client-modal-bg');
-  // Overlay: full screen dark background
-  _bg.style.display = 'block';
-  _bg.style.position = 'fixed';
-  _bg.style.top = '0';
-  _bg.style.left = '0';
-  _bg.style.width = '100%';
-  _bg.style.height = '100%';
-  _bg.style.background = 'rgba(0,0,0,0.55)';
-  _bg.style.zIndex = '2000';
-  _bg.style.overflowY = 'auto';
-  // Modal box: fixed, centred with left:50% + translateX(-50%)
+  _bg.removeAttribute('style');
+  _bg.classList.remove('maximised-bg');
   const _mo = _bg.querySelector('.modal');
-  if(_mo){
-    _mo.style.position = 'fixed';
-    _mo.style.top = '20px';
-    _mo.style.left = '50%';
-    _mo.style.transform = 'translateX(-50%)';
-    _mo.style.width = 'calc(100vw - 40px)';
-    _mo.style.maxWidth = '960px';
-    _mo.style.background = '#fff';
-    _mo.style.borderRadius = '14px';
-    _mo.style.boxShadow = '0 20px 60px rgba(0,0,0,0.25)';
-    _mo.style.overflow = 'hidden';
-    _mo.style.zIndex = '2001';
-    _mo.style.margin = '0';
-  }
+  if(_mo){ _mo.removeAttribute('style'); _mo.classList.remove('maximised'); }
   _bg.classList.add('open');
 }
 function toggleExpandModal(){
