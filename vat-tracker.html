@@ -268,15 +268,34 @@ async function loadVatData() {
   filtered = [...VAT_DATA];
   renderKPIs();
   render();
-  // Then try to enrich from Supabase
+  // Then try to enrich from Supabase — show all vat_registered=true clients
   try {
-    const allRows = await sbFetch('ltd_clients?select=*');
-    const withVat = allRows.filter(r => r.vat_due && r.vat_due.trim() !== '' && !['ceased','left'].includes(r.status||'active'));
-    if (withVat.length > 0) {
-      VAT_DATA = withVat.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
-      filtered = [...VAT_DATA];
-      renderKPIs();
-      render();
+    const allRows = await sbFetch('ltd_clients?select=*&vat_registered=eq.true&limit=500');
+    if (allRows && allRows.length > 0) {
+      // Merge seed data with Supabase — seed has vat_due dates, Supabase has registrations
+      // Build a map of comp_no -> seed record for vat_due lookup
+      const seedMap = {};
+      VAT_DATA_SEED.forEach(s => { if(s.comp_no) seedMap[s.comp_no] = s; });
+      const merged = allRows
+        .filter(r => !['ceased','left'].includes(r.status||'active'))
+        .map(r => {
+          const seed = seedMap[r.comp_no] || {};
+          return {
+            ...seed,
+            ...r,
+            vat_due: r.vat_due || seed.vat_due || '',
+            vat_stagger: r.vat_stagger || seed.vat_stagger || '',
+            name: seed.name || r.name || r.comp_no,
+            days_until: parseDaysUntil(r.vat_due || seed.vat_due || '')
+          };
+        })
+        .filter(r => r.vat_stagger); // must have stagger to show
+      if (merged.length > 0) {
+        VAT_DATA = merged;
+        filtered = [...VAT_DATA];
+        renderKPIs();
+        render();
+      }
     }
   } catch(e) {
     console.warn('Supabase load failed, using seed data:', e.message);

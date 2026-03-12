@@ -1450,22 +1450,13 @@ async function cascadeToTrackers(c, prevVatReg, prevPayeReg) {
   const payeNowOn = c.paye_registered && !prevPayeReg;
 
   // ── VAT cascade ──
+  // vat_registered=true is already saved by sbSave — VAT tracker reads by that flag
+  // Just calculate a local vat_due for display if stagger is set
   if (vatNowOn && c.comp_no) {
-    // Calculate next VAT due if not set
     if (!c.vat_due && c.vat_stagger) {
-      const due = nextVatDue(c.vat_stagger);
-      if (due) {
-        c.vat_due = due;
-        try {
-          await sbFetch('ltd_clients', {
-            method: 'POST',
-            body: JSON.stringify({ comp_no: c.comp_no, vat_due: due, vat_stagger: c.vat_stagger }),
-            headers: { 'Prefer': 'resolution=merge-duplicates,return=minimal' }
-          });
-        } catch(e) { console.warn('VAT due cascade failed:', e.message); }
-      }
+      c.vat_due = nextVatDue(c.vat_stagger);
     }
-    console.log(`✅ ${c.name} added to VAT tracker (${c.vat_stagger}, due ${c.vat_due})`);
+    console.log(`✅ ${c.name} marked VAT registered → will appear in VAT tracker on refresh`);
   }
 
   // ── PAYE cascade ──
