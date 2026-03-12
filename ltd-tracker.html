@@ -1514,6 +1514,7 @@ async function saveNewClient(){
   const fee=parseFloat(document.getElementById('af-fee').value)||600;
   const csFee=40;
   const final_fee=fee+csFee;
+  // Local object (full data for DATA array)
   const newC={
     name,comp_no:compNo,
     accounts_due:document.getElementById('af-acc-due').value.trim(),
@@ -1523,14 +1524,29 @@ async function saveNewClient(){
     sector:document.getElementById('af-sector').value,status:'active',
     director_name:document.getElementById('af-dir-name').value.trim(),
     referred_by:document.getElementById('af-referred-by').value.trim(),
-    vat_registered:document.getElementById('af-vat').value==='true',paye_registered:document.getElementById('af-paye').value==='true',vat_stagger:document.getElementById('af-vat-stagger').value,notes:'',
-    accounts_ref_date:'',accounts_due:'',conf_date:'',conf_due:'',vat_due:'',
+    vat_registered:document.getElementById('af-vat').value==='true',
+    paye_registered:document.getElementById('af-paye').value==='true',
+    vat_stagger:document.getElementById('af-vat-stagger').value,
+    notes:'',conf_date:'',vat_due:'',
     director_mobile:'',director_email:'',director_dob:'',director_ni:'',director_address:'',
     left_year:'',reason_for_leaving:'',ref_year:'',referral_fee_paid:false,documents:[],
     fee_years:[{period_end:'',status:'pending',assigned_to:'',accounts_fee:fee,cs_fee:csFee,vat_fee:0,payroll_fee:0,bookkeeping_fee:0,other_fee:0,discount:0,discount_reason:'',total_fee:final_fee,final_fee,invoice_date:'',invoice_number:'',amount_paid:0,payment_date:'',payment_method:'',outstanding:final_fee,notes:''}]
   };
+  // Supabase payload — only columns that exist in ltd_clients table
+  const sbPayload={
+    comp_no:compNo,
+    sector:newC.sector,
+    status:'active',
+    vat_registered:newC.vat_registered,
+    paye_registered:newC.paye_registered,
+    vat_stagger:newC.vat_stagger||'',
+    notes:'',
+    director_name:newC.director_name||'',
+    director_mobile:'',director_email:'',director_dob:'',director_ni:'',director_address:'',
+    left_year:'',reason_for_leaving:'',referred_by:newC.referred_by||'',ref_year:''
+  };
   try{
-    const[s]=await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(newC),headers:{'Prefer':'return=representation'}});
+    const[s]=await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(sbPayload),headers:{'Prefer':'return=representation'}});
     DATA.push(s||{...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});
     await cascadeToTrackers(newC,false,false);
   }catch(e){
