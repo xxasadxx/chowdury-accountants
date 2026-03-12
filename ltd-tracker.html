@@ -616,6 +616,34 @@ async function init(){
             }
           });
           if(r.fee_years&&Array.isArray(r.fee_years)&&r.fee_years.length>0)local.fee_years=r.fee_years;
+        } else {
+          // New company — exists in Supabase but not in seed, add it to DATA
+          DATA.push({
+            id: Math.max(...DATA.map(d=>d.id||0))+1,
+            name: r.name || r.comp_no,
+            comp_no: r.comp_no,
+            sector: r.sector||'hospitality',
+            status: r.status||'active',
+            alerts: r.alerts||'',
+            vat_registered: r.vat_registered||false,
+            paye_registered: r.paye_registered||false,
+            vat_stagger: r.vat_stagger||'',
+            notes: r.notes||'',
+            director_name: r.director_name||'',
+            director_mobile: r.director_mobile||'',
+            director_email: r.director_email||'',
+            director_dob: r.director_dob||'',
+            director_ni: r.director_ni||'',
+            director_address: r.director_address||'',
+            left_year: r.left_year||'',
+            reason_for_leaving: r.reason_for_leaving||'',
+            referred_by: r.referred_by||'',
+            ref_year: r.ref_year||'',
+            accounts_due:'', conf_due:'', accounts_ref_date:'',
+            conf_date:'', vat_due:'',
+            referral_fee_paid: false, documents:[],
+            fee_years: r.fee_years||[]
+          });
         }
       });
     }
@@ -1547,7 +1575,7 @@ async function saveNewClient(){
   };
   try{
     const[s]=await sbFetch('ltd_clients',{method:'POST',body:JSON.stringify(sbPayload),headers:{'Prefer':'return=representation'}});
-    DATA.push(s||{...newC,id:Math.max(...DATA.map(r=>r.id),0)+1});
+    DATA.push({...newC,id:(s&&s.id)||Math.max(...DATA.map(r=>r.id||0),0)+1});
     await cascadeToTrackers(newC,false,false);
   }catch(e){
     alert('Save failed: '+e.message);
