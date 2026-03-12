@@ -500,51 +500,6 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 </div>
 </div>
 
-<!-- ADD MODAL -->
-<div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()">
-<div class="modal" style="max-width:520px">
-  <div class="modal-header" style="padding-bottom:16px">
-    <button class="modal-close" onclick="closeAddModal()">✕</button>
-    <div class="modal-title">➕ Add Ltd Company</div>
-  </div>
-  <div class="modal-body" style="max-height:none">
-    <div style="display:flex;gap:8px;margin-bottom:8px">
-      <input id="ch-search-input" type="text" placeholder="Search Companies House by name or number..." class="search-box" style="flex:1;width:auto" onkeydown="if(event.key==='Enter')searchCH()">
-      <button class="btn btn-blue" onclick="searchCH()">🔍 Search</button>
-      <button class="btn btn-secondary" onclick="showManualAddForm()">✍️ Manual</button>
-    </div>
-    <div id="ch-search-results" style="margin-bottom:10px"></div>
-    <div id="add-form-fields" style="display:none">
-      <div id="add-form-title" style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--green)"></div>
-      <div class="fg">
-        <div class="field f1"><label>Company Name *</label><input id="af-name" type="text"></div>
-        <div class="field"><label>Company Number *</label><input id="af-compno" type="text" style="font-family:var(--mono)"></div>
-        <div class="field"><label>Accounts Due</label><input id="af-acc-due" type="text" placeholder="DD/MM/YYYY"></div>
-        <div class="field"><label>CS Due</label><input id="af-conf-due" type="text" placeholder="DD/MM/YYYY"></div>
-        <div class="field"><label>Year End (DD/MM)</label><input id="af-acc-ref" type="text" placeholder="30/04"></div>
-        <div class="field"><label>Alert</label>
-          <select id="af-alerts"><option value="">None</option><option>Green</option><option>Amber</option><option>Red</option></select>
-        </div>
-        <div class="field"><label>Sector</label>
-          <select id="af-sector">
-            <option value="hospitality">🍛 Hospitality</option><option value="property">🏠 Property</option>
-            <option value="retail">🛒 Retail</option><option value="healthcare">🏥 Healthcare</option>
-            <option value="beauty">💇 Beauty</option><option value="construction">🔨 Construction</option>
-            <option value="other">📦 Other</option>
-          </select>
-        </div>
-        <div class="field"><label>Accounts Fee (£)</label><input id="af-fee" type="number" value="600"></div>
-        <div class="field"><label>Director Name</label><input id="af-dir-name" type="text"></div>
-        <div class="field"><label>Referred By</label><input id="af-referred-by" type="text"></div>
-      </div>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
-    <button class="btn btn-blue" onclick="saveNewClient()">✅ Add Company</button>
-  </div>
-</div>
-</div>
 
 <script>
 const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
@@ -1475,7 +1430,7 @@ async function deleteClient(){
 }
 
 // ─── ADD CLIENT ───
-function openAddModal(){const m=document.getElementById('add-modal-bg');m.style.display='flex';m.style.position='fixed';m.style.top='0';m.style.left='0';m.style.width='100%';m.style.height='100%';m.style.background='rgba(0,0,0,.55)';m.style.zIndex='9998';m.style.alignItems='flex-start';m.style.justifyContent='center';m.style.padding='20px';m.style.overflowY='auto';m.classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
+function openAddModal(){document.getElementById('add-modal-bg').classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
 function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');}
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
@@ -1825,3 +1780,50 @@ document.addEventListener('DOMContentLoaded',init);
   <a href="staff-management.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">👥 Staff</a>
   <a href="strategic-review.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📊 Strategy</a>
 
+
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="add-modal-bg" onclick="if(event.target===this)closeAddModal()">
+<div class="modal" style="max-width:520px">
+  <div class="modal-header" style="padding-bottom:16px">
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+    <div class="modal-title">➕ Add Ltd Company</div>
+  </div>
+  <div class="modal-body" style="max-height:none">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <input id="ch-search-input" type="text" placeholder="Search Companies House by name or number..." class="search-box" style="flex:1;width:auto" onkeydown="if(event.key==='Enter')searchCH()">
+      <button class="btn btn-blue" onclick="searchCH()">🔍 Search</button>
+      <button class="btn btn-secondary" onclick="showManualAddForm()">✍️ Manual</button>
+    </div>
+    <div id="ch-search-results" style="margin-bottom:10px"></div>
+    <div id="add-form-fields" style="display:none">
+      <div id="add-form-title" style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--green)"></div>
+      <div class="fg">
+        <div class="field f1"><label>Company Name *</label><input id="af-name" type="text"></div>
+        <div class="field"><label>Company Number *</label><input id="af-compno" type="text" style="font-family:var(--mono)"></div>
+        <div class="field"><label>Accounts Due</label><input id="af-acc-due" type="text" placeholder="DD/MM/YYYY"></div>
+        <div class="field"><label>CS Due</label><input id="af-conf-due" type="text" placeholder="DD/MM/YYYY"></div>
+        <div class="field"><label>Year End (DD/MM)</label><input id="af-acc-ref" type="text" placeholder="30/04"></div>
+        <div class="field"><label>Alert</label>
+          <select id="af-alerts"><option value="">None</option><option>Green</option><option>Amber</option><option>Red</option></select>
+        </div>
+        <div class="field"><label>Sector</label>
+          <select id="af-sector">
+            <option value="hospitality">🍛 Hospitality</option><option value="property">🏠 Property</option>
+            <option value="retail">🛒 Retail</option><option value="healthcare">🏥 Healthcare</option>
+            <option value="beauty">💇 Beauty</option><option value="construction">🔨 Construction</option>
+            <option value="other">📦 Other</option>
+          </select>
+        </div>
+        <div class="field"><label>Accounts Fee (£)</label><input id="af-fee" type="number" value="600"></div>
+        <div class="field"><label>Director Name</label><input id="af-dir-name" type="text"></div>
+        <div class="field"><label>Referred By</label><input id="af-referred-by" type="text"></div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeAddModal()">Cancel</button>
+    <button class="btn btn-blue" onclick="saveNewClient()">✅ Add Company</button>
+  </div>
+</div>
+</div>
