@@ -537,6 +537,20 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
         <div class="field"><label>Accounts Fee (£)</label><input id="af-fee" type="number" value="600"></div>
         <div class="field"><label>Director Name</label><input id="af-dir-name" type="text"></div>
         <div class="field"><label>Referred By</label><input id="af-referred-by" type="text"></div>
+        <div class="field"><label>VAT Registered</label>
+          <select id="af-vat" onchange="toggleAfVatStagger()"><option value="false">No</option><option value="true">Yes</option></select>
+        </div>
+        <div class="field" id="af-vat-stagger-wrap" style="display:none"><label>VAT Quarter Group</label>
+          <select id="af-vat-stagger">
+            <option value="">-- Select --</option>
+            <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
+            <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
+            <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
+          </select>
+        </div>
+        <div class="field"><label>PAYE Registered</label>
+          <select id="af-paye"><option value="false">No</option><option value="true">Yes</option></select>
+        </div>
       </div>
     </div>
   </div>
@@ -1111,6 +1125,10 @@ function showModalTab(id,el){
   document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById('mtab-'+id).classList.add('active');if(el)el.classList.add('active');
 }
+function toggleAfVatStagger(){
+  const v=document.getElementById('af-vat').value==='true';
+  document.getElementById('af-vat-stagger-wrap').style.display=v?'flex':'none';
+}
 function toggleVatRow(){
   const v=document.getElementById('cm-vat').value==='true';
   document.getElementById('cm-vat-stagger-wrap').style.display=v?'flex':'none';
@@ -1485,7 +1503,7 @@ async function deleteClient(){
 }
 
 // ─── ADD CLIENT ───
-function openAddModal(){document.getElementById('add-modal-bg').classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;}
+function openAddModal(){document.getElementById('add-modal-bg').classList.add('open');document.getElementById('ch-search-input').value='';document.getElementById('ch-search-results').innerHTML='';document.getElementById('add-form-fields').style.display='none';['af-name','af-compno','af-acc-due','af-conf-due','af-acc-ref','af-dir-name','af-referred-by'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});if(document.getElementById('af-fee'))document.getElementById('af-fee').value=600;document.getElementById('af-vat').value='false';document.getElementById('af-paye').value='false';document.getElementById('af-vat-stagger').value='';document.getElementById('af-vat-stagger-wrap').style.display='none';}
 function closeAddModal(){document.getElementById('add-modal-bg').classList.remove('open');}
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
@@ -1504,7 +1522,7 @@ async function saveNewClient(){
     sector:document.getElementById('af-sector').value,status:'active',
     director_name:document.getElementById('af-dir-name').value.trim(),
     referred_by:document.getElementById('af-referred-by').value.trim(),
-    vat_registered:false,paye_registered:false,vat_stagger:'',notes:'',
+    vat_registered:document.getElementById('af-vat').value==='true',paye_registered:document.getElementById('af-paye').value==='true',vat_stagger:document.getElementById('af-vat-stagger').value,notes:'',
     accounts_ref_date:'',accounts_due:'',conf_date:'',conf_due:'',vat_due:'',
     director_mobile:'',director_email:'',director_dob:'',director_ni:'',director_address:'',
     left_year:'',reason_for_leaving:'',ref_year:'',referral_fee_paid:false,documents:[],
