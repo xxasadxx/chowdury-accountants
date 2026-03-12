@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inform Direct API Tester</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 16px; }
+  h1 { font-size: 18px; color: #1a1a2e; margin-bottom: 4px; }
+  .sub { font-size: 12px; color: #666; margin-bottom: 16px; }
+  .card { background: white; border-radius: 10px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+  label { font-size: 12px; font-weight: 600; color: #555; display: block; margin-bottom: 4px; }
+  input, select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-family: monospace; margin-bottom: 4px; }
+  .btn { display: inline-block; padding: 9px 16px; border-radius: 6px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; margin-right: 6px; }
+  .btn-primary { background: #2563eb; color: white; }
+  .btn-green { background: #16a34a; color: white; }
+  .btn-orange { background: #ea580c; color: white; }
+  .btn-red { background: #dc2626; color: white; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .status { font-size: 12px; padding: 6px 10px; border-radius: 6px; margin-top: 8px; display: none; }
+  .status.ok  { background: #dcfce7; color: #166534; display: block; }
+  .status.err { background: #fee2e2; color: #991b1b; display: block; }
+  .status.info{ background: #dbeafe; color: #1e40af; display: block; }
+  pre { background: #1e1e2e; color: #cdd6f4; padding: 12px; border-radius: 8px; font-size: 11px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; margin-top: 8px; max-height: 250px; overflow-y: auto; display: none; }
+  h3 { font-size: 14px; color: #1a1a2e; margin-bottom: 8px; }
+  .step { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 13px; }
+  .badge { width: 22px; height: 22px; border-radius: 50%; background: #e5e7eb; color: #374151; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .badge.done { background: #16a34a; color: white; }
+</style>
+</head>
+<body>
+
+<h1>🔌 Inform Direct API Tester</h1>
+<p class="sub">Sandbox environment — via Netlify proxy</p>
+
+<!-- Step 1: Authenticate -->
+<div class="card">
+  <h3>Step 1 — Authenticate</h3>
+  <label>API Key</label>
+  <input type="text" id="apiKey" value="IfevPEXXSwIXdk4JzWf7n8epxXjWRPiytjs1o9GwenE7tGNujnNbbmCJbY71vagc" />
+  <button class="btn btn-primary" onclick="authenticate()">🔑 Authenticate</button>
+  <div class="status" id="auth-status"></div>
+  <pre id="auth-raw"></pre>
+</div>
+
+<!-- Step 2: Get Companies -->
+<div class="card">
+  <h3>Step 2 — Get Companies</h3>
+  <button class="btn btn-green" onclick="getCompanies()" id="btn-companies" disabled>📋 GET /companies</button>
+  <div class="status" id="companies-status"></div>
+  <pre id="companies-raw"></pre>
+</div>
+
+<!-- Step 3: Get Single Company -->
+<div class="card">
+  <h3>Step 3 — Get Single Company</h3>
+  <label>Companies House Number</label>
+  <input type="text" id="compNo" placeholder="e.g. 12267533" />
+  <button class="btn btn-green" onclick="getCompany()" id="btn-company" disabled>🔍 GET /company</button>
+  <div class="status" id="company-status"></div>
+  <pre id="company-raw"></pre>
+</div>
+
+<!-- Step 4: Add Company -->
+<div class="card">
+  <h3>Step 4 — Add Company (sandbox)</h3>
+  <label>Companies House Number</label>
+  <input type="text" id="addCompNo" placeholder="e.g. 12267533" />
+  <button class="btn btn-orange" onclick="addCompany()" id="btn-add" disabled>➕ POST /company</button>
+  <div class="status" id="add-status"></div>
+  <pre id="add-raw"></pre>
+</div>
+
+<!-- Step 5: Remove Company -->
+<div class="card">
+  <h3>Step 5 — Remove Company (sandbox)</h3>
+  <label>Companies House Number</label>
+  <input type="text" id="removeCompNo" placeholder="e.g. 12267533" />
+  <button class="btn btn-red" onclick="removeCompany()" id="btn-remove" disabled>🗑 DELETE /company</button>
+  <div class="status" id="remove-status"></div>
+  <pre id="remove-raw"></pre>
+</div>
+
+<!-- Progress -->
+<div class="card">
+  <h3>✅ Sandbox Checklist</h3>
+  <div class="step"><div class="badge" id="b1">1</div> Authenticate</div>
+  <div class="step"><div class="badge" id="b2">2</div> GET /companies</div>
+  <div class="step"><div class="badge" id="b3">3</div> GET /company</div>
+  <div class="step"><div class="badge" id="b4">4</div> POST /company (add)</div>
+  <div class="step"><div class="badge" id="b5">5</div> DELETE /company (remove)</div>
+  <p id="all-done" style="display:none;margin-top:10px;font-size:13px;color:#16a34a;font-weight:600;">🎉 All done! Email support@informdirect.co.uk to request production key.</p>
+</div>
+
+<script>
+const PROXY = '/.netlify/functions/id-proxy';
+let token = null;
+let ticks = { b1:false, b2:false, b3:false, b4:false, b5:false };
+
+function show(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.className = 'status ' + type;
+}
+function showRaw(id, data) {
+  const el = document.getElementById(id);
+  el.textContent = JSON.stringify(data, null, 2); el.style.display = 'block';
+}
+function tick(b) {
+  ticks[b] = true;
+  const el = document.getElementById(b);
+  el.className = 'badge done'; el.textContent = '✓';
+  if (Object.values(ticks).every(Boolean)) document.getElementById('all-done').style.display = 'block';
+}
+function enableAll() {
+  ['btn-companies','btn-company','btn-add','btn-remove'].forEach(id => document.getElementById(id).disabled = false);
+}
+
+async function callProxy(endpoint, method, body, extraParams) {
+  let url = `${PROXY}?endpoint=${endpoint}&method=${method}`;
+  if (token) url += `&token=${encodeURIComponent(token)}`;
+  if (extraParams) url += '&' + extraParams;
+  const opts = { method: 'POST', headers: { 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  return { status: res.status, data: await res.json() };
+}
+
+async function authenticate() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  show('auth-status', '⏳ Authenticating...', 'info');
+  try {
+    const res = await fetch(`${PROXY}?endpoint=authenticate&method=POST`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ apiKey })
+    });
+    const data = await res.json();
+    showRaw('auth-raw', data);
+    if (res.ok && data.accessToken) {
+      token = data.accessToken;
+      show('auth-status', '✅ Authenticated!', 'ok');
+      enableAll(); tick('b1');
+    } else {
+      show('auth-status', '❌ Failed: ' + (data.message || data.error || res.status), 'err');
+    }
+  } catch(e) { show('auth-status', '❌ ' + e.message, 'err'); }
+}
+
+async function getCompanies() {
+  show('companies-status', '⏳ Loading...', 'info');
+  try {
+    const { status, data } = await callProxy('companies', 'GET');
+    showRaw('companies-raw', data);
+    if (status === 200) {
+      const count = Array.isArray(data) ? data.length : (data.companies?.length ?? '?');
+      show('companies-status', `✅ ${count} companies returned`, 'ok');
+      tick('b2');
+    } else { show('companies-status', '❌ ' + (data.message || status), 'err'); }
+  } catch(e) { show('companies-status', '❌ ' + e.message, 'err'); }
+}
+
+async function getCompany() {
+  const compNo = document.getElementById('compNo').value.trim();
+  if (!compNo) { show('company-status','⚠️ Enter a company number','err'); return; }
+  show('company-status','⏳ Loading...','info');
+  try {
+    const { status, data } = await callProxy('company', 'GET', null, 'companyNumber=' + encodeURIComponent(compNo));
+    showRaw('company-raw', data);
+    if (status === 200) { show('company-status', '✅ Found: ' + (data.companyName || data.name || compNo), 'ok'); tick('b3'); }
+    else { show('company-status', '❌ ' + (data.message || status), 'err'); }
+  } catch(e) { show('company-status','❌ '+e.message,'err'); }
+}
+
+async function addCompany() {
+  const compNo = document.getElementById('addCompNo').value.trim();
+  if (!compNo) { show('add-status','⚠️ Enter a company number','err'); return; }
+  show('add-status','⏳ Adding...','info');
+  try {
+    const { status, data } = await callProxy('company', 'POST', { companyNumber: compNo });
+    showRaw('add-raw', data);
+    if (status === 200 || status === 201 || status === 409) {
+      show('add-status', status === 409 ? '✅ Already exists (counts as pass)' : '✅ Added!', 'ok');
+      tick('b4');
+    } else { show('add-status','❌ '+(data.message||status),'err'); }
+  } catch(e) { show('add-status','❌ '+e.message,'err'); }
+}
+
+async function removeCompany() {
+  const compNo = document.getElementById('removeCompNo').value.trim();
+  if (!compNo) { show('remove-status','⚠️ Enter a company number','err'); return; }
+  if (!confirm('Remove ' + compNo + ' from Inform Direct sandbox?')) return;
+  show('remove-status','⏳ Removing...','info');
+  try {
+    const { status, data } = await callProxy('company', 'DELETE', null, 'companyNumber=' + encodeURIComponent(compNo));
+    showRaw('remove-raw', data);
+    if (status === 200 || status === 204 || status === 404) {
+      show('remove-status', status === 404 ? '✅ Not found (acceptable in sandbox)' : '✅ Removed!', 'ok');
+      tick('b5');
+    } else { show('remove-status','❌ '+(data.message||status),'err'); }
+  } catch(e) { show('remove-status','❌ '+e.message,'err'); }
+}
+</script>
+</body>
+</html>
