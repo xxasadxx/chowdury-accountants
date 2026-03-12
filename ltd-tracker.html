@@ -1508,8 +1508,8 @@ function closeAddModal(){document.getElementById('add-modal-bg').classList.remov
 async function saveNewClient(){
   const name=document.getElementById('af-name').value.trim();
   if(!name){alert('Company name required');return;}
-  let compNo=document.getElementById('af-compno').value.trim().toUpperCase();
-  if(!compNo){compNo='MANUAL-'+Date.now();}
+  const compNo=document.getElementById('af-compno').value.trim().toUpperCase();
+  if(!compNo){alert('Company number is required');return;}
   if(DATA.find(d=>d.comp_no===compNo)){alert('This company number already exists');return;}
   const fee=parseFloat(document.getElementById('af-fee').value)||600;
   const csFee=40;
