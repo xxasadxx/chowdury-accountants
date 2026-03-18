@@ -1363,7 +1363,8 @@ async function saveClient(){
   if(!name){alert('Please enter a company name.');return;}if(!fee||fee<=0){alert('Please enter a valid fee.');return;}
   const btn=document.getElementById('saveBtn');btn.disabled=true;btn.textContent='Saving...';
   const table=editingType==='dd'?'Gocardless tracker':'standing_orders';
-  const p={company_name:name,city:city||'',fee:fee,charge_date:date,client_since:since||'',status:status,email:document.getElementById('fEmail').value.trim()};
+  const emailVal=document.getElementById('fEmail').value.trim();
+  const p={company_name:name,city:city||'',fee:fee,charge_date:date,client_since:since||'',status:status,...(editingType!=='dd'&&{email:emailVal})};
   try{
     if(editingId){
       await api(table,'?id=eq.'+editingId,{method:'PATCH',body:JSON.stringify(p)});
