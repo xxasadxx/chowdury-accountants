@@ -1527,7 +1527,7 @@ async function savePaymentRow(hid){
       const created=await api('payment_history','',{method:'POST',body:JSON.stringify(newRow)});
       if(created&&created[0]){
         const i=histData.findIndex(h=>h.id===hid);
-        if(i>=0){histData[i]={...created[0]};savedRow=created[0];}}
+        if(i>=0){histData[i]={...created[0]};savedRow=created[0];}
       }
     } else {
       await api('payment_history','?id=eq.'+hid,{method:'PATCH',body:JSON.stringify({received,status})});
