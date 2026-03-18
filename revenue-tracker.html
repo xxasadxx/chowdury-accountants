@@ -1521,17 +1521,18 @@ async function savePaymentRow(hid){
   if(btn){btn.disabled=true;btn.textContent='...';}
   try{
     const existing=histData.find(h=>h.id===hid);
+    let savedRow=existing||null;
     if(existing&&existing._unsaved){
       const newRow={client_id:existing.client_id,client_type:existing.client_type,month:existing.month,expected:existing.expected,received,status};
       const created=await api('payment_history','',{method:'POST',body:JSON.stringify(newRow)});
       if(created&&created[0]){
         const i=histData.findIndex(h=>h.id===hid);
-        if(i>=0){histData[i]={...created[0]};}
+        if(i>=0){histData[i]={...created[0]};savedRow=created[0];}}
       }
     } else {
       await api('payment_history','?id=eq.'+hid,{method:'PATCH',body:JSON.stringify({received,status})});
       const i=histData.findIndex(h=>h.id===hid);
-      if(i>=0){histData[i].received=received;histData[i].status=status;}
+      if(i>=0){histData[i].received=received;histData[i].status=status;savedRow=histData[i];}
     }
     const totalExp=histData.reduce((s,h)=>s+(h.expected||0),0);
     const totalRec=histData.reduce((s,h)=>s+(h.received||0),0);
@@ -1544,7 +1545,7 @@ async function savePaymentRow(hid){
     if(status==='failed'){
       const arr=histClientType==='dd'?DD:SO;
       const c=arr.find(x=>x.id===histClientId);
-      const h=histData.find(x=>x.id===hid);
+      const h=savedRow;
       if(c&&h){
         const existing=await api('failed_payments','?client_name=eq.'+encodeURIComponent(c.company_name)+'&failure_date=eq.'+encodeURIComponent(h.month));
         if(!existing||existing.length===0){
