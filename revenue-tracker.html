@@ -1423,7 +1423,7 @@ async function saveFailed(){
   const p={client_name:name,source:source,amount:amount||0,failure_date:date,reason:reason,status:status};
   try{
     if(editingFpId){await api('failed_payments','?id=eq.'+editingFpId,{method:'PATCH',body:JSON.stringify(p)});const i=FP.findIndex(x=>x.id===editingFpId);FP[i]={...FP[i],...p};showToast('Updated','success');}
-    else{const r=await api('failed_payments','',{method:'POST',body:JSON.stringify(p)});FP.unshift(r[0]);showToast('Logged','success');}
+    else{await api('failed_payments','',{method:'POST',body:JSON.stringify(p)});FP=await api('failed_payments','?select=*&order=id.desc');showToast('Logged','success');}
     closeFailedModal();refreshFailed();
   }catch(e){showToast('Error: '+e.message,'danger');}
   btn.disabled=false;
