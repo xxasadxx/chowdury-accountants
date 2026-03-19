@@ -2197,8 +2197,11 @@ var GC_DATA_LOADED=false;
 function loadGCDataThen(cb){
   if(GC_DATA_LOADED){cb();return;}
   var s=document.createElement('script');
-  s.src='gc-data.js?v=1';
+  s.src='gc-data.js?v='+Date.now();
   s.onload=function(){GC_DATA_LOADED=true;cb();};
+  s.onerror=function(e){
+    document.getElementById('panel-gchist').innerHTML='<div style="color:red;padding:20px;font-size:1rem">❌ Failed to load gc-data.js. Check network/console. Error: '+JSON.stringify(e.type)+'</div>';
+  };
   document.head.appendChild(s);
 }
 
