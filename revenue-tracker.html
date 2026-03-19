@@ -341,7 +341,6 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
 </head>
 <body>
 <div id="portal-nav">
-  <img src="ca-logo.png" alt="Chowdury Accountants" style="height:28px;width:auto;object-fit:contain;object-position:center;margin-right:12px;padding-right:12px;border-right:1px solid rgba(255,255,255,0.1);flex-shrink:0;max-width:140px;">
   <a href="index.html">🏠 Portal</a>
   <a href="revenue-tracker.html" class="active">💰 Revenue</a>
   <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
@@ -351,35 +350,10 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   <a href="ch-tracker.html">⚖️ CH Tracker</a>
   <a href="quote-calculator.html">💡 Quote</a>
   <a href="staff-management.html">👥 Staff</a>
+  <a href="greetings.html">📲 Greetings</a>
   <a href="strategic-review.html">📊 Strategy</a>
-  <a href="greetings.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">📲 Greetings</a>
-  <a href="#" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth');window.location.href='login.html';return false;">Sign out</a>
-</div>
-
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner"></div>
-  <div class="lt" id="lt">Connecting to database...</div>
-</div>
-
-<header>
-  <div class="header-band"></div>
-  <div class="header-top">
-    <div class="logo">
-      <div class="logo-mark">CA</div>
-      <div class="logo-text">
-        <span class="name">Chowdury Accountants</span>
-        <span class="sub">Practice Portal</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <span class="ss ok" id="syncStatus" style="font-size:0.7rem;padding:3px 10px;border-radius:2px;font-weight:600;background:var(--green-light);color:var(--green)">Live</span>
-      <span id="headerBadge" style="font-size:0.7rem;color:var(--muted);margin-left:8px"></span>
-      <span class="header-date" id="hdr-date"></span>
-    </div>
-  </div>
-  <nav class="header-nav">
-        </nav>
+  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+</nav>
 </header>
 
 <div class="tabs">
