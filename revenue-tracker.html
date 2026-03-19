@@ -741,7 +741,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <div class="modal-title" id="fpModalTitle">Log Failed Payment</div>
     <div class="form-row"><div class="form-group full"><label>Client Name</label><input class="finput" id="fpName" placeholder="e.g. Spice Garden Ltd"></div></div>
     <div class="form-row">
-      <div class="form-group"><label>Source</label><select class="finput" id="fpSource"><option value="dd">Direct Debit</option><option value="so">Standing Order</option><option value="gc">GoCardless</option></select></div>
+      <div class="form-group"><label>Source</label><select class="finput" id="fpSource"><option value="dd">Direct Debit</option><option value="so">Standing Order</option></select></div>
       <div class="form-group"><label>Amount (£)</label><input class="finput" id="fpAmount" type="number" step="0.01" placeholder="e.g. 75"></div>
     </div>
     <div class="form-row">
@@ -1244,7 +1244,7 @@ function renderFailed(){
   document.getElementById('fp-tbody').innerHTML=list.map((f,i)=>{
     return '<tr><td style="color:var(--muted);font-size:0.68rem">'+(i+1)+'</td>'
       +'<td><span style="font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px" data-fpid="'+f.id+'" onclick="viewFailedHistory(this)">'+f.client_name+'</span></td>'
-      +'<td><span style="background:'+(f.source==='so'?'var(--green-light)':f.source==='gc'?'var(--purple-light)':'var(--accent-light)')+';color:'+(f.source==='so'?'var(--green)':f.source==='gc'?'var(--purple)':'var(--accent)')+';border:1px solid '+(f.source==='so'?'var(--green-border)':f.source==='gc'?'var(--purple-border)':'var(--accent-border)')+';padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600">'+(f.source==='so'?'SO':f.source==='gc'?'GC':'DD')+'</span></td>'
+      +'<td><span style="background:'+(f.source==='so'?'var(--green-light)':'var(--accent-light)')+';color:'+(f.source==='so'?'var(--green)':'var(--accent)')+';border:1px solid '+(f.source==='so'?'var(--green-border)':'var(--accent-border)')+';padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600">'+(f.source==='so'?'SO':'DD')+'</span></td>'
       +'<td><span class="fee-num">£'+(f.amount||0)+'</span></td>'
       +'<td style="color:var(--muted);font-size:0.75rem">'+(f.failure_date||'')+'</td>'
       +'<td style="color:var(--text2);font-size:0.75rem">'+(f.reason||'')+'</td>'
@@ -2204,8 +2204,10 @@ function loadGCDataThen(cb){
     })
     .then(function(code){
       try{
-        // eslint-disable-next-line no-new-func
-        (new Function(code))();
+        // Execute in global scope so var declarations become window properties
+        var script=document.createElement('script');
+        script.textContent=code;
+        document.head.appendChild(script);
         GC_DATA_LOADED=true;
         cb();
       } catch(e){
