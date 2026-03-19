@@ -398,7 +398,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <div class="kpi" style="--kc:var(--green)"><div class="kpi-val" id="dd-kRev" style="color:var(--green)">-</div><div class="kpi-lbl">Monthly Revenue</div><div class="kpi-sub">active clients only</div></div>
     <div class="kpi" style="--kc:var(--accent)"><div class="kpi-val" id="dd-kAnn" style="color:var(--accent)">-</div><div class="kpi-lbl">Annual Projection</div><div class="kpi-sub">active only</div></div>
     <div class="kpi" style="--kc:var(--amber)"><div class="kpi-val" id="dd-kAvg" style="color:var(--amber)">-</div><div class="kpi-lbl">Avg Monthly Fee</div><div class="kpi-sub">per active client</div></div>
-    <div class="kpi" style="--kc:var(--purple)"><div class="kpi-val" id="dd-kInactive" style="color:var(--purple)">-</div><div class="kpi-lbl">Inactive Clients</div><div class="kpi-sub" id="dd-kInactiveSub">cancelled/left</div></div>
+    <div class="kpi" style="--kc:var(--purple);cursor:pointer" onclick="setStatusFilter('dd','inactive')" title="Click to filter inactive"><div class="kpi-val" id="dd-kInactive" style="color:var(--purple)">-</div><div class="kpi-lbl">Inactive Clients</div><div class="kpi-sub" id="dd-kInactiveSub">cancelled/left</div></div>
     <div class="kpi" style="--kc:var(--red)"><div class="kpi-val" id="dd-kLost" style="color:var(--red)">-</div><div class="kpi-lbl">Lost Revenue</div><div class="kpi-sub">inactive clients/mo</div></div>
   </div>
   <div class="prog-card">
@@ -445,7 +445,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <div class="kpi" style="--kc:var(--green)"><div class="kpi-val" id="so-kRev" style="color:var(--green)">-</div><div class="kpi-lbl">Monthly Revenue</div><div class="kpi-sub">active clients only</div></div>
     <div class="kpi" style="--kc:var(--accent)"><div class="kpi-val" id="so-kAnn" style="color:var(--accent)">-</div><div class="kpi-lbl">Annual Projection</div><div class="kpi-sub">active only</div></div>
     <div class="kpi" style="--kc:var(--amber)"><div class="kpi-val" id="so-kAvg" style="color:var(--amber)">-</div><div class="kpi-lbl">Avg Monthly Fee</div><div class="kpi-sub">per active client</div></div>
-    <div class="kpi" style="--kc:var(--purple)"><div class="kpi-val" id="so-kInactive" style="color:var(--purple)">-</div><div class="kpi-lbl">Inactive Clients</div><div class="kpi-sub">cancelled/left</div></div>
+    <div class="kpi" style="--kc:var(--purple);cursor:pointer" onclick="setStatusFilter('so','inactive')" title="Click to filter inactive"><div class="kpi-val" id="so-kInactive" style="color:var(--purple)">-</div><div class="kpi-lbl">Inactive Clients</div><div class="kpi-sub">cancelled/left</div></div>
     <div class="kpi" style="--kc:var(--red)"><div class="kpi-val" id="so-kLost" style="color:var(--red)">-</div><div class="kpi-lbl">Lost Revenue</div><div class="kpi-sub">inactive clients/mo</div></div>
   </div>
   <div class="prog-card">
@@ -2197,7 +2197,8 @@ var GC_DATA_LOADED=false;
 function loadGCDataThen(cb){
   if(GC_DATA_LOADED){cb();return;}
   var s=document.createElement('script');
-  s.src='gc-data.js?v='+Date.now();
+  var base=window.location.origin+window.location.pathname.replace(/[^/]*$/,'');
+  s.src=base+'gc-data.js?v='+Date.now();
   s.onload=function(){GC_DATA_LOADED=true;cb();};
   s.onerror=function(e){
     document.getElementById('panel-gchist').innerHTML='<div style="color:red;padding:20px;font-size:1rem">❌ Failed to load gc-data.js. Check network/console. Error: '+JSON.stringify(e.type)+'</div>';
