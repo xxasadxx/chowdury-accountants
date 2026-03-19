@@ -100,6 +100,7 @@ label{font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-botto
       <div class="stat"><div class="stat-val" id="imp-fail" style="color:#dc2626">0</div><div class="stat-lbl">Failed</div></div>
     </div>
     <button class="btn btn-green" id="imp-btn" onclick="runImport()">▶ Import All Mobile Numbers</button>
+    <button class="btn btn-blue" style="margin-left:10px" onclick="downloadVCF()">📱 Download All as Contacts (.vcf)</button>
     <div class="progress-wrap" id="imp-progress">
       <div class="progress-bar"><div class="progress-fill" id="imp-fill"></div></div>
       <div class="progress-text" id="imp-text">Starting...</div>
@@ -375,6 +376,45 @@ function downloadCSV(){
 setFilter('all');
 setTemplate('eid');
 loadClients();
+
+async function downloadVCF(){
+  const btn = event.target;
+  btn.textContent = '⏳ Loading...';
+  btn.disabled = true;
+  try {
+    const r = await fetch(SB+'/rest/v1/ltd_clients?select=director_name,director_mobile,name,status&status=eq.active&limit=1000', {headers: {'apikey':KEY,'Authorization':'Bearer '+KEY}});
+    const data = await r.json();
+    const clients = data.filter(c => c.director_mobile && c.director_mobile.trim());
+    
+    const vcf = clients.map(c => {
+      const name = (c.director_name || 'Unknown').trim();
+      const company = (c.name || '').trim();
+      const mobile = c.director_mobile.trim().replace(/\s+/g,'');
+      const displayName = company ? `${name} - ${company}` : name;
+      // Format mobile as UK number
+      const tel = mobile.startsWith('0') ? '+44' + mobile.substring(1) : mobile.startsWith('44') ? '+' + mobile : mobile;
+      return `BEGIN:VCARD
+VERSION:3.0
+FN:${displayName}
+N:${name};;;;
+ORG:${company}
+TEL;TYPE=CELL:${tel}
+END:VCARD`;
+    }).join('\n');
+
+    const blob = new Blob([vcf], {type: 'text/vcard'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'chowdury_accountants_clients.vcf';
+    a.click();
+    btn.textContent = `✅ Downloaded ${clients.length} contacts`;
+    btn.disabled = false;
+  } catch(e) {
+    btn.textContent = '❌ Failed - try again';
+    btn.disabled = false;
+    console.error(e);
+  }
+}
 </script>
 </body>
 </html>
