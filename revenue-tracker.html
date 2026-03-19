@@ -2196,27 +2196,13 @@ function exportRevPDF(type){
 var GC_DATA_LOADED=false;
 function loadGCDataThen(cb){
   if(GC_DATA_LOADED){cb();return;}
-  var panel=document.getElementById('panel-gchist');
-  fetch('gc-data.js?v='+Date.now())
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status+' loading gc-data.js');
-      return r.text();
-    })
-    .then(function(code){
-      try{
-        // Execute in global scope so var declarations become window properties
-        var script=document.createElement('script');
-        script.textContent=code;
-        document.head.appendChild(script);
-        GC_DATA_LOADED=true;
-        cb();
-      } catch(e){
-        panel.innerHTML='<div style="color:red;padding:20px">❌ Parse error in gc-data.js: '+e.message+'</div>';
-      }
-    })
-    .catch(function(e){
-      panel.innerHTML='<div style="color:red;padding:20px">❌ Failed to fetch gc-data.js: '+e.message+'</div>';
-    });
+  var s=document.createElement('script');
+  s.src='gc-data.js?v=2';
+  s.onload=function(){GC_DATA_LOADED=true;cb();};
+  s.onerror=function(){
+    document.getElementById('gcBarChartWrap').innerHTML='<div style="color:red;padding:20px">❌ Could not load gc-data.js</div>';
+  };
+  document.head.appendChild(s);
 }
 
 var gcClientFilter='all', gcClientSort='total_paid', gcClientSortDir=-1;
