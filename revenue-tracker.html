@@ -545,7 +545,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
   <div class="fp-row">
     <div class="kpi" style="--kc:var(--red)"><div class="kpi-val" id="fp-kTotal" style="color:var(--red)">-</div><div class="kpi-lbl">Total Outstanding</div><div class="kpi-sub">failed payments</div></div>
     <div class="kpi" style="--kc:var(--amber)"><div class="kpi-val" id="fp-kCount" style="color:var(--amber)">-</div><div class="kpi-lbl">Open Cases</div><div class="kpi-sub">unresolved</div></div>
-    <div class="kpi" style="--kc:var(--green)"><div class="kpi-val" id="fp-kResolved" style="color:var(--green)">-</div><div class="kpi-lbl">Resolved</div><div class="kpi-sub">this period</div></div>
+    <div class="kpi" style="--kc:var(--green);cursor:pointer" onclick="toggleResolvedView()" title="Click to view resolved"><div class="kpi-val" id="fp-kResolved" style="color:var(--green)">-</div><div class="kpi-lbl">Resolved</div><div class="kpi-sub" id="fp-resolvedSub">click to view</div></div>
     <div class="kpi" style="--kc:var(--purple)"><div class="kpi-val" id="fp-kAvg" style="color:var(--purple)">-</div><div class="kpi-lbl">Avg Failed Amount</div><div class="kpi-sub">per case</div></div>
   </div>
   <div class="controls">
@@ -1204,6 +1204,12 @@ function renderCombinedTable(){
   }).join('');
 }
 
+var fpShowResolved=false;
+function toggleResolvedView(){
+  fpShowResolved=!fpShowResolved;
+  document.getElementById('fp-resolvedSub').textContent=fpShowResolved?'click to hide':'click to view';
+  renderFailed();
+}
 function refreshFailed(){
   const outstanding=FP.filter(f=>f.status==='outstanding');
   const resolved=FP.filter(f=>f.status==='resolved');
@@ -1218,7 +1224,7 @@ function refreshFailed(){
 function renderFailed(){
   window._fpData=FP;
   const q=document.getElementById('fp-srch').value.toLowerCase();
-  let list=FP.filter(f=>f.status==='outstanding'&&(!q||f.client_name.toLowerCase().includes(q)));
+  let list=FP.filter(f=>(fpShowResolved?f.status==='resolved':f.status==='outstanding')&&(!q||f.client_name.toLowerCase().includes(q)));
   document.getElementById('fp-cntLbl').textContent=list.length+' records';
   if(!list.length){document.getElementById('fp-tbody').innerHTML='';document.getElementById('fp-noRes').style.display='block';return;}
   document.getElementById('fp-noRes').style.display='none';
@@ -2047,7 +2053,30 @@ async function viewFailedHistory(btn){
           +'<td style="padding:8px 12px;border-bottom:1px solid var(--border)">'+stBadge(h.status)+'</td>'
           +'</tr>';
       }).join('')
-    +'</tbody></table>';
+    +'</tbody></table>'
+    + await buildFPLog(clientName);
+}
+
+async function buildFPLog(clientName){
+  const logs = await api('failed_payments','?client_name=eq.'+encodeURIComponent(clientName)+'&order=failure_date.desc');
+  if(!logs||!logs.length) return '';
+  const stBadge2 = s => s==='resolved'?'<span style="color:var(--green);font-weight:600">✅ Resolved</span>':'<span style="color:var(--red);font-weight:600">⚠️ Outstanding</span>';
+  return '<div style="margin-top:20px">'
+    +'<div style="font-weight:700;font-size:0.8rem;color:var(--text);margin-bottom:8px;border-top:2px solid var(--border);padding-top:14px">📋 Failed Payments Log</div>'
+    +'<table style="width:100%;border-collapse:collapse;font-size:0.78rem">'
+    +'<thead><tr>'
+    +'<th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Date</th>'
+    +'<th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Amount</th>'
+    +'<th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Reason</th>'
+    +'<th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Status</th>'
+    +'</tr></thead><tbody>'
+    +logs.map(l=>'<tr>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted)">'+l.failure_date+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">£'+(l.amount||0)+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text2)">'+( l.reason||'—')+'</td>'
+      +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">'+stBadge2(l.status)+'</td>'
+      +'</tr>').join('')
+    +'</tbody></table></div>';
 }
 
 document.getElementById('failedHistModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
