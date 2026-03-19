@@ -2201,6 +2201,155 @@ function loadGCDataThen(cb){
   s.onload=function(){GC_DATA_LOADED=true;cb();};
   document.head.appendChild(s);
 }
+
+var gcClientFilter='all', gcClientSort='total_paid', gcClientSortDir=-1;
+
+function renderGCHistory(){
+  // KPIs
+  var totalCollected = GC_MONTHLY.reduce(function(s,m){return s+m.total;},0);
+  var totalPayments = GC_MONTHLY.reduce(function(s,m){return s+m.payment_count;},0);
+  var activeCount = GC_CLIENTS.filter(function(c){return c.active;}).length;
+  var allCount = GC_CLIENTS.length;
+  var lastMonth = GC_MONTHLY[GC_MONTHLY.length-2]; // Feb 2026
+  var yoy2024 = GC_MONTHLY.filter(function(m){return m.month.startsWith('2024');}).reduce(function(s,m){return s+m.total;},0);
+  var yoy2025 = GC_MONTHLY.filter(function(m){return m.month.startsWith('2025');}).reduce(function(s,m){return s+m.total;},0);
+  var yoyPct = yoy2024>0?Math.round((yoy2025-yoy2024)/yoy2024*100):0;
+
+  // Progress bar
+  var latestMonth = GC_MONTHLY[GC_MONTHLY.length-1];
+  var current = lastMonth ? lastMonth.total : 0;
+  var target = 25000;
+  var pct = Math.min(100, Math.round(current/target*100));
+  document.getElementById('gc-prog-fill').style.width = pct+'%';
+  document.getElementById('gc-prog-pct').textContent = pct+'%';
+  document.getElementById('gc-prog-current').textContent = 'Current: £'+Math.round(current).toLocaleString('en-GB')+'/mo';
+
+  // Stats
+  document.getElementById('gc-s-total').textContent = '£'+Math.round(totalCollected).toLocaleString('en-GB');
+  document.getElementById('gc-s-payments').textContent = totalPayments.toLocaleString('en-GB')+' payments';
+  document.getElementById('gc-s-active').textContent = activeCount;
+  document.getElementById('gc-s-allclients').textContent = allCount+' total clients';
+  document.getElementById('gc-s-lastmonth').textContent = lastMonth ? '£'+Math.round(lastMonth.total).toLocaleString('en-GB') : '—';
+  document.getElementById('gc-s-lastmonth-label').textContent = lastMonth ? lastMonth.month.replace('-',' / ') : '—';
+  document.getElementById('gc-s-yoy').textContent = (yoyPct>0?'+':'')+yoyPct+'%';
+  document.getElementById('gc-s-yoy').style.color = yoyPct>=0 ? 'var(--green)' : 'var(--red)';
+
+  // Bar chart
+  gcRenderBarChart();
+
+  // YoY table
+  gcRenderYoY();
+
+  // Clients table
+  gcRenderClients();
+
+  // Failed table
+  gcRenderFailed();
+
+  // Update filter buttons
+  document.getElementById('gc-f-all').textContent = 'All ('+allCount+')';
+  document.getElementById('gc-f-active').textContent = 'Active ('+activeCount+')';
+  document.getElementById('gc-f-inactive').textContent = 'Inactive ('+(allCount-activeCount)+')';
+}
+
+function gcRenderBarChart(){
+  var wrap = document.getElementById('gcBarChartWrap');
+  var max = Math.max.apply(null, GC_MONTHLY.map(function(m){return m.total;}));
+  var html = '<div style="display:flex;align-items:flex-end;gap:3px;height:120px;overflow-x:auto;padding-bottom:20px">';
+  GC_MONTHLY.forEach(function(m){
+    var h = Math.round((m.total/max)*100);
+    var yr = m.month.split('-')[0];
+    var col = yr==='2026'?'var(--accent)':yr==='2025'?'var(--green)':yr==='2024'?'var(--teal)':'var(--muted)';
+    html += '<div title="'+m.month+': £'+Math.round(m.total).toLocaleString('en-GB')+'" style="display:flex;flex-direction:column;align-items:center;min-width:14px">'
+      + '<div style="width:12px;background:'+col+';border-radius:2px 2px 0 0;height:'+h+'px"></div>'
+      + '<div style="font-size:7px;color:var(--muted);transform:rotate(-60deg);transform-origin:top left;margin-top:4px;white-space:nowrap">'+m.month.slice(2)+'</div>'
+      + '</div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function gcRenderYoY(){
+  var years = ['2022','2023','2024','2025','2026'];
+  var prev = 0;
+  var tbody = document.getElementById('gc-yoy-tbody');
+  tbody.innerHTML = years.map(function(yr){
+    var months = GC_MONTHLY.filter(function(m){return m.month.startsWith(yr);});
+    var total = months.reduce(function(s,m){return s+m.total;},0);
+    var pays = months.reduce(function(s,m){return s+m.payment_count;},0);
+    var dec = GC_CLIENTS.filter(function(c){
+      var lp = c.last_payment||'';
+      return lp.startsWith(yr) && c.active;
+    }).length;
+    var vsStr = prev>0 ? (total>prev?'<span style="color:var(--green)">+'+Math.round((total-prev)/prev*100)+'%</span>':'<span style="color:var(--red)">'+Math.round((total-prev)/prev*100)+'%</span>') : '—';
+    prev = total;
+    return '<tr><td>'+yr+'</td><td>£'+Math.round(total).toLocaleString('en-GB')+'</td><td>'+pays+'</td><td>'+dec+'</td><td>'+vsStr+'</td></tr>';
+  }).join('');
+}
+
+function gcSetFilter(f){
+  gcClientFilter=f;
+  ['all','active','inactive'].forEach(function(x){
+    document.getElementById('gc-f-'+x).classList.toggle('active',x===f);
+  });
+  gcRenderClients();
+}
+
+function gcSortClients(col){
+  if(gcClientSort===col) gcClientSortDir*=-1; else {gcClientSort=col;gcClientSortDir=-1;}
+  gcRenderClients();
+}
+
+function gcRenderClients(){
+  var q = (document.getElementById('gc-client-srch').value||'').toLowerCase();
+  var list = GC_CLIENTS.filter(function(c){
+    if(gcClientFilter==='active'&&!c.active) return false;
+    if(gcClientFilter==='inactive'&&c.active) return false;
+    if(q&&!c.name.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  list.sort(function(a,b){
+    var av=a[gcClientSort], bv=b[gcClientSort];
+    if(typeof av==='string') return gcClientSortDir*(av.localeCompare(bv));
+    return gcClientSortDir*(av-bv);
+  });
+  var tbody = document.getElementById('gc-client-tbody');
+  tbody.innerHTML = list.map(function(c){
+    var statusCol = c.active ? 'var(--green)' : 'var(--muted)';
+    var failBadge = c.failed_count>0 ? '<span style="background:var(--red-light);color:var(--red);border-radius:4px;padding:1px 5px;font-size:0.7rem">'+c.failed_count+' ⚠️</span>' : '—';
+    return '<tr onclick="gcOpenDrill(\''+c.customer_id+'\')" style="cursor:pointer">'
+      + '<td>'+c.name+'</td>'
+      + '<td style="color:var(--muted);font-size:0.75rem">'+c.first_payment+'</td>'
+      + '<td style="color:var(--muted);font-size:0.75rem">'+c.last_payment+'</td>'
+      + '<td style="font-family:var(--mono)">£'+c.total_paid.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})+'</td>'
+      + '<td style="font-family:var(--mono);color:var(--muted)">£'+c.monthly_avg.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})+'</td>'
+      + '<td>'+c.payment_count+'</td>'
+      + '<td>'+failBadge+'</td>'
+      + '<td><span style="color:'+statusCol+';font-weight:600">'+(c.active?'✅ Active':'⬜ Inactive')+'</span></td>'
+      + '</tr>';
+  }).join('');
+  document.getElementById('gc-client-count').textContent = list.length+' clients shown';
+}
+
+function gcRenderFailed(){
+  var tbody = document.getElementById('gc-failed-tbody');
+  tbody.innerHTML = (GC_FAILED||[]).map(function(f){
+    return '<tr><td>'+f.d+'</td><td>'+f.name+'</td><td style="color:var(--red)">£'+Math.abs(f.a)+'</td><td>'+f.t+'</td><td>late_failure</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted)">No failed payments</td></tr>';
+}
+
+function gcOpenDrill(cid){
+  var client = GC_CLIENTS.find(function(c){return c.customer_id===cid;});
+  if(!client) return;
+  var payments = GC_PAYMENTS_BY_CID[cid]||[];
+  document.getElementById('gcDrillName').textContent = client.name;
+  document.getElementById('gcDrillMeta').textContent = 'Total: £'+client.total_paid.toLocaleString('en-GB')+' · '+client.payment_count+' payments · '+(client.active?'Active':'Inactive');
+  document.getElementById('gcDrillTbody').innerHTML = payments.slice().reverse().map(function(p){
+    var col = p.s==='paid'?'var(--green)':p.s==='late_failure'?'var(--red)':'var(--amber)';
+    return '<tr><td>'+p.d+'</td><td>£'+Math.abs(p.a)+'</td><td style="font-size:0.75rem;color:var(--muted)">'+p.t+'</td><td style="color:'+col+'">'+p.s+'</td></tr>';
+  }).join('') || '<tr><td colspan="4">No payments</td></tr>';
+  document.getElementById('gcDrillModal').classList.add('open');
+}
 </script>
 
 </body>
