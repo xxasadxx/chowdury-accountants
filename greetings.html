@@ -1,0 +1,365 @@
+<!-- CA PORTAL v1773207034 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chowdury Accountants — Greetings & Import</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans','Mulish',sans-serif;background:#f4f6fb;color:#1a1a18;min-height:100vh}
+#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:999;height:44px;overflow-x:auto}
+#portal-nav a{color:rgba(255,255,255,0.55);text-decoration:none;padding:4px 10px;border-radius:5px;white-space:nowrap;transition:color 0.15s}
+#portal-nav a:hover{color:#fff}
+#portal-nav a.active{color:#fff;background:rgba(255,255,255,0.1)}
+.logo{font-weight:800;font-size:13px;color:#fff;margin-right:12px;white-space:nowrap;letter-spacing:-0.3px}
+.wrap{max-width:900px;margin:32px auto;padding:0 20px}
+h1{font-size:1.4rem;font-weight:800;margin-bottom:6px}
+.sub{color:#6b7280;font-size:0.85rem;margin-bottom:28px}
+.card{background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:24px;margin-bottom:20px}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.btn{padding:10px 20px;border-radius:8px;font-weight:700;font-size:0.85rem;cursor:pointer;border:none;transition:all .15s}
+.btn-green{background:#16a34a;color:#fff}.btn-green:hover{background:#15803d}
+.btn-blue{background:#2563eb;color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-purple{background:#7c3aed;color:#fff}.btn-purple:hover{background:#6d28d9}
+.btn-red{background:#dc2626;color:#fff}.btn-red:hover{background:#b91c1c}
+.btn-grey{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}.btn-grey:hover{background:#e5e7eb}
+.progress-wrap{margin-top:14px;display:none}
+.progress-bar{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:#16a34a;border-radius:99px;transition:width .3s;width:0%}
+.progress-text{font-size:0.78rem;color:#6b7280}
+.result{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:0.82rem;display:none}
+.result.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.result.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+textarea{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:12px;font-size:0.85rem;resize:vertical;font-family:inherit;color:#1a1a18;outline:none;transition:border .15s}
+textarea:focus{border-color:#2563eb}
+label{font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid #d1d5db;margin:2px;background:#f9fafb;transition:all .15s}
+.tag:hover{background:#e5e7eb}
+.templates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:600px){.templates{grid-template-columns:1fr}}
+.tpl-btn{padding:10px 14px;border-radius:8px;font-size:0.82rem;cursor:pointer;border:1px solid #d1d5db;background:#f9fafb;text-align:left;transition:all .15s;font-family:inherit}
+.tpl-btn:hover{border-color:#2563eb;background:#eff6ff}
+.tpl-btn strong{display:block;font-size:0.85rem;margin-bottom:2px}
+.tpl-btn span{color:#6b7280;font-size:0.75rem}
+.preview-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;font-size:0.85rem;white-space:pre-wrap;min-height:60px;color:#374151;margin-top:10px}
+.stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.stat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;text-align:center;flex:1;min-width:100px}
+.stat-val{font-size:1.4rem;font-weight:800;color:#2563eb}
+.stat-lbl{font-size:0.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em}
+.copy-wrap{position:relative}
+.copy-btn{position:absolute;top:8px;right:8px;padding:4px 10px;border-radius:5px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#fff}
+.copy-btn:hover{background:#f3f4f6}
+.msg-list{max-height:320px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;font-size:0.78rem}
+.msg-item{padding:8px 12px;border-bottom:1px solid #f3f4f6;display:flex;gap:8px;align-items:flex-start}
+.msg-item:last-child{border-bottom:none}
+.msg-name{font-weight:600;min-width:180px;color:#1a1a18}
+.msg-tel{color:#6b7280;min-width:110px}
+.msg-body{color:#374151;flex:1}
+</style>
+</head>
+<body>
+
+<nav id="portal-nav">
+  <span class="logo">CA</span>
+  <a href="index.html">🏠 Portal</a>
+  <a href="revenue-tracker.html">💰 Revenue</a>
+  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+  <a href="vat-tracker.html">🟢 VAT</a>
+  <a href="paye-tracker.html">💼 PAYE</a>
+  <a href="greetings.html" class="active">📲 Greetings</a>
+  <a href="staff.html">👥 Staff</a>
+</nav>
+
+<div class="wrap">
+  <h1>📲 Client Greetings & Mobile Import</h1>
+  <p class="sub">Import mobile numbers from Inform Direct · Send bulk WhatsApp greetings to all clients</p>
+
+  <!-- MOBILE IMPORT -->
+  <div class="card">
+    <div class="card-title">📥 Import 306 Mobile Numbers from Inform Direct</div>
+    <p style="font-size:0.83rem;color:#6b7280;margin-bottom:14px">Nawaz has added all mobile numbers to the Inform Direct spreadsheet. Click below to push them all to Supabase in one go.</p>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="imp-total">306</div><div class="stat-lbl">Mobiles to Import</div></div>
+      <div class="stat"><div class="stat-val" id="imp-done" style="color:#16a34a">0</div><div class="stat-lbl">Updated</div></div>
+      <div class="stat"><div class="stat-val" id="imp-fail" style="color:#dc2626">0</div><div class="stat-lbl">Failed</div></div>
+    </div>
+    <button class="btn btn-green" id="imp-btn" onclick="runImport()">▶ Import All Mobile Numbers</button>
+    <div class="progress-wrap" id="imp-progress">
+      <div class="progress-bar"><div class="progress-fill" id="imp-fill"></div></div>
+      <div class="progress-text" id="imp-text">Starting...</div>
+    </div>
+    <div class="result" id="imp-result"></div>
+  </div>
+
+  <!-- GREETINGS -->
+  <div class="card">
+    <div class="card-title">💬 Bulk WhatsApp Greetings Generator</div>
+
+    <div style="margin-bottom:16px">
+      <label>Choose a template</label>
+      <div class="templates">
+        <button class="tpl-btn" onclick="setTemplate('eid')">
+          <strong>🌙 Eid Mubarak</strong>
+          <span>Perfect for Eid al-Fitr & Eid al-Adha</span>
+        </button>
+        <button class="tpl-btn" onclick="setTemplate('newyear')">
+          <strong>🎉 New Year</strong>
+          <span>New Year greetings</span>
+        </button>
+        <button class="tpl-btn" onclick="setTemplate('ramadan')">
+          <strong>🌙 Ramadan Mubarak</strong>
+          <span>Start of Ramadan</span>
+        </button>
+        <button class="tpl-btn" onclick="setTemplate('custom')">
+          <strong>✏️ Custom Message</strong>
+          <span>Write your own</span>
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>Message Template <span style="font-weight:400;color:#6b7280">(use {name} for client name)</span></label>
+      <textarea id="msg-template" rows="5" placeholder="Write your message here..."></textarea>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>Insert variable</label><br>
+      <span class="tag" onclick="insertVar('{name}')">👤 {name}</span>
+    </div>
+
+    <div style="margin-bottom:14px">
+      <label>Preview (first client)</label>
+      <div class="preview-box" id="msg-preview">—</div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <label>Filter clients</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-grey" id="f-all" onclick="setFilter('all')">All clients</button>
+        <button class="btn btn-grey" id="f-gc" onclick="setFilter('gc')">On GoCardless only</button>
+        <button class="btn btn-grey" id="f-mobile" onclick="setFilter('mobile')">Has mobile only</button>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px">
+      <label>Generated messages (<span id="msg-count">0</span> clients)</label>
+      <div class="msg-list" id="msg-list"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-blue" onclick="copyAll()">📋 Copy All as WhatsApp CSV</button>
+      <button class="btn btn-purple" onclick="downloadCSV()">⬇️ Download CSV</button>
+    </div>
+    <p style="font-size:0.75rem;color:#6b7280;margin-top:10px">💡 Copy the CSV and paste into WhatsApp Business bulk messaging tools like WATI, Interakt, or use the wa.me links below to send one-by-one quickly.</p>
+
+    <div style="margin-top:16px">
+      <label>Quick WhatsApp Links (tap to open each chat)</label>
+      <div id="wa-links" style="max-height:200px;overflow-y:auto;font-size:0.8rem"></div>
+    </div>
+  </div>
+</div>
+
+<script src="mobile_data.js"></script>
+<script>
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=minimal'};
+
+async function sbPatch(comp_no, data){
+  const r=await fetch(SB+'/rest/v1/ltd_clients?comp_no=eq.'+encodeURIComponent(comp_no),{
+    method:'PATCH',headers:H,body:JSON.stringify(data)
+  });
+  if(!r.ok) throw new Error(await r.text());
+}
+
+async function runImport(){
+  const btn=document.getElementById('imp-btn');
+  btn.disabled=true; btn.textContent='Importing...';
+  const pw=document.getElementById('imp-progress');
+  pw.style.display='block';
+  let done=0, fail=0;
+  const total=MOBILE_DATA.length;
+
+  for(const rec of MOBILE_DATA){
+    try{
+      await sbPatch(rec.comp_no, {director_mobile: rec.mobile});
+      done++;
+    } catch(e){
+      fail++;
+    }
+    document.getElementById('imp-done').textContent=done;
+    document.getElementById('imp-fail').textContent=fail;
+    document.getElementById('imp-fill').style.width=Math.round((done+fail)/total*100)+'%';
+    document.getElementById('imp-text').textContent=(done+fail)+' of '+total+' processed...';
+  }
+
+  pw.style.display='none';
+  const res=document.getElementById('imp-result');
+  res.style.display='block';
+  if(fail===0){
+    res.className='result ok';
+    res.textContent='✅ All '+done+' mobile numbers imported successfully!';
+  } else {
+    res.className='result err';
+    res.textContent='⚠️ '+done+' updated, '+fail+' failed. Check Supabase connection.';
+  }
+  btn.textContent='✅ Import Complete';
+}
+
+// GREETINGS
+const TEMPLATES={
+  eid:`Assalamu Alaikum,
+
+Eid Mubarak to you and your family! 🌙✨
+
+Wishing you a blessed and joyful Eid al-Fitr filled with happiness, peace and prosperity.
+
+Best wishes,
+Md Asadul Chowdury
+Chowdury Accountants
+📞 0161 222 4647`,
+  newyear:`Dear {name},
+
+Wishing you and your family a very Happy New Year! 🎉
+
+May 2026 bring you success, health and prosperity in your business and beyond.
+
+Best wishes,
+Md Asadul Chowdury
+Chowdury Accountants
+📞 0161 222 4647`,
+  ramadan:`Assalamu Alaikum,
+
+Ramadan Mubarak! 🌙
+
+Wishing you and your loved ones a blessed and peaceful Ramadan filled with blessings and mercy.
+
+Best wishes,
+Md Asadul Chowdury
+Chowdury Accountants
+📞 0161 222 4647`,
+  custom:`Dear {name},
+
+`
+};
+
+let currentFilter='all';
+let clientData=[];
+
+async function loadClients(){
+  try{
+    const r=await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,status&status=eq.active&limit=1000',{headers:H});
+    const data=await r.json();
+    clientData=data||[];
+    renderMessages();
+  } catch(e){
+    console.error('Failed to load clients',e);
+  }
+}
+
+function setTemplate(key){
+  document.getElementById('msg-template').value=TEMPLATES[key]||'';
+  updatePreview();
+  renderMessages();
+}
+
+function insertVar(v){
+  const ta=document.getElementById('msg-template');
+  const s=ta.selectionStart, e=ta.selectionEnd;
+  ta.value=ta.value.substring(0,s)+v+ta.value.substring(e);
+  ta.selectionStart=ta.selectionEnd=s+v.length;
+  ta.focus();
+  updatePreview();
+  renderMessages();
+}
+
+document.getElementById('msg-template').addEventListener('input',()=>{updatePreview();renderMessages();});
+
+function updatePreview(){
+  const tpl=document.getElementById('msg-template').value;
+  const first=clientData[0];
+  if(!first){document.getElementById('msg-preview').textContent='Load clients first...';return;}
+  const name=first.director_name||'Client';
+  document.getElementById('msg-preview').textContent=tpl.replace(/{name}/g,name);
+}
+
+function setFilter(f){
+  currentFilter=f;
+  ['all','gc','mobile'].forEach(x=>document.getElementById('f-'+x).className='btn btn-grey'+(x===f?' btn-blue':''));
+  document.getElementById('f-'+f).className='btn btn-blue';
+  renderMessages();
+}
+
+function getFiltered(){
+  return clientData.filter(c=>{
+    if(currentFilter==='mobile') return c.director_mobile && c.director_mobile.trim();
+    return true;
+  });
+}
+
+function renderMessages(){
+  const tpl=document.getElementById('msg-template').value;
+  const list=getFiltered();
+  document.getElementById('msg-count').textContent=list.length;
+
+  const html=list.slice(0,50).map(c=>{
+    const name=c.director_name||'Client';
+    const msg=tpl.replace(/{name}/g,name);
+    const tel=c.director_mobile||'—';
+    return `<div class="msg-item">
+      <div class="msg-name">${name}</div>
+      <div class="msg-tel">${tel}</div>
+      <div class="msg-body">${msg.substring(0,80)}${msg.length>80?'…':''}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('msg-list').innerHTML=html+(list.length>50?`<div style="padding:8px 12px;color:#6b7280;font-size:0.75rem">...and ${list.length-50} more</div>`:'');
+
+  // WA links
+  const waHtml=list.filter(c=>c.director_mobile).slice(0,30).map(c=>{
+    const name=c.director_name||'Client';
+    const tpl_=document.getElementById('msg-template').value;
+    const msg=tpl_.replace(/{name}/g,name);
+    const tel=c.director_mobile.replace(/\D/g,'');
+    const uk=tel.startsWith('0')?'44'+tel.substring(1):tel;
+    const encoded=encodeURIComponent(msg);
+    return `<a href="https://wa.me/${uk}?text=${encoded}" target="_blank" style="display:inline-block;margin:3px;padding:4px 10px;background:#25D366;color:#fff;border-radius:5px;text-decoration:none;font-size:0.75rem">💬 ${name}</a>`;
+  }).join('');
+  document.getElementById('wa-links').innerHTML=waHtml||'<span style="color:#6b7280">No mobiles loaded yet. Run the import first.</span>';
+}
+
+function copyAll(){
+  const tpl=document.getElementById('msg-template').value;
+  const list=getFiltered();
+  const rows=['Name,Mobile,Message'];
+  list.forEach(c=>{
+    const name=(c.director_name||'Client').replace(/,/g,'');
+    const msg=tpl.replace(/{name}/g,name).replace(/\n/g,' ').replace(/,/g,';');
+    rows.push(`${name},${c.director_mobile||''},${msg}`);
+  });
+  navigator.clipboard.writeText(rows.join('\n')).then(()=>alert('✅ Copied '+list.length+' messages to clipboard!'));
+}
+
+function downloadCSV(){
+  const tpl=document.getElementById('msg-template').value;
+  const list=getFiltered();
+  const rows=['Name,Mobile,Message'];
+  list.forEach(c=>{
+    const name=(c.director_name||'Client').replace(/"/g,'""');
+    const msg=tpl.replace(/{name}/g,name).replace(/"/g,'""');
+    rows.push(`"${name}","${c.director_mobile||''}","${msg}"`);
+  });
+  const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='greetings_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
+// Init
+setFilter('all');
+setTemplate('eid');
+loadClients();
+</script>
+</body>
+</html>
