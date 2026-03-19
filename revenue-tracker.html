@@ -2196,14 +2196,27 @@ function exportRevPDF(type){
 var GC_DATA_LOADED=false;
 function loadGCDataThen(cb){
   if(GC_DATA_LOADED){cb();return;}
-  var s=document.createElement('script');
-  var base=window.location.origin+window.location.pathname.replace(/[^/]*$/,'');
-  s.src=base+'gc-data.js?v='+Date.now();
-  s.onload=function(){GC_DATA_LOADED=true;cb();};
-  s.onerror=function(e){
-    document.getElementById('panel-gchist').innerHTML='<div style="color:red;padding:20px;font-size:1rem">❌ Failed to load gc-data.js. Check network/console. Error: '+JSON.stringify(e.type)+'</div>';
-  };
-  document.head.appendChild(s);
+  var panel=document.getElementById('panel-gchist');
+  panel.innerHTML='<div style="padding:20px;color:var(--muted)">⏳ Loading history data...</div>';
+  fetch('gc-data.js?v='+Date.now())
+    .then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status+' loading gc-data.js');
+      return r.text();
+    })
+    .then(function(code){
+      try{
+        // eslint-disable-next-line no-new-func
+        (new Function(code))();
+        GC_DATA_LOADED=true;
+        panel.innerHTML='';
+        cb();
+      } catch(e){
+        panel.innerHTML='<div style="color:red;padding:20px">❌ Parse error in gc-data.js: '+e.message+'</div>';
+      }
+    })
+    .catch(function(e){
+      panel.innerHTML='<div style="color:red;padding:20px">❌ Failed to fetch gc-data.js: '+e.message+'</div>';
+    });
 }
 
 var gcClientFilter='all', gcClientSort='total_paid', gcClientSortDir=-1;
