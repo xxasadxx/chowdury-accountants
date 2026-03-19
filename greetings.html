@@ -267,7 +267,7 @@ async function loadClients(){
   try{
     const r=await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,name,director_name,director_mobile,status&limit=1000',{headers:H});
     const data=await r.json();
-    clientData=data||[];
+    clientData=Array.isArray(data) ? data : [];
     renderMessages();
   } catch(e){
     console.error('Failed to load clients',e);
@@ -380,7 +380,8 @@ loadClients();
 function downloadVCF(){
   try {
     const btn = document.getElementById('vcf-btn');
-    const clients = clientData.filter(c => c.director_mobile && c.director_mobile.trim());
+    const safeData = Array.isArray(clientData) ? clientData : [];
+    const clients = safeData.filter(c => c.director_mobile && c.director_mobile.trim());
     if(clients.length === 0){
       alert('Contacts not loaded yet — wait a few seconds and try again.');
       return;
