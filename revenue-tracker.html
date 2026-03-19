@@ -943,7 +943,7 @@ function inactiveClients(arr){return arr.filter(c=>c.status==='inactive');}
 function totalRev(arr){return activeClients(arr).reduce((s,c)=>s+mFee(c),0);}
 function lostRev(arr){return inactiveClients(arr).reduce((s,c)=>s+mFee(c),0);}
 
-async function api(table,path,opts={}){
+async async function api(table,path,opts={}){
   const r=await fetch(SB+'/rest/v1/'+encodeURIComponent(table)+path,{headers:H,...opts});
   if(!r.ok)throw new Error(await r.text());
   const t=await r.text();return t?JSON.parse(t):null;
