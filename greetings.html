@@ -377,47 +377,43 @@ setFilter('all');
 setTemplate('eid');
 loadClients();
 
-function downloadVCF(){
+async function downloadVCF(){
+  const btn = document.getElementById('vcf-btn');
+  btn.textContent = '⏳ Loading contacts...';
+  btn.disabled = true;
   try {
-    const btn = document.getElementById('vcf-btn');
-    const safeData = Array.isArray(clientData) ? clientData : [];
-    const clients = safeData.filter(c => c.director_mobile && c.director_mobile.trim());
-    if(clients.length === 0){
-      alert('Contacts not loaded yet — wait a few seconds and try again.');
-      return;
-    }
-    const lines = [];
-    clients.forEach(c => {
-      const name = (c.director_name || 'Unknown').trim();
-      const company = (c.name || '').trim();
-      const raw = c.director_mobile.trim().replace(/\s+/g,'');
-      const tel = raw.startsWith('0') ? '+44'+raw.substring(1) : raw.startsWith('44') ? '+'+raw : raw;
-      const displayName = company ? name+' - '+company : name;
-      lines.push('BEGIN:VCARD');
-      lines.push('VERSION:3.0');
-      lines.push('FN:'+displayName);
-      lines.push('N:'+name+';;;;');
-      lines.push('ORG:'+company);
-      lines.push('TEL;TYPE=CELL:'+tel);
-      lines.push('END:VCARD');
-      lines.push('');
+    const r = await fetch(SB+'/rest/v1/ltd_clients?select=name,director_name,director_mobile&director_mobile=not.is.null&limit=1000', {
+      headers: {'apikey':KEY,'Authorization':'Bearer '+KEY}
     });
-    const content = lines.join('\n');
-    const blob = new Blob([content], {type:'text/x-vcard'});
-    const url = window.URL.createObjectURL(blob);
+    if(!r.ok) throw new Error('HTTP '+r.status+': '+r.statusText);
+    const data = await r.json();
+    if(!Array.isArray(data)) throw new Error('Bad response: '+JSON.stringify(data).slice(0,80));
+    const clients = data.filter(d => d.director_mobile && d.director_mobile.trim());
+    if(!clients.length) throw new Error('No mobile numbers found in database');
+    const lines = [];
+    clients.forEach(d => {
+      const name = (d.director_name||'Unknown').trim();
+      const co = (d.name||'').trim();
+      const raw = d.director_mobile.trim().replace(/\s+/g,'');
+      const tel = raw.startsWith('0')?'+44'+raw.slice(1):raw.startsWith('44')?'+'+raw:raw;
+      lines.push('BEGIN:VCARD','VERSION:3.0',
+        'FN:'+(co?name+' - '+co:name),
+        'N:'+name+';;;;','ORG:'+co,
+        'TEL;TYPE=CELL:'+tel,'END:VCARD','');
+    });
+    const blob = new Blob([lines.join('\n')],{type:'text/x-vcard'});
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.style.display = 'none';
-    a.href = url;
-    a.download = 'chowdury_clients.vcf';
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    a.href=url; a.download='chowdury_clients.vcf';
+    document.body.appendChild(a); a.click();
+    URL.revokeObjectURL(url); document.body.removeChild(a);
     btn.textContent = '✅ Downloaded '+clients.length+' contacts';
+    btn.disabled = false;
     setTimeout(()=>{btn.textContent='📱 Download All as Contacts (.vcf)';},3000);
   } catch(e) {
-    alert('Error: '+e.message);
-    console.error(e);
+    btn.textContent = '📱 Download All as Contacts (.vcf)';
+    btn.disabled = false;
+    alert('Failed: '+e.message);
   }
 }
 </script>
