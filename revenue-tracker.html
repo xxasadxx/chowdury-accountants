@@ -1218,7 +1218,7 @@ function refreshFailed(){
 function renderFailed(){
   window._fpData=FP;
   const q=document.getElementById('fp-srch').value.toLowerCase();
-  let list=FP.filter(f=>!q||f.client_name.toLowerCase().includes(q));
+  let list=FP.filter(f=>f.status==='outstanding'&&(!q||f.client_name.toLowerCase().includes(q)));
   document.getElementById('fp-cntLbl').textContent=list.length+' records';
   if(!list.length){document.getElementById('fp-tbody').innerHTML='';document.getElementById('fp-noRes').style.display='block';return;}
   document.getElementById('fp-noRes').style.display='none';
@@ -1226,7 +1226,7 @@ function renderFailed(){
   document.getElementById('fp-tbody').innerHTML=list.map((f,i)=>{
     return '<tr><td style="color:var(--muted);font-size:0.68rem">'+(i+1)+'</td>'
       +'<td><span style="font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px" data-fpid="'+f.id+'" onclick="viewFailedHistory(this)">'+f.client_name+'</span></td>'
-      +'<td><span style="background:'+(f.source==='dd'?'var(--accent-light)':'var(--green-light)')+';color:'+(f.source==='dd'?'var(--accent)':'var(--green)')+';border:1px solid '+(f.source==='dd'?'var(--accent-border)':'var(--green-border)')+';padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600">'+(f.source||'dd').toUpperCase()+'</span></td>'
+      +'<td><span style="background:'+(f.source==='so'?'var(--green-light)':'var(--accent-light)')+';color:'+(f.source==='so'?'var(--green)':'var(--accent)')+';border:1px solid '+(f.source==='so'?'var(--green-border)':'var(--accent-border)')+';padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600">'+(f.source==='so'?'SO':'DD')+'</span></td>'
       +'<td><span class="fee-num">£'+(f.amount||0)+'</span></td>'
       +'<td style="color:var(--muted);font-size:0.75rem">'+(f.failure_date||'')+'</td>'
       +'<td style="color:var(--text2);font-size:0.75rem">'+(f.reason||'')+'</td>'
