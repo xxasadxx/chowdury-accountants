@@ -810,6 +810,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
 
 <!-- GC History Panel -->
 <div class="panel" id="panel-gchist">
+  <div id="gc-debug" style="padding:12px;background:#fef3c7;border-radius:8px;margin-bottom:16px;font-size:0.85rem">⏳ GC History tab active — waiting for data load...</div>
   <!-- MRR Progress -->
   <div class="gc-progress-wrap">
     <div class="gc-progress-label">
@@ -2195,12 +2196,21 @@ function exportRevPDF(type){
 <script id="gc-history-script">
 var GC_DATA_LOADED=false;
 function loadGCDataThen(cb){
-  if(GC_DATA_LOADED){cb();return;}
+  var dbg=document.getElementById('gc-debug');
+  if(GC_DATA_LOADED){
+    if(dbg)dbg.textContent='✅ Data already loaded, calling render...';
+    cb();return;
+  }
+  if(dbg)dbg.textContent='📥 Loading gc-data.js...';
   var s=document.createElement('script');
-  s.src='gc-data.js?v=2';
-  s.onload=function(){GC_DATA_LOADED=true;cb();};
+  s.src='gc-data.js?v=3';
+  s.onload=function(){
+    GC_DATA_LOADED=true;
+    if(dbg)dbg.textContent='✅ gc-data.js loaded! GC_MONTHLY length: '+(window.GC_MONTHLY?window.GC_MONTHLY.length:'UNDEFINED');
+    cb();
+  };
   s.onerror=function(){
-    document.getElementById('gcBarChartWrap').innerHTML='<div style="color:red;padding:20px">❌ Could not load gc-data.js</div>';
+    if(dbg)dbg.innerHTML='<span style="color:red">❌ Failed to load gc-data.js — file not found on server</span>';
   };
   document.head.appendChild(s);
 }
@@ -2208,6 +2218,8 @@ function loadGCDataThen(cb){
 var gcClientFilter='all', gcClientSort='total_paid', gcClientSortDir=-1;
 
 function renderGCHistory(){
+  var dbg=document.getElementById('gc-debug');
+  if(dbg)dbg.textContent='🔄 renderGCHistory called, populating...';
   try{
   // KPIs
   var totalCollected = GC_MONTHLY.reduce(function(s,m){return s+m.total;},0);
@@ -2254,6 +2266,7 @@ function renderGCHistory(){
   document.getElementById('gc-f-all').textContent = 'All ('+allCount+')';
   document.getElementById('gc-f-active').textContent = 'Active ('+activeCount+')';
   document.getElementById('gc-f-inactive').textContent = 'Inactive ('+(allCount-activeCount)+')';
+  if(dbg)dbg.style.display='none';
   } catch(e){ console.error('renderGCHistory error:', e); document.getElementById('panel-gchist').innerHTML += '<div style="color:red;padding:20px">Error: '+e.message+'</div>'; }
 }
 
