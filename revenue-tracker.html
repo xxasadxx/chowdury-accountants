@@ -943,7 +943,7 @@ function inactiveClients(arr){return arr.filter(c=>c.status==='inactive');}
 function totalRev(arr){return activeClients(arr).reduce((s,c)=>s+mFee(c),0);}
 function lostRev(arr){return inactiveClients(arr).reduce((s,c)=>s+mFee(c),0);}
 
-async async function api(table,path,opts={}){
+async function api(table,path,opts={}){
   const r=await fetch(SB+'/rest/v1/'+encodeURIComponent(table)+path,{headers:H,...opts});
   if(!r.ok)throw new Error(await r.text());
   const t=await r.text();return t?JSON.parse(t):null;
@@ -1488,11 +1488,11 @@ async function openHistory(type,id){
     const fplogTbody=document.getElementById('hist-fplog-tbody');
     if(fpLogs&&fpLogs.length){
       fplogDiv.style.display='block';
-      fplogTbody.innerHTML=fpLogs.map(l=>'<tr>'\
-        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted)">'+l.failure_date+'</td>'\
-        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">£'+(l.amount||0)+'</td>'\
-        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text2)">'+(l.reason||'—')+'</td>'\
-        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">'+(l.status==='resolved'?'<span style="color:var(--green);font-weight:600">✅ Resolved</span>':'<span style="color:var(--red);font-weight:600">⚠️ Outstanding</span>')+'</td>'\
+      fplogTbody.innerHTML=fpLogs.map(l=>'<tr>'
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted)">'+l.failure_date+'</td>'
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">£'+(l.amount||0)+'</td>'
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text2)">'+(l.reason||'—')+'</td>'
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">'+(l.status==='resolved'?'<span style="color:var(--green);font-weight:600">✅ Resolved</span>':'<span style="color:var(--red);font-weight:600">⚠️ Outstanding</span>')+'</td>'
         +'</tr>').join('');
     }else{fplogDiv.style.display='none';}
     const months=getMonthsFrom(2,2026);
