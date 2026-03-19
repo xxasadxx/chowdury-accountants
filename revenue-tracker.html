@@ -2205,6 +2205,7 @@ function loadGCDataThen(cb){
 var gcClientFilter='all', gcClientSort='total_paid', gcClientSortDir=-1;
 
 function renderGCHistory(){
+  try{
   // KPIs
   var totalCollected = GC_MONTHLY.reduce(function(s,m){return s+m.total;},0);
   var totalPayments = GC_MONTHLY.reduce(function(s,m){return s+m.payment_count;},0);
@@ -2250,6 +2251,9 @@ function renderGCHistory(){
   document.getElementById('gc-f-all').textContent = 'All ('+allCount+')';
   document.getElementById('gc-f-active').textContent = 'Active ('+activeCount+')';
   document.getElementById('gc-f-inactive').textContent = 'Inactive ('+(allCount-activeCount)+')';
+}
+
+} catch(e){ console.error('renderGCHistory error:', e); document.getElementById('panel-gchist').innerHTML += '<div style="color:red;padding:20px">Error: '+e.message+'</div>'; }
 }
 
 function gcRenderBarChart(){
