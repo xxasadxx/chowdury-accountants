@@ -378,39 +378,46 @@ setTemplate('eid');
 loadClients();
 
 function downloadVCF(){
-  const btn = document.getElementById('vcf-btn');
-  // Use clientData already loaded on page - no extra fetch needed
-  const clients = clientData.filter(c => c.director_mobile && c.director_mobile.trim());
-  if(clients.length === 0){
-    alert('No contacts loaded yet. Wait a moment for the page to finish loading and try again.');
-    return;
+  try {
+    const btn = document.getElementById('vcf-btn');
+    const clients = clientData.filter(c => c.director_mobile && c.director_mobile.trim());
+    if(clients.length === 0){
+      alert('Contacts not loaded yet — wait a few seconds and try again.');
+      return;
+    }
+    const lines = [];
+    clients.forEach(c => {
+      const name = (c.director_name || 'Unknown').trim();
+      const company = (c.name || '').trim();
+      const raw = c.director_mobile.trim().replace(/\s+/g,'');
+      const tel = raw.startsWith('0') ? '+44'+raw.substring(1) : raw.startsWith('44') ? '+'+raw : raw;
+      const displayName = company ? name+' - '+company : name;
+      lines.push('BEGIN:VCARD');
+      lines.push('VERSION:3.0');
+      lines.push('FN:'+displayName);
+      lines.push('N:'+name+';;;;');
+      lines.push('ORG:'+company);
+      lines.push('TEL;TYPE=CELL:'+tel);
+      lines.push('END:VCARD');
+      lines.push('');
+    });
+    const content = lines.join('\n');
+    const blob = new Blob([content], {type:'text/x-vcard'});
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'chowdury_clients.vcf';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    btn.textContent = '✅ Downloaded '+clients.length+' contacts';
+    setTimeout(()=>{btn.textContent='📱 Download All as Contacts (.vcf)';},3000);
+  } catch(e) {
+    alert('Error: '+e.message);
+    console.error(e);
   }
-  const lines = [];
-  clients.forEach(c => {
-    const name = (c.director_name || 'Unknown').trim();
-    const company = (c.name || '').trim();
-    const raw = c.director_mobile.trim().replace(/\s+/g,'');
-    const tel = raw.startsWith('0') ? '+44'+raw.substring(1) : raw.startsWith('44') ? '+'+raw : raw;
-    const displayName = company ? name+' - '+company : name;
-    lines.push('BEGIN:VCARD');
-    lines.push('VERSION:3.0');
-    lines.push('FN:'+displayName);
-    lines.push('N:'+name+';;;;');
-    lines.push('ORG:'+company);
-    lines.push('TEL;TYPE=CELL:'+tel);
-    lines.push('END:VCARD');
-    lines.push('');
-  });
-  const content = lines.join('\n');
-  const encoded = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(content);
-  const a = document.createElement('a');
-  a.href = encoded;
-  a.download = 'chowdury_clients.vcf';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  btn.textContent = '✅ Downloaded '+clients.length+' contacts';
-  setTimeout(()=>{btn.textContent='📱 Download All as Contacts (.vcf)';},3000);
 }
 </script>
 </body>
