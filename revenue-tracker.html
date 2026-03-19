@@ -1557,6 +1557,21 @@ async function savePaymentRow(hid){
         }
       }
     }
+    if(status==='paid'){
+      const arr2=histClientType==='dd'?DD:SO;
+      const c2=arr2.find(x=>x.id===histClientId);
+      const h2=savedRow;
+      if(c2&&h2){
+        const fpMatch=await api('failed_payments','?client_name=eq.'+encodeURIComponent(c2.company_name)+'&failure_date=eq.'+encodeURIComponent(h2.month)+'&status=eq.outstanding');
+        if(fpMatch&&fpMatch.length>0){
+          await api('failed_payments','?id=eq.'+fpMatch[0].id,{method:'PATCH',body:JSON.stringify({status:'resolved'})});
+          const fpRefresh=await api('failed_payments','?select=*&order=id.desc');
+          FP=fpRefresh||[];
+          refreshFailed();
+          showToast('Failed payment auto-resolved','info');
+        }
+      }
+    }
   }catch(e){showToast('Error: '+e.message,'danger');}
   if(btn){btn.disabled=false;btn.textContent='Save';}
 }
