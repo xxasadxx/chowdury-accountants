@@ -686,6 +686,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
         <th style="background:var(--accent-light);color:var(--accent)">Total Expected</th>
         <th style="background:var(--green-light);color:var(--green)">Total Collected</th>
         <th>Rate</th>
+        <th style="background:var(--red-light);color:var(--red)">Failed</th>
       </tr></thead>
       <tbody id="rp-tbody"></tbody>
     </table>
@@ -781,6 +782,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
       <div class="hstat"><div class="hstat-val" id="hstat-collected" style="color:var(--green)">-</div><div class="hstat-lbl">Collected</div></div>
       <div class="hstat"><div class="hstat-val" id="hstat-missed" style="color:var(--red)">-</div><div class="hstat-lbl">Missed</div></div>
       <div class="hstat"><div class="hstat-val" id="hstat-rate" style="color:var(--accent)">-</div><div class="hstat-lbl">Collection Rate</div></div>
+      <div class="hstat"><div class="hstat-val" id="hstat-fpcount" style="color:var(--amber)">-</div><div class="hstat-lbl">Failed Logs</div></div>
     </div>
     <div id="histLoading" style="text-align:center;padding:24px;color:var(--muted);font-size:0.82rem;">Loading...</div>
     <table class="hist-table" id="histTable" style="display:none">
@@ -793,8 +795,18 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
       </tr></thead>
       <tbody id="hist-tbody"></tbody>
     </table>
-  </div>
-</div>
+    <div id="hist-fplog" style="margin-top:16px;display:none">
+      <div style="font-weight:700;font-size:0.8rem;color:var(--text);margin-bottom:8px;padding-top:12px;border-top:2px solid var(--border)">📋 Failed Payments Log</div>
+      <table style="width:100%;border-collapse:collapse;font-size:0.78rem">
+        <thead><tr>
+          <th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Date</th>
+          <th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Amount</th>
+          <th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Reason</th>
+          <th style="padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:0.68rem;color:var(--text2)">Status</th>
+        </tr></thead>
+        <tbody id="hist-fplog-tbody"></tbody>
+      </table>
+    </div>
 
 <!-- GC History Panel -->
 <div class="panel" id="panel-gchist">
@@ -1469,6 +1481,20 @@ async function openHistory(type,id){
   try{
     const data=await api('payment_history','?client_id=eq.'+id+'&client_type=eq.'+type+'&order=id.asc');
     histData=data||[];
+    // Load failed payments log for this client
+    const fpLogs=await api('failed_payments','?client_name=eq.'+encodeURIComponent(c.company_name)+'&order=failure_date.desc');
+    document.getElementById('hstat-fpcount').textContent=(fpLogs&&fpLogs.length?fpLogs.length:0)+(fpLogs&&fpLogs.length===1?' log':' logs');
+    const fplogDiv=document.getElementById('hist-fplog');
+    const fplogTbody=document.getElementById('hist-fplog-tbody');
+    if(fpLogs&&fpLogs.length){
+      fplogDiv.style.display='block';
+      fplogTbody.innerHTML=fpLogs.map(l=>'<tr>'\
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted)">'+l.failure_date+'</td>'\
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">£'+(l.amount||0)+'</td>'\
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--text2)">'+(l.reason||'—')+'</td>'\
+        +'<td style="padding:6px 10px;border-bottom:1px solid var(--border)">'+(l.status==='resolved'?'<span style="color:var(--green);font-weight:600">✅ Resolved</span>':'<span style="color:var(--red);font-weight:600">⚠️ Outstanding</span>')+'</td>'\
+        +'</tr>').join('');
+    }else{fplogDiv.style.display='none';}
     const months=getMonthsFrom(2,2026);
     const existing=histData.map(h=>h.month);
     const missing=months.filter(m=>!existing.includes(m));
@@ -1880,7 +1906,7 @@ function renderReportsWithData(allData){
       +'<td style="background:var(--accent-light);font-family:\'DM Mono\',monospace;font-weight:700;font-size:0.75rem;color:var(--accent)">'+fmtMoney(totExp)+'</td>'
       +'<td style="background:var(--green-light);font-family:\'DM Mono\',monospace;font-weight:700;font-size:0.75rem;color:var(--green)">'+fmtMoney(totCol)+'</td>'
       +'<td><span style="font-weight:700;font-size:0.9rem;color:'+rateColor(totRate)+'">'+fmtRate(totRate)+'</span></td>'
-      +'</tr>';
+      +(function(){var fc=FP.filter(f=>f.failure_date===mon);var out=fc.filter(f=>f.status==='outstanding').length;var res=fc.filter(f=>f.status==='resolved').length;if(!fc.length)return '<td style="color:var(--muted);font-size:0.75rem">—</td>';return '<td style="background:var(--red-light)"><span style="color:var(--red);font-weight:700;font-size:0.8rem">'+out+' ⚠️'+( res?'<span style="color:var(--green);font-size:0.7rem;margin-left:4px">'+res+' ✅</span>':'')+ '</span></td>';})()      +'</tr>';
   });
 
   const ytdExp=totGcExp+totSoExp,ytdCol=totGcCol+totSoCol;
@@ -1896,6 +1922,7 @@ function renderReportsWithData(allData){
     +'<td style="background:var(--accent-light);color:var(--accent);font-family:\'DM Mono\',monospace">£'+Math.round(ytdExp).toLocaleString('en-GB')+'</td>'
     +'<td style="background:var(--green-light);color:var(--green);font-family:\'DM Mono\',monospace">£'+Math.round(ytdCol).toLocaleString('en-GB')+'</td>'
     +'<td><span style="font-weight:700;font-size:1rem;color:'+(ytdRate>=95?'var(--green)':ytdRate>=80?'var(--amber)':'var(--red)')+'">'+ytdRate+'%</span></td>'
+    +(function(){var totalFailed=FP.filter(f=>f.status==='outstanding').length;var totalResolved=FP.filter(f=>f.status==='resolved').length;return '<td style="background:var(--red-light)"><span style="color:var(--red);font-weight:700">'+totalFailed+' ⚠️'+( totalResolved?'<span style="color:var(--green);font-size:0.7rem;margin-left:4px">'+totalResolved+' ✅</span>':'')+ '</span></td>';})()
     +'</tr>');
 
   document.getElementById('rp-tbody').innerHTML=rows.join('');
