@@ -2268,9 +2268,7 @@ function renderGCHistory(){
   document.getElementById('gc-f-all').textContent = 'All ('+allCount+')';
   document.getElementById('gc-f-active').textContent = 'Active ('+activeCount+')';
   document.getElementById('gc-f-inactive').textContent = 'Inactive ('+(allCount-activeCount)+')';
-}
-
-} catch(e){ console.error('renderGCHistory error:', e); document.getElementById('panel-gchist').innerHTML += '<div style="color:red;padding:20px">Error: '+e.message+'</div>'; }
+  } catch(e){ console.error('renderGCHistory error:', e); document.getElementById('panel-gchist').innerHTML += '<div style="color:red;padding:20px">Error: '+e.message+'</div>'; }
 }
 
 function gcRenderBarChart(){
