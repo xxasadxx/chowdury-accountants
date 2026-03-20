@@ -382,7 +382,7 @@ async function downloadVCF(){
   btn.textContent = '⏳ Loading contacts...';
   btn.disabled = true;
   try {
-    const r = await fetch(SB+'/rest/v1/ltd_clients?select=name,director_name,director_mobile&director_mobile=not.is.null&limit=1000', {
+    const r = await fetch(SB+'/rest/v1/ltd_clients?select=name,director_name,director_mobile&limit=1000', {
       headers: {'apikey':KEY,'Authorization':'Bearer '+KEY}
     });
     if(!r.ok) throw new Error('HTTP '+r.status+': '+r.statusText);
