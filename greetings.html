@@ -6,57 +6,60 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Chowdury Accountants — Greetings & Import</title>
 <style>
+:root {
+    --bg:#FBFAE8;--surface:#FFFFFF;--ink:#252525;--ink2:#4A4A4A;--muted:#7A7A7A;
+    --border:#DEDEDE;--border2:#CECECE;--red:#D04A02;--red-dark:#A83900;--red-light:#FCEEE8;
+    --green:#1D7A47;--green-light:#E5F4EC;--blue:#155FA0;--blue-light:#E5EFF8;
+    --amber:#C07A00;--amber-light:#FEF3DC;--teal:#0D9488;--teal-light:#CCFBF1;
+    --text:#252525;--text2:#4A4A4A;--text-muted:#7A7A7A;--accent:#D04A02;
+    --surface2:#F8F8F8;--radius:8px;--shadow:0 2px 8px rgba(0,0,0,.06);
+    --sans:'Mulish',sans-serif;--mono:'Fira Code',monospace;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans','Mulish',sans-serif;background:#f4f6fb;color:#1a1a18;min-height:100vh}
-#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:999;height:44px;overflow-x:auto}
-#portal-nav a{color:rgba(255,255,255,0.55);text-decoration:none;padding:4px 10px;border-radius:5px;white-space:nowrap;transition:color 0.15s}
-#portal-nav a:hover{color:#fff}
-#portal-nav a.active{color:#fff;background:rgba(255,255,255,0.1)}
-.logo{font-weight:800;font-size:13px;color:#fff;margin-right:12px;white-space:nowrap;letter-spacing:-0.3px}
-.wrap{max-width:900px;margin:32px auto;padding:0 20px}
-h1{font-size:1.4rem;font-weight:800;margin-bottom:6px}
-.sub{color:#6b7280;font-size:0.85rem;margin-bottom:28px}
-.card{background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:24px;margin-bottom:20px}
-.card-title{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.btn{padding:10px 20px;border-radius:8px;font-weight:700;font-size:0.85rem;cursor:pointer;border:none;transition:all .15s}
-.btn-green{background:#16a34a;color:#fff}.btn-green:hover{background:#15803d}
-.btn-blue{background:#2563eb;color:#fff}.btn-blue:hover{background:#1d4ed8}
-.btn-purple{background:#7c3aed;color:#fff}.btn-purple:hover{background:#6d28d9}
-.btn-red{background:#dc2626;color:#fff}.btn-red:hover{background:#b91c1c}
-.btn-grey{background:#f3f4f6;color:#374151;border:1px solid #d1d5db}.btn-grey:hover{background:#e5e7eb}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh}
+.wrap{max-width:920px;margin:28px auto;padding:0 20px}
+h1{font-size:1.3rem;font-weight:800;margin-bottom:5px;color:var(--ink)}
+.sub{color:var(--text-muted);font-size:0.85rem;margin-bottom:24px}
+.card{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
+.card-title{font-size:0.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--ink)}
+.btn{padding:9px 18px;border-radius:7px;font-weight:700;font-size:0.82rem;cursor:pointer;border:none;transition:all .15s;font-family:var(--sans)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#155a35}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#0f4a7a}
+.btn-purple{background:#7C3AED;color:#fff}.btn-purple:hover{background:#6d28d9}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-dark)}
+.btn-grey{background:var(--surface2);color:var(--ink2);border:1px solid var(--border2)}.btn-grey:hover{background:var(--border)}
 .progress-wrap{margin-top:14px;display:none}
-.progress-bar{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:8px}
-.progress-fill{height:100%;background:#16a34a;border-radius:99px;transition:width .3s;width:0%}
-.progress-text{font-size:0.78rem;color:#6b7280}
-.result{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:0.82rem;display:none}
-.result.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
-.result.err{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
-textarea{width:100%;border:1px solid #d1d5db;border-radius:8px;padding:12px;font-size:0.85rem;resize:vertical;font-family:inherit;color:#1a1a18;outline:none;transition:border .15s}
-textarea:focus{border-color:#2563eb}
-label{font-size:0.78rem;font-weight:600;color:#374151;display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em}
-.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid #d1d5db;margin:2px;background:#f9fafb;transition:all .15s}
-.tag:hover{background:#e5e7eb}
-.templates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.progress-bar{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;background:var(--green);border-radius:99px;transition:width .3s;width:0%}
+.progress-text{font-size:0.75rem;color:var(--text-muted)}
+.result{margin-top:10px;padding:10px 14px;border-radius:7px;font-size:0.82rem;display:none}
+.result.ok{background:var(--green-light);color:var(--green);border:1px solid #86EFAC}
+.result.err{background:var(--red-light);color:var(--red-dark);border:1px solid #FCA5A5}
+textarea{width:100%;border:1px solid var(--border2);border-radius:7px;padding:10px 12px;font-size:0.84rem;resize:vertical;font-family:var(--sans);color:var(--ink);background:var(--surface);outline:none;transition:border .15s}
+textarea:focus{border-color:var(--blue)}
+label{font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border2);margin:2px;background:var(--surface2);transition:all .15s;color:var(--ink2)}
+.tag:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
+.templates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
 @media(max-width:600px){.templates{grid-template-columns:1fr}}
-.tpl-btn{padding:10px 14px;border-radius:8px;font-size:0.82rem;cursor:pointer;border:1px solid #d1d5db;background:#f9fafb;text-align:left;transition:all .15s;font-family:inherit}
-.tpl-btn:hover{border-color:#2563eb;background:#eff6ff}
-.tpl-btn strong{display:block;font-size:0.85rem;margin-bottom:2px}
-.tpl-btn span{color:#6b7280;font-size:0.75rem}
-.preview-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:14px;font-size:0.85rem;white-space:pre-wrap;min-height:60px;color:#374151;margin-top:10px}
-.stats{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px}
-.stat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 16px;text-align:center;flex:1;min-width:100px}
-.stat-val{font-size:1.4rem;font-weight:800;color:#2563eb}
-.stat-lbl{font-size:0.7rem;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em}
-.copy-wrap{position:relative}
-.copy-btn{position:absolute;top:8px;right:8px;padding:4px 10px;border-radius:5px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid #d1d5db;background:#fff}
-.copy-btn:hover{background:#f3f4f6}
-.msg-list{max-height:320px;overflow-y:auto;border:1px solid #e5e7eb;border-radius:8px;font-size:0.78rem}
-.msg-item{padding:8px 12px;border-bottom:1px solid #f3f4f6;display:flex;gap:8px;align-items:flex-start}
+.tpl-btn{padding:10px 14px;border-radius:8px;font-size:0.82rem;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);text-align:left;transition:all .15s;font-family:var(--sans);color:var(--ink)}
+.tpl-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+.tpl-btn strong{display:block;font-size:0.84rem;margin-bottom:2px}
+.tpl-btn span{color:var(--text-muted);font-size:0.74rem}
+.preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:12px;font-size:0.84rem;white-space:pre-wrap;min-height:60px;color:var(--ink2);margin-top:8px}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;flex:1;min-width:90px}
+.stat-val{font-size:1.3rem;font-weight:800;color:var(--blue)}
+.stat-lbl{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+.msg-list{max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;background:var(--surface)}
+.msg-item{padding:8px 12px;border-bottom:1px solid var(--bg);display:flex;gap:8px;align-items:flex-start}
 .msg-item:last-child{border-bottom:none}
-.msg-name{font-weight:600;min-width:180px;color:#1a1a18}
-.msg-tel{color:#6b7280;min-width:110px}
-.msg-body{color:#374151;flex:1}
+.msg-name{font-weight:700;min-width:170px;color:var(--ink)}
+.msg-tel{color:var(--text-muted);min-width:110px;font-family:var(--mono);font-size:0.75rem}
+.msg-body{color:var(--ink2);flex:1}
+.sec-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
 </style>
+
 <style id="portal-nav-css">
 #portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-family:'DM Sans','Mulish',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto;}
 #portal-nav::-webkit-scrollbar{height:3px;}
@@ -221,6 +224,7 @@ async function runImport(){
     res.textContent='⚠️ '+done+' updated, '+fail+' failed. Check Supabase connection.';
   }
   btn.textContent='✅ Import Complete';
+  localStorage.setItem('ca_mobile_imported','true');
 }
 
 // GREETINGS
@@ -376,6 +380,21 @@ function downloadCSV(){
 setFilter('all');
 setTemplate('eid');
 loadClients();
+// Check import status on load
+(async()=>{
+  try{
+    const r=await fetch(SB+'/rest/v1/ltd_clients?select=id&director_mobile=not.is.null&limit=1',{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+    // If above gives 400, just skip - import still works
+    const btn=document.getElementById('imp-btn');
+    const res=document.getElementById('imp-result');
+    // Check localStorage for completed import
+    if(localStorage.getItem('ca_mobile_imported')==='true'){
+      btn.textContent='✅ Already Imported — Re-run to update';
+      res.style.display='block';res.className='result ok';
+      res.textContent='Mobile numbers were previously imported. Click to re-import if numbers have changed.';
+    }
+  }catch(e){}
+})();
 
 async function downloadVCF(){
   const btn = document.getElementById('vcf-btn');
