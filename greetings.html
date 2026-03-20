@@ -379,17 +379,16 @@ loadClients();
 
 async function downloadVCF(){
   const btn = document.getElementById('vcf-btn');
-  btn.textContent = '⏳ Loading contacts...';
+  btn.textContent = '⏳ Loading...';
   btn.disabled = true;
   try {
-    const r = await fetch(SB+'/rest/v1/ltd_clients?select=name,director_name,director_mobile&limit=1000', {
-      headers: {'apikey':KEY,'Authorization':'Bearer '+KEY}
-    });
-    if(!r.ok) throw new Error('HTTP '+r.status+': '+r.statusText);
+    // Use exact same fetch as loadClients which is known to work
+    const r = await fetch(SB+'/rest/v1/ltd_clients?select=name,director_name,director_mobile&limit=1000', {headers:H});
+    if(!r.ok) throw new Error('HTTP '+r.status);
     const data = await r.json();
-    if(!Array.isArray(data)) throw new Error('Bad response: '+JSON.stringify(data).slice(0,80));
+    if(!Array.isArray(data)) throw new Error('Bad data: '+JSON.stringify(data).slice(0,60));
     const clients = data.filter(d => d.director_mobile && d.director_mobile.trim());
-    if(!clients.length) throw new Error('No mobile numbers found in database');
+    if(!clients.length) throw new Error('No mobiles found');
     const lines = [];
     clients.forEach(d => {
       const name = (d.director_name||'Unknown').trim();
@@ -407,13 +406,13 @@ async function downloadVCF(){
     a.href=url; a.download='chowdury_clients.vcf';
     document.body.appendChild(a); a.click();
     URL.revokeObjectURL(url); document.body.removeChild(a);
-    btn.textContent = '✅ Downloaded '+clients.length+' contacts';
+    btn.textContent = '✅ '+clients.length+' contacts downloaded';
     btn.disabled = false;
     setTimeout(()=>{btn.textContent='📱 Download All as Contacts (.vcf)';},3000);
   } catch(e) {
     btn.textContent = '📱 Download All as Contacts (.vcf)';
     btn.disabled = false;
-    alert('Failed: '+e.message);
+    alert('Error: '+e.message);
   }
 }
 </script>
