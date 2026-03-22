@@ -313,30 +313,32 @@ function calcVatQuarter(client) {
 const SMART_TMPLS = {
   vat: (client) => {
     const q = calcVatQuarter(client);
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
     if (q) {
-      return `Hello,
+      return `Dear ${greeting},
 
 I hope you are well.
 
-Could you please provide the bookkeeping records for the VAT quarter ending ${q.quarterEnd}. Specifically, we would require the bank statements covering ${q.month1}, ${q.month2} and ${q.month3} ${q.year}, as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
-
-You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
+Could you please provide the bookkeeping records for the VAT quarter ending ${q.quarterEnd}. Specifically, we would require the bank statements as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
 
 Thank you for your cooperation. Please do not hesitate to contact us if you have any queries.
+
+Please provide your records to us no later than the 21st of this month.
 
 Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`;
     } else {
-      return `Hello,
+      return `Dear ${greeting},
 
 I hope you are well.
 
-Could you please provide the bookkeeping records for your most recent VAT quarter, including bank statements, expense receipts, purchase invoices, and sales figures for those months.
+Could you please provide the bookkeeping records for your most recent VAT quarter. Specifically, we would require the bank statements as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
 
-You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
+Thank you for your cooperation. Please do not hesitate to contact us if you have any queries.
 
-Thank you for your cooperation.
+Please provide your records to us no later than the 21st of this month.
 
 Best regards,
 The Chowdury Accountants Team
