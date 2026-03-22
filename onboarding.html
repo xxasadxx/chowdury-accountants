@@ -3,13 +3,11 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
 <title>Client Onboarding — The Chowdury Accountants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🆕</text></svg>">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -34,27 +32,32 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 #portal-nav a.active{color:#fff;background:rgba(255,255,255,.13)}
 .nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0}
 .nav-signout:hover{color:rgba(255,255,255,.6)!important}
+/* Page header */
 .page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
 .page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
 .page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
 .page-tabs{display:flex}
 .page-tab{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s}
 .page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+/* KPI row */
 .kpi-row{display:flex;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
 .kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:100px;cursor:pointer;transition:all .15s}
 .kpi:hover{border-color:var(--blue);background:var(--blue-light)}
 .kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
 .kpi .v{font-size:20px;font-weight:700;margin:3px 0 1px;font-family:var(--display)}
+/* Toolbar */
 .toolbar{background:var(--bg);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .btn{padding:7px 13px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
 .btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
 .btn-secondary{background:none;border:1px solid var(--border2);color:var(--ink2)}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
 .btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1a6b3e}
+.btn-amber{background:var(--amber);color:#fff}.btn-amber:hover{background:#a56800}
 .btn-danger{background:none;border:1px solid var(--red);color:var(--red)}.btn-danger:hover{background:var(--red-light)}
 .btn-sm{padding:4px 9px;font-size:11px;border-radius:5px}
 .search-box{padding:6px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none;width:200px}
 .search-box:focus{border-color:var(--blue)}
 select.search-box{width:140px}
+/* Pipeline */
 .pipeline-wrap{padding:20px 24px}
 .pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
 @media(max-width:900px){.pipeline{grid-template-columns:repeat(2,1fr)}}
@@ -72,40 +75,48 @@ select.search-box{width:140px}
 .cc-progress{height:3px;background:var(--border);border-radius:99px;margin-top:7px;overflow:hidden}
 .cc-fill{height:100%;background:var(--green);border-radius:99px;transition:width .3s}
 .cc-pct{font-size:10px;color:var(--muted);margin-top:3px}
+/* Badges */
 .badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
 .badge-ltd{background:var(--blue-light);color:var(--blue)}
 .badge-se{background:var(--purple-light);color:var(--purple)}
 .badge-green{background:var(--green-light);color:var(--green)}
 .badge-amber{background:var(--amber-light);color:var(--amber)}
 .badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-red{background:var(--red-light);color:var(--red)}
 .badge-grey{background:#f1f5f9;color:#64748b}
+.badge-pep{background:#fee2e2;color:#991b1b;font-weight:700}
+/* Modal */
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
 .modal-bg.open{display:flex}
-.modal{background:var(--surface);border-radius:14px;width:100%;max-width:800px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:860px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
 .modal-header{padding:20px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
 .modal-title{font-family:var(--display);font-size:16px;font-weight:700}
 .modal-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:2px}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
 .modal-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto}
-.modal-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
+.modal-tab{padding:10px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
 .modal-tab:hover{color:var(--ink)}.modal-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
 .modal-body{padding:20px 24px;max-height:68vh;overflow-y:auto;scrollbar-width:thin}
 .modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
 .modal-tc{display:none}.modal-tc.active{display:block}
+/* Form */
 .sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
 .sec-label:first-child{margin-top:0}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 .f1{grid-column:1/-1}
 .field{display:flex;flex-direction:column;gap:4px}
 .field label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .field input,.field select,.field textarea{padding:7px 9px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;width:100%;outline:none}
 .field textarea{resize:vertical;min-height:55px}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,95,160,.08)}
+/* Services */
 .svcs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .svc{display:flex;align-items:center;gap:6px;font-size:11px;cursor:pointer;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);transition:all .15s;user-select:none}
 .svc:hover{border-color:var(--blue);background:var(--blue-light)}
 .svc input{width:13px;height:13px;cursor:pointer;accent-color:var(--blue)}
 .svc.checked{border-color:var(--green);background:var(--green-light);color:var(--green);font-weight:600}
+/* Checklist */
 .checklist{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
 .chk{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
 .chk:last-child{border-bottom:none}.chk:hover{background:var(--bg)}.chk.done{background:var(--green-light)}
@@ -113,23 +124,45 @@ select.search-box{width:140px}
 .chk.done .chk-icon{background:var(--green);border-color:var(--green);color:#fff}
 .chk-lbl{font-size:12px;font-weight:600;flex:1}
 .chk-sub{font-size:10px;color:var(--muted)}
+/* Banner */
 .complete-banner{background:var(--green-light);border:1px solid #86efac;border-radius:var(--radius);padding:16px 18px;margin-top:16px;display:none}
 .complete-banner p{font-size:12px;color:var(--green);font-weight:700;margin-bottom:4px}
 .complete-banner small{font-size:11px;color:#15803d;display:block;margin-bottom:10px}
-.letter-wrap{border:1px solid var(--border);border-radius:var(--radius);padding:18px;background:var(--bg);font-size:11px;line-height:1.75;white-space:pre-wrap;font-family:'Courier New',monospace;max-height:360px;overflow-y:auto;margin-bottom:12px;scrollbar-width:thin}
+.info-banner{background:var(--blue-light);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;font-size:11px;color:#1e40af;margin-bottom:14px}
+.warn-banner{background:var(--amber-light);border:1px solid #fcd34d;border-radius:var(--radius);padding:12px 14px;font-size:11px;color:#92400e;margin-bottom:14px}
+/* Letter */
+.letter-wrap{border:1px solid var(--border);border-radius:var(--radius);padding:18px;background:var(--bg);font-size:11px;line-height:1.75;white-space:pre-wrap;font-family:'Courier New',monospace;max-height:340px;overflow-y:auto;margin-bottom:12px;scrollbar-width:thin}
+/* AML table */
+.aml-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.aml-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px}
+.aml-card h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:10px}
+/* Toggle */
+.toggle-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:14px;cursor:pointer}
+.toggle-row:hover{border-color:var(--blue)}
+.toggle-lbl{font-size:12px;font-weight:600;flex:1}
+.toggle-sub{font-size:10px;color:var(--muted)}
+input[type=checkbox].toggle{width:16px;height:16px;accent-color:var(--blue);cursor:pointer}
+/* AML register table */
+.aml-register{overflow-x:auto;margin-top:16px}
+.aml-register table{width:100%;border-collapse:collapse;font-size:12px}
+.aml-register th{background:var(--bg);padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:2px solid var(--border)}
+.aml-register td{padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
+.aml-register tr:hover td{background:var(--blue-light);cursor:pointer}
+/* Toast */
 .toast{position:fixed;bottom:24px;right:24px;padding:11px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
+/* DB notice */
 .db-notice{position:fixed;bottom:70px;right:24px;background:#1e293b;color:#fff;border-radius:12px;padding:16px 20px;max-width:360px;font-size:11px;z-index:9998;display:none}
-.db-notice code{font-size:10px;display:block;margin:6px 0;background:rgba(255,255,255,.1);padding:8px;border-radius:6px;white-space:pre;overflow-x:auto;font-family:var(--mono)}
+.db-notice code{font-size:9.5px;display:block;margin:6px 0;background:rgba(255,255,255,.1);padding:8px;border-radius:6px;white-space:pre;overflow-x:auto;font-family:var(--mono)}
+/* Quote iframe section */
+.quote-section{padding:20px 24px}
+.quote-section h2{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:4px}
+.quote-section p{font-size:11px;color:var(--muted);margin-bottom:16px}
 </style>
 </head>
 <body>
-
 <div id="portal-nav">
-  <div class="nav-brand">
-    <span class="nav-title">CA Chowdury Accountants</span>
-    <span class="nav-sub">Practice Portal</span>
-  </div>
+  <div class="nav-brand"><span class="nav-title">CA Chowdury Accountants</span><span class="nav-sub">Practice Portal</span></div>
   <a href="index.html">🏠 Portal</a>
   <a href="revenue-tracker.html">💰 Revenue</a>
   <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
@@ -137,7 +170,6 @@ select.search-box{width:140px}
   <a href="paye-tracker.html">💼 PAYE</a>
   <a href="sa-tracker.html">📋 SA</a>
   <a href="ch-tracker.html">⚖️ CH Tracker</a>
-  <a href="quote-calculator.html">💡 Quote</a>
   <a href="staff-management.html">👥 Staff</a>
   <a href="greetings.html">📲 Greetings</a>
   <a href="onboarding.html" class="active">🆕 Onboarding</a>
@@ -147,9 +179,11 @@ select.search-box{width:140px}
 
 <div class="page-header">
   <h1>🆕 Client Onboarding</h1>
-  <p>New client pipeline · Engagement letters · Compliance checklist · Auto-add to Ltd Tracker</p>
+  <p>New client pipeline · AML register · Letters · Quote calculator · Auto-add to Ltd Tracker</p>
   <div class="page-tabs">
     <div class="page-tab active" onclick="setView('pipeline')">📋 Pipeline</div>
+    <div class="page-tab" onclick="setView('aml')">🔐 AML Register</div>
+    <div class="page-tab" onclick="setView('quote')">💡 Quote Calculator</div>
     <div class="page-tab" onclick="setView('list')">📃 List View</div>
   </div>
 </div>
@@ -160,6 +194,7 @@ select.search-box{width:140px}
   <div class="kpi" onclick="filterStatus('in_progress')"><div class="k">In Progress</div><div class="v" id="s-ip" style="color:var(--amber)">0</div></div>
   <div class="kpi" onclick="filterStatus('awaiting_signature')"><div class="k">Awaiting Signature</div><div class="v" id="s-await" style="color:var(--blue)">0</div></div>
   <div class="kpi" onclick="filterStatus('completed')"><div class="k">Completed</div><div class="v" id="s-done" style="color:var(--green)">0</div></div>
+  <div class="kpi" onclick="setView('aml');filterStatus('all')"><div class="k">AML Pending</div><div class="v" id="s-aml" style="color:var(--red)">0</div></div>
 </div>
 
 <div class="toolbar">
@@ -171,6 +206,7 @@ select.search-box{width:140px}
   <span style="font-size:11px;color:var(--muted)" id="cnt-lbl"></span>
 </div>
 
+<!-- PIPELINE VIEW -->
 <div id="view-pipeline" class="pipeline-wrap">
   <div class="pipeline">
     <div class="col-prospect"><div class="col-head">🔵 Prospect <span class="col-count" id="c-p">0</span></div><div class="col-body" id="b-p"></div></div>
@@ -180,6 +216,35 @@ select.search-box{width:140px}
   </div>
 </div>
 
+<!-- AML REGISTER VIEW -->
+<div id="view-aml" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <h2 style="font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:2px">🔐 AML Register</h2>
+      <p style="font-size:11px;color:var(--muted)">Anti-Money Laundering compliance for all clients</p>
+    </div>
+  </div>
+  <div class="aml-register">
+    <table>
+      <thead><tr>
+        <th>Client</th><th>Type</th><th>AML Status</th><th>ID Type</th><th>ID Expiry</th><th>Checked By</th><th>Check Date</th><th>PEP</th>
+      </tr></thead>
+      <tbody id="aml-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- QUOTE VIEW -->
+<div id="view-quote" style="display:none">
+  <div class="quote-section">
+    <h2>💡 Quote Calculator</h2>
+    <p>Build a professional fee quote — opens in full view for printing and emailing.</p>
+    <button class="btn btn-blue" onclick="window.open('quote-calculator.html','_blank')">Open Full Quote Calculator ↗</button>
+  </div>
+  <iframe src="quote-calculator.html" id="quote-iframe" style="width:100%;height:calc(100vh - 200px);border:none;border-top:1px solid var(--border)"></iframe>
+</div>
+
+<!-- LIST VIEW -->
 <div id="view-list" style="display:none;padding:0 24px 30px">
   <div style="overflow-x:auto;margin-top:16px">
     <table style="width:100%;border-collapse:collapse;font-size:12px">
@@ -189,6 +254,7 @@ select.search-box{width:140px}
         <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Status</th>
         <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Director</th>
         <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Progress</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">AML</th>
         <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Fee/mo</th>
         <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Added</th>
       </tr></thead>
@@ -197,7 +263,7 @@ select.search-box{width:140px}
   </div>
 </div>
 
-<!-- MODAL -->
+<!-- CLIENT MODAL -->
 <div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
   <div class="modal">
     <div class="modal-header">
@@ -206,17 +272,19 @@ select.search-box{width:140px}
     </div>
     <div class="modal-tabs">
       <div class="modal-tab active" id="mt-details" onclick="switchTab('details')">📋 Details</div>
+      <div class="modal-tab" id="mt-aml" onclick="switchTab('aml')">🔐 AML</div>
+      <div class="modal-tab" id="mt-letters" onclick="switchTab('letters')">📄 Letters</div>
       <div class="modal-tab" id="mt-checklist" onclick="switchTab('checklist')">✅ Checklist</div>
-      <div class="modal-tab" id="mt-letter" onclick="switchTab('letter')">📄 Letter</div>
     </div>
     <div class="modal-body">
 
+      <!-- DETAILS TAB -->
       <div class="modal-tc active" id="tc-details">
         <div class="sec-label">Client Information</div>
         <div class="fg">
           <div class="field"><label>Client Type</label><select id="f-type" onchange="toggleLtd()"><option value="ltd">Ltd Company</option><option value="se">Self Employed / SA</option></select></div>
           <div class="field"><label>Status</label><select id="f-status"><option value="prospect">Prospect</option><option value="in_progress">In Progress</option><option value="awaiting_signature">Awaiting Signature</option><option value="completed">Completed</option></select></div>
-          <div class="field f1" id="fg-co"><label>Company / Client Name</label><input id="f-co" placeholder="e.g. Pint & Poppadams Ltd"></div>
+          <div class="field f1"><label>Company / Client Name</label><input id="f-co" placeholder="e.g. Sequential Services Ltd"></div>
           <div class="field" id="fg-cn"><label>Company Number</label><input id="f-cn" placeholder="e.g. 12345678" maxlength="8"></div>
           <div class="field" id="fg-ye"><label>Year End</label><input id="f-ye" placeholder="e.g. 31/10/2025"></div>
           <div class="field"><label>Director / Contact Name</label><input id="f-dir" placeholder="Full name"></div>
@@ -241,6 +309,127 @@ select.search-box{width:140px}
         <div class="field"><textarea id="f-notes" rows="2" placeholder="Any notes…"></textarea></div>
       </div>
 
+      <!-- AML TAB -->
+      <div class="modal-tc" id="tc-aml">
+        <div id="pep-banner" style="display:none" class="warn-banner">⚠️ <strong>PEP Flag Active</strong> — Enhanced Due Diligence required for this client. Document additional checks.</div>
+
+        <div class="sec-label">Photo ID</div>
+        <div class="fg3">
+          <div class="field"><label>ID Type</label>
+            <select id="aml-id-type">
+              <option value="">— Select —</option>
+              <option>Passport</option>
+              <option>UK Driving Licence</option>
+              <option>National ID Card</option>
+              <option>Residence Permit</option>
+            </select>
+          </div>
+          <div class="field"><label>ID Expiry Date</label><input id="aml-id-expiry" type="date"></div>
+          <div class="field"><label>ID Checked Date</label><input id="aml-id-date" type="date"></div>
+        </div>
+
+        <div class="sec-label">Proof of Address</div>
+        <div class="fg3">
+          <div class="field"><label>Document Type</label>
+            <select id="aml-addr-type">
+              <option value="">— Select —</option>
+              <option>Bank Statement</option>
+              <option>Utility Bill</option>
+              <option>Council Tax Letter</option>
+              <option>HMRC Letter</option>
+              <option>Mortgage Statement</option>
+            </select>
+          </div>
+          <div class="field"><label>Document Date</label><input id="aml-addr-date" type="date"></div>
+          <div class="field"><label>Address Checked Date</label><input id="aml-addr-check" type="date"></div>
+        </div>
+
+        <div class="sec-label">Compliance</div>
+        <div class="fg">
+          <div class="field"><label>AML Check Completed By</label>
+            <select id="aml-by">
+              <option value="">— Select staff —</option>
+              <option>Md Asadul Chowdury</option>
+              <option>Hassan</option>
+              <option>Aminul</option>
+              <option>Nawaz</option>
+              <option>Syed</option>
+            </select>
+          </div>
+          <div class="field"><label>Overall AML Status</label>
+            <select id="aml-status">
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="passed">Passed ✓</option>
+              <option value="failed">Failed / Declined</option>
+            </select>
+          </div>
+          <div class="field f1">
+            <label>Document Storage Link (Google Drive / SharePoint URL)</label>
+            <input id="aml-doc-url" placeholder="https://drive.google.com/...">
+          </div>
+        </div>
+
+        <div class="sec-label">PEP & Source of Funds</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;cursor:pointer" onclick="togglePEP()">
+          <input type="checkbox" id="aml-pep" class="toggle" onclick="event.stopPropagation();togglePEP()" style="width:16px;height:16px;accent-color:var(--red)">
+          <div style="flex:1">
+            <div style="font-size:12px;font-weight:700;color:var(--red)">Politically Exposed Person (PEP)</div>
+            <div style="font-size:10px;color:var(--muted)">Flag if client or UBO is a PEP. Triggers enhanced due diligence requirements.</div>
+          </div>
+        </div>
+        <div class="field"><label>AML Notes / Source of Funds</label><textarea id="aml-notes" rows="3" placeholder="Document source of funds, any concerns, enhanced due diligence steps taken…"></textarea></div>
+      </div>
+
+      <!-- LETTERS TAB -->
+      <div class="modal-tc" id="tc-letters">
+        <div style="display:flex;gap:8px;margin-bottom:16px">
+          <button class="btn btn-secondary btn-sm" id="lt-eng-btn" onclick="showLetter('engagement')" style="border-color:var(--blue);color:var(--blue)">📄 Engagement Letter</button>
+          <button class="btn btn-secondary btn-sm" id="lt-clr-btn" onclick="showLetter('clearance')">📨 Professional Clearance</button>
+        </div>
+
+        <!-- Engagement Letter -->
+        <div id="lt-engagement">
+          <div class="info-banner">Pre-filled with client details. Click Email to open in your mail client — letter_sent checklist step will auto-tick.</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+            <button class="btn btn-secondary btn-sm" onclick="genEngagement()">🔄 Generate</button>
+            <button class="btn btn-secondary btn-sm" onclick="copyLetter('engagement-preview')">📋 Copy</button>
+            <button class="btn btn-blue btn-sm" onclick="emailLetter('engagement')">📧 Email to Client</button>
+            <button class="btn btn-secondary btn-sm" onclick="printLetter('engagement-preview')">🖨 Print</button>
+          </div>
+          <div id="engagement-preview" class="letter-wrap">Click Generate to preview.</div>
+        </div>
+
+        <!-- Clearance Letter -->
+        <div id="lt-clearance" style="display:none">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:12px">
+            <input type="checkbox" id="has-prev-acct" class="toggle" onchange="togglePrevAcct()" style="width:16px;height:16px;accent-color:var(--blue)">
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600">Client had a previous accountant</div>
+              <div style="font-size:10px;color:var(--muted)">Enable to generate a professional clearance letter to their previous firm</div>
+            </div>
+          </div>
+          <div id="prev-acct-fields" style="display:none">
+            <div class="fg" style="margin-bottom:12px">
+              <div class="field"><label>Previous Accountant Firm Name</label><input id="prev-firm" placeholder="e.g. Smith & Co Accountants"></div>
+              <div class="field"><label>Previous Accountant Email</label><input id="prev-email" type="email" placeholder="accounts@smithco.co.uk"></div>
+            </div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+              <button class="btn btn-secondary btn-sm" onclick="genClearance()">🔄 Generate</button>
+              <button class="btn btn-secondary btn-sm" onclick="copyLetter('clearance-preview')">📋 Copy</button>
+              <button class="btn btn-amber btn-sm" onclick="emailLetter('clearance')">📧 Send to Prev Accountant</button>
+              <button class="btn btn-secondary btn-sm" onclick="printLetter('clearance-preview')">🖨 Print</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <button class="btn btn-sm" id="clr-sent-btn" onclick="markClearance('sent')" style="background:var(--amber-light);border:1px solid var(--amber);color:var(--amber);border-radius:5px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer">Mark as Sent</button>
+              <button class="btn btn-sm" id="clr-rcvd-btn" onclick="markClearance('received')" style="background:var(--green-light);border:1px solid var(--green);color:var(--green);border-radius:5px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer">Mark Response Received</button>
+            </div>
+          </div>
+          <div id="clearance-preview" class="letter-wrap">Toggle "Client had a previous accountant" above, then click Generate.</div>
+        </div>
+      </div>
+
+      <!-- CHECKLIST TAB -->
       <div class="modal-tc" id="tc-checklist">
         <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Click each step to mark as complete. Status updates automatically.</p>
         <div class="checklist" id="chk-wrap"></div>
@@ -249,16 +438,6 @@ select.search-box{width:140px}
           <small>Clicking below will mark as Completed and add to the Ltd Tracker.</small>
           <button class="btn btn-green" onclick="completeOnboarding()">✅ Complete Onboarding → Add to Ltd Tracker</button>
         </div>
-      </div>
-
-      <div class="modal-tc" id="tc-letter">
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-          <button class="btn btn-secondary btn-sm" onclick="genLetter()">🔄 Generate</button>
-          <button class="btn btn-secondary btn-sm" onclick="copyLetter()">📋 Copy</button>
-          <button class="btn btn-blue btn-sm" onclick="emailLetter()">📧 Email to Client</button>
-          <button class="btn btn-secondary btn-sm" onclick="printLetter()">🖨 Print</button>
-        </div>
-        <div id="letter" class="letter-wrap">Click Generate to preview the engagement letter pre-filled with client details.</div>
       </div>
 
     </div>
@@ -273,25 +452,24 @@ select.search-box{width:140px}
 <div class="toast" id="toast"></div>
 <div class="db-notice" id="db-notice">
   <strong>⚠️ DB setup required</strong> — run in <a href="https://supabase.com/dashboard" target="_blank" style="color:#60a5fa">Supabase SQL editor</a>:
-  <code>CREATE TABLE onboarding_clients (
-  id BIGSERIAL PRIMARY KEY,
-  client_type TEXT DEFAULT 'ltd',
-  status TEXT DEFAULT 'prospect',
-  company_name TEXT, company_no TEXT,
-  year_end TEXT, director_name TEXT,
-  email TEXT, mobile TEXT,
-  referred_by TEXT, monthly_fee NUMERIC,
-  notes TEXT, services TEXT[],
-  aml_done BOOLEAN DEFAULT FALSE,
-  letter_sent BOOLEAN DEFAULT FALSE,
-  letter_signed BOOLEAN DEFAULT FALSE,
-  gc_setup BOOLEAN DEFAULT FALSE,
-  id_added BOOLEAN DEFAULT FALSE,
-  brightpay_added BOOLEAN DEFAULT FALSE,
-  registered_address BOOLEAN DEFAULT FALSE,
-  completed_at TIMESTAMPTZ,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);</code>
+  <code>-- Run if upgrading existing table:
+ALTER TABLE onboarding_clients
+  ADD COLUMN IF NOT EXISTS had_prev_acct BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS prev_firm TEXT,
+  ADD COLUMN IF NOT EXISTS prev_email TEXT,
+  ADD COLUMN IF NOT EXISTS clearance_sent BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS clearance_received BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS aml_id_type TEXT,
+  ADD COLUMN IF NOT EXISTS aml_id_expiry DATE,
+  ADD COLUMN IF NOT EXISTS aml_id_date DATE,
+  ADD COLUMN IF NOT EXISTS aml_addr_type TEXT,
+  ADD COLUMN IF NOT EXISTS aml_addr_date DATE,
+  ADD COLUMN IF NOT EXISTS aml_addr_check DATE,
+  ADD COLUMN IF NOT EXISTS aml_by TEXT,
+  ADD COLUMN IF NOT EXISTS aml_status TEXT DEFAULT 'pending',
+  ADD COLUMN IF NOT EXISTS aml_doc_url TEXT,
+  ADD COLUMN IF NOT EXISTS aml_pep BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS aml_notes TEXT;</code>
   <button onclick="document.getElementById('db-notice').style.display='none'" style="margin-top:8px;background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px">Dismiss</button>
 </div>
 
@@ -300,7 +478,7 @@ const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=representation'};
 const CL_LTD=[
-  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained'},
+  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained & filed'},
   {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client via email'},
   {k:'letter_signed',l:'Engagement Letter Signed',s:'Signed copy received back'},
   {k:'gc_setup',l:'GoCardless DD Set Up',s:'Direct debit mandate active'},
@@ -309,19 +487,20 @@ const CL_LTD=[
   {k:'registered_address',l:'Registered Address Confirmed',s:'If providing registered address service'},
 ];
 const CL_SE=[
-  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained'},
+  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained & filed'},
   {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client via email'},
   {k:'letter_signed',l:'Engagement Letter Signed',s:'Signed copy received back'},
   {k:'gc_setup',l:'GoCardless DD Set Up',s:'Direct debit mandate active'},
   {k:'brightpay_added',l:'Added to BrightPay (if payroll)',s:'Payroll employer set up if applicable'},
 ];
 const SL={prospect:'Prospect',in_progress:'In Progress',awaiting_signature:'Awaiting Signature',completed:'Completed'};
+const AL={pending:'Pending',in_progress:'In Progress',passed:'Passed',failed:'Failed'};
 let CLIENTS=[],cid=null,sf='all',view='pipeline';
 
 async function api(p,o={}){const r=await fetch(SB+'/rest/v1/'+p,{headers:H,...o});const t=await r.text();return t?JSON.parse(t):null;}
 async function load(){
   try{CLIENTS=(await api('onboarding_clients?select=*&order=created_at.desc'))||[];renderStats();render();}
-  catch(e){document.getElementById('db-notice').style.display='block';toast('Please run DB setup','err');}
+  catch(e){document.getElementById('db-notice').style.display='block';toast('Please run DB setup — see bottom right','err');}
 }
 function cl(c){return c.client_type==='se'?CL_SE:CL_LTD;}
 function done(c){return cl(c).filter(s=>c[s.k]).length;}
@@ -332,6 +511,7 @@ function renderStats(){
   document.getElementById('s-ip').textContent=CLIENTS.filter(c=>c.status==='in_progress').length;
   document.getElementById('s-await').textContent=CLIENTS.filter(c=>c.status==='awaiting_signature').length;
   document.getElementById('s-done').textContent=CLIENTS.filter(c=>c.status==='completed').length;
+  document.getElementById('s-aml').textContent=CLIENTS.filter(c=>!c.aml_done&&c.status!=='completed').length;
 }
 function filterStatus(s){sf=s;render();}
 function filtered(){
@@ -348,13 +528,17 @@ function render(){
   const list=filtered();
   document.getElementById('cnt-lbl').textContent=list.length+' clients';
   if(view==='pipeline') renderPipeline(list);
-  else renderList(list);
+  else if(view==='aml') renderAML(list);
+  else if(view==='list') renderList(list);
 }
 function setView(v){
   view=v;
-  document.getElementById('view-pipeline').style.display=v==='pipeline'?'block':'none';
-  document.getElementById('view-list').style.display=v==='list'?'block':'none';
-  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',(v==='pipeline')===!i));
+  ['pipeline','aml','quote','list'].forEach(x=>document.getElementById('view-'+x).style.display=x===v?'block':'none');
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list'][i]===v));
+  if(v==='quote'){
+    const ifr=document.getElementById('quote-iframe');
+    if(!ifr.src||ifr.src==='about:blank') ifr.src='quote-calculator.html';
+  }
   render();
 }
 function renderPipeline(list){
@@ -367,10 +551,13 @@ function renderPipeline(list){
 }
 function cardHTML(c){
   const p=pct(c);
+  const amlOk=c.aml_status==='passed';
   return `<div class="client-card" onclick="openClient(${c.id})">
     <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
       <span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span>
-      <span class="cc-name">${c.company_name||'Unnamed'}</span>
+      ${c.aml_pep?'<span class="badge badge-pep">PEP</span>':''}
+      <span class="cc-name" style="flex:1">${c.company_name||'Unnamed'}</span>
+      ${amlOk?'<span style="font-size:11px">🔐✓</span>':''}
     </div>
     <div class="cc-meta"><span>👤 ${c.director_name||'—'}</span>${c.monthly_fee?`<span>£${c.monthly_fee}/mo</span>`:''}</div>
     ${(c.services||[]).length?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${(c.services||[]).slice(0,3).join(', ')}</div>`:''}
@@ -378,41 +565,64 @@ function cardHTML(c){
     <div class="cc-pct">${done(c)}/${cl(c).length} steps · ${p}%</div>
   </div>`;
 }
+function renderAML(list){
+  const amlColors={pending:'badge-amber',in_progress:'badge-blue',passed:'badge-green',failed:'badge-red'};
+  document.getElementById('aml-tbody').innerHTML=list.map(c=>`
+    <tr onclick="openClient(${c.id})" onmouseover="this.querySelectorAll('td').forEach(t=>t.style.background='var(--blue-light)')" onmouseout="this.querySelectorAll('td').forEach(t=>t.style.background='')">
+      <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${c.company_name||'—'}${c.aml_pep?'&nbsp;<span class="badge badge-pep">PEP</span>':''}</td>
+      <td style="padding:9px 11px"><span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span></td>
+      <td style="padding:9px 11px"><span class="badge ${amlColors[c.aml_status]||'badge-amber'}">${AL[c.aml_status]||'Pending'}</span></td>
+      <td style="padding:9px 11px;font-size:11px;color:var(--ink2)">${c.aml_id_type||'—'}</td>
+      <td style="padding:9px 11px;font-size:11px;color:${c.aml_id_expiry&&new Date(c.aml_id_expiry)<new Date()?'var(--red)':'var(--ink2)'}">${c.aml_id_expiry||'—'}</td>
+      <td style="padding:9px 11px;font-size:11px;color:var(--ink2)">${c.aml_by||'—'}</td>
+      <td style="padding:9px 11px;font-size:11px;color:var(--ink2)">${c.aml_id_date||'—'}</td>
+      <td style="padding:9px 11px">${c.aml_pep?'<span class="badge badge-pep">⚠ PEP</span>':'<span class="badge badge-grey">No</span>'}</td>
+    </tr>`).join('');
+}
 function renderList(list){
+  const sc={prospect:'badge-grey',in_progress:'badge-amber',awaiting_signature:'badge-blue',completed:'badge-green'};
+  const ac={pending:'badge-amber',in_progress:'badge-blue',passed:'badge-green',failed:'badge-red'};
   document.getElementById('list-tbody').innerHTML=list.map(c=>{
     const p=pct(c);
-    const sc={prospect:'badge-grey',in_progress:'badge-amber',awaiting_signature:'badge-blue',completed:'badge-green'}[c.status]||'badge-grey';
     return `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="openClient(${c.id})" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
       <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${c.company_name||'—'}</td>
       <td style="padding:9px 11px"><span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span></td>
-      <td style="padding:9px 11px"><span class="badge ${sc}">${SL[c.status]||c.status}</span></td>
-      <td style="padding:9px 11px;font-size:11px;color:var(--ink2)">${c.director_name||'—'}</td>
-      <td style="padding:9px 11px"><div style="display:flex;align-items:center;gap:6px"><div style="width:80px;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div style="width:${p}%;height:100%;background:var(--green);border-radius:99px"></div></div><span style="font-size:10px;color:var(--muted)">${p}%</span></div></td>
+      <td style="padding:9px 11px"><span class="badge ${sc[c.status]||'badge-grey'}">${SL[c.status]||c.status}</span></td>
+      <td style="padding:9px 11px;font-size:11px">${c.director_name||'—'}</td>
+      <td style="padding:9px 11px"><div style="display:flex;align-items:center;gap:6px"><div style="width:70px;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div style="width:${p}%;height:100%;background:var(--green);border-radius:99px"></div></div><span style="font-size:10px;color:var(--muted)">${p}%</span></div></td>
+      <td style="padding:9px 11px"><span class="badge ${ac[c.aml_status]||'badge-amber'}">${AL[c.aml_status]||'Pending'}</span></td>
       <td style="padding:9px 11px;font-size:11px">${c.monthly_fee?'£'+c.monthly_fee:'—'}</td>
       <td style="padding:9px 11px;font-size:10px;color:var(--muted);font-family:var(--mono)">${c.created_at?c.created_at.slice(0,10):'—'}</td>
     </tr>`;
   }).join('');
 }
-function openNew(){cid=null;document.getElementById('m-title').textContent='New Client';document.getElementById('m-sub').textContent='Fill in details then move to checklist';document.getElementById('del-btn').style.display='none';clearForm();switchTab('details');document.getElementById('modal-bg').classList.add('open');}
+
+// --- MODAL ---
+function openNew(){cid=null;document.getElementById('m-title').textContent='New Client';document.getElementById('m-sub').textContent='Fill in details to begin onboarding';document.getElementById('del-btn').style.display='none';clearForm();switchTab('details');document.getElementById('modal-bg').classList.add('open');}
 function openClient(id){
   const c=CLIENTS.find(x=>x.id===id);if(!c)return;
-  cid=id;document.getElementById('m-title').textContent=c.company_name||'Client';
-  document.getElementById('m-sub').textContent=(c.client_type==='se'?'Self Employed':'Ltd Company')+' · '+SL[c.status];
+  cid=id;
+  document.getElementById('m-title').textContent=c.company_name||'Client';
+  document.getElementById('m-sub').textContent=(c.client_type==='se'?'SE':'Ltd Co')+' · '+SL[c.status]+(c.aml_pep?' · ⚠ PEP':'');
   document.getElementById('del-btn').style.display='inline-flex';
-  fillForm(c);switchTab('details');document.getElementById('modal-bg').classList.add('open');
+  fillForm(c);fillAML(c);
+  switchTab('details');
+  document.getElementById('modal-bg').classList.add('open');
 }
 function closeModal(){document.getElementById('modal-bg').classList.remove('open');cid=null;}
 function switchTab(t){
-  ['details','checklist','letter'].forEach(x=>{
+  ['details','aml','letters','checklist'].forEach(x=>{
     document.getElementById('tc-'+x).classList.toggle('active',x===t);
     document.getElementById('mt-'+x).classList.toggle('active',x===t);
   });
   if(t==='checklist'&&cid) renderChecklist();
-  if(t==='letter') genLetter();
+  if(t==='letters') showLetter('engagement');
 }
+
 function clearForm(){
   ['f-type','f-status','f-co','f-cn','f-ye','f-dir','f-email','f-mob','f-ref','f-fee','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';});
-  document.querySelectorAll('#svcs input').forEach(cb=>{cb.checked=false;chkSvc(cb);});toggleLtd();
+  document.querySelectorAll('#svcs input').forEach(cb=>{cb.checked=false;chkSvc(cb);});
+  toggleLtd();
 }
 function fillForm(c){
   document.getElementById('f-type').value=c.client_type||'ltd';
@@ -430,14 +640,58 @@ function fillForm(c){
   document.querySelectorAll('#svcs input').forEach(cb=>{cb.checked=svcs.includes(cb.value);chkSvc(cb);});
   toggleLtd();
 }
+function fillAML(c){
+  document.getElementById('aml-id-type').value=c.aml_id_type||'';
+  document.getElementById('aml-id-expiry').value=c.aml_id_expiry||'';
+  document.getElementById('aml-id-date').value=c.aml_id_date||'';
+  document.getElementById('aml-addr-type').value=c.aml_addr_type||'';
+  document.getElementById('aml-addr-date').value=c.aml_addr_date||'';
+  document.getElementById('aml-addr-check').value=c.aml_addr_check||'';
+  document.getElementById('aml-by').value=c.aml_by||'';
+  document.getElementById('aml-status').value=c.aml_status||'pending';
+  document.getElementById('aml-doc-url').value=c.aml_doc_url||'';
+  document.getElementById('aml-pep').checked=!!c.aml_pep;
+  document.getElementById('aml-notes').value=c.aml_notes||'';
+  document.getElementById('pep-banner').style.display=c.aml_pep?'block':'none';
+  document.getElementById('has-prev-acct').checked=!!c.had_prev_acct;
+  document.getElementById('prev-firm').value=c.prev_firm||'';
+  document.getElementById('prev-email').value=c.prev_email||'';
+  togglePrevAcct();
+}
 function toggleLtd(){const ltd=document.getElementById('f-type').value==='ltd';['fg-cn','fg-ye'].forEach(id=>document.getElementById(id).style.display=ltd?'':'none');}
 function chkSvc(cb){cb.closest('.svc').classList.toggle('checked',cb.checked);}
+function togglePEP(){
+  const pep=document.getElementById('aml-pep').checked;
+  document.getElementById('pep-banner').style.display=pep?'block':'none';
+}
+function togglePrevAcct(){
+  const on=document.getElementById('has-prev-acct').checked;
+  document.getElementById('prev-acct-fields').style.display=on?'block':'none';
+}
+
 function formData(){
   const svcs=[];document.querySelectorAll('#svcs input:checked').forEach(cb=>svcs.push(cb.value));
-  return{client_type:document.getElementById('f-type').value,status:document.getElementById('f-status').value,company_name:document.getElementById('f-co').value.trim(),company_no:document.getElementById('f-cn').value.trim(),year_end:document.getElementById('f-ye').value.trim(),director_name:document.getElementById('f-dir').value.trim(),email:document.getElementById('f-email').value.trim(),mobile:document.getElementById('f-mob').value.trim(),referred_by:document.getElementById('f-ref').value.trim(),monthly_fee:parseFloat(document.getElementById('f-fee').value)||null,notes:document.getElementById('f-notes').value.trim(),services:svcs};
+  return{
+    client_type:document.getElementById('f-type').value,status:document.getElementById('f-status').value,
+    company_name:document.getElementById('f-co').value.trim(),company_no:document.getElementById('f-cn').value.trim(),
+    year_end:document.getElementById('f-ye').value.trim(),director_name:document.getElementById('f-dir').value.trim(),
+    email:document.getElementById('f-email').value.trim(),mobile:document.getElementById('f-mob').value.trim(),
+    referred_by:document.getElementById('f-ref').value.trim(),monthly_fee:parseFloat(document.getElementById('f-fee').value)||null,
+    notes:document.getElementById('f-notes').value.trim(),services:svcs,
+    aml_id_type:document.getElementById('aml-id-type').value,aml_id_expiry:document.getElementById('aml-id-expiry').value||null,
+    aml_id_date:document.getElementById('aml-id-date').value||null,aml_addr_type:document.getElementById('aml-addr-type').value,
+    aml_addr_date:document.getElementById('aml-addr-date').value||null,aml_addr_check:document.getElementById('aml-addr-check').value||null,
+    aml_by:document.getElementById('aml-by').value,aml_status:document.getElementById('aml-status').value,
+    aml_doc_url:document.getElementById('aml-doc-url').value.trim(),aml_pep:document.getElementById('aml-pep').checked,
+    aml_notes:document.getElementById('aml-notes').value.trim(),
+    had_prev_acct:document.getElementById('has-prev-acct').checked,
+    prev_firm:document.getElementById('prev-firm').value.trim(),prev_email:document.getElementById('prev-email').value.trim(),
+  };
 }
 async function saveClient(){
   const data=formData();if(!data.company_name){toast('Please enter a client name','err');return;}
+  // mark aml_done if AML status is passed
+  data.aml_done=data.aml_status==='passed';
   try{
     if(cid){
       await api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify(data)});
@@ -448,8 +702,6 @@ async function saveClient(){
       toast('Client added ✓');
     }
     renderStats();render();
-    document.getElementById('m-title').textContent=data.company_name;
-    document.getElementById('m-sub').textContent=(data.client_type==='se'?'Self Employed':'Ltd Company')+' · '+SL[data.status];
   }catch(e){toast('Save failed: '+e.message,'err');}
 }
 async function delClient(){
@@ -457,10 +709,11 @@ async function delClient(){
   try{await api('onboarding_clients?id=eq.'+cid,{method:'DELETE'});CLIENTS=CLIENTS.filter(c=>c.id!==cid);closeModal();renderStats();render();toast('Deleted');}
   catch(e){toast('Delete failed','err');}
 }
+
+// --- CHECKLIST ---
 function renderChecklist(){
   const c=CLIENTS.find(x=>x.id===cid);if(!c)return;
-  const list=cl(c);
-  const allDone=list.every(s=>c[s.k]);
+  const list=cl(c);const allDone=list.every(s=>c[s.k]);
   document.getElementById('done-banner').style.display=(allDone&&c.client_type==='ltd'&&c.status!=='completed')?'block':'none';
   document.getElementById('chk-wrap').innerHTML=list.map(s=>{
     const d=!!c[s.k];
@@ -476,8 +729,7 @@ async function toggleChk(key){
   c[key]=!c[key];
   const list=cl(c);const d=list.filter(s=>c[s.k]).length;
   let ns=c.status;
-  if(d===0)ns='prospect';
-  else if(d>0)ns='in_progress';
+  if(d===0)ns='prospect';else if(d>0)ns='in_progress';
   if(c.letter_sent&&!c.letter_signed)ns='awaiting_signature';
   c.status=ns;
   try{await api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({[key]:c[key],status:ns})});renderChecklist();renderStats();render();}
@@ -485,7 +737,7 @@ async function toggleChk(key){
 }
 async function completeOnboarding(){
   const c=CLIENTS.find(x=>x.id===cid);if(!c)return;
-  if(!c.company_no){toast('Please add company number first','err');switchTab('details');return;}
+  if(!c.company_no){toast('Add company number first','err');switchTab('details');return;}
   if(!confirm('Add '+c.company_name+' to the Ltd Tracker?'))return;
   try{
     await api('ltd_clients',{method:'POST',body:JSON.stringify({comp_no:c.company_no.replace(/\s/g,'').toUpperCase().padStart(8,'0'),status:'active',sector:'Hospitality',director_name:c.director_name||'',director_email:c.email||'',director_mobile:c.mobile||'',vat_registered:!!(c.services&&c.services.includes('vat')),paye_registered:!!(c.services&&(c.services.includes('payroll')||c.services.includes('paye'))),notes:c.notes||'',referred_by:c.referred_by||''})});
@@ -494,24 +746,36 @@ async function completeOnboarding(){
     renderChecklist();renderStats();render();toast('✅ '+c.company_name+' added to Ltd Tracker!');
   }catch(e){toast('Error: '+e.message,'err');}
 }
-function genLetter(){
-  const c=cid?CLIENTS.find(x=>x.id===cid):{};
-  const name=(c&&c.company_name)||'[Company Name]';
-  const dir=(c&&c.director_name)||'[Director Name]';
-  const ye=(c&&c.year_end)||'[Year End]';
-  const svcs=(c&&c.services)||[];
-  const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+
+// --- LETTERS ---
+let curLetter='engagement';
+function showLetter(type){
+  curLetter=type;
+  document.getElementById('lt-engagement').style.display=type==='engagement'?'block':'none';
+  document.getElementById('lt-clearance').style.display=type==='clearance'?'block':'none';
+  document.getElementById('lt-eng-btn').style.cssText=type==='engagement'?'border-color:var(--blue);color:var(--blue);background:var(--blue-light)':'';
+  document.getElementById('lt-clr-btn').style.cssText=type==='clearance'?'border-color:var(--blue);color:var(--blue);background:var(--blue-light)':'';
+}
+function getClient(){return cid?CLIENTS.find(x=>x.id===cid):{};}
+function today(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+
+function genEngagement(){
+  const c=getClient()||{};
+  const name=c.company_name||'[Company Name]';
+  const dir=c.director_name||'[Director Name]';
+  const ye=c.year_end||'[Year End]';
+  const svcs=c.services||[];
   const lines=[];
   if(svcs.includes('accounts'))lines.push('Annual Accounts');if(svcs.includes('bookkeeping'))lines.push('Bookkeeping');
   if(svcs.includes('ct600'))lines.push('CT600 Corporation Tax Return');if(svcs.includes('vat'))lines.push('VAT Returns');
   if(svcs.includes('payroll'))lines.push('Payroll');if(svcs.includes('sa'))lines.push('Self Assessment Tax Return');
   if(svcs.includes('paye'))lines.push('PAYE');if(svcs.includes('confirmation'))lines.push('Confirmation Statement');
   if(svcs.includes('registered'))lines.push('Registered Office Address');
-  document.getElementById('letter').textContent=`The Chowdury Accountants Ltd
+  document.getElementById('engagement-preview').textContent=`The Chowdury Accountants Ltd
 283 Featherstall Road North, Oldham, OL1 2NH
 Tel: 0161 222 4647 | info@chowduryaccountants.co.uk
 
-${today}
+${today()}
 
 LETTER OF ENGAGEMENT
 
@@ -520,56 +784,128 @@ Dear ${dir},
 This letter sets out the basis on which we provide services to your company (${name}), so as to avoid any misunderstandings.
 
 SERVICES BEING PROVIDED
-${lines.length?lines.map(s=>'• '+s).join('\n'):'• To be agreed'}
+${lines.length?lines.map(s=>'• '+s).join('\n'):'• To be confirmed'}
 
 ANTI MONEY LAUNDERING LEGISLATION
-All accountants must comply with the Proceeds of Crime Act 2002, the Terrorism Act 2000 and the Money Laundering Regulations 2017. Before we can act for your company, we have to confirm the identity of the directors. We may also need to obtain evidence confirming the identities of third parties and the source of any funding. If at any time we have grounds to suspect that crime is being committed, we are obliged to make a report to the National Crime Agency (NCA).
+All accountants must comply with the Proceeds of Crime Act 2002, the Terrorism Act 2000 and the Money Laundering Regulations 2017. Before we can act for your company, we have to confirm the identity of the directors. If at any time we have grounds to suspect that crime is being committed, we are obliged to make a report to the National Crime Agency (NCA).
 
 FEES
-Our fees are computed on the basis of time spent on your affairs and the responsibility and skill involved. We may invoice you monthly payable by Direct Debit via GoCardless. Where invoices are not subject to direct debit, our terms are strictly 7 days net. Interest will be charged on all overdue debts. If this letter covers work for a limited company and the company is unable to meet our fees as and when they fall due, the company's directors will be personally, jointly and severally liable.
+Our fees are computed on the basis of time spent on your affairs and the responsibility and skill involved. We may invoice you monthly by Direct Debit via GoCardless. Where invoices are not subject to direct debit, our terms are strictly 7 days net. If the company is unable to meet our fees, the directors will be personally, jointly and severally liable.
 
 RESPONSIBILITIES OF DIRECTORS
-As director of ${name}, you are responsible for ensuring the company maintains proper accounting records. You undertake to provide all records and information required within five months of the year end (${ye}) to avoid penalties. We will prepare the company's accounts for the year ended ${ye} and subsequent years.
+As director of ${name}, you are responsible for ensuring the company maintains proper accounting records. You undertake to provide all records within five months of the year end (${ye}) to avoid penalties.
 
 DATA PROTECTION
-We will process your personal data in compliance with the General Data Protection Regulation (GDPR) and UK Data Protection Laws. You are the Data Controller and we are the Data Processor for employee data processing. We have engaged AccountancyManager Limited as a third-party sub-processor.
+We will process your personal data in compliance with GDPR and UK Data Protection Laws. You are the Data Controller; we are the Data Processor for employee data. We have engaged AccountancyManager Limited as a sub-processor.
 
 AGREEMENT
-Once agreed, this letter will remain effective from the date of signature until replaced. Either party may vary or terminate our authority at any time on written notice.
+This letter remains effective from the date of signature until replaced. Either party may terminate on written notice.
 
-Please confirm your agreement by signing below.
+Please confirm agreement by signing below.
 
 Yours sincerely,
 
 Md Asadul Chowdury
-Managing Director
-The Chowdury Accountants Ltd
+Managing Director, The Chowdury Accountants Ltd
 
 ────────────────────────────────────────────────
-CLIENT AGREEMENT
-
-I confirm I have read and understood this Letter of Engagement.
+CLIENT SIGNATURE
 
 Name: _____________________________________________
-
 Signature: _________________________________________
-
 Date: _____________________________________________
-
 Company: ${name}`;
 }
-function copyLetter(){navigator.clipboard.writeText(document.getElementById('letter').textContent).then(()=>toast('Copied ✓'));}
-function emailLetter(){
-  const c=cid?CLIENTS.find(x=>x.id===cid):null;
-  genLetter();
-  const email=(c&&c.email)||'';
-  const name=(c&&c.company_name)||'Client';
-  window.open('mailto:'+email+'?subject='+encodeURIComponent('Letter of Engagement — '+name+' — Chowdury Accountants')+'&body='+encodeURIComponent(document.getElementById('letter').textContent));
-  if(cid){const x=CLIENTS.find(x=>x.id===cid);if(x&&!x.letter_sent){x.letter_sent=true;api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({letter_sent:true})});toast('Letter sent — checklist updated ✓');}}
-}
-function printLetter(){genLetter();const w=window.open('','_blank');w.document.write('<html><body><pre style="font-family:Arial;font-size:12px;line-height:1.7;max-width:700px;margin:40px auto;white-space:pre-wrap">'+document.getElementById('letter').textContent+'</pre></body></html>');w.print();}
-function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
 
+function genClearance(){
+  const c=getClient()||{};
+  const name=c.company_name||'[Company Name]';
+  const compNo=c.company_no||'[Company No]';
+  const prevFirm=document.getElementById('prev-firm').value.trim()||'[Previous Accountant]';
+  const svcs=c.services||[];
+  const hasPaye=svcs.includes('payroll')||svcs.includes('paye');
+  const hasVat=svcs.includes('vat');
+  document.getElementById('clearance-preview').textContent=`The Chowdury Accountants Ltd
+283 Featherstall Road North, Oldham, OL1 2NH
+Tel: 0161 222 4647 | info@chowduryaccountants.co.uk
+
+${today()}
+
+${prevFirm}
+
+Dear Sirs,
+
+Re: ${name} (Company Reg No: ${compNo})
+
+We have been approached by the above to act as their Accountants and we should be grateful if you would supply us with any information which might influence our decision whether or not to accept this appointment. We understand that you have been advised of this approach and have been given authority to disclose information to us.
+
+On the basis that there is no such information that would influence our decision, we should be obliged if you would please supply the following information:
+
+${hasPaye?`PAYE DETAILS:
+• Employer PAYE reference and PAYE accounts office reference number
+• RTI submission details for the last two tax years along with all employee details (Full Name, DOB, NI No, Address)
+• NICs and Income Tax liabilities for the last two tax years (if any)
+• Login details for the PAYE account if available
+
+`:''
+}ANNUAL ACCOUNTS:
+Please provide us with a full set of company accounts and CT600 returns for the last two years along with details of any non-current assets registered.
+
+${hasVat?`VAT:
+Please provide us with relevant information for the last two years VAT returns (last 8 submitted) with the breakdown of figures, along with login details for the VAT account.
+
+`:''
+}PENSION:
+Please provide details for the company if it has been registered for auto enrolment pension services with The Pensions Regulator.
+
+OTHER HMRC & COMPANIES HOUSE DETAILS:
+• UTR number of the company
+• UTR number of the director(s)
+• Any submitted tax returns made for the director(s) for the last two years
+• Authentication code for Companies House
+
+We would be grateful if you could supply the above information at your earliest convenience. We confirm that our client has authorised us to request these details.
+
+Thank you for your co-operation.
+
+Yours faithfully,
+
+Md Asadul Chowdury
+Managing Director
+The Chowdury Accountants Ltd`;
+}
+
+function copyLetter(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>toast('Copied ✓'));}
+function printLetter(id){const w=window.open('','_blank');w.document.write('<html><body><pre style="font-family:Arial;font-size:12px;line-height:1.7;max-width:700px;margin:40px auto;white-space:pre-wrap">'+document.getElementById(id).textContent+'</pre></body></html>');w.print();}
+
+function emailLetter(type){
+  const c=getClient()||{};
+  if(type==='engagement'){
+    genEngagement();
+    const email=c.email||'';
+    const name=c.company_name||'Client';
+    window.open('mailto:'+email+'?subject='+encodeURIComponent('Letter of Engagement — '+name+' — Chowdury Accountants')+'&body='+encodeURIComponent(document.getElementById('engagement-preview').textContent));
+    if(cid){const x=CLIENTS.find(x=>x.id===cid);if(x&&!x.letter_sent){x.letter_sent=true;api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({letter_sent:true})});toast('Letter sent — checklist updated ✓');}}
+  }else{
+    genClearance();
+    const prevEmail=document.getElementById('prev-email').value.trim();
+    const name=c.company_name||'Client';
+    window.open('mailto:'+prevEmail+'?subject='+encodeURIComponent('Professional Clearance — '+name)+'&body='+encodeURIComponent(document.getElementById('clearance-preview').textContent));
+    markClearance('sent');
+  }
+}
+async function markClearance(action){
+  if(!cid)return;
+  const field=action==='sent'?'clearance_sent':'clearance_received';
+  const c=CLIENTS.find(x=>x.id===cid);
+  if(c)c[field]=true;
+  try{
+    await api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({[field]:true})});
+    toast(action==='sent'?'Clearance marked as sent ✓':'Clearance response received ✓');
+  }catch(e){toast('Could not save','err');}
+}
+
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
 toggleLtd();load();
 </script>
 </body>
