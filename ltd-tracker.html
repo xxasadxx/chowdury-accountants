@@ -1593,13 +1593,14 @@ let idToken=null;
 
 async function getIdToken(){
   if(idToken) return idToken;
-  const r=await fetch(ID_PROXY+'?env=production&endpoint=token&method=POST',{
+  const r=await fetch(ID_PROXY+'?env=production&endpoint=authenticate&method=POST',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({apiKey:ID_KEY})
   });
   const d=await r.json();
   idToken=d.accessToken||d.AccessToken||null;
+  if(!idToken) console.error('ID auth failed:', d);
   return idToken;
 }
 
@@ -1609,7 +1610,7 @@ async function syncFromID(){
   const ss=document.getElementById('sync-status');
   try{
     const tok=await getIdToken();
-    if(!tok){ss.textContent='ID auth failed';btn.disabled=false;btn.textContent='📋 Sync ID';return;}
+    if(!tok){ss.textContent='❌ ID auth failed — check API key';alert('ID auth failed. Token was null.');btn.disabled=false;btn.textContent='📋 Sync ID';return;}
     // Get all companies from Inform Direct
     const r=await fetch(ID_PROXY+'?env=production&endpoint=companies&token='+encodeURIComponent(tok));
     const d=await r.json();
@@ -1634,7 +1635,8 @@ async function syncFromID(){
     }
     ss.textContent='✅ ID sync: '+updated+' updated · '+new Date().toLocaleTimeString('en-GB');
   }catch(e){
-    ss.textContent='ID sync failed: '+e.message;
+    ss.textContent='❌ ID sync failed: '+e.message;
+    alert('Sync ID error: '+e.message);
   }
   btn.disabled=false;btn.textContent='📋 Sync ID';
 }
