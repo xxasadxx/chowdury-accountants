@@ -293,6 +293,8 @@ let ALL = [];
 let filter = 'all';
 let sentSet = new Set(JSON.parse(sessionStorage.getItem('ca_greet_sent')||'[]'));
 let curTpl = 'eid';
+let sortCol = 'name';
+let sortDir = 'asc';
 
 function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
 
@@ -358,8 +360,26 @@ function renderList(){
     return;
   }
   const tpl=document.getElementById('msg-tpl').value;
-  let html='<div class="cl-head"><div>Name</div><div>Mobile</div><div>Type</div><div>Status</div></div>';
-  html+=list.slice(0,200).map(c=>{
+  const arr = n => sortCol===n ? (sortDir==='asc'?' ↑':' ↓') : ' ↕';
+  let html=`<div class="cl-head" style="cursor:pointer">
+    <div onclick="doSort('name')" style="cursor:pointer;user-select:none">Name${arr('name')}</div>
+    <div onclick="doSort('mobile')" style="cursor:pointer;user-select:none">Mobile${arr('mobile')}</div>
+    <div onclick="doSort('type')" style="cursor:pointer;user-select:none">Type${arr('type')}</div>
+    <div onclick="doSort('sent')" style="cursor:pointer;user-select:none">Status${arr('sent')}</div>
+  </div>`;
+  // Sort
+  const sorted = [...list].sort((a,b)=>{
+    let va, vb;
+    if(sortCol==='name'){va=a.name.toLowerCase();vb=b.name.toLowerCase();}
+    else if(sortCol==='mobile'){va=a.mobile||'';vb=b.mobile||'';}
+    else if(sortCol==='type'){va=a.type;vb=b.type;}
+    else if(sortCol==='sent'){va=sentSet.has(a.id)?1:0;vb=sentSet.has(b.id)?1:0;}
+    else{va='';vb='';}
+    if(va<vb) return sortDir==='asc'?-1:1;
+    if(va>vb) return sortDir==='asc'?1:-1;
+    return 0;
+  });
+  html+=sorted.slice(0,200).map(c=>{
     const msg=tpl.replace(/{name}/g,c.name);
     const mob=c.mobile.trim();
     const sent=sentSet.has(c.id);
@@ -374,7 +394,7 @@ function renderList(){
       <div><span class="badge ${sent?'badge-sent':'badge-unsent'}">${sent?'Sent':'—'}</span></div>
     </div>`;
   }).join('');
-  if(list.length>200) html+=`<div style="padding:8px 12px;color:var(--muted);font-size:10px">...and ${list.length-200} more. Use filters to narrow down.</div>`;
+  if(sorted.length>200) html+=`<div style="padding:8px 12px;color:var(--muted);font-size:10px">...and ${sorted.length-200} more. Use filters to narrow down.</div>`;
   document.getElementById('client-list').innerHTML=html;
   refreshPreview(list[0]);
 }
@@ -409,6 +429,12 @@ function refreshPreview(client){
   const tpl=document.getElementById('msg-tpl').value;
   document.getElementById('preview-msg').textContent=tpl.replace(/{name}/g,c.name);
   document.getElementById('preview-name').textContent='👤 '+c.name+(c.mobile?' · '+c.mobile:' · no mobile');
+}
+
+function doSort(col){
+  if(sortCol===col){ sortDir=sortDir==='asc'?'desc':'asc'; }
+  else { sortCol=col; sortDir=col==='sent'?'desc':'asc'; }
+  renderList();
 }
 
 function setTemplate(key){
