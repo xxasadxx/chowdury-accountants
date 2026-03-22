@@ -2092,36 +2092,20 @@ The Chowdury Accountants Team
 
   accounts: (client) => {
     const p = calcAccountsPeriod(client);
-    const name = client.company_name || client.name || 'your company';
-    if (p) {
-      return `Dear Client,
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    const periodEnd = p ? p.end : 'your most recent accounting period end';
+    return `Dear ${greeting},
 
-I hope this message finds you well.
+Please note, this is an automated message. If you have already sent us all the information requested below, then please ignore this message.
 
-Could you please provide copies of ${name}'s bank statements and any relevant expense documentation for the period from ${p.start} to ${p.end}. These documents are required to assist us in preparing the company accounts.
+Please could you provide us with your records, so that we can prepare accounts for the period ending ${periodEnd}?
 
-You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
-
-Thank you for your cooperation.
-
-Best regards,
-The Chowdury Accountants Team
-📞 0161 222 4647`;
-    } else {
-      return `Dear Client,
-
-I hope this message finds you well.
-
-Could you please provide copies of ${name}'s bank statements and any relevant expense documentation for your most recent accounting period. These documents are required to assist us in preparing the company accounts.
-
-You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
-
-Thank you for your cooperation.
+You can send copies directly to this chat or by email at your earliest convenience.
 
 Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`;
-    }
   },
 
   sa: (client) => `Dear Client,
