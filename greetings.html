@@ -305,10 +305,18 @@ async function load(){
       fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()),
       fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[])
     ]);
-    const ltdArr = (Array.isArray(ltd)?ltd:[]).map(c=>({
-      id:'ltd_'+c.comp_no, type:'ltd',
-      name:c.director_name||'Director', mobile:c.director_mobile||''
-    }));
+    // Load seed JSONs to get company names as fallback
+    let seedNames = {};
+    try {
+      const seeds = await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));
+      seeds.flat().forEach(c=>{ if(c.comp_no&&c.name) seedNames[String(c.comp_no).padStart(8,'0')]=c.name; });
+    } catch(e){}
+    const isGeneric = n => !n || /^\s*$/.test(n) || /^director$/i.test(n.trim()) || /^unknown$/i.test(n.trim());
+    const ltdArr = (Array.isArray(ltd)?ltd:[]).map(c=>{
+      const compNo = String(c.comp_no).padStart(8,'0');
+      const displayName = !isGeneric(c.director_name) ? c.director_name : (seedNames[compNo] || c.director_name || '—');
+      return { id:'ltd_'+c.comp_no, type:'ltd', name:displayName, mobile:c.director_mobile||'', compNo };
+    });
     const seArr = (Array.isArray(se)?se:[]).map(c=>({
       id:'se_'+c.id, type:'se',
       name:c.full_name||'Client', mobile:c.mobile||''
