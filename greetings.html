@@ -310,10 +310,10 @@ async function load(){
       const seeds = await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));
       seeds.flat().forEach(c=>{ if(c.comp_no&&c.name) seedNames[String(c.comp_no).padStart(8,'0')]=c.name; });
     } catch(e){}
-    const isGeneric = n => !n || /^\s*$/.test(n) || /^director$/i.test(n.trim()) || /^unknown$/i.test(n.trim());
     const ltdArr = (Array.isArray(ltd)?ltd:[]).map(c=>{
       const compNo = String(c.comp_no).padStart(8,'0');
-      const displayName = !isGeneric(c.director_name) ? c.director_name : (seedNames[compNo] || c.director_name || '—');
+      // Always show company name — cleaner and consistent
+      const displayName = seedNames[compNo] || c.director_name || compNo;
       return { id:'ltd_'+c.comp_no, type:'ltd', name:displayName, mobile:c.director_mobile||'', compNo };
     });
     const seArr = (Array.isArray(se)?se:[]).map(c=>({
