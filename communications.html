@@ -1,0 +1,401 @@
+<!-- CA PORTAL v1773207034 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Communications — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#FFFFFF;--text:#252525;--ink:#252525;--ink2:#4A4A4A;
+  --muted:#7A7A7A;--border:#DEDEDE;--border2:#D0D0D0;
+  --red:#D04A02;--red-light:#FCEEE8;--green:#1D7A47;--green-light:#E5F4EC;
+  --blue:#155FA0;--blue-light:#E5EFF8;--amber:#C07A00;--amber-light:#FEF3DC;
+  --purple:#6D28D9;--purple-light:#EDE9FE;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --radius:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto}
+#portal-nav::-webkit-scrollbar{height:3px}#portal-nav::-webkit-scrollbar-track{background:#1a1a18}#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap}
+.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em}
+#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500}
+#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13)}
+.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0}
+.nav-signout:hover{color:rgba(255,255,255,.6)!important}
+.page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.page-tabs{display:flex}
+.page-tab{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s}
+.page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.kpi-row{display:flex;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:100px}
+.kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:20px;font-weight:700;margin:3px 0 1px;font-family:var(--display)}
+.toolbar{background:var(--bg);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{padding:7px 13px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1a6b3e}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--ink2)}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:5px}
+.search-box{padding:6px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none}
+.search-box:focus{border-color:var(--blue)}
+/* Layout */
+.main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 200px)}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+.sidebar{border-right:1px solid var(--border);background:var(--surface);padding:18px;overflow-y:auto}
+.content{padding:20px 24px;background:var(--bg)}
+/* Templates */
+.tpl-list{margin-bottom:14px}
+.tpl-item{padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;transition:all .15s}
+.tpl-item:hover{border-color:var(--blue);background:var(--blue-light)}
+.tpl-item.active{border-color:var(--blue);background:var(--blue-light)}
+.tpl-name{font-size:12px;font-weight:700;margin-bottom:2px}
+.tpl-desc{font-size:10px;color:var(--muted)}
+.lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;margin-top:12px}
+.lbl:first-child{margin-top:0}
+textarea{width:100%;border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:12px;resize:vertical;font-family:var(--sans);color:var(--ink);background:#fff;outline:none}
+textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,95,160,.08)}
+select{padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none}
+select:focus{border-color:var(--blue)}
+/* Client list */
+.cl-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.cl-head{display:grid;grid-template-columns:1fr 120px 70px 80px 70px;gap:8px;padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cl-row{display:grid;grid-template-columns:1fr 120px 70px 80px 70px;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s}
+.cl-row:last-child{border-bottom:none}
+.cl-row:hover{background:var(--blue-light)}
+.badge{display:inline-block;padding:1px 6px;border-radius:9px;font-size:9px;font-weight:700}
+.badge-ltd{background:var(--blue-light);color:var(--blue)}
+.badge-se{background:var(--purple-light);color:var(--purple)}
+/* Log table */
+.log-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.log-row{display:grid;grid-template-columns:140px 1fr 100px 90px 80px;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:11px;align-items:start}
+.log-row:last-child{border-bottom:none}
+.log-row:hover{background:var(--bg)}
+.log-head{background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted);letter-spacing:.05em}
+.msg-expand{color:var(--muted);cursor:pointer;font-size:10px;text-decoration:underline}
+.msg-full{display:none;grid-column:1/-1;font-size:11px;white-space:pre-wrap;background:var(--bg);padding:8px 10px;border-radius:6px;color:var(--ink2);margin-top:4px;line-height:1.6}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
+/* DB notice */
+.db-notice{background:var(--amber-light);border:1px solid #fcd34d;border-radius:var(--radius);padding:12px 16px;font-size:11px;color:#92400e;margin-bottom:14px;display:none}
+.db-notice code{font-size:10px;display:block;margin:6px 0;background:rgba(0,0,0,.06);padding:8px;border-radius:5px;white-space:pre;overflow-x:auto;font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div id="portal-nav">
+  <div class="nav-brand"><span class="nav-title">CA Chowdury Accountants</span><span class="nav-sub">Practice Portal</span></div>
+  <a href="index.html">🏠 Portal</a>
+  <a href="revenue-tracker.html">💰 Revenue</a>
+  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+  <a href="vat-tracker.html">🟢 VAT</a>
+  <a href="paye-tracker.html">💼 PAYE</a>
+  <a href="sa-tracker.html">📋 SA</a>
+  <a href="ch-tracker.html">⚖️ CH Tracker</a>
+  <a href="staff-management.html">👥 Staff</a>
+  <a href="greetings.html">📲 Greetings</a>
+  <a href="onboarding.html">🆕 Onboarding</a>
+  <a href="communications.html" class="active">💬 Comms</a>
+  <a href="strategic-review.html">📊 Strategy</a>
+  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+</div>
+
+<div class="page-header">
+  <h1>💬 Communications</h1>
+  <p>Send templated messages to clients · Log all communications · Track who sent what and when</p>
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="setView('send')">📤 Send Messages</div>
+    <div class="page-tab" onclick="setView('log')">📋 Message Log</div>
+  </div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="k">Messages Today</div><div class="v" id="k-today" style="color:var(--blue)">—</div></div>
+  <div class="kpi"><div class="k">This Week</div><div class="v" id="k-week" style="color:var(--green)">—</div></div>
+  <div class="kpi"><div class="k">This Month</div><div class="v" id="k-month" style="color:var(--amber)">—</div></div>
+  <div class="kpi"><div class="k">Total Logged</div><div class="v" id="k-total" style="color:var(--muted)">—</div></div>
+</div>
+
+<!-- SEND VIEW -->
+<div id="view-send">
+  <div class="main">
+    <!-- Sidebar: template picker + message editor -->
+    <div class="sidebar">
+      <span class="lbl">Template</span>
+      <div class="tpl-list">
+        <div class="tpl-item active" id="tpl-vat" onclick="setTpl('vat')"><div class="tpl-name">📊 VAT Bookkeeping Request</div><div class="tpl-desc">Hassan's VAT records request</div></div>
+        <div class="tpl-item" id="tpl-sa" onclick="setTpl('sa')"><div class="tpl-name">📝 SA Bookkeeping Request</div><div class="tpl-desc">Aminul's self assessment request</div></div>
+        <div class="tpl-item" id="tpl-accounts" onclick="setTpl('accounts')"><div class="tpl-name">📁 Accounts Bookkeeping</div><div class="tpl-desc">Annual accounts records request</div></div>
+        <div class="tpl-item" id="tpl-payment" onclick="setTpl('payment')"><div class="tpl-name">💳 Payment Reminder</div><div class="tpl-desc">Outstanding fees reminder</div></div>
+        <div class="tpl-item" id="tpl-engagement" onclick="setTpl('engagement')"><div class="tpl-name">📄 Engagement Letter Chaser</div><div class="tpl-desc">Unsigned letter follow-up</div></div>
+        <div class="tpl-item" id="tpl-custom" onclick="setTpl('custom')"><div class="tpl-name">✏️ Custom Message</div><div class="tpl-desc">Write your own</div></div>
+      </div>
+
+      <span class="lbl">Message</span>
+      <textarea id="msg-body" rows="10" placeholder="Select a template above or write your own..."></textarea>
+
+      <span class="lbl" style="margin-top:10px">Sent By</span>
+      <select id="sent-by" style="width:100%">
+        <option value="">— Select staff member —</option>
+        <option>Md Asadul Chowdury</option>
+        <option>Hassan</option>
+        <option>Aminul</option>
+        <option>Nawaz</option>
+        <option>Syed</option>
+      </select>
+
+      <span class="lbl" style="margin-top:10px">Filter Clients</span>
+      <select id="client-filter" style="width:100%" onchange="renderClients()">
+        <option value="all">All active clients</option>
+        <option value="ltd">Ltd Companies only</option>
+        <option value="se">Self Employed only</option>
+      </select>
+
+      <div style="margin-top:12px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted)">
+        💡 Click a client row to open WhatsApp and log the message automatically.
+      </div>
+    </div>
+
+    <!-- Main: client list -->
+    <div class="content">
+      <div id="db-notice" class="db-notice">
+        ⚠️ <strong>DB setup needed</strong> — run this SQL in your <a href="https://supabase.com/dashboard" target="_blank" style="color:var(--blue)">Supabase SQL editor</a>:
+        <code>CREATE TABLE IF NOT EXISTS client_messages (
+  id BIGSERIAL PRIMARY KEY,
+  client_type TEXT,
+  client_ref TEXT,
+  client_name TEXT,
+  message_body TEXT,
+  sent_by TEXT,
+  delivery TEXT DEFAULT 'whatsapp',
+  sent_at TIMESTAMPTZ DEFAULT NOW()
+);</code>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:var(--display);font-size:14px;font-weight:700">Clients <span id="cl-count" style="font-size:12px;color:var(--muted);font-family:var(--sans);font-weight:400"></span></div>
+        <input class="search-box" id="srch" placeholder="🔍 Search…" oninput="renderClients()" style="width:200px">
+      </div>
+
+      <div class="cl-table">
+        <div class="cl-head">
+          <div>Name</div><div>Mobile</div><div>Type</div><div>Last Msg</div><div>Action</div>
+        </div>
+        <div id="cl-body">
+          <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading clients…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG VIEW -->
+<div id="view-log" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <input class="search-box" id="log-srch" placeholder="🔍 Search log…" oninput="renderLog()" style="width:200px">
+    <select class="search-box" id="log-filter" onchange="renderLog()" style="width:160px">
+      <option value="">All templates</option>
+      <option value="vat">VAT Request</option>
+      <option value="sa">SA Request</option>
+      <option value="accounts">Accounts Request</option>
+      <option value="payment">Payment Reminder</option>
+      <option value="engagement">Engagement Chaser</option>
+      <option value="custom">Custom</option>
+    </select>
+    <select class="search-box" id="log-staff" onchange="renderLog()" style="width:140px">
+      <option value="">All staff</option>
+      <option>Hassan</option>
+      <option>Aminul</option>
+      <option>Nawaz</option>
+      <option>Syed</option>
+      <option>Md Asadul Chowdury</option>
+    </select>
+    <span style="font-size:11px;color:var(--muted)" id="log-count"></span>
+  </div>
+  <div class="log-table">
+    <div class="log-row log-head">
+      <div>Client</div><div>Message</div><div>Sent By</div><div>Date</div><div>Type</div>
+    </div>
+    <div id="log-body">
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+
+const TMPLS = {
+  vat: () => {
+    const now=new Date(), ms=['January','February','March','April','May','June','July','August','September','October','November','December'], m=now.getMonth();
+    const qEnd=ms[(m-1+12)%12]+' '+now.getFullYear(), m1=ms[(m-3+12)%12], m2=ms[(m-2+12)%12], m3=ms[(m-1+12)%12];
+    return `Hello,\n\nI hope you are well.\n\nCould you please provide the bookkeeping records for the VAT quarter ending ${qEnd}. Specifically, we would require the bank statements covering ${m1}, ${m2} and ${m3} ${now.getFullYear()}, as well as the detailed expense receipts, purchase invoices, and sales figures for those months.\n\nThank you for your cooperation. Please do not hesitate to contact us if you have any queries.\n\nBest regards,\nThe Chowdury Accountants Team\n📞 0161 222 4647`;
+  },
+  sa: () => `Dear Client,\n\nI hope this message finds you well.\n\nAs we are approaching the Self-Assessment filing deadline, we kindly request you to provide your records for the tax year 6th April 2024 to 5th April 2025.\n\nTo enable us to prepare and submit your tax return accurately and on time, please send us the following:\n\n• Details of all income (sales invoices, bank statements, earnings summaries)\n• Purchase invoices\n• Expense receipts\n• Any other relevant financial information\n\nPlease note that missing the deadline may result in penalties from HMRC. Documents may be sent by email, via WhatsApp, or delivered in person to our office.\n\nIf you have already provided your records please disregard this message.\n\nKind regards,\nThe Chowdury Accountants Team\n📞 0161 222 4647`,
+  accounts: () => `Hello,\n\nI hope you are well.\n\nWe are writing to request your bookkeeping records so that we can prepare your annual accounts. Could you please provide your bank statements, sales invoices, purchase invoices and expense receipts for your accounting period.\n\nPlease do not hesitate to contact us if you are unsure what records are required.\n\nBest regards,\nThe Chowdury Accountants Team\n📞 0161 222 4647`,
+  payment: () => `Hello,\n\nI hope you are well.\n\nThis is a friendly reminder that your accountancy fees are currently outstanding. Could you please arrange payment at your earliest convenience to avoid any disruption to your services.\n\nIf you have any queries regarding your invoice, please do not hesitate to contact us.\n\nBest regards,\nThe Chowdury Accountants Team\n📞 0161 222 4647`,
+  engagement: () => `Hello,\n\nI hope you are well.\n\nWe sent you a Letter of Engagement but have not yet received a signed copy. Could you please review and return the signed letter at your earliest convenience so we can proceed with your accounts.\n\nBest regards,\nThe Chowdury Accountants Team\n📞 0161 222 4647`,
+  custom: () => ``
+};
+
+const TPL_KEYS = {vat:'VAT Request',sa:'SA Request',accounts:'Accounts Request',payment:'Payment Reminder',engagement:'Engagement Chaser',custom:'Custom'};
+function getTplKey(body){
+  for(const [k,v] of Object.entries(TPL_KEYS)){
+    if(body && (body.includes('VAT quarter')&&k==='vat'||body.includes('Self-Assessment')&&k==='sa'||body.includes('annual accounts')&&k==='accounts'||body.includes('fees are currently outstanding')&&k==='payment'||body.includes('Letter of Engagement')&&k==='engagement')) return k;
+  }
+  return 'custom';
+}
+
+let ALL=[], LOGS=[], currentTpl='vat';
+
+async function load(){
+  try{
+    const [ltd,se,logs] = await Promise.all([
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()),
+      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
+      fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H}).then(r=>r.json()).catch(()=>[])
+    ]);
+    // Get company names from seeds
+    let seedNames={};
+    try{const seeds=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));seeds.flat().forEach(c=>{if(c.comp_no&&c.name)seedNames[String(c.comp_no).padStart(8,'0')]=c.name;});}catch(e){}
+    const ltdArr=(Array.isArray(ltd)?ltd:[]).map(c=>{
+      const cn=String(c.comp_no).padStart(8,'0');
+      return{id:'ltd_'+c.comp_no,ref:cn,type:'ltd',name:seedNames[cn]||c.director_name||cn,mobile:c.director_mobile||''};
+    });
+    const seArr=(Array.isArray(se)?se:[]).map(c=>({id:'se_'+c.id,ref:String(c.id),type:'se',name:c.full_name||'Client',mobile:c.mobile||''}));
+    ALL=[...ltdArr,...seArr];
+    LOGS=Array.isArray(logs)?logs:[];
+    renderStats();renderClients();
+    setTpl('vat');
+  }catch(e){
+    document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">Failed to load: '+e.message+'</div>';
+  }
+}
+
+function renderStats(){
+  const now=new Date(), today=now.toISOString().slice(0,10);
+  const weekAgo=new Date(now-7*86400000).toISOString();
+  const monthAgo=new Date(now-30*86400000).toISOString();
+  document.getElementById('k-today').textContent=LOGS.filter(l=>l.sent_at?.slice(0,10)===today).length;
+  document.getElementById('k-week').textContent=LOGS.filter(l=>l.sent_at>=weekAgo).length;
+  document.getElementById('k-month').textContent=LOGS.filter(l=>l.sent_at>=monthAgo).length;
+  document.getElementById('k-total').textContent=LOGS.length;
+}
+
+function renderClients(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const cf=document.getElementById('client-filter').value;
+  const list=ALL.filter(c=>{
+    if(cf==='ltd'&&c.type!=='ltd') return false;
+    if(cf==='se'&&c.type!=='se') return false;
+    if(q&&!c.name.toLowerCase().includes(q)&&!c.mobile.includes(q)) return false;
+    return true;
+  });
+  document.getElementById('cl-count').textContent='('+list.length+')';
+  if(!list.length){document.getElementById('cl-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients match</div>';return;}
+  document.getElementById('cl-body').innerHTML=list.slice(0,300).map(c=>{
+    const lastMsg=LOGS.find(l=>l.client_ref===c.ref);
+    const lastDate=lastMsg?new Date(lastMsg.sent_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'—';
+    const mob=c.mobile.trim();
+    return`<div class="cl-row" style="${mob?'cursor:pointer':'cursor:default;opacity:.6'}">
+      <div style="font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${mob||'<span style="color:var(--red);font-style:italic">no mobile</span>'}</div>
+      <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
+      <div style="font-size:10px;color:var(--muted)">${lastDate}</div>
+      <div>${mob?`<button class="btn btn-sm" style="background:#25D366;color:#fff;border-radius:5px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;border:none" onclick="sendTo('${c.id}','${c.ref}','${c.name.replace(/'/g,"\\'")}','${mob}','${c.type}')">💬 Send</button>`:'—'}</div>
+    </div>`;
+  }).join('');
+}
+
+async function sendTo(id, ref, name, mobile, type){
+  const body=document.getElementById('msg-body').value.trim();
+  if(!body){toast('Write or select a message first','err');return;}
+  const sentBy=document.getElementById('sent-by').value||'Unknown';
+  const tel=mobile.replace(/\D/g,'');
+  const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
+  window.open('https://wa.me/'+uk+'?text='+encodeURIComponent(body),'_blank');
+  // Log
+  try{
+    await fetch(SB+'/rest/v1/client_messages',{
+      method:'POST',headers:{...H,'Prefer':'return=minimal'},
+      body:JSON.stringify({client_type:type,client_ref:ref,client_name:name,message_body:body,sent_by:sentBy,delivery:'whatsapp'})
+    });
+    const r=await fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H});
+    LOGS=await r.json();
+    renderStats();renderClients();
+    toast('Sent & logged ✓');
+  }catch(e){toast('Could not log: '+e.message,'err');}
+}
+
+function setTpl(key){
+  currentTpl=key;
+  document.querySelectorAll('.tpl-item').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tpl-'+key).classList.add('active');
+  document.getElementById('msg-body').value=TMPLS[key]?TMPLS[key]():'';
+}
+
+function renderLog(){
+  const q=(document.getElementById('log-srch').value||'').toLowerCase();
+  const tf=document.getElementById('log-filter').value;
+  const sf=document.getElementById('log-staff').value;
+  const list=LOGS.filter(l=>{
+    if(sf&&l.sent_by!==sf) return false;
+    if(tf&&getTplKey(l.message_body)!==tf) return false;
+    if(q&&!(l.client_name||'').toLowerCase().includes(q)&&!(l.sent_by||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('log-count').textContent=list.length+' messages';
+  if(!list.length){document.getElementById('log-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No messages found</div>';return;}
+  document.getElementById('log-body').innerHTML=list.map((m,i)=>{
+    const d=new Date(m.sent_at);
+    const ds=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+    const ts=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const preview=(m.message_body||'').replace(/\n/g,' ').slice(0,60)+'…';
+    const tplKey=getTplKey(m.message_body);
+    return`<div>
+      <div class="log-row" onclick="toggleMsg(${i})" style="cursor:pointer">
+        <div style="font-weight:600;font-size:11px;font-family:var(--display)">${m.client_name||'—'}<br><span class="badge badge-${m.client_type==='ltd'?'ltd':'se'}">${m.client_type==='ltd'?'Ltd':'SE'}</span></div>
+        <div style="font-size:11px;color:var(--muted)">${preview}</div>
+        <div style="font-size:11px">${m.sent_by||'—'}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${ds}<br>${ts}</div>
+        <div style="font-size:10px">${TPL_KEYS[tplKey]||'Custom'}</div>
+      </div>
+      <div id="msg-full-${i}" style="display:none;padding:8px 14px 12px;font-size:11px;white-space:pre-wrap;color:var(--ink2);background:var(--bg);border-bottom:1px solid var(--border);line-height:1.65">${(m.message_body||'').replace(/</g,'&lt;')}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleMsg(i){
+  const el=document.getElementById('msg-full-'+i);
+  el.style.display=el.style.display==='none'?'block':'none';
+}
+
+function setView(v){
+  document.getElementById('view-send').style.display=v==='send'?'block':'none';
+  document.getElementById('view-log').style.display=v==='log'?'block':'none';
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',i===(v==='send'?0:1)));
+  if(v==='log') renderLog();
+}
+
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
+
+// Check if table exists
+fetch(SB+'/rest/v1/client_messages?limit=1',{headers:H}).then(r=>{if(!r.ok)document.getElementById('db-notice').style.display='block';}).catch(()=>document.getElementById('db-notice').style.display='block');
+
+load();
+</script>
+</body>
+</html>

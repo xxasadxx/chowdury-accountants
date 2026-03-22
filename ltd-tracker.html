@@ -174,6 +174,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
   <a href="staff-management.html">👥 Staff</a>
   <a href="greetings.html">📲 Greetings</a>
   <a href="onboarding.html">🆕 Onboarding</a>
+  <a href="communications.html">💬 Comms</a>
   <a href="strategic-review.html">📊 Strategy</a>
   <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
 </div>
@@ -342,6 +343,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
       <div class="modal-tab" onclick="showModalTab('referral',this)">👥 Referral</div>
       <div class="modal-tab" onclick="showModalTab('docs',this)">📁 Docs & Log</div>
       <div class="modal-tab" onclick="showModalTab('accounts',this)">📊 Accounts Filed</div>
+      <div class="modal-tab" onclick="showModalTab('messages',this);loadClientMessages()">💬 Messages</div>
     </div>
   <div class="modal-body">
 
@@ -488,6 +490,39 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 
     <div class="modal-tab-content" id="mtab-accounts">
       <div id="cm-accounts-filed" style="padding:4px 0"></div>
+    </div>
+
+    <div class="modal-tab-content" id="mtab-messages">
+      <div style="margin-bottom:12px">
+        <div class="sec-label">Send Message</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px" id="cm-msg-templates">
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('vat')">📊 VAT Request</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('accounts')">📁 Accounts Request</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('custom')">✏️ Custom</button>
+        </div>
+        <div class="field" style="margin-bottom:8px">
+          <label>Message</label>
+          <textarea id="cm-msg-body" rows="6" placeholder="Select a template or write your own..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="cm-msg-sentby" style="padding:6px 10px;border:1px solid var(--border2);border-radius:6px;font-size:12px;font-family:var(--sans);outline:none">
+            <option value="">— Sent by —</option>
+            <option>Md Asadul Chowdury</option>
+            <option>Hassan</option>
+            <option>Aminul</option>
+            <option>Nawaz</option>
+            <option>Syed</option>
+          </select>
+          <button class="btn btn-blue btn-sm" onclick="cm_sendMsg('ltd')">💬 Send via WhatsApp + Log</button>
+          <button class="btn btn-secondary btn-sm" onclick="cm_logOnly('ltd')">📋 Log Only (already sent)</button>
+        </div>
+      </div>
+      <div class="sec-label">Message History</div>
+      <div id="cm-msg-history" style="border:1px solid var(--border);border-radius:8px;overflow:hidden;max-height:240px;overflow-y:auto">
+        <div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No messages yet</div>
+      </div>
     </div>
 
   </div>
@@ -1945,6 +1980,169 @@ function exportFeesPDF(){
 }
 
 document.addEventListener('DOMContentLoaded',init);
+
+// ═══ CLIENT MESSAGING ═══
+const MSG_TEMPLATES = {
+  vat: (client) => {
+    const now = new Date();
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const m = now.getMonth();
+    // VAT quarter ending last month
+    const qEnd = months[(m-1+12)%12]+' '+now.getFullYear();
+    const m1 = months[(m-3+12)%12], m2 = months[(m-2+12)%12], m3 = months[(m-1+12)%12];
+    return `Hello,
+
+I hope you are well.
+
+Could you please provide the bookkeeping records for the VAT quarter ending ${qEnd}. Specifically, we would require the bank statements covering ${m1}, ${m2} and ${m3} ${now.getFullYear()}, as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
+
+Thank you for your cooperation. Please do not hesitate to contact us if you have any queries.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
+  sa: () => `Dear Client,
+
+I hope this message finds you well.
+
+As we are approaching the Self-Assessment filing deadline, we kindly request you to provide your records for the tax year 6th April 2024 to 5th April 2025.
+
+To enable us to prepare and submit your tax return accurately and on time, please send us the following:
+
+• Details of all income (sales invoices, bank statements, earnings summaries)
+• Purchase invoices
+• Expense receipts
+• Any other relevant financial information
+
+Please note that missing the deadline may result in penalties from HMRC. Documents may be sent by email, via WhatsApp, or delivered in person to our office.
+
+If you have already provided your records for the tax year stated above, please disregard this message.
+
+We appreciate your cooperation.
+
+Kind regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  accounts: () => `Hello,
+
+I hope you are well.
+
+We are writing to request your bookkeeping records so that we can prepare your annual accounts. Could you please provide your bank statements, sales invoices, purchase invoices and expense receipts for your accounting period.
+
+Please do not hesitate to contact us if you are unsure what records are required.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  payment: (client) => `Hello,
+
+I hope you are well.
+
+This is a friendly reminder that your accountancy fees are currently outstanding. Could you please arrange payment at your earliest convenience to avoid any disruption to your services.
+
+If you have any queries regarding your invoice, please do not hesitate to contact us.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  engagement: (client) => `Hello,
+
+I hope you are well.
+
+We sent you a Letter of Engagement for your records and approval but have not yet received a signed copy. Could you please review and return the signed letter at your earliest convenience so we can proceed with your accounts.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  custom: () => ``
+};
+
+function cm_setTemplate(key) {
+  const clientName = document.getElementById('cm-name')?.value || document.getElementById('cm-full-name')?.value || '';
+  const body = typeof MSG_TEMPLATES[key] === 'function' ? MSG_TEMPLATES[key]({name: clientName}) : '';
+  document.getElementById('cm-msg-body').value = body;
+}
+
+async function cm_sendMsg(clientType) {
+  const body = document.getElementById('cm-msg-body').value.trim();
+  if (!body) { alert('Please write a message first'); return; }
+  const mobile = document.getElementById('cm-director-mobile')?.value || document.getElementById('cm-mobile')?.value || '';
+  if (!mobile) { alert('No mobile number for this client. Add one in the Director tab first.'); return; }
+  // Open WhatsApp
+  const tel = mobile.replace(/\D/g,'');
+  const uk = tel.startsWith('0') ? '44'+tel.slice(1) : tel;
+  window.open('https://wa.me/'+uk+'?text='+encodeURIComponent(body), '_blank');
+  // Log it
+  await cm_logMessage(clientType, body);
+}
+
+async function cm_logOnly(clientType) {
+  const body = document.getElementById('cm-msg-body').value.trim();
+  if (!body) { alert('Please write or select a message first'); return; }
+  await cm_logMessage(clientType, body);
+}
+
+async function cm_logMessage(clientType, body) {
+  const sentBy = document.getElementById('cm-msg-sentby').value;
+  const clientRef = currentClient?.comp_no || currentClient?.id || '';
+  const clientName = document.getElementById('cm-name')?.value || document.getElementById('cm-full-name')?.value || '';
+  try {
+    await fetch(SUPABASE_URL+'/rest/v1/client_messages', {
+      method: 'POST',
+      headers: {...SUPABASE_HEADERS, 'Prefer': 'return=minimal'},
+      body: JSON.stringify({
+        client_type: clientType,
+        client_ref: String(clientRef),
+        client_name: clientName,
+        message_body: body,
+        sent_by: sentBy || 'Unknown',
+        delivery: 'whatsapp'
+      })
+    });
+    loadClientMessages();
+    document.getElementById('cm-msg-body').value = '';
+    // show brief confirmation
+    const hist = document.getElementById('cm-msg-history');
+    hist.style.borderColor = 'var(--green)';
+    setTimeout(() => hist.style.borderColor = '', 1500);
+  } catch(e) {
+    alert('Could not save log: '+e.message);
+  }
+}
+
+async function loadClientMessages() {
+  const clientRef = String(currentClient?.comp_no || currentClient?.id || '');
+  if (!clientRef) return;
+  const hist = document.getElementById('cm-msg-history');
+  if (!hist) return;
+  try {
+    const r = await fetch(SUPABASE_URL+'/rest/v1/client_messages?client_ref=eq.'+encodeURIComponent(clientRef)+'&order=sent_at.desc&limit=50', {
+      headers: SUPABASE_HEADERS
+    });
+    const data = await r.json();
+    if (!data.length) {
+      hist.innerHTML = '<div style="padding:14px;text-align:center;color:var(--muted);font-size:12px">No messages logged yet</div>';
+      return;
+    }
+    hist.innerHTML = data.map(m => {
+      const d = new Date(m.sent_at);
+      const dateStr = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+      const timeStr = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      const preview = m.message_body.replace(/\n/g,' ').slice(0,90)+(m.message_body.length>90?'…':'');
+      return `<div style="padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer" onclick="this.nextSibling&&this.nextSibling.remove();this.insertAdjacentHTML('afterend','<div style=padding:8px_14px_12px;font-size:11px;white-space:pre-wrap;color:var(--ink2);background:var(--bg)>${m.message_body.replace(/'/g,'&#39;').replace(/\n/g,'<br>')}</div>')">
+        <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+          <span style="font-size:11px;font-weight:600;color:var(--ink)">${m.delivery==='whatsapp'?'💬':''} ${m.sent_by||'Unknown'}</span>
+          <span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${dateStr} ${timeStr}</span>
+        </div>
+        <div style="font-size:11px;color:var(--muted)">${preview}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    hist.innerHTML = '<div style="padding:14px;color:var(--red);font-size:11px">Could not load messages — run DB setup first</div>';
+  }
+}
+
 </script>
   <a href="index.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">🏠 Portal</a>
   <a href="revenue-tracker.html" style="color:rgba(255,255,255,0.5);text-decoration:none;padding:4px 10px;border-radius:5px;transition:color 0.15s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.5)'">💰 Revenue</a>
