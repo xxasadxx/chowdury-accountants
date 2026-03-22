@@ -3,745 +3,285 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Chowdury Accountants — Client Onboarding</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Client Onboarding — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🆕</text></svg>">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f4f6fb;--card:#fff;--border:#e5e7eb;--text:#1a1a18;--muted:#6b7280;
-  --accent:#2563eb;--accent-light:#eff6ff;--green:#16a34a;--green-light:#f0fdf4;
-  --amber:#d97706;--amber-light:#fffbeb;--red:#dc2626;--red-light:#fef2f2;
-  --purple:#7c3aed;--purple-light:#f5f3ff;--sans:'DM Sans','Mulish',sans-serif;
+  --bg:#FBFAE8;--surface:#FFFFFF;--text:#252525;--ink:#252525;--ink2:#4A4A4A;
+  --muted:#7A7A7A;--border:#DEDEDE;--border2:#D0D0D0;
+  --red:#D04A02;--red-light:#FCEEE8;
+  --green:#1D7A47;--green-light:#E5F4EC;
+  --blue:#155FA0;--blue-light:#E5EFF8;
+  --amber:#C07A00;--amber-light:#FEF3DC;
+  --purple:#6D28D9;--purple-light:#EDE9FE;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --radius:10px;
 }
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
-#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:9999;height:44px;overflow-x:auto}
+#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto}
+#portal-nav::-webkit-scrollbar{height:3px}#portal-nav::-webkit-scrollbar-track{background:#1a1a18}#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap}
+.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em}
 #portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500}
 #portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
 #portal-nav a.active{color:#fff;background:rgba(255,255,255,.13)}
-.logo{font-weight:800;font-size:13px;color:#fff;margin-right:8px;letter-spacing:-.3px;white-space:nowrap}
-.nav-so{margin-left:auto;color:rgba(255,255,255,.25)!important}
-.wrap{max-width:1400px;margin:0 auto;padding:20px}
-h1{font-size:1.3rem;font-weight:800;margin-bottom:4px}
-.page-sub{color:var(--muted);font-size:.82rem;margin-bottom:20px}
-
-/* Stats */
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
-@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s}
-.stat:hover{border-color:var(--accent);background:var(--accent-light)}
-.stat-val{font-size:1.6rem;font-weight:800}
-.stat-lbl{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-
-/* Controls */
-.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-.btn{padding:8px 16px;border-radius:7px;font-weight:700;font-size:.82rem;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.btn-blue{background:var(--accent);color:#fff}.btn-blue:hover{background:#1d4ed8}
-.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#15803d}
-.btn-grey{background:#f3f4f6;color:#374151;border:1px solid var(--border)}.btn-grey:hover{background:#e5e7eb}
-.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b91c1c}
-.btn-sm{padding:5px 10px;font-size:.75rem}
-input,select,textarea{font-family:var(--sans);border:1px solid var(--border);border-radius:7px;padding:8px 12px;font-size:.83rem;width:100%;outline:none;color:var(--text);background:#fff;transition:border .15s}
-input:focus,select:focus,textarea:focus{border-color:var(--accent)}
-label{font-size:.72rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:4px}
-.srch{max-width:280px;width:100%}
-
-/* Pipeline columns */
+.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0}
+.nav-signout:hover{color:rgba(255,255,255,.6)!important}
+.page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.page-tabs{display:flex}
+.page-tab{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s}
+.page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.kpi-row{display:flex;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:100px;cursor:pointer;transition:all .15s}
+.kpi:hover{border-color:var(--blue);background:var(--blue-light)}
+.kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:20px;font-weight:700;margin:3px 0 1px;font-family:var(--display)}
+.toolbar{background:var(--bg);border-bottom:1px solid var(--border);padding:9px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{padding:7px 13px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--ink2)}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1a6b3e}
+.btn-danger{background:none;border:1px solid var(--red);color:var(--red)}.btn-danger:hover{background:var(--red-light)}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:5px}
+.search-box{padding:6px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none;width:200px}
+.search-box:focus{border-color:var(--blue)}
+select.search-box{width:140px}
+.pipeline-wrap{padding:20px 24px}
 .pipeline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:start}
 @media(max-width:900px){.pipeline{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:500px){.pipeline{grid-template-columns:1fr}}
-.col-head{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:10px 14px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between}
-.col-body{background:var(--card);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;min-height:120px;padding:8px}
+.col-head{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:9px 13px;border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:space-between;font-family:var(--display)}
+.col-body{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;min-height:100px;padding:8px}
 .col-prospect .col-head{background:#f1f5f9;color:#475569}
-.col-inprogress .col-head{background:#fef3c7;color:#92400e}
-.col-awaiting .col-head{background:#eff6ff;color:#1e40af}
-.col-complete .col-head{background:#f0fdf4;color:#15803d}
-.col-count{background:rgba(0,0,0,.08);border-radius:99px;padding:1px 7px;font-size:.7rem}
-
-/* Client cards */
-.client-card{background:#f9fafb;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s}
-.client-card:hover{border-color:var(--accent);background:var(--accent-light)}
-.cc-name{font-weight:700;font-size:.85rem;margin-bottom:3px}
-.cc-meta{font-size:.72rem;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
-.cc-progress{height:4px;background:var(--border);border-radius:99px;margin-top:8px;overflow:hidden}
-.cc-progress-fill{height:100%;background:var(--green);border-radius:99px;transition:width .3s}
-.badge{display:inline-block;padding:1px 7px;border-radius:99px;font-size:.65rem;font-weight:700}
-.badge-ltd{background:#eff6ff;color:#1e40af}
-.badge-se{background:#f5f3ff;color:#6d28d9}
-.badge-done{background:#f0fdf4;color:#15803d}
-.badge-pending{background:#fef3c7;color:#92400e}
-
-/* Overlay */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:800;display:none;align-items:flex-start;justify-content:flex-end}
-.overlay.open{display:flex}
-.drawer{width:min(680px,100vw);height:100vh;background:#fff;overflow-y:auto;box-shadow:-4px 0 40px rgba(0,0,0,.15);display:flex;flex-direction:column}
-.drawer-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
-.drawer-head h2{font-size:1rem;font-weight:800}
-.drawer-body{padding:24px;flex:1}
-.drawer-foot{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
-.close-btn{background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--muted);padding:4px}
-
-/* Form grid */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
-@media(max-width:500px){.form-grid{grid-template-columns:1fr}}
-.form-group{display:flex;flex-direction:column;gap:4px}
-.form-group.full{grid-column:1/-1}
-
-/* Checklist */
-.checklist{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
-.check-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-bottom:1px solid var(--border);transition:background .15s;cursor:pointer}
-.check-item:last-child{border-bottom:none}
-.check-item:hover{background:#f9fafb}
-.check-item.done{background:#f0fdf4}
-.check-icon{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem;transition:all .15s}
-.check-item.done .check-icon{background:var(--green);border-color:var(--green);color:#fff}
-.check-label{font-size:.84rem;font-weight:600;flex:1}
-.check-sub{font-size:.72rem;color:var(--muted)}
-.check-date{font-size:.7rem;color:var(--muted);flex-shrink:0}
-
-/* Engagement letter */
-.letter-wrap{border:1px solid var(--border);border-radius:10px;padding:20px;background:#fafafa;font-size:.8rem;line-height:1.7;white-space:pre-wrap;font-family:'Courier New',monospace;max-height:400px;overflow-y:auto;margin-bottom:12px}
-.tab-btns{display:flex;gap:2px;margin-bottom:16px}
-.tab-btn{padding:7px 14px;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:#f9fafb;font-family:var(--sans);transition:all .15s}
-.tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-/* Services checkboxes */
-.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.svc-cb{display:flex;align-items:center;gap:6px;font-size:.8rem;cursor:pointer;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:#f9fafb;transition:all .15s}
-.svc-cb:hover{border-color:var(--accent);background:var(--accent-light)}
-.svc-cb input[type=checkbox]{width:14px;height:14px;cursor:pointer}
-.svc-cb.checked{border-color:var(--green);background:var(--green-light)}
-
-/* Toast */
-.toast{position:fixed;bottom:24px;right:24px;padding:12px 18px;border-radius:8px;font-size:.83rem;font-weight:600;z-index:9999;display:none;max-width:320px}
-.toast.ok{background:#15803d;color:#fff}
-.toast.err{background:#dc2626;color:#fff}
+.col-inprogress .col-head{background:var(--amber-light);color:#92400e}
+.col-awaiting .col-head{background:var(--blue-light);color:#1e40af}
+.col-complete .col-head{background:var(--green-light);color:var(--green)}
+.col-count{background:rgba(0,0,0,.1);border-radius:99px;padding:1px 7px;font-size:10px}
+.client-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;transition:all .15s}
+.client-card:hover{border-color:var(--blue);background:var(--blue-light)}
+.cc-name{font-weight:700;font-size:12px;margin-bottom:3px;font-family:var(--display)}
+.cc-meta{font-size:10px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap}
+.cc-progress{height:3px;background:var(--border);border-radius:99px;margin-top:7px;overflow:hidden}
+.cc-fill{height:100%;background:var(--green);border-radius:99px;transition:width .3s}
+.cc-pct{font-size:10px;color:var(--muted);margin-top:3px}
+.badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;white-space:nowrap}
+.badge-ltd{background:var(--blue-light);color:var(--blue)}
+.badge-se{background:var(--purple-light);color:var(--purple)}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-blue{background:var(--blue-light);color:var(--blue)}
+.badge-grey{background:#f1f5f9;color:#64748b}
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:800px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.modal-header{padding:20px 24px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-family:var(--display);font-size:16px;font-weight:700}
+.modal-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:2px}
+.modal-tabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto}
+.modal-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;margin-bottom:-1px}
+.modal-tab:hover{color:var(--ink)}.modal-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.modal-body{padding:20px 24px;max-height:68vh;overflow-y:auto;scrollbar-width:thin}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.modal-tc{display:none}.modal-tc.active{display:block}
+.sec-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.sec-label:first-child{margin-top:0}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f1{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select,.field textarea{padding:7px 9px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;width:100%;outline:none}
+.field textarea{resize:vertical;min-height:55px}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,95,160,.08)}
+.svcs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.svc{display:flex;align-items:center;gap:6px;font-size:11px;cursor:pointer;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);transition:all .15s;user-select:none}
+.svc:hover{border-color:var(--blue);background:var(--blue-light)}
+.svc input{width:13px;height:13px;cursor:pointer;accent-color:var(--blue)}
+.svc.checked{border-color:var(--green);background:var(--green-light);color:var(--green);font-weight:600}
+.checklist{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.chk{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.chk:last-child{border-bottom:none}.chk:hover{background:var(--bg)}.chk.done{background:var(--green-light)}
+.chk-icon{width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;transition:all .15s}
+.chk.done .chk-icon{background:var(--green);border-color:var(--green);color:#fff}
+.chk-lbl{font-size:12px;font-weight:600;flex:1}
+.chk-sub{font-size:10px;color:var(--muted)}
+.complete-banner{background:var(--green-light);border:1px solid #86efac;border-radius:var(--radius);padding:16px 18px;margin-top:16px;display:none}
+.complete-banner p{font-size:12px;color:var(--green);font-weight:700;margin-bottom:4px}
+.complete-banner small{font-size:11px;color:#15803d;display:block;margin-bottom:10px}
+.letter-wrap{border:1px solid var(--border);border-radius:var(--radius);padding:18px;background:var(--bg);font-size:11px;line-height:1.75;white-space:pre-wrap;font-family:'Courier New',monospace;max-height:360px;overflow-y:auto;margin-bottom:12px;scrollbar-width:thin}
+.toast{position:fixed;bottom:24px;right:24px;padding:11px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
+.db-notice{position:fixed;bottom:70px;right:24px;background:#1e293b;color:#fff;border-radius:12px;padding:16px 20px;max-width:360px;font-size:11px;z-index:9998;display:none}
+.db-notice code{font-size:10px;display:block;margin:6px 0;background:rgba(255,255,255,.1);padding:8px;border-radius:6px;white-space:pre;overflow-x:auto;font-family:var(--mono)}
 </style>
 </head>
 <body>
-<nav id="portal-nav">
-  <span class="logo">CA</span>
+
+<div id="portal-nav">
+  <div class="nav-brand">
+    <span class="nav-title">CA Chowdury Accountants</span>
+    <span class="nav-sub">Practice Portal</span>
+  </div>
   <a href="index.html">🏠 Portal</a>
   <a href="revenue-tracker.html">💰 Revenue</a>
   <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
   <a href="vat-tracker.html">🟢 VAT</a>
   <a href="paye-tracker.html">💼 PAYE</a>
-  <a href="sa-tracker.html">📝 SA</a>
-  <a href="ch-tracker.html">🏛 CH Tracker</a>
+  <a href="sa-tracker.html">📋 SA</a>
+  <a href="ch-tracker.html">⚖️ CH Tracker</a>
   <a href="quote-calculator.html">💡 Quote</a>
   <a href="staff-management.html">👥 Staff</a>
   <a href="greetings.html">📲 Greetings</a>
   <a href="onboarding.html" class="active">🆕 Onboarding</a>
   <a href="strategic-review.html">📊 Strategy</a>
-  <a href="login.html" class="nav-so" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
-</nav>
+  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+</div>
 
-<div class="wrap">
+<div class="page-header">
   <h1>🆕 Client Onboarding</h1>
-  <p class="page-sub">Manage new client pipeline · Generate engagement letters · Track compliance steps</p>
-
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat" onclick="filterByStatus('all')">
-      <div class="stat-val" id="s-total" style="color:var(--accent)">0</div>
-      <div class="stat-lbl">Total Pipeline</div>
-    </div>
-    <div class="stat" onclick="filterByStatus('prospect')">
-      <div class="stat-val" id="s-prospect" style="color:var(--muted)">0</div>
-      <div class="stat-lbl">Prospects</div>
-    </div>
-    <div class="stat" onclick="filterByStatus('in_progress')">
-      <div class="stat-val" id="s-progress" style="color:var(--amber)">0</div>
-      <div class="stat-lbl">In Progress</div>
-    </div>
-    <div class="stat" onclick="filterByStatus('awaiting_signature')">
-      <div class="stat-val" id="s-awaiting" style="color:var(--accent)">0</div>
-      <div class="stat-lbl">Awaiting Signature</div>
-    </div>
-    <div class="stat" onclick="filterByStatus('completed')">
-      <div class="stat-val" id="s-complete" style="color:var(--green)">0</div>
-      <div class="stat-lbl">Completed</div>
-    </div>
-  </div>
-
-  <!-- Controls -->
-  <div class="controls">
-    <button class="btn btn-blue" onclick="openNew()">+ New Client</button>
-    <input class="srch" id="srch" placeholder="🔍 Search clients..." oninput="renderPipeline()">
-    <select id="type-filter" onchange="renderPipeline()" style="width:auto;padding:8px 12px">
-      <option value="">All types</option>
-      <option value="ltd">Ltd Companies</option>
-      <option value="se">Self Employed</option>
-    </select>
-  </div>
-
-  <!-- Pipeline -->
-  <div class="pipeline" id="pipeline">
-    <div class="col-prospect">
-      <div class="col-head">🔵 Prospect <span class="col-count" id="cnt-prospect">0</span></div>
-      <div class="col-body" id="col-prospect"></div>
-    </div>
-    <div class="col-inprogress">
-      <div class="col-head">🟡 In Progress <span class="col-count" id="cnt-inprogress">0</span></div>
-      <div class="col-body" id="col-inprogress"></div>
-    </div>
-    <div class="col-awaiting">
-      <div class="col-head">🔷 Awaiting Signature <span class="col-count" id="cnt-awaiting">0</span></div>
-      <div class="col-body" id="col-awaiting"></div>
-    </div>
-    <div class="col-complete">
-      <div class="col-head">✅ Completed <span class="col-count" id="cnt-complete">0</span></div>
-      <div class="col-body" id="col-complete"></div>
-    </div>
+  <p>New client pipeline · Engagement letters · Compliance checklist · Auto-add to Ltd Tracker</p>
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="setView('pipeline')">📋 Pipeline</div>
+    <div class="page-tab" onclick="setView('list')">📃 List View</div>
   </div>
 </div>
 
-<!-- Client Drawer -->
-<div class="overlay" id="drawer-overlay" onclick="if(event.target===this)closeDrawer()">
-  <div class="drawer">
-    <div class="drawer-head">
-      <h2 id="drawer-title">New Client</h2>
-      <button class="close-btn" onclick="closeDrawer()">✕</button>
+<div class="kpi-row">
+  <div class="kpi" onclick="filterStatus('all')"><div class="k">Total Pipeline</div><div class="v" id="s-total" style="color:var(--blue)">0</div></div>
+  <div class="kpi" onclick="filterStatus('prospect')"><div class="k">Prospects</div><div class="v" id="s-prospect" style="color:var(--muted)">0</div></div>
+  <div class="kpi" onclick="filterStatus('in_progress')"><div class="k">In Progress</div><div class="v" id="s-ip" style="color:var(--amber)">0</div></div>
+  <div class="kpi" onclick="filterStatus('awaiting_signature')"><div class="k">Awaiting Signature</div><div class="v" id="s-await" style="color:var(--blue)">0</div></div>
+  <div class="kpi" onclick="filterStatus('completed')"><div class="k">Completed</div><div class="v" id="s-done" style="color:var(--green)">0</div></div>
+</div>
+
+<div class="toolbar">
+  <button class="btn btn-blue" onclick="openNew()">+ New Client</button>
+  <input class="search-box" id="srch" placeholder="🔍 Search…" oninput="render()">
+  <select class="search-box" id="tf" onchange="render()">
+    <option value="">All types</option><option value="ltd">Ltd</option><option value="se">Self Employed</option>
+  </select>
+  <span style="font-size:11px;color:var(--muted)" id="cnt-lbl"></span>
+</div>
+
+<div id="view-pipeline" class="pipeline-wrap">
+  <div class="pipeline">
+    <div class="col-prospect"><div class="col-head">🔵 Prospect <span class="col-count" id="c-p">0</span></div><div class="col-body" id="b-p"></div></div>
+    <div class="col-inprogress"><div class="col-head">🟡 In Progress <span class="col-count" id="c-i">0</span></div><div class="col-body" id="b-i"></div></div>
+    <div class="col-awaiting"><div class="col-head">🔷 Awaiting Sig <span class="col-count" id="c-a">0</span></div><div class="col-body" id="b-a"></div></div>
+    <div class="col-complete"><div class="col-head">✅ Completed <span class="col-count" id="c-d">0</span></div><div class="col-body" id="b-d"></div></div>
+  </div>
+</div>
+
+<div id="view-list" style="display:none;padding:0 24px 30px">
+  <div style="overflow-x:auto;margin-top:16px">
+    <table style="width:100%;border-collapse:collapse;font-size:12px">
+      <thead><tr style="background:var(--bg);border-bottom:2px solid var(--border)">
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Client</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Type</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Status</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Director</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Progress</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Fee/mo</th>
+        <th style="padding:8px 11px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)">Added</th>
+      </tr></thead>
+      <tbody id="list-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-title" id="m-title">New Client</div><div class="modal-sub" id="m-sub">Complete all steps to onboard</div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="drawer-body">
-      <!-- Tabs -->
-      <div class="tab-btns">
-        <button class="tab-btn active" id="tab-details" onclick="switchTab('details')">📋 Details</button>
-        <button class="tab-btn" id="tab-checklist" onclick="switchTab('checklist')">✅ Checklist</button>
-        <button class="tab-btn" id="tab-letter" onclick="switchTab('letter')">📄 Letter</button>
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="mt-details" onclick="switchTab('details')">📋 Details</div>
+      <div class="modal-tab" id="mt-checklist" onclick="switchTab('checklist')">✅ Checklist</div>
+      <div class="modal-tab" id="mt-letter" onclick="switchTab('letter')">📄 Letter</div>
+    </div>
+    <div class="modal-body">
+
+      <div class="modal-tc active" id="tc-details">
+        <div class="sec-label">Client Information</div>
+        <div class="fg">
+          <div class="field"><label>Client Type</label><select id="f-type" onchange="toggleLtd()"><option value="ltd">Ltd Company</option><option value="se">Self Employed / SA</option></select></div>
+          <div class="field"><label>Status</label><select id="f-status"><option value="prospect">Prospect</option><option value="in_progress">In Progress</option><option value="awaiting_signature">Awaiting Signature</option><option value="completed">Completed</option></select></div>
+          <div class="field f1" id="fg-co"><label>Company / Client Name</label><input id="f-co" placeholder="e.g. Pint & Poppadams Ltd"></div>
+          <div class="field" id="fg-cn"><label>Company Number</label><input id="f-cn" placeholder="e.g. 12345678" maxlength="8"></div>
+          <div class="field" id="fg-ye"><label>Year End</label><input id="f-ye" placeholder="e.g. 31/10/2025"></div>
+          <div class="field"><label>Director / Contact Name</label><input id="f-dir" placeholder="Full name"></div>
+          <div class="field"><label>Email</label><input id="f-email" type="email" placeholder="client@email.com"></div>
+          <div class="field"><label>Mobile</label><input id="f-mob" placeholder="07XXX XXXXXX"></div>
+          <div class="field"><label>Referred By</label><input id="f-ref" placeholder="Who referred them?"></div>
+          <div class="field"><label>Monthly Fee (£)</label><input id="f-fee" type="number" placeholder="0"></div>
+        </div>
+        <div class="sec-label">Services</div>
+        <div class="svcs" id="svcs">
+          <label class="svc"><input type="checkbox" value="accounts" onchange="chkSvc(this)"> 📊 Accounts</label>
+          <label class="svc"><input type="checkbox" value="bookkeeping" onchange="chkSvc(this)"> 📒 Bookkeeping</label>
+          <label class="svc"><input type="checkbox" value="ct600" onchange="chkSvc(this)"> 🏛 CT600</label>
+          <label class="svc"><input type="checkbox" value="vat" onchange="chkSvc(this)"> 🟢 VAT Returns</label>
+          <label class="svc"><input type="checkbox" value="payroll" onchange="chkSvc(this)"> 💼 Payroll</label>
+          <label class="svc"><input type="checkbox" value="sa" onchange="chkSvc(this)"> 📝 Self Assessment</label>
+          <label class="svc"><input type="checkbox" value="paye" onchange="chkSvc(this)"> 🧾 PAYE</label>
+          <label class="svc"><input type="checkbox" value="confirmation" onchange="chkSvc(this)"> 📋 Conf Statement</label>
+          <label class="svc"><input type="checkbox" value="registered" onchange="chkSvc(this)"> 🏠 Reg. Address</label>
+        </div>
+        <div class="sec-label" style="margin-top:14px">Notes</div>
+        <div class="field"><textarea id="f-notes" rows="2" placeholder="Any notes…"></textarea></div>
       </div>
 
-      <!-- Details Tab -->
-      <div id="pane-details">
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Client Type</label>
-            <select id="f-type" onchange="toggleLtdFields()">
-              <option value="ltd">Ltd Company</option>
-              <option value="se">Self Employed / SA</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="f-status">
-              <option value="prospect">Prospect</option>
-              <option value="in_progress">In Progress</option>
-              <option value="awaiting_signature">Awaiting Signature</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
-          <div class="form-group full" id="fg-company">
-            <label>Company Name</label>
-            <input id="f-company" placeholder="e.g. Pint & Poppadams Ltd">
-          </div>
-          <div class="form-group" id="fg-compno">
-            <label>Company Number</label>
-            <input id="f-compno" placeholder="e.g. 12345678" maxlength="8">
-          </div>
-          <div class="form-group" id="fg-yearend">
-            <label>Year End</label>
-            <input id="f-yearend" placeholder="e.g. 31/10/2025">
-          </div>
-          <div class="form-group">
-            <label>Director / Contact Name</label>
-            <input id="f-director" placeholder="Full name">
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input id="f-email" type="email" placeholder="client@email.com">
-          </div>
-          <div class="form-group">
-            <label>Mobile</label>
-            <input id="f-mobile" placeholder="07XXX XXXXXX">
-          </div>
-          <div class="form-group">
-            <label>Referred By</label>
-            <input id="f-referred" placeholder="Who referred them?">
-          </div>
-          <div class="form-group">
-            <label>Monthly Fee (£)</label>
-            <input id="f-fee" type="number" placeholder="0">
-          </div>
-          <div class="form-group full">
-            <label>Services</label>
-            <div class="services-grid" id="services-grid">
-              <label class="svc-cb" id="svc-accounts"><input type="checkbox" value="accounts" onchange="updateSvcStyle(this)"> Accounts</label>
-              <label class="svc-cb" id="svc-bookkeeping"><input type="checkbox" value="bookkeeping" onchange="updateSvcStyle(this)"> Bookkeeping</label>
-              <label class="svc-cb" id="svc-ct600"><input type="checkbox" value="ct600" onchange="updateSvcStyle(this)"> CT600</label>
-              <label class="svc-cb" id="svc-vat"><input type="checkbox" value="vat" onchange="updateSvcStyle(this)"> VAT Returns</label>
-              <label class="svc-cb" id="svc-payroll"><input type="checkbox" value="payroll" onchange="updateSvcStyle(this)"> Payroll</label>
-              <label class="svc-cb" id="svc-sa"><input type="checkbox" value="sa" onchange="updateSvcStyle(this)"> Self Assessment</label>
-              <label class="svc-cb" id="svc-paye"><input type="checkbox" value="paye" onchange="updateSvcStyle(this)"> PAYE</label>
-              <label class="svc-cb" id="svc-confirmation"><input type="checkbox" value="confirmation" onchange="updateSvcStyle(this)"> Conf Statement</label>
-              <label class="svc-cb" id="svc-registered"><input type="checkbox" value="registered" onchange="updateSvcStyle(this)"> Reg. Address</label>
-            </div>
-          </div>
-          <div class="form-group full">
-            <label>Notes</label>
-            <textarea id="f-notes" rows="2" placeholder="Any relevant notes..."></textarea>
-          </div>
-        </div>
-      </div>
-
-      <!-- Checklist Tab -->
-      <div id="pane-checklist" style="display:none">
-        <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">Click each step to mark as done. Steps auto-save.</p>
-        <div class="checklist" id="checklist-wrap">
-          <!-- populated by JS -->
-        </div>
-        <div id="complete-section" style="display:none;margin-top:16px;padding:16px;background:var(--green-light);border:1px solid #86efac;border-radius:10px">
-          <p style="font-size:.85rem;font-weight:700;color:var(--green);margin-bottom:8px">🎉 All steps complete! Ready to onboard.</p>
-          <p style="font-size:.78rem;color:#15803d;margin-bottom:12px">This will add the client to the Ltd Tracker automatically.</p>
+      <div class="modal-tc" id="tc-checklist">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Click each step to mark as complete. Status updates automatically.</p>
+        <div class="checklist" id="chk-wrap"></div>
+        <div class="complete-banner" id="done-banner">
+          <p>🎉 All steps complete — ready to onboard!</p>
+          <small>Clicking below will mark as Completed and add to the Ltd Tracker.</small>
           <button class="btn btn-green" onclick="completeOnboarding()">✅ Complete Onboarding → Add to Ltd Tracker</button>
         </div>
       </div>
 
-      <!-- Letter Tab -->
-      <div id="pane-letter" style="display:none">
-        <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-          <button class="btn btn-grey btn-sm" onclick="genLetter()">🔄 Generate Letter</button>
-          <button class="btn btn-grey btn-sm" onclick="copyLetter()">📋 Copy Letter</button>
-          <button class="btn btn-blue btn-sm" onclick="emailLetter()">📧 Open in Email</button>
-          <button class="btn btn-grey btn-sm" onclick="printLetter()">🖨 Print</button>
+      <div class="modal-tc" id="tc-letter">
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="btn btn-secondary btn-sm" onclick="genLetter()">🔄 Generate</button>
+          <button class="btn btn-secondary btn-sm" onclick="copyLetter()">📋 Copy</button>
+          <button class="btn btn-blue btn-sm" onclick="emailLetter()">📧 Email to Client</button>
+          <button class="btn btn-secondary btn-sm" onclick="printLetter()">🖨 Print</button>
         </div>
-        <div id="letter-preview" class="letter-wrap">Click "Generate Letter" to preview the engagement letter.</div>
+        <div id="letter" class="letter-wrap">Click Generate to preview the engagement letter pre-filled with client details.</div>
       </div>
-    </div>
 
-    <div class="drawer-foot">
-      <button class="btn btn-red btn-sm" id="del-btn" onclick="deleteClient()" style="margin-right:auto;display:none">🗑 Delete</button>
-      <button class="btn btn-grey" onclick="closeDrawer()">Cancel</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="del-btn" onclick="delClient()" style="margin-right:auto;display:none">🗑 Delete</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
       <button class="btn btn-blue" onclick="saveClient()">💾 Save</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-
-<script>
-const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
-const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
-const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=representation'};
-
-const CHECKLIST_LTD=[
-  {key:'aml_done',label:'AML / ID Verification',sub:'Photo ID + proof of address obtained'},
-  {key:'letter_sent',label:'Engagement Letter Sent',sub:'Sent to client via email'},
-  {key:'letter_signed',label:'Engagement Letter Signed',sub:'Signed copy received'},
-  {key:'gc_setup',label:'GoCardless DD Set Up',sub:'Direct debit mandate active'},
-  {key:'id_added',label:'Added to Inform Direct / BrightCoSec',sub:'Company registered in company secretarial system'},
-  {key:'brightpay_added',label:'Added to BrightPay',sub:'Payroll setup (if applicable)'},
-  {key:'registered_address',label:'Registered Address Confirmed',sub:'If we provide registered address service'},
-];
-const CHECKLIST_SE=[
-  {key:'aml_done',label:'AML / ID Verification',sub:'Photo ID + proof of address obtained'},
-  {key:'letter_sent',label:'Engagement Letter Sent',sub:'Sent to client via email'},
-  {key:'letter_signed',label:'Engagement Letter Signed',sub:'Signed copy received'},
-  {key:'gc_setup',label:'GoCardless DD Set Up',sub:'Direct debit mandate active'},
-  {key:'brightpay_added',label:'Added to BrightPay (if payroll)',sub:'Payroll setup if applicable'},
-];
-
-let CLIENTS=[];
-let currentId=null;
-let activeStatus='all';
-
-async function api(path,opts={}){
-  const r=await fetch(SB+'/rest/v1/'+path,{headers:H,...opts});
-  const t=await r.text(); return t?JSON.parse(t):null;
-}
-
-async function load(){
-  try{
-    const d=await api('onboarding_clients?select=*&order=created_at.desc');
-    CLIENTS=d||[];
-    renderStats();
-    renderPipeline();
-  }catch(e){showToast('Could not load onboarding data. Run DB setup first.','err');}
-}
-
-function getServices(c){return c.services||[];}
-function getChecklist(c){return c.client_type==='se'?CHECKLIST_SE:CHECKLIST_LTD;}
-function countDone(c){return getChecklist(c).filter(s=>c[s.key]).length;}
-function pct(c){const cl=getChecklist(c);return Math.round(countDone(c)/cl.length*100);}
-
-function renderStats(){
-  document.getElementById('s-total').textContent=CLIENTS.length;
-  document.getElementById('s-prospect').textContent=CLIENTS.filter(c=>c.status==='prospect').length;
-  document.getElementById('s-progress').textContent=CLIENTS.filter(c=>c.status==='in_progress').length;
-  document.getElementById('s-awaiting').textContent=CLIENTS.filter(c=>c.status==='awaiting_signature').length;
-  document.getElementById('s-complete').textContent=CLIENTS.filter(c=>c.status==='completed').length;
-}
-
-function filterByStatus(s){activeStatus=s;renderPipeline();}
-
-function renderPipeline(){
-  const q=(document.getElementById('srch').value||'').toLowerCase();
-  const tf=document.getElementById('type-filter').value;
-  const cols={prospect:[],in_progress:[],awaiting_signature:[],completed:[]};
-
-  CLIENTS.filter(c=>{
-    if(q&&!(c.company_name||'').toLowerCase().includes(q)&&!(c.director_name||'').toLowerCase().includes(q)) return false;
-    if(tf&&c.client_type!==tf) return false;
-    if(activeStatus!=='all'&&c.status!==activeStatus) return false;
-    return true;
-  }).forEach(c=>{
-    const s=c.status||'prospect';
-    if(cols[s]) cols[s].push(c);
-  });
-
-  const colMap={prospect:'col-prospect',in_progress:'col-inprogress',awaiting_signature:'col-awaiting',completed:'col-complete'};
-  const cntMap={prospect:'cnt-prospect',in_progress:'cnt-inprogress',awaiting_signature:'cnt-awaiting',completed:'cnt-complete'};
-
-  Object.entries(cols).forEach(([status,list])=>{
-    document.getElementById(cntMap[status]).textContent=list.length;
-    document.getElementById(colMap[status]).innerHTML=list.length?list.map(cardHTML).join(''):'<div style="text-align:center;padding:16px;color:var(--muted);font-size:.78rem">No clients</div>';
-  });
-}
-
-function cardHTML(c){
-  const p=pct(c);
-  const svcs=getServices(c).slice(0,3).join(', ');
-  return `<div class="client-card" onclick="openClient(${c.id})">
-    <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-      <span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span>
-      <span class="cc-name">${c.company_name||'Unnamed'}</span>
-    </div>
-    <div class="cc-meta">
-      <span>👤 ${c.director_name||'—'}</span>
-      ${c.email?`<span>✉️ ${c.email}</span>`:''}
-    </div>
-    ${svcs?`<div style="font-size:.7rem;color:var(--muted);margin-top:3px">${svcs}</div>`:''}
-    <div class="cc-progress"><div class="cc-progress-fill" style="width:${p}%"></div></div>
-    <div style="font-size:.68rem;color:var(--muted);margin-top:3px">${countDone(c)} of ${getChecklist(c).length} steps · ${p}%</div>
-  </div>`;
-}
-
-// --- Drawer ---
-let currentTab='details';
-function switchTab(t){
-  currentTab=t;
-  ['details','checklist','letter'].forEach(x=>{
-    document.getElementById('pane-'+x).style.display=x===t?'block':'none';
-    document.getElementById('tab-'+x).className='tab-btn'+(x===t?' active':'');
-  });
-  if(t==='checklist'&&currentId) renderChecklist();
-  if(t==='letter'&&currentId) genLetter();
-}
-
-function openNew(){
-  currentId=null;
-  document.getElementById('drawer-title').textContent='New Client';
-  document.getElementById('del-btn').style.display='none';
-  clearForm();
-  switchTab('details');
-  document.getElementById('drawer-overlay').classList.add('open');
-}
-
-function openClient(id){
-  const c=CLIENTS.find(x=>x.id===id);
-  if(!c) return;
-  currentId=id;
-  document.getElementById('drawer-title').textContent=c.company_name||'Client';
-  document.getElementById('del-btn').style.display='inline-flex';
-  fillForm(c);
-  switchTab('details');
-  document.getElementById('drawer-overlay').classList.add('open');
-}
-
-function closeDrawer(){document.getElementById('drawer-overlay').classList.remove('open');currentId=null;}
-
-function clearForm(){
-  ['f-type','f-status','f-company','f-compno','f-yearend','f-director','f-email','f-mobile','f-referred','f-fee','f-notes'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el.tagName==='SELECT') el.selectedIndex=0;
-    else el.value='';
-  });
-  document.querySelectorAll('.svc-cb input[type=checkbox]').forEach(cb=>{cb.checked=false;updateSvcStyle(cb);});
-  toggleLtdFields();
-}
-
-function fillForm(c){
-  document.getElementById('f-type').value=c.client_type||'ltd';
-  document.getElementById('f-status').value=c.status||'prospect';
-  document.getElementById('f-company').value=c.company_name||'';
-  document.getElementById('f-compno').value=c.company_no||'';
-  document.getElementById('f-yearend').value=c.year_end||'';
-  document.getElementById('f-director').value=c.director_name||'';
-  document.getElementById('f-email').value=c.email||'';
-  document.getElementById('f-mobile').value=c.mobile||'';
-  document.getElementById('f-referred').value=c.referred_by||'';
-  document.getElementById('f-fee').value=c.monthly_fee||'';
-  document.getElementById('f-notes').value=c.notes||'';
-  const svcs=c.services||[];
-  document.querySelectorAll('.svc-cb input[type=checkbox]').forEach(cb=>{
-    cb.checked=svcs.includes(cb.value);
-    updateSvcStyle(cb);
-  });
-  toggleLtdFields();
-}
-
-function toggleLtdFields(){
-  const isLtd=document.getElementById('f-type').value==='ltd';
-  ['fg-compno','fg-yearend'].forEach(id=>document.getElementById(id).style.display=isLtd?'':'none');
-}
-
-function updateSvcStyle(cb){
-  const lbl=cb.closest('.svc-cb');
-  lbl.classList.toggle('checked',cb.checked);
-}
-
-function getFormData(){
-  const svcs=[];
-  document.querySelectorAll('.svc-cb input[type=checkbox]:checked').forEach(cb=>svcs.push(cb.value));
-  return {
-    client_type:document.getElementById('f-type').value,
-    status:document.getElementById('f-status').value,
-    company_name:document.getElementById('f-company').value.trim(),
-    company_no:document.getElementById('f-compno').value.trim(),
-    year_end:document.getElementById('f-yearend').value.trim(),
-    director_name:document.getElementById('f-director').value.trim(),
-    email:document.getElementById('f-email').value.trim(),
-    mobile:document.getElementById('f-mobile').value.trim(),
-    referred_by:document.getElementById('f-referred').value.trim(),
-    monthly_fee:parseFloat(document.getElementById('f-fee').value)||null,
-    notes:document.getElementById('f-notes').value.trim(),
-    services:svcs
-  };
-}
-
-async function saveClient(){
-  const data=getFormData();
-  if(!data.company_name){showToast('Please enter a company/client name','err');return;}
-  try{
-    if(currentId){
-      await api('onboarding_clients?id=eq.'+currentId,{method:'PATCH',body:JSON.stringify(data)});
-      const idx=CLIENTS.findIndex(c=>c.id===currentId);
-      if(idx>=0) CLIENTS[idx]={...CLIENTS[idx],...data};
-      showToast('Saved ✓');
-    }else{
-      const res=await api('onboarding_clients',{method:'POST',body:JSON.stringify(data)});
-      if(res&&res[0]){CLIENTS.unshift(res[0]);currentId=res[0].id;document.getElementById('del-btn').style.display='inline-flex';}
-      showToast('Client added ✓');
-    }
-    renderStats();renderPipeline();
-  }catch(e){showToast('Save failed: '+e.message,'err');}
-}
-
-async function deleteClient(){
-  if(!currentId||!confirm('Delete this client from onboarding? This cannot be undone.')) return;
-  try{
-    await api('onboarding_clients?id=eq.'+currentId,{method:'DELETE'});
-    CLIENTS=CLIENTS.filter(c=>c.id!==currentId);
-    closeDrawer();renderStats();renderPipeline();showToast('Deleted');
-  }catch(e){showToast('Delete failed','err');}
-}
-
-// --- Checklist ---
-function renderChecklist(){
-  const c=CLIENTS.find(x=>x.id===currentId);
-  if(!c) return;
-  const cl=getChecklist(c);
-  const allDone=cl.every(s=>c[s.key]);
-  document.getElementById('complete-section').style.display=(allDone&&c.client_type==='ltd'&&c.status!=='completed')?'block':'none';
-  document.getElementById('checklist-wrap').innerHTML=cl.map(s=>{
-    const done=!!c[s.key];
-    return `<div class="check-item${done?' done':''}" onclick="toggleCheck('${s.key}')">
-      <div class="check-icon">${done?'✓':''}</div>
-      <div style="flex:1">
-        <div class="check-label">${s.label}</div>
-        <div class="check-sub">${s.sub}</div>
-      </div>
-      ${done?`<div class="check-date">Done</div>`:'<span class="badge badge-pending" style="flex-shrink:0">Pending</span>'}
-    </div>`;
-  }).join('');
-}
-
-async function toggleCheck(key){
-  const c=CLIENTS.find(x=>x.id===currentId);
-  if(!c) return;
-  const newVal=!c[key];
-  c[key]=newVal;
-  try{
-    await api('onboarding_clients?id=eq.'+currentId,{method:'PATCH',body:JSON.stringify({[key]:newVal})});
-    // Auto-advance status
-    const cl=getChecklist(c);
-    const done=cl.filter(s=>c[s.key]).length;
-    let newStatus=c.status;
-    if(done===0) newStatus='prospect';
-    else if(done>0&&done<cl.length) newStatus='in_progress';
-    if(c.letter_sent&&!c.letter_signed) newStatus='awaiting_signature';
-    if(cl.every(s=>c[s.key])) newStatus='in_progress'; // stays in_progress until formally completed
-    if(newStatus!==c.status){
-      c.status=newStatus;
-      await api('onboarding_clients?id=eq.'+currentId,{method:'PATCH',body:JSON.stringify({status:newStatus})});
-    }
-    renderChecklist();renderStats();renderPipeline();
-  }catch(e){showToast('Could not save','err');}
-}
-
-async function completeOnboarding(){
-  const c=CLIENTS.find(x=>x.id===currentId);
-  if(!c) return;
-  if(!c.company_no){showToast('Please add company number before completing','err');return;}
-  if(!confirm('This will mark the client as Completed and add them to the Ltd Tracker. Proceed?')) return;
-  try{
-    // Add to ltd_clients
-    const ltdPayload={
-      comp_no:c.company_no.padStart(8,'0'),
-      status:'active',
-      sector:'Hospitality',
-      director_name:c.director_name||'',
-      director_email:c.email||'',
-      director_mobile:c.mobile||'',
-      vat_registered:c.services&&c.services.includes('vat'),
-      paye_registered:c.services&&c.services.includes('payroll')||c.services&&c.services.includes('paye'),
-      notes:c.notes||'',
-      referred_by:c.referred_by||''
-    };
-    await api('ltd_clients',{method:'POST',body:JSON.stringify(ltdPayload)});
-    // Mark as completed
-    c.status='completed';
-    c.completed_at=new Date().toISOString();
-    await api('onboarding_clients?id=eq.'+currentId,{method:'PATCH',body:JSON.stringify({status:'completed',completed_at:c.completed_at})});
-    renderStats();renderPipeline();renderChecklist();
-    showToast('✅ '+c.company_name+' added to Ltd Tracker!');
-  }catch(e){showToast('Error: '+e.message,'err');}
-}
-
-// --- Engagement Letter ---
-function genLetter(){
-  const c=currentId?CLIENTS.find(x=>x.id===currentId):null;
-  const name=c?c.company_name:'[Company Name]';
-  const director=c?c.director_name:'[Director Name]';
-  const yearEnd=c?c.year_end:'[Year End]';
-  const svcs=c?(c.services||[]):[];
-  const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-
-  const svcLines=[];
-  if(svcs.includes('accounts')) svcLines.push('Annual Accounts');
-  if(svcs.includes('bookkeeping')) svcLines.push('Bookkeeping');
-  if(svcs.includes('ct600')) svcLines.push('CT600 Corporation Tax Return');
-  if(svcs.includes('vat')) svcLines.push('VAT Returns');
-  if(svcs.includes('payroll')) svcLines.push('Payroll');
-  if(svcs.includes('sa')) svcLines.push('Self Assessment Tax Return');
-  if(svcs.includes('paye')) svcLines.push('PAYE');
-  if(svcs.includes('confirmation')) svcLines.push('Confirmation Statement');
-  if(svcs.includes('registered')) svcLines.push('Registered Address');
-
-  const letter=`The Chowdury Accountants Ltd
-283 Featherstall Road North
-Oldham, OL1 2NH
-Tel: 0161 222 4647
-Email: info@chowduryaccountants.co.uk
-
-${today}
-
-LETTER OF ENGAGEMENT
-
-Dear ${director},
-
-This letter sets out the basis on which we provide services to your company (${name}), so as to avoid any misunderstandings.
-
-SERVICES BEING PROVIDED
-${svcLines.length?svcLines.map(s=>'• '+s).join('\n'):'• To be confirmed'}
-
-ANTI MONEY LAUNDERING LEGISLATION
-All accountants must comply with the Proceeds of Crime Act 2002, the Terrorism Act 2000 and the Money Laundering Regulations 2017. Before we can act for your company, we have to confirm the identity of the directors. At any time we may also need to obtain evidence confirming the identities of third parties.
-
-FEES
-Our fees are computed on the basis of time spent on your affairs and the responsibility and skill involved. We may agree to invoice you monthly for a proportion of your fees payable by Direct Debit via GoCardless. Where invoices are not subject to standing orders or direct debit, our terms are strictly 7 days net.
-
-If this letter of engagement covers work for a limited company and the company is unable to meet our fees as and when they fall due then the company's directors will be personally, jointly and severally liable in respect of our outstanding fees.
-
-RESPONSIBILITIES OF DIRECTORS
-As director of ${name}, under the Companies Acts you are responsible for ensuring that the company maintains proper accounting records and preparing accounts. You undertake to provide all records and information required within five months of the year end (${yearEnd}) to avoid penalties.
-
-DATA PROTECTION
-We will process your personal data and the personal data of your employees in compliance with the General Data Protection Regulation (GDPR) and applicable UK Data Protection Laws. You are the Data Controller and we are the Data Processor for employee data processing.
-
-AGREEMENT
-Once agreed, this letter will remain effective from the date of signature until replaced. Either party may vary or terminate our authority to act at any time on written notice.
-
-Would you please confirm your agreement by signing below.
-
-Yours sincerely,
-
-Md Asadul Chowdury
-Managing Director
-The Chowdury Accountants Ltd
-
-─────────────────────────────────────────
-SIGNED BY CLIENT
-
-Name: ___________________________________
-
-Signature: ______________________________
-
-Date: ___________________________________
-
-Company: ${name}`;
-
-  document.getElementById('letter-preview').textContent=letter;
-}
-
-function copyLetter(){
-  const txt=document.getElementById('letter-preview').textContent;
-  if(txt.includes('Click "Generate"')) return showToast('Generate letter first','err');
-  navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard ✓'));
-}
-
-function emailLetter(){
-  const c=currentId?CLIENTS.find(x=>x.id===currentId):null;
-  const email=c?.email||'';
-  const name=c?.company_name||'Client';
-  const body=document.getElementById('letter-preview').textContent;
-  if(body.includes('Click "Generate"')) {genLetter();}
-  const subject=encodeURIComponent('Letter of Engagement — '+name+' — Chowdury Accountants');
-  const bodyEnc=encodeURIComponent(body);
-  window.open(`mailto:${email}?subject=${subject}&body=${bodyEnc}`);
-}
-
-function printLetter(){
-  const txt=document.getElementById('letter-preview').textContent;
-  const w=window.open('','_blank');
-  w.document.write(`<html><body><pre style="font-family:Arial;font-size:12px;line-height:1.6;max-width:700px;margin:40px auto">${txt}</pre></body></html>`);
-  w.print();
-}
-
-function showToast(msg,type='ok'){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.className='toast '+type;t.style.display='block';
-  setTimeout(()=>t.style.display='none',3000);
-}
-
-// DB Setup helper
-async function setupDB(){
-  showToast('Creating onboarding_clients table...');
-  // This can't be done via REST API - user needs to run SQL in Supabase dashboard
-  showToast('Please run the SQL below in your Supabase SQL editor','err');
-}
-
-// Init
-toggleLtdFields();
-load();
-</script>
-
-<!-- DB Setup Notice -->
-<div id="db-notice" style="display:none;position:fixed;bottom:70px;right:24px;background:#1e293b;color:#fff;border-radius:12px;padding:16px 20px;max-width:340px;font-size:.8rem;z-index:999">
-  <strong>First time setup required</strong><br>
-  Run this SQL in your <a href="https://supabase.com/dashboard" target="_blank" style="color:#60a5fa">Supabase dashboard</a>:<br>
-  <code style="font-size:.72rem;display:block;margin-top:6px;background:rgba(255,255,255,.1);padding:6px;border-radius:4px;white-space:pre">CREATE TABLE onboarding_clients (
+<div class="db-notice" id="db-notice">
+  <strong>⚠️ DB setup required</strong> — run in <a href="https://supabase.com/dashboard" target="_blank" style="color:#60a5fa">Supabase SQL editor</a>:
+  <code>CREATE TABLE onboarding_clients (
   id BIGSERIAL PRIMARY KEY,
   client_type TEXT DEFAULT 'ltd',
   status TEXT DEFAULT 'prospect',
-  company_name TEXT,
-  company_no TEXT,
-  year_end TEXT,
-  director_name TEXT,
-  email TEXT,
-  mobile TEXT,
-  referred_by TEXT,
-  monthly_fee NUMERIC,
-  notes TEXT,
-  services TEXT[],
+  company_name TEXT, company_no TEXT,
+  year_end TEXT, director_name TEXT,
+  email TEXT, mobile TEXT,
+  referred_by TEXT, monthly_fee NUMERIC,
+  notes TEXT, services TEXT[],
   aml_done BOOLEAN DEFAULT FALSE,
   letter_sent BOOLEAN DEFAULT FALSE,
   letter_signed BOOLEAN DEFAULT FALSE,
@@ -752,32 +292,285 @@ load();
   completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );</code>
-  <button onclick="document.getElementById('db-notice').style.display='none'" style="margin-top:8px;background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer">Dismiss</button>
+  <button onclick="document.getElementById('db-notice').style.display='none'" style="margin-top:8px;background:rgba(255,255,255,.15);border:none;color:#fff;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px">Dismiss</button>
 </div>
 
 <script>
-// Show DB notice if load fails
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    if(CLIENTS.length===0){
-      // Don't show notice yet - could just be empty
-    }
-  },2000);
-});
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=representation'};
+const CL_LTD=[
+  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained'},
+  {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client via email'},
+  {k:'letter_signed',l:'Engagement Letter Signed',s:'Signed copy received back'},
+  {k:'gc_setup',l:'GoCardless DD Set Up',s:'Direct debit mandate active'},
+  {k:'id_added',l:'Added to BrightCoSec / Inform Direct',s:'Company registered in company secretarial system'},
+  {k:'brightpay_added',l:'Added to BrightPay',s:'Payroll employer set up (if applicable)'},
+  {k:'registered_address',l:'Registered Address Confirmed',s:'If providing registered address service'},
+];
+const CL_SE=[
+  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained'},
+  {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client via email'},
+  {k:'letter_signed',l:'Engagement Letter Signed',s:'Signed copy received back'},
+  {k:'gc_setup',l:'GoCardless DD Set Up',s:'Direct debit mandate active'},
+  {k:'brightpay_added',l:'Added to BrightPay (if payroll)',s:'Payroll employer set up if applicable'},
+];
+const SL={prospect:'Prospect',in_progress:'In Progress',awaiting_signature:'Awaiting Signature',completed:'Completed'};
+let CLIENTS=[],cid=null,sf='all',view='pipeline';
 
-// Handle load error by showing notice
-const origLoad=load;
+async function api(p,o={}){const r=await fetch(SB+'/rest/v1/'+p,{headers:H,...o});const t=await r.text();return t?JSON.parse(t):null;}
 async function load(){
-  try{
-    const d=await api('onboarding_clients?select=*&order=created_at.desc');
-    CLIENTS=d||[];
-    renderStats();renderPipeline();
-  }catch(e){
-    document.getElementById('db-notice').style.display='block';
-    showToast('Run DB setup — see bottom right','err');
-  }
+  try{CLIENTS=(await api('onboarding_clients?select=*&order=created_at.desc'))||[];renderStats();render();}
+  catch(e){document.getElementById('db-notice').style.display='block';toast('Please run DB setup','err');}
 }
-load();
+function cl(c){return c.client_type==='se'?CL_SE:CL_LTD;}
+function done(c){return cl(c).filter(s=>c[s.k]).length;}
+function pct(c){const l=cl(c);return l.length?Math.round(done(c)/l.length*100):0;}
+function renderStats(){
+  document.getElementById('s-total').textContent=CLIENTS.length;
+  document.getElementById('s-prospect').textContent=CLIENTS.filter(c=>c.status==='prospect').length;
+  document.getElementById('s-ip').textContent=CLIENTS.filter(c=>c.status==='in_progress').length;
+  document.getElementById('s-await').textContent=CLIENTS.filter(c=>c.status==='awaiting_signature').length;
+  document.getElementById('s-done').textContent=CLIENTS.filter(c=>c.status==='completed').length;
+}
+function filterStatus(s){sf=s;render();}
+function filtered(){
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const tf=document.getElementById('tf').value;
+  return CLIENTS.filter(c=>{
+    if(sf!=='all'&&c.status!==sf) return false;
+    if(tf&&c.client_type!==tf) return false;
+    if(q&&!(c.company_name||'').toLowerCase().includes(q)&&!(c.director_name||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+function render(){
+  const list=filtered();
+  document.getElementById('cnt-lbl').textContent=list.length+' clients';
+  if(view==='pipeline') renderPipeline(list);
+  else renderList(list);
+}
+function setView(v){
+  view=v;
+  document.getElementById('view-pipeline').style.display=v==='pipeline'?'block':'none';
+  document.getElementById('view-list').style.display=v==='list'?'block':'none';
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',(v==='pipeline')===!i));
+  render();
+}
+function renderPipeline(list){
+  const cols={prospect:[],in_progress:[],awaiting_signature:[],completed:[]};
+  list.forEach(c=>{const s=c.status||'prospect';if(cols[s])cols[s].push(c);});
+  [['prospect','p'],['in_progress','i'],['awaiting_signature','a'],['completed','d']].forEach(([s,id])=>{
+    document.getElementById('c-'+id).textContent=cols[s].length;
+    document.getElementById('b-'+id).innerHTML=cols[s].length?cols[s].map(cardHTML).join(''):'<div style="text-align:center;padding:20px;color:var(--muted);font-size:11px">No clients</div>';
+  });
+}
+function cardHTML(c){
+  const p=pct(c);
+  return `<div class="client-card" onclick="openClient(${c.id})">
+    <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+      <span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span>
+      <span class="cc-name">${c.company_name||'Unnamed'}</span>
+    </div>
+    <div class="cc-meta"><span>👤 ${c.director_name||'—'}</span>${c.monthly_fee?`<span>£${c.monthly_fee}/mo</span>`:''}</div>
+    ${(c.services||[]).length?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${(c.services||[]).slice(0,3).join(', ')}</div>`:''}
+    <div class="cc-progress"><div class="cc-fill" style="width:${p}%"></div></div>
+    <div class="cc-pct">${done(c)}/${cl(c).length} steps · ${p}%</div>
+  </div>`;
+}
+function renderList(list){
+  document.getElementById('list-tbody').innerHTML=list.map(c=>{
+    const p=pct(c);
+    const sc={prospect:'badge-grey',in_progress:'badge-amber',awaiting_signature:'badge-blue',completed:'badge-green'}[c.status]||'badge-grey';
+    return `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="openClient(${c.id})" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
+      <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${c.company_name||'—'}</td>
+      <td style="padding:9px 11px"><span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span></td>
+      <td style="padding:9px 11px"><span class="badge ${sc}">${SL[c.status]||c.status}</span></td>
+      <td style="padding:9px 11px;font-size:11px;color:var(--ink2)">${c.director_name||'—'}</td>
+      <td style="padding:9px 11px"><div style="display:flex;align-items:center;gap:6px"><div style="width:80px;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div style="width:${p}%;height:100%;background:var(--green);border-radius:99px"></div></div><span style="font-size:10px;color:var(--muted)">${p}%</span></div></td>
+      <td style="padding:9px 11px;font-size:11px">${c.monthly_fee?'£'+c.monthly_fee:'—'}</td>
+      <td style="padding:9px 11px;font-size:10px;color:var(--muted);font-family:var(--mono)">${c.created_at?c.created_at.slice(0,10):'—'}</td>
+    </tr>`;
+  }).join('');
+}
+function openNew(){cid=null;document.getElementById('m-title').textContent='New Client';document.getElementById('m-sub').textContent='Fill in details then move to checklist';document.getElementById('del-btn').style.display='none';clearForm();switchTab('details');document.getElementById('modal-bg').classList.add('open');}
+function openClient(id){
+  const c=CLIENTS.find(x=>x.id===id);if(!c)return;
+  cid=id;document.getElementById('m-title').textContent=c.company_name||'Client';
+  document.getElementById('m-sub').textContent=(c.client_type==='se'?'Self Employed':'Ltd Company')+' · '+SL[c.status];
+  document.getElementById('del-btn').style.display='inline-flex';
+  fillForm(c);switchTab('details');document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');cid=null;}
+function switchTab(t){
+  ['details','checklist','letter'].forEach(x=>{
+    document.getElementById('tc-'+x).classList.toggle('active',x===t);
+    document.getElementById('mt-'+x).classList.toggle('active',x===t);
+  });
+  if(t==='checklist'&&cid) renderChecklist();
+  if(t==='letter') genLetter();
+}
+function clearForm(){
+  ['f-type','f-status','f-co','f-cn','f-ye','f-dir','f-email','f-mob','f-ref','f-fee','f-notes'].forEach(id=>{const el=document.getElementById(id);if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';});
+  document.querySelectorAll('#svcs input').forEach(cb=>{cb.checked=false;chkSvc(cb);});toggleLtd();
+}
+function fillForm(c){
+  document.getElementById('f-type').value=c.client_type||'ltd';
+  document.getElementById('f-status').value=c.status||'prospect';
+  document.getElementById('f-co').value=c.company_name||'';
+  document.getElementById('f-cn').value=c.company_no||'';
+  document.getElementById('f-ye').value=c.year_end||'';
+  document.getElementById('f-dir').value=c.director_name||'';
+  document.getElementById('f-email').value=c.email||'';
+  document.getElementById('f-mob').value=c.mobile||'';
+  document.getElementById('f-ref').value=c.referred_by||'';
+  document.getElementById('f-fee').value=c.monthly_fee||'';
+  document.getElementById('f-notes').value=c.notes||'';
+  const svcs=c.services||[];
+  document.querySelectorAll('#svcs input').forEach(cb=>{cb.checked=svcs.includes(cb.value);chkSvc(cb);});
+  toggleLtd();
+}
+function toggleLtd(){const ltd=document.getElementById('f-type').value==='ltd';['fg-cn','fg-ye'].forEach(id=>document.getElementById(id).style.display=ltd?'':'none');}
+function chkSvc(cb){cb.closest('.svc').classList.toggle('checked',cb.checked);}
+function formData(){
+  const svcs=[];document.querySelectorAll('#svcs input:checked').forEach(cb=>svcs.push(cb.value));
+  return{client_type:document.getElementById('f-type').value,status:document.getElementById('f-status').value,company_name:document.getElementById('f-co').value.trim(),company_no:document.getElementById('f-cn').value.trim(),year_end:document.getElementById('f-ye').value.trim(),director_name:document.getElementById('f-dir').value.trim(),email:document.getElementById('f-email').value.trim(),mobile:document.getElementById('f-mob').value.trim(),referred_by:document.getElementById('f-ref').value.trim(),monthly_fee:parseFloat(document.getElementById('f-fee').value)||null,notes:document.getElementById('f-notes').value.trim(),services:svcs};
+}
+async function saveClient(){
+  const data=formData();if(!data.company_name){toast('Please enter a client name','err');return;}
+  try{
+    if(cid){
+      await api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify(data)});
+      const i=CLIENTS.findIndex(c=>c.id===cid);if(i>=0)CLIENTS[i]={...CLIENTS[i],...data};toast('Saved ✓');
+    }else{
+      const res=await api('onboarding_clients',{method:'POST',body:JSON.stringify(data)});
+      if(res&&res[0]){CLIENTS.unshift(res[0]);cid=res[0].id;document.getElementById('del-btn').style.display='inline-flex';}
+      toast('Client added ✓');
+    }
+    renderStats();render();
+    document.getElementById('m-title').textContent=data.company_name;
+    document.getElementById('m-sub').textContent=(data.client_type==='se'?'Self Employed':'Ltd Company')+' · '+SL[data.status];
+  }catch(e){toast('Save failed: '+e.message,'err');}
+}
+async function delClient(){
+  if(!cid||!confirm('Delete this client from onboarding?'))return;
+  try{await api('onboarding_clients?id=eq.'+cid,{method:'DELETE'});CLIENTS=CLIENTS.filter(c=>c.id!==cid);closeModal();renderStats();render();toast('Deleted');}
+  catch(e){toast('Delete failed','err');}
+}
+function renderChecklist(){
+  const c=CLIENTS.find(x=>x.id===cid);if(!c)return;
+  const list=cl(c);
+  const allDone=list.every(s=>c[s.k]);
+  document.getElementById('done-banner').style.display=(allDone&&c.client_type==='ltd'&&c.status!=='completed')?'block':'none';
+  document.getElementById('chk-wrap').innerHTML=list.map(s=>{
+    const d=!!c[s.k];
+    return `<div class="chk${d?' done':''}" onclick="toggleChk('${s.k}')">
+      <div class="chk-icon">${d?'✓':''}</div>
+      <div style="flex:1"><div class="chk-lbl">${s.l}</div><div class="chk-sub">${s.s}</div></div>
+      <span class="badge ${d?'badge-green':'badge-amber'}">${d?'Done':'Pending'}</span>
+    </div>`;
+  }).join('');
+}
+async function toggleChk(key){
+  const c=CLIENTS.find(x=>x.id===cid);if(!c)return;
+  c[key]=!c[key];
+  const list=cl(c);const d=list.filter(s=>c[s.k]).length;
+  let ns=c.status;
+  if(d===0)ns='prospect';
+  else if(d>0)ns='in_progress';
+  if(c.letter_sent&&!c.letter_signed)ns='awaiting_signature';
+  c.status=ns;
+  try{await api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({[key]:c[key],status:ns})});renderChecklist();renderStats();render();}
+  catch(e){toast('Could not save','err');}
+}
+async function completeOnboarding(){
+  const c=CLIENTS.find(x=>x.id===cid);if(!c)return;
+  if(!c.company_no){toast('Please add company number first','err');switchTab('details');return;}
+  if(!confirm('Add '+c.company_name+' to the Ltd Tracker?'))return;
+  try{
+    await api('ltd_clients',{method:'POST',body:JSON.stringify({comp_no:c.company_no.replace(/\s/g,'').toUpperCase().padStart(8,'0'),status:'active',sector:'Hospitality',director_name:c.director_name||'',director_email:c.email||'',director_mobile:c.mobile||'',vat_registered:!!(c.services&&c.services.includes('vat')),paye_registered:!!(c.services&&(c.services.includes('payroll')||c.services.includes('paye'))),notes:c.notes||'',referred_by:c.referred_by||''})});
+    c.status='completed';c.completed_at=new Date().toISOString();
+    await api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({status:'completed',completed_at:c.completed_at})});
+    renderChecklist();renderStats();render();toast('✅ '+c.company_name+' added to Ltd Tracker!');
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+function genLetter(){
+  const c=cid?CLIENTS.find(x=>x.id===cid):{};
+  const name=(c&&c.company_name)||'[Company Name]';
+  const dir=(c&&c.director_name)||'[Director Name]';
+  const ye=(c&&c.year_end)||'[Year End]';
+  const svcs=(c&&c.services)||[];
+  const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const lines=[];
+  if(svcs.includes('accounts'))lines.push('Annual Accounts');if(svcs.includes('bookkeeping'))lines.push('Bookkeeping');
+  if(svcs.includes('ct600'))lines.push('CT600 Corporation Tax Return');if(svcs.includes('vat'))lines.push('VAT Returns');
+  if(svcs.includes('payroll'))lines.push('Payroll');if(svcs.includes('sa'))lines.push('Self Assessment Tax Return');
+  if(svcs.includes('paye'))lines.push('PAYE');if(svcs.includes('confirmation'))lines.push('Confirmation Statement');
+  if(svcs.includes('registered'))lines.push('Registered Office Address');
+  document.getElementById('letter').textContent=`The Chowdury Accountants Ltd
+283 Featherstall Road North, Oldham, OL1 2NH
+Tel: 0161 222 4647 | info@chowduryaccountants.co.uk
+
+${today}
+
+LETTER OF ENGAGEMENT
+
+Dear ${dir},
+
+This letter sets out the basis on which we provide services to your company (${name}), so as to avoid any misunderstandings.
+
+SERVICES BEING PROVIDED
+${lines.length?lines.map(s=>'• '+s).join('\n'):'• To be agreed'}
+
+ANTI MONEY LAUNDERING LEGISLATION
+All accountants must comply with the Proceeds of Crime Act 2002, the Terrorism Act 2000 and the Money Laundering Regulations 2017. Before we can act for your company, we have to confirm the identity of the directors. We may also need to obtain evidence confirming the identities of third parties and the source of any funding. If at any time we have grounds to suspect that crime is being committed, we are obliged to make a report to the National Crime Agency (NCA).
+
+FEES
+Our fees are computed on the basis of time spent on your affairs and the responsibility and skill involved. We may invoice you monthly payable by Direct Debit via GoCardless. Where invoices are not subject to direct debit, our terms are strictly 7 days net. Interest will be charged on all overdue debts. If this letter covers work for a limited company and the company is unable to meet our fees as and when they fall due, the company's directors will be personally, jointly and severally liable.
+
+RESPONSIBILITIES OF DIRECTORS
+As director of ${name}, you are responsible for ensuring the company maintains proper accounting records. You undertake to provide all records and information required within five months of the year end (${ye}) to avoid penalties. We will prepare the company's accounts for the year ended ${ye} and subsequent years.
+
+DATA PROTECTION
+We will process your personal data in compliance with the General Data Protection Regulation (GDPR) and UK Data Protection Laws. You are the Data Controller and we are the Data Processor for employee data processing. We have engaged AccountancyManager Limited as a third-party sub-processor.
+
+AGREEMENT
+Once agreed, this letter will remain effective from the date of signature until replaced. Either party may vary or terminate our authority at any time on written notice.
+
+Please confirm your agreement by signing below.
+
+Yours sincerely,
+
+Md Asadul Chowdury
+Managing Director
+The Chowdury Accountants Ltd
+
+────────────────────────────────────────────────
+CLIENT AGREEMENT
+
+I confirm I have read and understood this Letter of Engagement.
+
+Name: _____________________________________________
+
+Signature: _________________________________________
+
+Date: _____________________________________________
+
+Company: ${name}`;
+}
+function copyLetter(){navigator.clipboard.writeText(document.getElementById('letter').textContent).then(()=>toast('Copied ✓'));}
+function emailLetter(){
+  const c=cid?CLIENTS.find(x=>x.id===cid):null;
+  genLetter();
+  const email=(c&&c.email)||'';
+  const name=(c&&c.company_name)||'Client';
+  window.open('mailto:'+email+'?subject='+encodeURIComponent('Letter of Engagement — '+name+' — Chowdury Accountants')+'&body='+encodeURIComponent(document.getElementById('letter').textContent));
+  if(cid){const x=CLIENTS.find(x=>x.id===cid);if(x&&!x.letter_sent){x.letter_sent=true;api('onboarding_clients?id=eq.'+cid,{method:'PATCH',body:JSON.stringify({letter_sent:true})});toast('Letter sent — checklist updated ✓');}}
+}
+function printLetter(){genLetter();const w=window.open('','_blank');w.document.write('<html><body><pre style="font-family:Arial;font-size:12px;line-height:1.7;max-width:700px;margin:40px auto;white-space:pre-wrap">'+document.getElementById('letter').textContent+'</pre></body></html>');w.print();}
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
+
+toggleLtd();load();
 </script>
 </body>
 </html>
