@@ -1598,9 +1598,12 @@ async function getIdToken(){
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({apiKey:ID_KEY})
   });
-  const d=await r.json();
+  const text=await r.text();
+  console.log('ID auth raw response:', r.status, text);
+  let d;
+  try{d=JSON.parse(text);}catch(e){d={raw:text};}
   idToken=d.accessToken||d.AccessToken||null;
-  if(!idToken) console.error('ID auth failed:', d);
+  if(!idToken) alert('ID auth response ('+r.status+'): '+text.substring(0,200));
   return idToken;
 }
 
