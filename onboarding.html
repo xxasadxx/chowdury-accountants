@@ -830,48 +830,50 @@ function genClearance(){
   const c=getClient()||{};
   const name=c.company_name||'[Company Name]';
   const compNo=c.company_no||'[Company No]';
-  const prevFirm=document.getElementById('prev-firm').value.trim()||'[Previous Accountant]';
+  const prevFirm=document.getElementById('prev-firm').value.trim()||'[Previous Accountant Firm]';
+  const prevEmail=document.getElementById('prev-email').value.trim();
   const svcs=c.services||[];
+  const isLtd=c.client_type==='ltd';
   const hasPaye=svcs.includes('payroll')||svcs.includes('paye');
   const hasVat=svcs.includes('vat');
+  const clientRef=isLtd?`${name} (Company Reg No: ${compNo})`:`${name}`;
+
   document.getElementById('clearance-preview').textContent=`The Chowdury Accountants Ltd
 283 Featherstall Road North, Oldham, OL1 2NH
 Tel: 0161 222 4647 | info@chowduryaccountants.co.uk
 
 ${today()}
 
-${prevFirm}
+${prevFirm}${prevEmail?'\n'+prevEmail:''}
 
-Dear Sirs,
+Dear Sir/Madam,
 
-Re: ${name} (Company Reg No: ${compNo})
+${clientRef}
 
-We have been approached by the above to act as their Accountants and we should be grateful if you would supply us with any information which might influence our decision whether or not to accept this appointment. We understand that you have been advised of this approach and have been given authority to disclose information to us.
+We have been asked by the above named to act as their accountants and advisors and would be grateful to receive your clearance indicating that there are no professional reasons why we should not accept this appointment.
 
-On the basis that there is no such information that would influence our decision, we should be obliged if you would please supply the following information:
+${isLtd?`We would be grateful if you would send us for the above company:
 
-${hasPaye?`PAYE DETAILS:
-• Employer PAYE reference and PAYE accounts office reference number
-• RTI submission details for the last two tax years along with all employee details (Full Name, DOB, NI No, Address)
-• NICs and Income Tax liabilities for the last two tax years (if any)
-• Login details for the PAYE account if available
+• A copy of the last submitted Corporation Tax Return and last Accounts prepared
+• Corporation Tax computations and Capital Allowances Claims
+• Breakdown of closing balances from the last accounts (debtors, creditors, etc), reconciliation of the closing bank balance and fixed asset schedule
+${hasPaye?`• PAYE and Accounts Office References, last RTI submission, P11 breakdown showing year to date pay, tax and NIC figures and last payroll summary
+• Copy of the last P11D submitted (if applicable)
+`:''}${hasVat?`• VAT registration certificate, copy of last VAT Return and confirmation of VAT scheme (Cash Accounting, Flat Rate, Standard, etc)
+`:''}• Company House online filing authentication code
+• Any other information that may be relevant to us
 
-`:''
-}ANNUAL ACCOUNTS:
-Please provide us with a full set of company accounts and CT600 returns for the last two years along with details of any non-current assets registered.
+We would also be grateful if you would send us for the relevant individuals:
 
-${hasVat?`VAT:
-Please provide us with relevant information for the last two years VAT returns (last 8 submitted) with the breakdown of figures, along with login details for the VAT account.
+• A copy of the last submitted Income Tax Return and last Accounts prepared
+• Income Tax computations and Capital Allowances Claims
+• Breakdown of closing balances from the last accounts, reconciliation of closing bank balance and fixed asset schedule
+• Any other information that may be relevant to us`:`We would be grateful if you would send us:
 
-`:''
-}PENSION:
-Please provide details for the company if it has been registered for auto enrolment pension services with The Pensions Regulator.
-
-OTHER HMRC & COMPANIES HOUSE DETAILS:
-• UTR number of the company
-• UTR number of the director(s)
-• Any submitted tax returns made for the director(s) for the last two years
-• Authentication code for Companies House
+• A copy of the last submitted Self Assessment Tax Return
+• Income Tax computations and Capital Allowances Claims
+• Breakdown of income and expenses for the last accounting period
+• Any other information that may be relevant to us`}
 
 We would be grateful if you could supply the above information at your earliest convenience. We confirm that our client has authorised us to request these details.
 
