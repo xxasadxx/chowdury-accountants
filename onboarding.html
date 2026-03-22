@@ -449,6 +449,11 @@ input[type=checkbox].toggle{width:16px;height:16px;accent-color:var(--blue);curs
   <strong>⚠️ DB setup required</strong> — run in <a href="https://supabase.com/dashboard" target="_blank" style="color:#60a5fa">Supabase SQL editor</a>:
   <code>-- Run if upgrading existing table:
 ALTER TABLE onboarding_clients
+  ADD COLUMN IF NOT EXISTS prev_acct_done BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS client_info_done BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS services_checked BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS agent_auth BOOLEAN DEFAULT FALSE,
+  ADD COLUMN IF NOT EXISTS taxes_registered BOOLEAN DEFAULT FALSE,
   ADD COLUMN IF NOT EXISTS had_prev_acct BOOLEAN DEFAULT FALSE,
   ADD COLUMN IF NOT EXISTS prev_firm TEXT,
   ADD COLUMN IF NOT EXISTS prev_email TEXT,
@@ -473,18 +478,27 @@ const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=representation'};
 const CL_LTD=[
-  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained & filed'},
-  {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client via email'},
+  {k:'aml_done',l:'AML / ID Check Passed',s:'Photo ID + proof of address obtained, AML check completed'},
+  {k:'prev_acct_done',l:'Previous Accountant Clearance',s:'If applicable — all info received from previous accountant'},
+  {k:'client_info_done',l:'All Client Information Received',s:'Company number, director details, contact info complete'},
+  {k:'services_checked',l:'Services & Fees Confirmed',s:'All required services agreed and fee set'},
+  {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client for signature'},
   {k:'letter_signed',l:'Engagement Letter Signed',s:'Signed copy received back'},
+  {k:'agent_auth',l:'Agent Authorisation Codes Requested',s:'HMRC agent authorisation codes requested from client'},
+  {k:'taxes_registered',l:'Registered for Taxes',s:'Client registered for CT, VAT, PAYE as applicable'},
   {k:'gc_setup',l:'GoCardless DD Set Up',s:'Direct debit mandate active'},
   {k:'id_added',l:'Added to BrightCoSec / Inform Direct',s:'Company registered in company secretarial system'},
   {k:'brightpay_added',l:'Added to BrightPay',s:'Payroll employer set up (if applicable)'},
-  {k:'registered_address',l:'Registered Address Confirmed',s:'If providing registered address service'},
 ];
 const CL_SE=[
-  {k:'aml_done',l:'AML / ID Verification',s:'Photo ID + proof of address obtained & filed'},
-  {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client via email'},
+  {k:'aml_done',l:'AML / ID Check Passed',s:'Photo ID + proof of address obtained, AML check completed'},
+  {k:'prev_acct_done',l:'Previous Accountant Clearance',s:'If applicable — all info received from previous accountant'},
+  {k:'client_info_done',l:'All Client Information Received',s:'Contact details, UTR, NI number complete'},
+  {k:'services_checked',l:'Services & Fees Confirmed',s:'All required services agreed and fee set'},
+  {k:'letter_sent',l:'Engagement Letter Sent',s:'Letter sent to client for signature'},
   {k:'letter_signed',l:'Engagement Letter Signed',s:'Signed copy received back'},
+  {k:'agent_auth',l:'Agent Authorisation Codes Requested',s:'HMRC agent authorisation codes requested from client'},
+  {k:'taxes_registered',l:'Registered for Self Assessment',s:'Client registered for SA / PAYE as applicable'},
   {k:'gc_setup',l:'GoCardless DD Set Up',s:'Direct debit mandate active'},
   {k:'brightpay_added',l:'Added to BrightPay (if payroll)',s:'Payroll employer set up if applicable'},
 ];
