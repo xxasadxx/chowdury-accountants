@@ -212,6 +212,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <span id="sync-status" style="font-size:11px;color:var(--muted)"></span>
     <div class="ml-auto" style="display:flex;gap:6px">
       <button id="sync-btn" class="btn btn-secondary" onclick="syncFromCH()">🔄 Sync CH</button>
+      <button id="sync-id-btn" class="btn btn-secondary" onclick="syncFromID()" title="Sync director details from Inform Direct">📋 Sync ID</button>
       <button class="btn btn-secondary" onclick="syncPayeRegistered()" title="Auto-mark PAYE registered based on PAYE Tracker">💼 Sync PAYE</button>
       <button class="btn btn-secondary" onclick="syncVatRegistered()" title="Auto-mark VAT registered based on VAT Tracker">🧾 Sync VAT</button>
       <button class="btn btn-blue" onclick="openAddModal()">+ Add Company</button>
@@ -1586,6 +1587,57 @@ async function saveNewClient(){
 
 // ─── CH SEARCH & SYNC ───
 const CH_PROXY='/.netlify/functions/ch-proxy';
+const ID_PROXY='/.netlify/functions/id-proxy';
+const ID_KEY='Hufg9zYb8XwNQ8ZJ6hRcEKpGC9y3P8leCtCg9SnWMOXSndaCB1ZgXVE6eIN9b4va';
+let idToken=null;
+
+async function getIdToken(){
+  if(idToken) return idToken;
+  const r=await fetch(ID_PROXY+'?env=production&endpoint=token&method=POST',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({apiKey:ID_KEY})
+  });
+  const d=await r.json();
+  idToken=d.accessToken||d.AccessToken||null;
+  return idToken;
+}
+
+async function syncFromID(){
+  const btn=document.getElementById('sync-id-btn');
+  btn.disabled=true;btn.textContent='⏳ Syncing ID...';
+  const ss=document.getElementById('sync-status');
+  try{
+    const tok=await getIdToken();
+    if(!tok){ss.textContent='ID auth failed';btn.disabled=false;btn.textContent='📋 Sync ID';return;}
+    // Get all companies from Inform Direct
+    const r=await fetch(ID_PROXY+'?env=production&endpoint=companies&token='+encodeURIComponent(tok));
+    const d=await r.json();
+    const companies=Array.isArray(d)?d:(d.companies||d.Companies||[]);
+    let updated=0;
+    for(const c of companies){
+      const compNo=(c.companyNumber||c.CompanyNumber||'').replace(/\s/g,'').toUpperCase();
+      if(!compNo) continue;
+      const local=DATA.find(x=>x.comp_no===compNo);
+      if(!local) continue;
+      // Extract officer/director info
+      const officers=c.officers||c.Officers||[];
+      const director=officers.find(o=>(o.role||o.Role||'').toLowerCase().includes('director'));
+      if(director){
+        const name=[(director.forename||director.Forename||''),(director.surname||director.Surname||'')].join(' ').trim();
+        if(name && !local.director_name){
+          local.director_name=name;
+          await sbSave(local);
+          updated++;
+        }
+      }
+    }
+    ss.textContent='✅ ID sync: '+updated+' updated · '+new Date().toLocaleTimeString('en-GB');
+  }catch(e){
+    ss.textContent='ID sync failed: '+e.message;
+  }
+  btn.disabled=false;btn.textContent='📋 Sync ID';
+}
 
 function chDateToDisplay(s){if(!s)return'';const d=new Date(s);return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
 function parseDate(s){if(!s)return null;const p=s.split('/');return p.length===3?new Date(p[2],p[1]-1,p[0]):null;}

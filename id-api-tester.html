@@ -32,13 +32,13 @@
 <body>
 
 <h1>🔌 Inform Direct API Tester</h1>
-<p class="sub">Sandbox environment — via Netlify proxy</p>
+<p class="sub">Production environment — via Netlify proxy</p>
 
 <!-- Step 1: Authenticate -->
 <div class="card">
   <h3>Step 1 — Authenticate</h3>
   <label>API Key</label>
-  <input type="text" id="apiKey" value="IfevPEXXSwIXdk4JzWf7n8epxXjWRPiytjs1o9GwenE7tGNujnNbbmCJbY71vagc" />
+  <input type="text" id="apiKey" value="Hufg9zYb8XwNQ8ZJ6hRcEKpGC9y3P8leCtCg9SnWMOXSndaCB1ZgXVE6eIN9b4va" />
   <button class="btn btn-primary" onclick="authenticate()">🔑 Authenticate</button>
   <div class="status" id="auth-status"></div>
   <pre id="auth-raw"></pre>
@@ -64,7 +64,7 @@
 
 <!-- Step 4: Add Company -->
 <div class="card">
-  <h3>Step 4 — Add Company (sandbox)</h3>
+  <h3>Step 4 — Add Company (production)</h3>
   <label>Companies House Number</label>
   <input type="text" id="addCompNo" placeholder="e.g. 12267533" />
   <button class="btn btn-orange" onclick="addCompany()" id="btn-add" disabled>➕ POST /company</button>
@@ -74,7 +74,7 @@
 
 <!-- Step 5: Remove Company -->
 <div class="card">
-  <h3>Step 5 — Remove Company (sandbox)</h3>
+  <h3>Step 5 — Remove Company (production)</h3>
   <label>Companies House Number</label>
   <input type="text" id="removeCompNo" placeholder="e.g. 12267533" />
   <button class="btn btn-red" onclick="removeCompany()" id="btn-remove" disabled>🗑 DELETE /company</button>
@@ -84,7 +84,7 @@
 
 <!-- Progress -->
 <div class="card">
-  <h3>✅ Sandbox Checklist</h3>
+  <h3>✅ Production Checklist</h3>
   <div class="step"><div class="badge" id="b1">1</div> Authenticate</div>
   <div class="step"><div class="badge" id="b2">2</div> GET /companies</div>
   <div class="step"><div class="badge" id="b3">3</div> GET /company</div>
@@ -196,7 +196,7 @@ async function addCompany() {
 async function removeCompany() {
   const compNo = document.getElementById('removeCompNo').value.trim();
   if (!compNo) { show('remove-status','⚠️ Enter a company number','err'); return; }
-  if (!confirm('Remove ' + compNo + ' from Inform Direct sandbox?')) return;
+  if (!confirm('Remove ' + compNo + ' from Inform Direct production?')) return;
   show('remove-status','⏳ Removing...','info');
   try {
     let result3 = await callProxy('company/remove', 'DELETE', { companyNumber: compNo });
@@ -205,7 +205,7 @@ async function removeCompany() {
     const { status, data } = result3;
     showRaw('remove-raw', data);
     if (status === 200 || status === 204 || status === 404) {
-      show('remove-status', status === 404 ? '✅ Not found (acceptable in sandbox)' : '✅ Removed!', 'ok');
+      show('remove-status', status === 404 ? '✅ Not found (acceptable in production)' : '✅ Removed!', 'ok');
       tick('b5');
     } else { show('remove-status','❌ '+(data.message||status),'err'); }
   } catch(e) { show('remove-status','❌ '+e.message,'err'); }
