@@ -1378,27 +1378,147 @@ function exportFeesPDF(){
 document.addEventListener('DOMContentLoaded',init);
 
 // ═══ CLIENT MESSAGING ═══
-const MSG_TEMPLATES = {
+
+// ═══ SMART MESSAGE TEMPLATES ═══
+
+function calcAccountsPeriod(client) {
+  // accounts_ref_date is like "30/09" or "31/10"
+  const ref = client.accounts_ref_date || client.year_end || '';
+  if (!ref) return null;
+
+  // Parse day/month from ref date
+  const parts = ref.split('/');
+  if (parts.length < 2) return null;
+  const day = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1; // 0-indexed
+
+  // Find the most recently passed year-end
+  const now = new Date();
+  let yearEnd = new Date(now.getFullYear(), month, day);
+  if (yearEnd > now) yearEnd.setFullYear(yearEnd.getFullYear() - 1);
+
+  // Period start = day after previous year-end
+  const periodStart = new Date(yearEnd);
+  periodStart.setFullYear(periodStart.getFullYear() - 1);
+  periodStart.setDate(periodStart.getDate() + 1);
+
+  const fmt = d => d.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'});
+  return {
+    start: fmt(periodStart),
+    end: fmt(yearEnd),
+    yearEndShort: yearEnd.toLocaleDateString('en-GB', {day:'numeric', month:'long', year:'numeric'})
+  };
+}
+
+function calcVatQuarter(client) {
+  // vat_stagger: 1 = Jan/Apr/Jul/Oct, 2 = Feb/May/Aug/Nov, 3 = Mar/Jun/Sep/Dec
+  const stagger = parseInt(client.vat_stagger) || 0;
+  if (!stagger) return null;
+
+  const now = new Date();
+  const curMonth = now.getMonth(); // 0-indexed
+
+  // Quarter end months for each stagger group (0-indexed)
+  const quarterEnds = {
+    1: [0, 3, 6, 9],   // Jan, Apr, Jul, Oct
+    2: [1, 4, 7, 10],  // Feb, May, Aug, Nov
+    3: [2, 5, 8, 11]   // Mar, Jun, Sep, Dec
+  };
+
+  const ends = quarterEnds[stagger] || quarterEnds[1];
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Find most recently completed quarter end
+  let qEndMonth = ends.filter(m => m < curMonth).pop();
+  let qEndYear = now.getFullYear();
+  if (qEndMonth === undefined) {
+    qEndMonth = ends[ends.length - 1];
+    qEndYear--;
+  }
+
+  // 3 months of the quarter
+  const m3 = qEndMonth;
+  const m2 = (qEndMonth - 1 + 12) % 12;
+  const m1 = (qEndMonth - 2 + 12) % 12;
+
+  return {
+    month1: months[m1],
+    month2: months[m2],
+    month3: months[m3],
+    year: qEndYear,
+    quarterEnd: months[m3] + ' ' + qEndYear
+  };
+}
+
+const SMART_TMPLS = {
   vat: (client) => {
-    const now = new Date();
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    const m = now.getMonth();
-    // VAT quarter ending last month
-    const qEnd = months[(m-1+12)%12]+' '+now.getFullYear();
-    const m1 = months[(m-3+12)%12], m2 = months[(m-2+12)%12], m3 = months[(m-1+12)%12];
-    return `Hello,
+    const q = calcVatQuarter(client);
+    if (q) {
+      return `Hello,
 
 I hope you are well.
 
-Could you please provide the bookkeeping records for the VAT quarter ending ${qEnd}. Specifically, we would require the bank statements covering ${m1}, ${m2} and ${m3} ${now.getFullYear()}, as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
+Could you please provide the bookkeeping records for the VAT quarter ending ${q.quarterEnd}. Specifically, we would require the bank statements covering ${q.month1}, ${q.month2} and ${q.month3} ${q.year}, as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
+
+You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
 
 Thank you for your cooperation. Please do not hesitate to contact us if you have any queries.
 
 Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`;
+    } else {
+      return `Hello,
+
+I hope you are well.
+
+Could you please provide the bookkeeping records for your most recent VAT quarter, including bank statements, expense receipts, purchase invoices, and sales figures for those months.
+
+You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
+
+Thank you for your cooperation.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+    }
   },
-  sa: () => `Dear Client,
+
+  accounts: (client) => {
+    const p = calcAccountsPeriod(client);
+    const name = client.company_name || client.name || 'your company';
+    if (p) {
+      return `Dear Client,
+
+I hope this message finds you well.
+
+Could you please provide copies of ${name}'s bank statements and any relevant expense documentation for the period from ${p.start} to ${p.end}. These documents are required to assist us in preparing the company accounts.
+
+You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
+
+Thank you for your cooperation.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+    } else {
+      return `Dear Client,
+
+I hope this message finds you well.
+
+Could you please provide copies of ${name}'s bank statements and any relevant expense documentation for your most recent accounting period. These documents are required to assist us in preparing the company accounts.
+
+You can send the PDF or Excel copies directly to this chat or by email at your earliest convenience.
+
+Thank you for your cooperation.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+    }
+  },
+
+  sa: (client) => `Dear Client,
 
 I hope this message finds you well.
 
@@ -1415,22 +1535,10 @@ Please note that missing the deadline may result in penalties from HMRC. Documen
 
 If you have already provided your records for the tax year stated above, please disregard this message.
 
-We appreciate your cooperation.
-
 Kind regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
-  accounts: () => `Hello,
 
-I hope you are well.
-
-We are writing to request your bookkeeping records so that we can prepare your annual accounts. Could you please provide your bank statements, sales invoices, purchase invoices and expense receipts for your accounting period.
-
-Please do not hesitate to contact us if you are unsure what records are required.
-
-Best regards,
-The Chowdury Accountants Team
-📞 0161 222 4647`,
   payment: (client) => `Hello,
 
 I hope you are well.
@@ -1442,21 +1550,29 @@ If you have any queries regarding your invoice, please do not hesitate to contac
 Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
+
   engagement: (client) => `Hello,
 
 I hope you are well.
 
-We sent you a Letter of Engagement for your records and approval but have not yet received a signed copy. Could you please review and return the signed letter at your earliest convenience so we can proceed with your accounts.
+We sent you a Letter of Engagement but have not yet received a signed copy. Could you please review and return the signed letter at your earliest convenience so we can proceed with your accounts.
 
 Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
-  custom: () => ``
+
+  custom: (client) => ``
 };
 
+
 function cm_setTemplate(key) {
-  const clientName = document.getElementById('cm-name')?.value || document.getElementById('cm-full-name')?.value || '';
-  const body = typeof MSG_TEMPLATES[key] === 'function' ? MSG_TEMPLATES[key]({name: clientName}) : '';
+  const clientData = {
+    name: document.getElementById('cm-full-name')?.value || '',
+    company_name: document.getElementById('cm-full-name')?.value || '',
+    accounts_ref_date: currentClient?.year_end || '',
+    vat_stagger: ''
+  };
+  const body = typeof SMART_TMPLS[key] === 'function' ? SMART_TMPLS[key](clientData) : '';
   document.getElementById('cm-msg-body').value = body;
 }
 
