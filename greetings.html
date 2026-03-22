@@ -4,87 +4,120 @@
 <head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Client Greetings — The Chowdury Accountants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<title>Chowdury Accountants — Greetings & Import</title>
 <style>
-:root {
-    --bg:#FBFAE8;--surface:#FFFFFF;--ink:#252525;--ink2:#4A4A4A;--muted:#7A7A7A;
-    --border:#DEDEDE;--border2:#CECECE;--red:#D04A02;--red-dark:#A83900;--red-light:#FCEEE8;
-    --green:#1D7A47;--green-light:#E5F4EC;--blue:#155FA0;--blue-light:#E5EFF8;
-    --amber:#C07A00;--amber-light:#FEF3DC;--teal:#0D9488;--teal-light:#CCFBF1;
-    --text:#252525;--text2:#4A4A4A;--text-muted:#7A7A7A;--accent:#D04A02;
-    --surface2:#F8F8F8;--radius:8px;--shadow:0 2px 8px rgba(0,0,0,.06);
-    --sans:'Mulish',sans-serif;--mono:'Fira Code',monospace;
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#FFFFFF;--text:#252525;--ink:#252525;--ink2:#4A4A4A;
+  --muted:#7A7A7A;--border:#DEDEDE;--border2:#D0D0D0;
+  --red:#D04A02;--red-light:#FCEEE8;
+  --green:#1D7A47;--green-light:#E5F4EC;
+  --blue:#155FA0;--blue-light:#E5EFF8;
+  --amber:#C07A00;--amber-light:#FEF3DC;
+  --purple:#6D28D9;--purple-light:#EDE9FE;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --radius:10px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh}
-.wrap{max-width:920px;margin:28px auto;padding:0 20px}
-h1{font-size:1.3rem;font-weight:800;margin-bottom:5px;color:var(--ink)}
-.sub{color:var(--text-muted);font-size:0.85rem;margin-bottom:24px}
-.card{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
-.card-title{font-size:0.95rem;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--ink)}
-.btn{padding:9px 18px;border-radius:7px;font-weight:700;font-size:0.82rem;cursor:pointer;border:none;transition:all .15s;font-family:var(--sans)}
-.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#155a35}
-.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#0f4a7a}
-.btn-purple{background:#7C3AED;color:#fff}.btn-purple:hover{background:#6d28d9}
-.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:var(--red-dark)}
-.btn-grey{background:var(--surface2);color:var(--ink2);border:1px solid var(--border2)}.btn-grey:hover{background:var(--border)}
-.progress-wrap{margin-top:14px;display:none}
-.progress-bar{height:8px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:6px}
-.progress-fill{height:100%;background:var(--green);border-radius:99px;transition:width .3s;width:0%}
-.progress-text{font-size:0.75rem;color:var(--text-muted)}
-.result{margin-top:10px;padding:10px 14px;border-radius:7px;font-size:0.82rem;display:none}
-.result.ok{background:var(--green-light);color:var(--green);border:1px solid #86EFAC}
-.result.err{background:var(--red-light);color:var(--red-dark);border:1px solid #FCA5A5}
-textarea{width:100%;border:1px solid var(--border2);border-radius:7px;padding:10px 12px;font-size:0.84rem;resize:vertical;font-family:var(--sans);color:var(--ink);background:var(--surface);outline:none;transition:border .15s}
-textarea:focus{border-color:var(--blue)}
-label{font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em}
-.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.72rem;font-weight:600;cursor:pointer;border:1px solid var(--border2);margin:2px;background:var(--surface2);transition:all .15s;color:var(--ink2)}
-.tag:hover{background:var(--blue-light);border-color:var(--blue);color:var(--blue)}
-.templates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-@media(max-width:600px){.templates{grid-template-columns:1fr}}
-.tpl-btn{padding:10px 14px;border-radius:8px;font-size:0.82rem;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);text-align:left;transition:all .15s;font-family:var(--sans);color:var(--ink)}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto}
+#portal-nav::-webkit-scrollbar{height:3px}#portal-nav::-webkit-scrollbar-track{background:#1a1a18}#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap}
+.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em}
+#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500}
+#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13)}
+.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0}
+.nav-signout:hover{color:rgba(255,255,255,.6)!important}
+/* Page header */
+.page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.page-tabs{display:flex}
+.page-tab{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+/* KPI row */
+.kpi-row{display:flex;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:100px}
+.kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:20px;font-weight:700;margin:3px 0 1px;font-family:var(--display)}
+/* Main layout */
+.main{display:grid;grid-template-columns:340px 1fr;gap:0;min-height:calc(100vh - 180px)}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
+.sidebar{border-right:1px solid var(--border);background:var(--surface);padding:18px;overflow-y:auto}
+.sidebar h3{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:12px;color:var(--ink)}
+.preview-pane{padding:20px 24px;background:var(--bg)}
+/* Template buttons */
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px}
+.tpl-btn{padding:9px 12px;border-radius:8px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:var(--bg);text-align:left;transition:all .15s;font-family:var(--sans);color:var(--ink)}
 .tpl-btn:hover{border-color:var(--blue);background:var(--blue-light)}
-.tpl-btn strong{display:block;font-size:0.84rem;margin-bottom:2px}
-.tpl-btn span{color:var(--text-muted);font-size:0.74rem}
-.preview-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:12px;font-size:0.84rem;white-space:pre-wrap;min-height:60px;color:var(--ink2);margin-top:8px}
-.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-.stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;text-align:center;flex:1;min-width:90px}
-.stat-val{font-size:1.3rem;font-weight:800;color:var(--blue)}
-.stat-lbl{font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
-.msg-list{max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;font-size:0.78rem;background:var(--surface)}
-.msg-item{padding:8px 12px;border-bottom:1px solid var(--bg);display:flex;gap:8px;align-items:flex-start}
-.msg-item:last-child{border-bottom:none}
-.msg-name{font-weight:700;min-width:170px;color:var(--ink)}
-.msg-tel{color:var(--text-muted);min-width:110px;font-family:var(--mono);font-size:0.75rem}
-.msg-body{color:var(--ink2);flex:1}
-.sec-label{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--border)}
-</style>
-
-<style id="portal-nav-css">
-#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-family:'DM Sans','Mulish',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto;}
-#portal-nav::-webkit-scrollbar{height:3px;}
-#portal-nav::-webkit-scrollbar-track{background:#1a1a18;}
-#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px;}
-#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500;}
-#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08);}
-#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13);}
-.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0;}
-.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap;}
-.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;}
-.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0;}
-.nav-signout:hover{color:rgba(255,255,255,.6)!important;background:rgba(255,255,255,.06)!important;}
+.tpl-btn.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.tpl-btn strong{display:block;font-size:12px;margin-bottom:1px}
+.tpl-btn span{color:var(--muted);font-size:10px}
+/* Textarea */
+textarea{width:100%;border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:12px;resize:vertical;font-family:var(--sans);color:var(--ink);background:#fff;outline:none;transition:border .15s}
+textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,95,160,.08)}
+/* Labels */
+.lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px;margin-top:12px}
+.lbl:first-child{margin-top:0}
+/* Filters */
+.filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px}
+.filt{padding:4px 10px;border-radius:5px;border:1px solid var(--border2);background:none;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);transition:all .15s}
+.filt:hover,.filt.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* Buttons */
+.btn{padding:8px 14px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1a6b3e}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--ink2)}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:5px 10px;font-size:11px;border-radius:5px}
+.btn-wa{background:#25D366;color:#fff;font-size:11px;padding:5px 10px;border-radius:5px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-weight:600;font-family:var(--sans);cursor:pointer;border:none;transition:all .15s}
+.btn-wa:hover{background:#1ea854}
+/* Client list */
+.client-list{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
+.cl-head{display:grid;grid-template-columns:1fr 110px 70px 70px;gap:8px;padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cl-row{display:grid;grid-template-columns:1fr 110px 70px 70px;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s;cursor:pointer}
+.cl-row:last-child{border-bottom:none}
+.cl-row:hover{background:var(--blue-light)}
+.cl-row.sent{background:var(--green-light)}
+.cl-name{font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cl-mob{font-family:var(--mono);font-size:10px;color:var(--muted)}
+.cl-type{font-size:10px}
+.no-mob{color:var(--red);font-size:10px;font-style:italic}
+/* Badge */
+.badge{display:inline-block;padding:1px 6px;border-radius:9px;font-size:9px;font-weight:700;white-space:nowrap}
+.badge-ltd{background:var(--blue-light);color:var(--blue)}
+.badge-se{background:var(--purple-light);color:var(--purple)}
+.badge-sent{background:var(--green-light);color:var(--green)}
+.badge-unsent{background:var(--border);color:var(--muted)}
+/* Preview box */
+.preview-msg{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:12px;white-space:pre-wrap;line-height:1.7;color:var(--ink2);min-height:100px;margin-bottom:14px}
+/* Progress */
+.prog-wrap{margin-top:10px;display:none}
+.prog-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;background:var(--green);border-radius:99px;transition:width .2s;width:0%}
+.prog-txt{font-size:10px;color:var(--muted)}
+/* Maintenance section */
+.maint{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:14px}
+.maint summary{font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);list-style:none;display:flex;align-items:center;gap:5px}
+.maint summary::-webkit-details-marker{display:none}
+.maint[open] summary{color:var(--ink);margin-bottom:10px}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
+/* Sent log */
+.sent-log{max-height:260px;overflow-y:auto;font-size:11px}
+.sent-entry{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border)}
+.sent-entry:last-child{border-bottom:none}
+.sent-entry span{color:var(--muted);font-size:10px;font-family:var(--mono)}
 </style>
 </head>
 <body>
 
 <div id="portal-nav">
-  <div class="nav-brand">
-    <span class="nav-title">CA Chowdury Accountants</span>
-    <span class="nav-sub">Practice Portal</span>
-  </div>
+  <div class="nav-brand"><span class="nav-title">CA Chowdury Accountants</span><span class="nav-sub">Practice Portal</span></div>
   <a href="index.html">🏠 Portal</a>
   <a href="revenue-tracker.html">💰 Revenue</a>
   <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
@@ -99,169 +132,144 @@ label{font-size:0.75rem;font-weight:700;color:var(--text-muted);display:block;ma
   <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
 </div>
 
-<div class="page-header" style="padding:18px 24px 16px;border-bottom:1px solid var(--border);background:var(--surface)">
-  <h1 style="font-family:'Raleway',sans-serif;font-size:20px;font-weight:800;margin-bottom:2px">📲 Client Greetings & Mobile Import</h1>
-  <p style="font-size:11px;color:var(--muted)">Import mobile numbers from Inform Direct · Send bulk WhatsApp greetings to all clients</p>
-</div>
-<div class="wrap" style="max-width:920px;margin:24px auto;padding:0 24px">
-
-  <!-- MOBILE IMPORT -->
-  <div class="card">
-    <div class="card-title">📥 Import 306 Mobile Numbers from Inform Direct</div>
-    <p style="font-size:0.83rem;color:#6b7280;margin-bottom:14px">Nawaz has added all mobile numbers to the Inform Direct spreadsheet. Click below to push them all to Supabase in one go.</p>
-    <div class="stats">
-      <div class="stat"><div class="stat-val" id="imp-total">306</div><div class="stat-lbl">Mobiles to Import</div></div>
-      <div class="stat"><div class="stat-val" id="imp-done" style="color:#16a34a">0</div><div class="stat-lbl">Updated</div></div>
-      <div class="stat"><div class="stat-val" id="imp-fail" style="color:#dc2626">0</div><div class="stat-lbl">Failed</div></div>
-    </div>
-    <button class="btn btn-green" id="imp-btn" onclick="runImport()">▶ Import All Mobile Numbers</button>
-    <button class="btn btn-blue" id="vcf-btn" style="margin-left:10px" onclick="downloadVCF()">📱 Download All as Contacts (.vcf)</button>
-    <div class="progress-wrap" id="imp-progress">
-      <div class="progress-bar"><div class="progress-fill" id="imp-fill"></div></div>
-      <div class="progress-text" id="imp-text">Starting...</div>
-    </div>
-    <div class="result" id="imp-result"></div>
-  </div>
-
-  <!-- GREETINGS -->
-  <div class="card">
-    <div class="card-title">💬 Bulk WhatsApp Greetings Generator</div>
-
-    <div style="margin-bottom:16px">
-      <label>Choose a template</label>
-      <div class="templates">
-        <button class="tpl-btn" onclick="setTemplate('eid')">
-          <strong>🌙 Eid Mubarak</strong>
-          <span>Perfect for Eid al-Fitr & Eid al-Adha</span>
-        </button>
-        <button class="tpl-btn" onclick="setTemplate('newyear')">
-          <strong>🎉 New Year</strong>
-          <span>New Year greetings</span>
-        </button>
-        <button class="tpl-btn" onclick="setTemplate('ramadan')">
-          <strong>🌙 Ramadan Mubarak</strong>
-          <span>Start of Ramadan</span>
-        </button>
-        <button class="tpl-btn" onclick="setTemplate('custom')">
-          <strong>✏️ Custom Message</strong>
-          <span>Write your own</span>
-        </button>
-      </div>
-    </div>
-
-    <div style="margin-bottom:14px">
-      <label>Message Template <span style="font-weight:400;color:#6b7280">(use {name} for client name)</span></label>
-      <textarea id="msg-template" rows="5" placeholder="Write your message here..."></textarea>
-    </div>
-
-    <div style="margin-bottom:14px">
-      <label>Insert variable</label><br>
-      <span class="tag" onclick="insertVar('{name}')">👤 {name}</span>
-    </div>
-
-    <div style="margin-bottom:14px">
-      <label>Preview (first client)</label>
-      <div class="preview-box" id="msg-preview">—</div>
-    </div>
-
-    <div style="margin-bottom:16px">
-      <label>Filter clients</label>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-grey" id="f-all" onclick="setFilter('all')">All clients</button>
-        <button class="btn btn-grey" id="f-gc" onclick="setFilter('gc')">On GoCardless only</button>
-        <button class="btn btn-grey" id="f-mobile" onclick="setFilter('mobile')">Has mobile only</button>
-      </div>
-    </div>
-
-    <div style="margin-bottom:16px">
-      <label>Generated messages (<span id="msg-count">0</span> clients)</label>
-      <div class="msg-list" id="msg-list"></div>
-    </div>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-blue" onclick="copyAll()">📋 Copy All as WhatsApp CSV</button>
-      <button class="btn btn-purple" onclick="downloadCSV()">⬇️ Download CSV</button>
-    </div>
-    <p style="font-size:0.75rem;color:#6b7280;margin-top:10px">💡 Copy the CSV and paste into WhatsApp Business bulk messaging tools like WATI, Interakt, or use the wa.me links below to send one-by-one quickly.</p>
-
-    <div style="margin-top:16px">
-      <label>Quick WhatsApp Links (tap to open each chat)</label>
-      <div id="wa-links" style="max-height:200px;overflow-y:auto;font-size:0.8rem"></div>
-    </div>
+<div class="page-header">
+  <h1>📲 Client Greetings</h1>
+  <p>Send personalised WhatsApp greetings to all clients — Eid, Ramadan, New Year and more</p>
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="setView('compose')">✉️ Compose & Send</div>
+    <div class="page-tab" onclick="setView('log')">📋 Sent Log</div>
   </div>
 </div>
 
+<div class="kpi-row">
+  <div class="kpi"><div class="k">Total Clients</div><div class="v" id="k-total" style="color:var(--blue)">—</div></div>
+  <div class="kpi"><div class="k">Have Mobile</div><div class="v" id="k-mobile" style="color:var(--green)">—</div></div>
+  <div class="kpi"><div class="k">Missing Mobile</div><div class="v" id="k-nomob" style="color:var(--red)">—</div></div>
+  <div class="kpi"><div class="k">Sent This Session</div><div class="v" id="k-sent" style="color:var(--amber)">0</div></div>
+  <div class="kpi"><div class="k">Ltd Clients</div><div class="v" id="k-ltd" style="color:var(--muted)">—</div></div>
+  <div class="kpi"><div class="k">SE Clients</div><div class="v" id="k-se" style="color:var(--muted)">—</div></div>
+</div>
+
+<!-- COMPOSE VIEW -->
+<div id="view-compose">
+  <div class="main">
+
+    <!-- LEFT SIDEBAR: compose -->
+    <div class="sidebar">
+      <h3>📝 Message</h3>
+
+      <span class="lbl">Template</span>
+      <div class="tpl-grid">
+        <button class="tpl-btn" id="tpl-eid" onclick="setTemplate('eid')"><strong>🌙 Eid Mubarak</strong><span>Eid al-Fitr & al-Adha</span></button>
+        <button class="tpl-btn" id="tpl-ramadan" onclick="setTemplate('ramadan')"><strong>🌙 Ramadan</strong><span>Start of Ramadan</span></button>
+        <button class="tpl-btn" id="tpl-newyear" onclick="setTemplate('newyear')"><strong>🎉 New Year</strong><span>Happy New Year</span></button>
+        <button class="tpl-btn" id="tpl-custom" onclick="setTemplate('custom')"><strong>✏️ Custom</strong><span>Write your own</span></button>
+      </div>
+
+      <span class="lbl">Message <span style="font-weight:400;color:var(--muted)">(use {name} for director name)</span></span>
+      <textarea id="msg-tpl" rows="7" oninput="refreshPreview()" placeholder="Write your message..."></textarea>
+      <div style="margin-top:5px">
+        <button class="btn btn-sm btn-secondary" onclick="insertVar('{name}')">+ {name}</button>
+      </div>
+
+      <span class="lbl" style="margin-top:14px">Filter clients</span>
+      <div class="filters">
+        <button class="filt on" id="f-all" onclick="setFilter('all')">All</button>
+        <button class="filt" id="f-mobile" onclick="setFilter('mobile')">Has mobile</button>
+        <button class="filt" id="f-nomob" onclick="setFilter('nomob')">No mobile</button>
+        <button class="filt" id="f-ltd" onclick="setFilter('ltd')">Ltd only</button>
+        <button class="filt" id="f-se" onclick="setFilter('se')">SE only</button>
+        <button class="filt" id="f-unsent" onclick="setFilter('unsent')">Not sent yet</button>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:11px;color:var(--muted)"><span id="f-count">0</span> clients shown</span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm btn-secondary" onclick="markAllSent()">✓ Mark all sent</button>
+          <button class="btn btn-sm btn-secondary" onclick="clearSent()">↺ Reset</button>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px">
+        <button class="btn btn-green btn-sm" onclick="downloadCSV()">⬇ Download CSV</button>
+        <button class="btn btn-blue btn-sm" onclick="copyCSV()">📋 Copy CSV</button>
+      </div>
+      <p style="font-size:10px;color:var(--muted);margin-bottom:8px">CSV for WATI / Interakt bulk WhatsApp tools</p>
+
+      <!-- Maintenance collapsible -->
+      <details class="maint">
+        <summary>⚙️ Maintenance</summary>
+        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Re-import mobile numbers from spreadsheet data into Supabase</p>
+        <button class="btn btn-sm btn-secondary" id="imp-btn" onclick="runImport()">▶ Re-import Mobiles (306)</button>
+        <div class="prog-wrap" id="imp-prog">
+          <div class="prog-bar"><div class="prog-fill" id="imp-fill"></div></div>
+          <div class="prog-txt" id="imp-txt">Working...</div>
+        </div>
+        <div id="imp-result" style="font-size:11px;margin-top:6px"></div>
+      </details>
+    </div>
+
+    <!-- RIGHT: client list + preview -->
+    <div class="preview-pane">
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px">
+        <!-- Client list -->
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+            <span style="font-family:var(--display);font-size:14px;font-weight:700">Clients</span>
+            <input style="padding:5px 10px;border:1px solid var(--border2);border-radius:6px;font-size:11px;width:180px;outline:none;font-family:var(--sans)" id="srch" placeholder="🔍 Search…" oninput="renderList()">
+          </div>
+          <div class="client-list" id="client-list">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading clients…</div>
+          </div>
+          <div style="font-size:10px;color:var(--muted);margin-top:6px">Click a client to open WhatsApp · Green = sent this session</div>
+        </div>
+
+        <!-- Message preview -->
+        <div>
+          <div style="font-family:var(--display);font-size:14px;font-weight:700;margin-bottom:10px">Preview</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px">First client in list</div>
+          <div class="preview-msg" id="preview-msg">—</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px" id="preview-name">—</div>
+          <button class="btn-wa" onclick="openFirstWA()">💬 Open in WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SENT LOG VIEW -->
+<div id="view-log" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <div>
+      <div style="font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:2px">📋 Sent Log</div>
+      <div style="font-size:11px;color:var(--muted)">Clients marked as sent this session</div>
+    </div>
+    <button class="btn btn-secondary btn-sm" onclick="clearSent();renderLog()">↺ Clear All</button>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <div class="sent-log" id="sent-log-list"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 <script src="mobile_data.js"></script>
 <script>
 const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
-const H={'Content-Type':'application/json','Authorization':'Bearer '+KEY,'apikey':KEY,'Prefer':'return=minimal'};
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY};
 
-async function sbPatch(comp_no, data){
-  const r=await fetch(SB+'/rest/v1/ltd_clients?comp_no=eq.'+encodeURIComponent(comp_no),{
-    method:'PATCH',headers:H,body:JSON.stringify(data)
-  });
-  if(!r.ok) throw new Error(await r.text());
-}
-
-async function runImport(){
-  const btn=document.getElementById('imp-btn');
-  btn.disabled=true; btn.textContent='Importing...';
-  const pw=document.getElementById('imp-progress');
-  pw.style.display='block';
-  let done=0, fail=0;
-  const total=MOBILE_DATA.length;
-
-  for(const rec of MOBILE_DATA){
-    try{
-      await sbPatch(rec.comp_no, {director_mobile: rec.mobile});
-      done++;
-    } catch(e){
-      fail++;
-    }
-    document.getElementById('imp-done').textContent=done;
-    document.getElementById('imp-fail').textContent=fail;
-    document.getElementById('imp-fill').style.width=Math.round((done+fail)/total*100)+'%';
-    document.getElementById('imp-text').textContent=(done+fail)+' of '+total+' processed...';
-  }
-
-  pw.style.display='none';
-  const res=document.getElementById('imp-result');
-  res.style.display='block';
-  if(fail===0){
-    res.className='result ok';
-    res.textContent='✅ All '+done+' mobile numbers imported successfully!';
-  } else {
-    res.className='result err';
-    res.textContent='⚠️ '+done+' updated, '+fail+' failed. Check Supabase connection.';
-  }
-  btn.textContent='✅ Import Complete';
-  localStorage.setItem('ca_mobile_imported','true');
-}
-
-// GREETINGS
-const TEMPLATES={
-  eid:`Assalamu Alaikum,
+const TMPLS = {
+  eid:`Assalamu Alaikum {name},
 
 Eid Mubarak to you and your family! 🌙✨
 
-Wishing you a blessed and joyful Eid al-Fitr filled with happiness, peace and prosperity.
+Wishing you a blessed and joyful Eid filled with happiness, peace and prosperity.
 
 Best wishes,
 Md Asadul Chowdury
 Chowdury Accountants
 📞 0161 222 4647`,
-  newyear:`Dear {name},
-
-Wishing you and your family a very Happy New Year! 🎉
-
-May 2026 bring you success, health and prosperity in your business and beyond.
-
-Best wishes,
-Md Asadul Chowdury
-Chowdury Accountants
-📞 0161 222 4647`,
-  ramadan:`Assalamu Alaikum,
+  ramadan:`Assalamu Alaikum {name},
 
 Ramadan Mubarak! 🌙
 
@@ -271,181 +279,253 @@ Best wishes,
 Md Asadul Chowdury
 Chowdury Accountants
 📞 0161 222 4647`,
-  custom:`Dear {name},
+  newyear:`Dear {name},
 
-`
+Wishing you and your family a very Happy New Year! 🎉
+
+May the new year bring you success, health and prosperity in your business and beyond.
+
+Best wishes,
+Md Asadul Chowdury
+Chowdury Accountants
+📞 0161 222 4647`,
+  custom:`Dear {name},\n\n`
 };
 
-let currentFilter='all';
-let clientData=[];
+let ALL = [];
+let filter = 'all';
+let sentSet = new Set(JSON.parse(sessionStorage.getItem('ca_greet_sent')||'[]'));
+let curTpl = 'eid';
 
-async function loadClients(){
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
+
+async function load(){
   try{
-    const r=await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,name,director_name,director_mobile,status&limit=1000',{headers:H});
-    const data=await r.json();
-    clientData=Array.isArray(data) ? data : [];
-    renderMessages();
-  } catch(e){
-    console.error('Failed to load clients',e);
+    const [ltd, se] = await Promise.all([
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()),
+      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[])
+    ]);
+    const ltdArr = (Array.isArray(ltd)?ltd:[]).map(c=>({
+      id:'ltd_'+c.comp_no, type:'ltd',
+      name:c.director_name||'Director', mobile:c.director_mobile||''
+    }));
+    const seArr = (Array.isArray(se)?se:[]).map(c=>({
+      id:'se_'+c.id, type:'se',
+      name:c.full_name||'Client', mobile:c.mobile||''
+    }));
+    ALL = [...ltdArr, ...seArr];
+    renderStats();
+    renderList();
+    refreshPreview();
+  }catch(e){
+    document.getElementById('client-list').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">Failed to load clients: '+e.message+'</div>';
   }
 }
 
-function setTemplate(key){
-  document.getElementById('msg-template').value=TEMPLATES[key]||'';
-  updatePreview();
-  renderMessages();
-}
-
-function insertVar(v){
-  const ta=document.getElementById('msg-template');
-  const s=ta.selectionStart, e=ta.selectionEnd;
-  ta.value=ta.value.substring(0,s)+v+ta.value.substring(e);
-  ta.selectionStart=ta.selectionEnd=s+v.length;
-  ta.focus();
-  updatePreview();
-  renderMessages();
-}
-
-document.getElementById('msg-template').addEventListener('input',()=>{updatePreview();renderMessages();});
-
-function updatePreview(){
-  const tpl=document.getElementById('msg-template').value;
-  const first=clientData[0];
-  if(!first){document.getElementById('msg-preview').textContent='Load clients first...';return;}
-  const name=first.director_name||'Client';
-  document.getElementById('msg-preview').textContent=tpl.replace(/{name}/g,name);
-}
-
-function setFilter(f){
-  currentFilter=f;
-  ['all','gc','mobile'].forEach(x=>document.getElementById('f-'+x).className='btn btn-grey'+(x===f?' btn-blue':''));
-  document.getElementById('f-'+f).className='btn btn-blue';
-  renderMessages();
+function renderStats(){
+  const hasMob = ALL.filter(c=>c.mobile.trim());
+  document.getElementById('k-total').textContent=ALL.length;
+  document.getElementById('k-mobile').textContent=hasMob.length;
+  document.getElementById('k-nomob').textContent=ALL.length-hasMob.length;
+  document.getElementById('k-ltd').textContent=ALL.filter(c=>c.type==='ltd').length;
+  document.getElementById('k-se').textContent=ALL.filter(c=>c.type==='se').length;
+  document.getElementById('k-sent').textContent=sentSet.size;
 }
 
 function getFiltered(){
-  return clientData.filter(c=>{
-    if(currentFilter==='mobile') return c.director_mobile && c.director_mobile.trim();
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  return ALL.filter(c=>{
+    if(q&&!c.name.toLowerCase().includes(q)) return false;
+    if(filter==='mobile') return !!c.mobile.trim();
+    if(filter==='nomob') return !c.mobile.trim();
+    if(filter==='ltd') return c.type==='ltd';
+    if(filter==='se') return c.type==='se';
+    if(filter==='unsent') return !sentSet.has(c.id);
     return true;
   });
 }
 
-function renderMessages(){
-  const tpl=document.getElementById('msg-template').value;
+function renderList(){
   const list=getFiltered();
-  document.getElementById('msg-count').textContent=list.length;
-
-  const html=list.slice(0,50).map(c=>{
-    const name=c.director_name||'Client';
-    const msg=tpl.replace(/{name}/g,name);
-    const tel=c.director_mobile||'—';
-    return `<div class="msg-item">
-      <div class="msg-name">${name}</div>
-      <div class="msg-tel">${tel}</div>
-      <div class="msg-body">${msg.substring(0,80)}${msg.length>80?'…':''}</div>
+  document.getElementById('f-count').textContent=list.length;
+  if(!list.length){
+    document.getElementById('client-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients match filter</div>';
+    return;
+  }
+  const tpl=document.getElementById('msg-tpl').value;
+  let html='<div class="cl-head"><div>Name</div><div>Mobile</div><div>Type</div><div>Status</div></div>';
+  html+=list.slice(0,200).map(c=>{
+    const msg=tpl.replace(/{name}/g,c.name);
+    const mob=c.mobile.trim();
+    const sent=sentSet.has(c.id);
+    const tel=mob.replace(/\D/g,'');
+    const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
+    const encoded=encodeURIComponent(msg);
+    const waHref=mob?`https://wa.me/${uk}?text=${encoded}`:'';
+    return `<div class="cl-row${sent?' sent':''}" onclick="${mob?`openWA('${c.id}','${waHref.replace(/'/g,"\\'")}')`:''}" title="${mob?'Tap to open WhatsApp':'No mobile number'}">
+      <div class="cl-name">${c.name}</div>
+      <div class="cl-mob">${mob||'<span class="no-mob">no mobile</span>'}</div>
+      <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
+      <div><span class="badge ${sent?'badge-sent':'badge-unsent'}">${sent?'Sent':'—'}</span></div>
     </div>`;
   }).join('');
-  document.getElementById('msg-list').innerHTML=html+(list.length>50?`<div style="padding:8px 12px;color:#6b7280;font-size:0.75rem">...and ${list.length-50} more</div>`:'');
-
-  // WA links
-  const waHtml=list.filter(c=>c.director_mobile).slice(0,30).map(c=>{
-    const name=c.director_name||'Client';
-    const tpl_=document.getElementById('msg-template').value;
-    const msg=tpl_.replace(/{name}/g,name);
-    const tel=c.director_mobile.replace(/\D/g,'');
-    const uk=tel.startsWith('0')?'44'+tel.substring(1):tel;
-    const encoded=encodeURIComponent(msg);
-    return `<a href="https://wa.me/${uk}?text=${encoded}" target="_blank" style="display:inline-block;margin:3px;padding:4px 10px;background:#25D366;color:#fff;border-radius:5px;text-decoration:none;font-size:0.75rem">💬 ${name}</a>`;
-  }).join('');
-  document.getElementById('wa-links').innerHTML=waHtml||'<span style="color:#6b7280">No mobiles loaded yet. Run the import first.</span>';
+  if(list.length>200) html+=`<div style="padding:8px 12px;color:var(--muted);font-size:10px">...and ${list.length-200} more. Use filters to narrow down.</div>`;
+  document.getElementById('client-list').innerHTML=html;
+  refreshPreview(list[0]);
 }
 
-function copyAll(){
-  const tpl=document.getElementById('msg-template').value;
+function openWA(id, href){
+  if(!href) return;
+  window.open(href,'_blank');
+  sentSet.add(id);
+  sessionStorage.setItem('ca_greet_sent', JSON.stringify([...sentSet]));
+  renderStats();
+  renderList();
+}
+
+function openFirstWA(){
+  const list=getFiltered().filter(c=>c.mobile.trim());
+  if(!list.length){toast('No clients with mobiles in current filter','err');return;}
+  const c=list[0];
+  const tpl=document.getElementById('msg-tpl').value;
+  const msg=tpl.replace(/{name}/g,c.name);
+  const tel=c.mobile.replace(/\D/g,'');
+  const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
+  window.open(`https://wa.me/${uk}?text=${encodeURIComponent(msg)}`,'_blank');
+  sentSet.add(c.id);
+  sessionStorage.setItem('ca_greet_sent',JSON.stringify([...sentSet]));
+  renderStats();renderList();
+}
+
+function refreshPreview(client){
   const list=getFiltered();
-  const rows=['Name,Mobile,Message'];
-  list.forEach(c=>{
-    const name=(c.director_name||'Client').replace(/,/g,'');
-    const msg=tpl.replace(/{name}/g,name).replace(/\n/g,' ').replace(/,/g,';');
-    rows.push(`${name},${c.director_mobile||''},${msg}`);
-  });
-  navigator.clipboard.writeText(rows.join('\n')).then(()=>alert('✅ Copied '+list.length+' messages to clipboard!'));
+  const c=client||(list[0]);
+  if(!c){document.getElementById('preview-msg').textContent='No clients loaded';return;}
+  const tpl=document.getElementById('msg-tpl').value;
+  document.getElementById('preview-msg').textContent=tpl.replace(/{name}/g,c.name);
+  document.getElementById('preview-name').textContent='👤 '+c.name+(c.mobile?' · '+c.mobile:' · no mobile');
+}
+
+function setTemplate(key){
+  curTpl=key;
+  document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tpl-'+key).classList.add('active');
+  document.getElementById('msg-tpl').value=TMPLS[key]||'';
+  refreshPreview();
+  renderList();
+}
+
+function insertVar(v){
+  const ta=document.getElementById('msg-tpl');
+  const s=ta.selectionStart;
+  ta.value=ta.value.slice(0,s)+v+ta.value.slice(ta.selectionEnd);
+  ta.selectionStart=ta.selectionEnd=s+v.length;
+  ta.focus();refreshPreview();renderList();
+}
+
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.filt').forEach(b=>b.classList.remove('on'));
+  document.getElementById('f-'+f).classList.add('on');
+  renderList();
+}
+
+function markAllSent(){
+  const list=getFiltered().filter(c=>c.mobile.trim());
+  list.forEach(c=>sentSet.add(c.id));
+  sessionStorage.setItem('ca_greet_sent',JSON.stringify([...sentSet]));
+  toast('Marked '+list.length+' as sent');
+  renderStats();renderList();
+}
+
+function clearSent(){
+  sentSet.clear();
+  sessionStorage.removeItem('ca_greet_sent');
+  renderStats();renderList();
+  toast('Sent log cleared');
 }
 
 function downloadCSV(){
-  const tpl=document.getElementById('msg-template').value;
-  const list=getFiltered();
-  const rows=['Name,Mobile,Message'];
+  const tpl=document.getElementById('msg-tpl').value;
+  const list=getFiltered().filter(c=>c.mobile.trim());
+  if(!list.length){toast('No clients with mobiles','err');return;}
+  const rows=['"Name","Mobile","Message"'];
   list.forEach(c=>{
-    const name=(c.director_name||'Client').replace(/"/g,'""');
-    const msg=tpl.replace(/{name}/g,name).replace(/"/g,'""');
-    rows.push(`"${name}","${c.director_mobile||''}","${msg}"`);
+    const msg=tpl.replace(/{name}/g,c.name).replace(/"/g,'""');
+    rows.push(`"${c.name.replace(/"/g,'""')}","${c.mobile}","${msg}"`);
   });
   const blob=new Blob([rows.join('\n')],{type:'text/csv'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='greetings_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
+  toast('Downloaded '+list.length+' messages ✓');
+}
+
+function copyCSV(){
+  const tpl=document.getElementById('msg-tpl').value;
+  const list=getFiltered().filter(c=>c.mobile.trim());
+  if(!list.length){toast('No clients with mobiles','err');return;}
+  const rows=['"Name","Mobile","Message"'];
+  list.forEach(c=>{
+    const msg=tpl.replace(/{name}/g,c.name).replace(/"/g,'""');
+    rows.push(`"${c.name.replace(/"/g,'""')}","${c.mobile}","${msg}"`);
+  });
+  navigator.clipboard.writeText(rows.join('\n')).then(()=>toast('Copied '+list.length+' messages ✓'));
+}
+
+// Sent log view
+function renderLog(){
+  const items=[...sentSet];
+  if(!items.length){
+    document.getElementById('sent-log-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No messages sent this session yet</div>';
+    return;
+  }
+  document.getElementById('sent-log-list').innerHTML=items.map(id=>{
+    const c=ALL.find(x=>x.id===id);
+    if(!c)return'';
+    return`<div class="sent-entry">
+      <div><span style="font-weight:600;font-size:12px">${c.name}</span>&nbsp;<span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
+      <span>${c.mobile||'no mobile'}</span>
+    </div>`;
+  }).filter(Boolean).join('');
+}
+
+function setView(v){
+  document.getElementById('view-compose').style.display=v==='compose'?'block':'none';
+  document.getElementById('view-log').style.display=v==='log'?'block':'none';
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',i===(v==='compose'?0:1)));
+  if(v==='log') renderLog();
+}
+
+// Re-import maintenance
+async function runImport(){
+  const btn=document.getElementById('imp-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  document.getElementById('imp-prog').style.display='block';
+  let done=0,fail=0;
+  for(const rec of MOBILE_DATA){
+    try{
+      await fetch(SB+'/rest/v1/ltd_clients?comp_no=eq.'+rec.comp_no,{
+        method:'PATCH',headers:{...H,'Content-Type':'application/json','Prefer':'return=minimal'},
+        body:JSON.stringify({director_mobile:rec.mobile})
+      });
+      done++;
+    }catch(e){fail++;}
+    const pct=Math.round((done+fail)/MOBILE_DATA.length*100);
+    document.getElementById('imp-fill').style.width=pct+'%';
+    document.getElementById('imp-txt').textContent=(done+fail)+' of '+MOBILE_DATA.length;
+  }
+  document.getElementById('imp-prog').style.display='none';
+  document.getElementById('imp-result').textContent=fail?`⚠️ ${done} updated, ${fail} failed`:`✅ ${done} updated`;
+  document.getElementById('imp-result').style.color=fail?'var(--red)':'var(--green)';
+  btn.textContent='▶ Re-import Mobiles';btn.disabled=false;
+  toast(fail?`${done} updated, ${fail} failed`:'All mobiles updated ✓', fail?'err':'ok');
 }
 
 // Init
-setFilter('all');
 setTemplate('eid');
-loadClients();
-// Check import status on load
-(async()=>{
-  try{
-    const r=await fetch(SB+'/rest/v1/ltd_clients?select=id&director_mobile=not.is.null&limit=1',{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
-    // If above gives 400, just skip - import still works
-    const btn=document.getElementById('imp-btn');
-    const res=document.getElementById('imp-result');
-    // Check localStorage for completed import
-    if(localStorage.getItem('ca_mobile_imported')==='true'){
-      btn.textContent='✅ Already Imported — Re-run to update';
-      res.style.display='block';res.className='result ok';
-      res.textContent='Mobile numbers were previously imported. Click to re-import if numbers have changed.';
-    }
-  }catch(e){}
-})();
-
-async function downloadVCF(){
-  const btn = document.getElementById('vcf-btn');
-  btn.textContent = '⏳ Loading...';
-  btn.disabled = true;
-  try {
-    // Use exact same fetch as loadClients which is known to work
-    const r = await fetch(SB+'/rest/v1/ltd_clients?select=name,director_name,director_mobile&limit=1000', {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const data = await r.json();
-    if(!Array.isArray(data)) throw new Error('Bad data: '+JSON.stringify(data).slice(0,60));
-    const clients = data.filter(d => d.director_mobile && d.director_mobile.trim());
-    if(!clients.length) throw new Error('No mobiles found');
-    const lines = [];
-    clients.forEach(d => {
-      const name = (d.director_name||'Unknown').trim();
-      const co = (d.name||'').trim();
-      const raw = d.director_mobile.trim().replace(/\s+/g,'');
-      const tel = raw.startsWith('0')?'+44'+raw.slice(1):raw.startsWith('44')?'+'+raw:raw;
-      lines.push('BEGIN:VCARD','VERSION:3.0',
-        'FN:'+(co?name+' - '+co:name),
-        'N:'+name+';;;;','ORG:'+co,
-        'TEL;TYPE=CELL:'+tel,'END:VCARD','');
-    });
-    const blob = new Blob([lines.join('\n')],{type:'text/x-vcard'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download='chowdury_clients.vcf';
-    document.body.appendChild(a); a.click();
-    URL.revokeObjectURL(url); document.body.removeChild(a);
-    btn.textContent = '✅ '+clients.length+' contacts downloaded';
-    btn.disabled = false;
-    setTimeout(()=>{btn.textContent='📱 Download All as Contacts (.vcf)';},3000);
-  } catch(e) {
-    btn.textContent = '📱 Download All as Contacts (.vcf)';
-    btn.disabled = false;
-    alert('Error: '+e.message);
-  }
-}
+load();
 </script>
 </body>
 </html>
