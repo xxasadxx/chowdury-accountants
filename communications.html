@@ -138,6 +138,7 @@ select:focus{border-color:var(--blue)}
         <div class="tpl-item" id="tpl-payroll" onclick="setTpl('payroll')"><div class="tpl-name">💼 Payroll Records Request</div><div class="tpl-desc">Request payroll information</div></div>
         <div class="tpl-item" id="tpl-payment" onclick="setTpl('payment')"><div class="tpl-name">💳 Payment Reminder</div><div class="tpl-desc">Outstanding fees reminder</div></div>
         <div class="tpl-item" id="tpl-engagement" onclick="setTpl('engagement')"><div class="tpl-name">📄 Engagement Letter Chaser</div><div class="tpl-desc">Unsigned letter follow-up</div></div>
+        <div class="tpl-item" id="tpl-disengagement" onclick="setTpl('disengagement')"><div class="tpl-name">🚪 Client Disengagement</div><div class="tpl-desc">Formal disengagement letter</div></div>
         <div class="tpl-item" id="tpl-meeting" onclick="setTpl('meeting')"><div class="tpl-name">📅 Meeting Reminder</div><div class="tpl-desc">Appointment reminder SMS/WhatsApp</div></div>
         <div class="tpl-item" id="tpl-custom" onclick="setTpl('custom')"><div class="tpl-name">✏️ Custom Message</div><div class="tpl-desc">Write your own</div></div>
       </div>
@@ -424,6 +425,49 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  disengagement: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const compName = client.company_name || client.name || '[Company Name]';
+    const t = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+    return `The Director of ${compName}
+
+${t}
+
+Dear ${name},
+
+1. PURPOSE
+This letter aims to outline the details related to our disengagement as your accountants and tax advisers, effective immediately except as specified below.
+
+2. SUMMARY OF SERVICES PROVIDED
+During our professional engagement with you, we delivered the following services as agreed in our Letter of Engagement. The advice provided during our engagement was intended solely for your use and does not constitute advice to any third party. We accept no responsibility to third parties for any aspect of our professional services.
+
+3. RESPECTIVE RESPONSIBILITIES
+Upon our disengagement as your accountants, our responsibilities to you will cease with immediate effect. You will be solely responsible for finding another accountant to take over these responsibilities.
+
+Our responsibilities upon disengagement include responding to inquiries from any successor firm and disclosing, with your consent, any issues or circumstances relevant to their decision to accept or decline the appointment. We will, unless significant additional work is required, respond to these inquiries at no additional charge.
+
+4. RETENTION OF RECORDS
+During our work, we have collected information from you and other parties acting on your behalf. We will be pleased to return any original documents or documents that legally belong to you upon request. If you do not collect such records within six months of the date of this letter, we may return them to your last notified address or destroy them without further notice, unless other laws or regulations require otherwise.
+
+5. FEES
+Please note that all outstanding fees remain due and payable. If there is an outstanding balance on your account, you will receive a final invoice separately. We reserve the right to exercise a lien over any books and records in our possession until all outstanding fees have been settled in full.
+
+6. HMRC & COMPANIES HOUSE
+We will inform HMRC and Companies House that we are no longer acting for you and that, until further notice, all correspondence should be sent directly to you. Please ensure you appoint a new accountant promptly to avoid any compliance issues or penalties.
+
+7. CONFIRMATION
+To confirm that you have read and understood the contents of this letter, please respond to this message. If we do not receive a reply within 21 days of the date of this letter, we shall proceed as if you had provided such agreement.
+
+We wish you well for the future.
+
+Yours sincerely,
+
+Md Asadul Chowdury
+Managing Director
+The Chowdury Accountants Ltd
+📞 0161 222 4647 | info@chowduryaccountants.co.uk
+283 Featherstall Road North, Oldham, OL1 2NH`;
+  },
   meeting: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const now = new Date();
