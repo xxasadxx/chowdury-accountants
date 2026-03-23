@@ -2038,8 +2038,9 @@ function calcAccountsPeriod(client) {
 }
 
 function calcVatQuarter(client) {
-  // vat_stagger: 1 = Jan/Apr/Jul/Oct, 2 = Feb/May/Aug/Nov, 3 = Mar/Jun/Sep/Dec
-  const stagger = parseInt(client.vat_stagger) || 0;
+  // vat_stagger can be "Group 1"/"Group 2"/"Group 3" or just "1"/"2"/"3"
+  const raw = String(client.vat_stagger||'');
+  const stagger = parseInt(raw.replace(/[^0-9]/g,'')) || 0;
   if (!stagger) return null;
 
   const now = new Date();
