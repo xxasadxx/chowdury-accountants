@@ -502,6 +502,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('proposal')">📋 Proposal</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('disengagement')">🚪 Disengagement</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('custom')">✏️ Custom</button>
         </div>
@@ -2170,6 +2171,50 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  proposal: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    const svcs = client.services || [];
+    const fee = client.monthly_fee ? `£${client.monthly_fee}/month` : '[fee to be confirmed]';
+    const svcMap = {
+      accounts:'Annual Accounts', bookkeeping:'Bookkeeping', ct600:'CT600 Corporation Tax Return',
+      vat:'VAT Returns', payroll:'Payroll & PAYE', sa:'Self Assessment Tax Return',
+      paye:'PAYE', confirmation:'Confirmation Statement', registered:'Registered Office Address'
+    };
+    const svcLines = svcs.length
+      ? svcs.map(s => svcMap[s] ? `• ${svcMap[s]}` : null).filter(Boolean).join('\n')
+      : '• [Services to be confirmed — see quote]';
+    return `Dear ${greeting},
+
+We would be happy to act as your accountant and provide the following services:
+
+SERVICES REQUIRED
+${svcLines}
+
+MONTHLY FEE
+${fee} (inc. VAT) payable by Direct Debit via GoCardless
+
+If you require any additional services, please let us know and we will send you a revised quote.
+
+BECOMING A CLIENT
+To comply with Money Laundering Regulations, we require 2 forms of ID — one showing a photo and one showing your address (e.g. passport and a recent bank statement or utility bill). You can bring these to our office or send certified copies by post.
+
+Please complete the following steps to get started:
+1. Confirm you are happy to proceed with the services and fee above
+2. Provide ID documents for AML verification
+3. Sign the Letter of Engagement we will send you
+4. Set up your Direct Debit via the GoCardless link we will send you
+
+We look forward to welcoming you as a client. Please do not hesitate to contact us if you have any questions.
+
+Best regards,
+Md Asadul Chowdury
+Managing Director
+The Chowdury Accountants Ltd
+📞 0161 222 4647 | info@chowduryaccountants.co.uk
+283 Featherstall Road North, Oldham, OL1 2NH
+www.chowduryaccountants.co.uk`;
+  },
   disengagement: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const compName = client.company_name || client.name || '[Company Name]';

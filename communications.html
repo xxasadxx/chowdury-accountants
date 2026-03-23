@@ -138,6 +138,7 @@ select:focus{border-color:var(--blue)}
         <div class="tpl-item" id="tpl-payroll" onclick="setTpl('payroll')"><div class="tpl-name">💼 Payroll Records Request</div><div class="tpl-desc">Request payroll information</div></div>
         <div class="tpl-item" id="tpl-payment" onclick="setTpl('payment')"><div class="tpl-name">💳 Payment Reminder</div><div class="tpl-desc">Outstanding fees reminder</div></div>
         <div class="tpl-item" id="tpl-engagement" onclick="setTpl('engagement')"><div class="tpl-name">📄 Engagement Letter Chaser</div><div class="tpl-desc">Unsigned letter follow-up</div></div>
+        <div class="tpl-item" id="tpl-proposal" onclick="setTpl('proposal')"><div class="tpl-name">📋 Proposal / Quote Email</div><div class="tpl-desc">Services & fee proposal to prospect</div></div>
         <div class="tpl-item" id="tpl-disengagement" onclick="setTpl('disengagement')"><div class="tpl-name">🚪 Client Disengagement</div><div class="tpl-desc">Formal disengagement letter</div></div>
         <div class="tpl-item" id="tpl-meeting" onclick="setTpl('meeting')"><div class="tpl-name">📅 Meeting Reminder</div><div class="tpl-desc">Appointment reminder SMS/WhatsApp</div></div>
         <div class="tpl-item" id="tpl-custom" onclick="setTpl('custom')"><div class="tpl-name">✏️ Custom Message</div><div class="tpl-desc">Write your own</div></div>
@@ -425,6 +426,50 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  proposal: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    const svcs = client.services || [];
+    const fee = client.monthly_fee ? `£${client.monthly_fee}/month` : '[fee to be confirmed]';
+    const svcMap = {
+      accounts:'Annual Accounts', bookkeeping:'Bookkeeping', ct600:'CT600 Corporation Tax Return',
+      vat:'VAT Returns', payroll:'Payroll & PAYE', sa:'Self Assessment Tax Return',
+      paye:'PAYE', confirmation:'Confirmation Statement', registered:'Registered Office Address'
+    };
+    const svcLines = svcs.length
+      ? svcs.map(s => svcMap[s] ? `• ${svcMap[s]}` : null).filter(Boolean).join('\n')
+      : '• [Services to be confirmed — see quote]';
+    return `Dear ${greeting},
+
+We would be happy to act as your accountant and provide the following services:
+
+SERVICES REQUIRED
+${svcLines}
+
+MONTHLY FEE
+${fee} (inc. VAT) payable by Direct Debit via GoCardless
+
+If you require any additional services, please let us know and we will send you a revised quote.
+
+BECOMING A CLIENT
+To comply with Money Laundering Regulations, we require 2 forms of ID — one showing a photo and one showing your address (e.g. passport and a recent bank statement or utility bill). You can bring these to our office or send certified copies by post.
+
+Please complete the following steps to get started:
+1. Confirm you are happy to proceed with the services and fee above
+2. Provide ID documents for AML verification
+3. Sign the Letter of Engagement we will send you
+4. Set up your Direct Debit via the GoCardless link we will send you
+
+We look forward to welcoming you as a client. Please do not hesitate to contact us if you have any questions.
+
+Best regards,
+Md Asadul Chowdury
+Managing Director
+The Chowdury Accountants Ltd
+📞 0161 222 4647 | info@chowduryaccountants.co.uk
+283 Featherstall Road North, Oldham, OL1 2NH
+www.chowduryaccountants.co.uk`;
+  },
   disengagement: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const compName = client.company_name || client.name || '[Company Name]';
