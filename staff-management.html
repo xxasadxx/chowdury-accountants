@@ -547,7 +547,7 @@ const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const ROLES={Asadul:'Managing Director',Hassan:'Ltd Co & VAT Manager',Aminul:'Payroll & SE Manager',Nawaz:'Apprentice',Sadat:'Remote (Bangladesh)'};
 
-let curStaff='Asadul',curView='activities',curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1,hoursVal=null;
+let curStaff=sessionStorage.getItem('ca_staff')||'Asadul',curView='activities',curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1,hoursVal=null;
 
 const SB_HEADERS={'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY,'Prefer':'return=representation'};
 async function sb(path,opts={}){
@@ -558,6 +558,7 @@ async function sb(path,opts={}){
 
 function setStaff(s,el){
   curStaff=s;
+  sessionStorage.setItem('ca_staff',s);
   document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('s-name').textContent=s;
@@ -730,11 +731,8 @@ async function loadActivities(){
   const {s,e}=getDateRange();
   document.getElementById('act-list').innerHTML='<div class="no-data">Loading…</div>';
   try{
-    // Query by short name OR full name (for backwards compat with old entries)
-    const staffFilter=curStaff==='Asadul'
-      ? `staff=in.(Asadul,Md%20Asadul%20Islam%20Chowdury,Asadul%20Chowdury)`
-      : `staff=eq.${encodeURIComponent(curStaff)}`;
-    const data=await sb(`staff_activities?${staffFilter}&activity_date=gte.${s}&activity_date=lte.${e}&order=activity_date.desc,created_at.desc`);
+    // Simple query - staff saved as short name from both staff page and Ltd tracker
+    const data=await sb(`staff_activities?staff=eq.${encodeURIComponent(curStaff)}&activity_date=gte.${s}&activity_date=lte.${e}&order=activity_date.desc,created_at.desc`);
     _lastActivities=data;
     renderActs(data);updateStats(data);
   }catch(e){console.warn('Activities:',e.message);document.getElementById('act-list').innerHTML='<div class="no-data">No activities this month.</div>';}
@@ -1139,6 +1137,16 @@ function loadAll(){
   const sp=localStorage.getItem('ca_photo_'+curStaff);window._curPhoto=sp||null;renderPhotoPreview(sp||null);
   if(curView==='profile'){loadProfile();loadHolidays();}
 }
+// Auto-highlight correct staff tab on load
+(function(){
+  document.querySelectorAll('.staff-tab').forEach(t=>{
+    t.classList.remove('active');
+    const oc=t.getAttribute('onclick')||'';
+    if(oc.includes("'"+curStaff+"'")){t.classList.add('active');}
+  });
+  const sn=document.getElementById('s-name');if(sn)sn.textContent=curStaff;
+  const sr=document.getElementById('s-role');if(sr)sr.textContent=ROLES[curStaff]||'—';
+})();
 loadAll();
 </script>
 </body>
