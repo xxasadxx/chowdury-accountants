@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script>if(localStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <script>
 (function(){
-  var role=sessionStorage.getItem('ca_role')||'staff';
-  var user=sessionStorage.getItem('ca_user')||'';
+  var role=localStorage.getItem('ca_role')||'staff';
+  var user=localStorage.getItem('ca_user')||'';
   var page=window.location.pathname.split('/').pop()||'index.html';
   var restricted=['revenue-tracker.html','strategic-review.html'];
   // Redirect staff away from restricted pages
@@ -26,14 +26,14 @@
       });
       // Show logged-in user name in nav if element exists
       var nameEl=document.getElementById('ca-user-name');
-      if(nameEl) nameEl.textContent=sessionStorage.getItem('ca_name')||'';
+      if(nameEl) nameEl.textContent=localStorage.getItem('ca_name')||'';
     });
   }
   // Auto-set staff page to logged-in user
   if(page==='staff-management.html'){
-    var name=sessionStorage.getItem('ca_name');
-    if(name && !sessionStorage.getItem('ca_staff')){
-      sessionStorage.setItem('ca_staff',name);
+    var name=localStorage.getItem('ca_name');
+    if(name && !localStorage.getItem('ca_staff')){
+      localStorage.setItem('ca_staff',name);
     }
   }
 })();
@@ -703,7 +703,7 @@
     <a href="communications.html">💬 Comms</a>
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html">🚀 Strategy</a>
-    <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+    <a href="login.html" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role'].forEach(function(k){localStorage.removeItem(k);})">Sign out</a>
   </div>
 </div>
 <script>

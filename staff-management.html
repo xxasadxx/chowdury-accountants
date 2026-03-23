@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script>if(localStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <script>
 (function(){
-  var role=sessionStorage.getItem('ca_role')||'staff';
-  var user=sessionStorage.getItem('ca_user')||'';
+  var role=localStorage.getItem('ca_role')||'staff';
+  var user=localStorage.getItem('ca_user')||'';
   var page=window.location.pathname.split('/').pop()||'index.html';
   var restricted=['revenue-tracker.html','strategic-review.html'];
   // Redirect staff away from restricted pages
@@ -26,14 +26,14 @@
       });
       // Show logged-in user name in nav if element exists
       var nameEl=document.getElementById('ca-user-name');
-      if(nameEl) nameEl.textContent=sessionStorage.getItem('ca_name')||'';
+      if(nameEl) nameEl.textContent=localStorage.getItem('ca_name')||'';
     });
   }
   // Auto-set staff page to logged-in user
   if(page==='staff-management.html'){
-    var name=sessionStorage.getItem('ca_name');
-    if(name && !sessionStorage.getItem('ca_staff')){
-      sessionStorage.setItem('ca_staff',name);
+    var name=localStorage.getItem('ca_name');
+    if(name && !localStorage.getItem('ca_staff')){
+      localStorage.setItem('ca_staff',name);
     }
   }
 })();
@@ -259,7 +259,7 @@ header h1 span { color: var(--blue); }
     <a href="communications.html">💬 Comms</a>
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html">🚀 Strategy</a>
-    <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+    <a href="login.html" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role'].forEach(function(k){localStorage.removeItem(k);})">Sign out</a>
   </div>
 </div>
 <script>
@@ -582,7 +582,7 @@ const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const ROLES={Asadul:'Managing Director',Hassan:'Ltd Co & VAT Manager',Aminul:'Payroll & SE Manager',Nawaz:'Apprentice',Sadat:'Remote (Bangladesh)'};
 
-let curStaff=sessionStorage.getItem('ca_staff')||'Asadul',curView='activities',curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1,hoursVal=null;
+let curStaff=localStorage.getItem('ca_staff')||'Asadul',curView='activities',curYear=new Date().getFullYear(),curMonth=new Date().getMonth()+1,hoursVal=null;
 
 const SB_HEADERS={'Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY};
 const SB_HEADERS_POST={'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY,'Prefer':'return=representation'};
@@ -596,7 +596,7 @@ async function sb(path,opts={}){
 
 function setStaff(s,el){
   curStaff=s;
-  sessionStorage.setItem('ca_staff',s);
+  localStorage.setItem('ca_staff',s);
   document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('s-name').textContent=s;

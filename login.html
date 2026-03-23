@@ -61,7 +61,7 @@ const USERS = {
 
 window.onload = () => {
   document.getElementById('un').focus();
-  if(sessionStorage.getItem('ca_auth')==='true') window.location.href='index.html';
+  if(localStorage.getItem('ca_auth')==='true') window.location.href='index.html';
 };
 
 function login() {
@@ -69,10 +69,10 @@ function login() {
   const pw = document.getElementById('pw').value;
   const user = USERS[un];
   if(user && pw === user.pass) {
-    sessionStorage.setItem('ca_auth', 'true');
-    sessionStorage.setItem('ca_user', un);
-    sessionStorage.setItem('ca_name', user.name);
-    sessionStorage.setItem('ca_role', user.role);
+    localStorage.setItem('ca_auth', 'true');
+    localStorage.setItem('ca_user', un);
+    localStorage.setItem('ca_name', user.name);
+    localStorage.setItem('ca_role', user.role);
     window.location.href = 'index.html';
   } else {
     const err = document.getElementById('error');

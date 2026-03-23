@@ -1,9 +1,9 @@
 <!DOCTYPE html><html><head>
-<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script>if(localStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <script>
 (function(){
-  var role=sessionStorage.getItem('ca_role')||'staff';
-  var user=sessionStorage.getItem('ca_user')||'';
+  var role=localStorage.getItem('ca_role')||'staff';
+  var user=localStorage.getItem('ca_user')||'';
   var page=window.location.pathname.split('/').pop()||'index.html';
   var restricted=['revenue-tracker.html','strategic-review.html'];
   if(role!=='admin' && restricted.indexOf(page)!==-1){
@@ -20,9 +20,9 @@
     });
   }
   if(page==='staff-management.html'){
-    var name=sessionStorage.getItem('ca_name');
-    if(name && !sessionStorage.getItem('ca_staff')){
-      sessionStorage.setItem('ca_staff',name);
+    var name=localStorage.getItem('ca_name');
+    if(name && !localStorage.getItem('ca_staff')){
+      localStorage.setItem('ca_staff',name);
     }
   }
 })();
