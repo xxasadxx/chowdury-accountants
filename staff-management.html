@@ -276,8 +276,12 @@ header h1 span { color: var(--blue); }
       <div class="card-body">
         <div class="af-grid">
           <div>
-            <span class="af-label">Date</span>
+            <span class="af-label">Start Date</span>
             <input type="date" id="f-date">
+          </div>
+          <div>
+            <span class="af-label">End Date <span style="font-weight:400;color:var(--muted)">(if multi-day)</span></span>
+            <input type="date" id="f-date-end" oninput="calcHours()">
           </div>
           <div>
             <span class="af-label">Client (optional)</span>
@@ -301,20 +305,24 @@ header h1 span { color: var(--blue); }
             </select>
           </div>
           <div>
-            <span class="af-label">From</span>
+            <span class="af-label">Time From</span>
             <input type="time" id="f-from" oninput="calcHours()">
           </div>
           <div>
-            <span class="af-label">To</span>
+            <span class="af-label">Time To</span>
             <input type="time" id="f-to" oninput="calcHours()">
           </div>
           <div>
-            <span class="af-label">Description</span>
-            <input type="text" id="f-desc" placeholder="What was done...">
+            <span class="af-label">Hours <span style="font-weight:400;color:var(--muted)">(or enter manually)</span></span>
+            <input type="number" id="f-hours-manual" min="0" max="99" step="0.5" placeholder="e.g. 3.5" oninput="manualHours()" style="width:100%;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;font-size:12px">
           </div>
           <div>
-            <span class="af-label">Hrs</span>
+            <span class="af-label">Calculated</span>
             <div class="hours-disp" id="f-hours">—</div>
+          </div>
+          <div style="grid-column:1/-1">
+            <span class="af-label">Description</span>
+            <input type="text" id="f-desc" placeholder="What was done...">
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px">
@@ -566,7 +574,20 @@ function changeMonth(d){curMonth+=d;if(curMonth>12){curMonth=1;curYear++;}if(cur
 (function(){const t=new Date();document.getElementById('f-date').value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;})();
 
 function calcHours(){
+  // If manual hours entered, use that
+  const manual=document.getElementById('f-hours-manual');
+  if(manual&&manual.value){hoursVal=parseFloat(manual.value)||null;document.getElementById('f-hours').textContent=hoursVal?hoursVal.toFixed(2)+'h':'—';return;}
   const fr=document.getElementById('f-from').value,to=document.getElementById('f-to').value,el=document.getElementById('f-hours');
+  const dateEnd=document.getElementById('f-date-end')?.value;
+  const dateStart=document.getElementById('f-date')?.value;
+  // Multi-day: if end date different from start, calculate days × hours/day
+  if(dateEnd&&dateStart&&dateEnd>dateStart&&fr&&to){
+    const days=(new Date(dateEnd)-new Date(dateStart))/(1000*60*60*24);
+    const [fh,fm]=fr.split(':').map(Number);
+    const [th,tm]=to.split(':').map(Number);
+    const dailyH=((th*60+tm)-(fh*60+fm))/60;
+    if(dailyH>0){hoursVal=Math.round(dailyH*(days+1)*100)/100;el.textContent=hoursVal.toFixed(2)+'h ('+Math.round(days+1)+' days)';return;}
+  }
   if(!fr||!to){el.textContent='—';hoursVal=null;return;}
   const[fh,fm]=fr.split(':').map(Number),[th,tm]=to.split(':').map(Number);
   let m=(th*60+tm)-(fh*60+fm);
@@ -598,24 +619,43 @@ function searchClients(q){
 function selClient(cn,name){document.getElementById('f-client').value=name;document.getElementById('f-comp-no').value=cn;document.getElementById('cs-dd').style.display='none';}
 document.addEventListener('click',e=>{if(!e.target.closest('.cs-wrap'))document.getElementById('cs-dd').style.display='none';});
 
+function manualHours(){
+  const v=parseFloat(document.getElementById('f-hours-manual').value);
+  if(!isNaN(v)&&v>0){
+    hoursVal=v;
+    document.getElementById('f-hours').textContent=v.toFixed(2)+'h';
+    // Clear time fields since manual overrides
+    document.getElementById('f-from').value='';
+    document.getElementById('f-to').value='';
+  } else {
+    hoursVal=null;
+    document.getElementById('f-hours').textContent='—';
+  }
+}
+
 async function logActivity(){
   const msg=document.getElementById('act-msg');
   const date=document.getElementById('f-date').value;
   const desc=document.getElementById('f-desc').value.trim();
   if(!date||!desc){msg.textContent='✗ Date and description required';msg.className='save-msg err';return;}
   msg.textContent='Saving…';msg.className='save-msg';
+  const manualH=parseFloat(document.getElementById('f-hours-manual')?.value);
+  const finalHours=hoursVal||(isNaN(manualH)?null:manualH)||null;
+  const dateEnd=document.getElementById('f-date-end')?.value||null;
   const cn=document.getElementById('f-comp-no').value||null;
   const cname=cn?(window._CLIENTS||[]).find(c=>c.comp_no===cn)?.name||null:null;
+  // Append end date to description if multi-day
+  const descFinal=dateEnd&&dateEnd!==date?`${desc} [to ${new Date(dateEnd+'T12:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}]`:desc;
   const payload={
     staff:curStaff,
     comp_no:cn,
     client_name:cname,
     task_type:document.getElementById('f-task').value,
-    description:desc,
+    description:descFinal,
     activity_date:date,
     time_from:document.getElementById('f-from').value||null,
     time_to:document.getElementById('f-to').value||null,
-    hours:hoursVal
+    hours:finalHours
   };
   try{
     const r=await fetch(SB_URL+'/rest/v1/staff_activities',{
@@ -630,7 +670,7 @@ async function logActivity(){
     });
     if(!r.ok){const err=await r.text();throw new Error(err);}
     msg.textContent='✓ Saved';msg.className='save-msg ok';
-    ['f-desc','f-from','f-to','f-client','f-comp-no'].forEach(id=>document.getElementById(id).value='');
+    ['f-desc','f-from','f-to','f-client','f-comp-no','f-date-end','f-hours-manual'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.getElementById('f-hours').textContent='—';hoursVal=null;
     setTimeout(()=>{msg.textContent='';},2500);
     loadActivities();
@@ -704,10 +744,11 @@ function renderActs(data){
     <tbody>${data.map((a,i)=>{
       const tk=a.task_type?a.task_type.split('/')[0].trim():'Other';
       const dt=new Date(a.activity_date+'T12:00:00').toLocaleString('en-GB',{day:'2-digit',month:'short'});
+      const dtEnd=a.end_date?` → ${new Date(a.end_date+'T12:00:00').toLocaleString('en-GB',{day:'2-digit',month:'short'})}`:'';
       const tm=(a.time_from&&a.time_to)?`${a.time_from}–${a.time_to}`:'';
       return`<tr>
         <td style="color:var(--text-muted);font-size:11px;font-family:var(--mono)">${i+1}</td>
-        <td style="white-space:nowrap;font-size:11px;color:var(--text2)">${dt}</td>
+        <td style="white-space:nowrap;font-size:11px;color:var(--text2)">${dt}${dtEnd}</td>
         <td>${a.client_name?`<a class="clink" href="ltd-tracker.html?open=${a.comp_no||''}" title="Open client record">${esc(a.client_name)}</a>`:'<span style="color:var(--text-muted)">—</span>'}</td>
         <td><span class="task-badge tb-${tk}">${esc(a.task_type||'—')}</span></td>
         <td style="max-width:280px">
