@@ -502,6 +502,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('vat_payment')">🟢 VAT Payment</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('ct_payment')">🏛 CT Payment</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('sa_payment_jul')">💰 SA Payment (Jul)</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('sa_payment_jan')">💰 SA Payment (Jan)</button>
@@ -2175,6 +2176,42 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  vat_payment: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    // Calculate VAT due date — 1 month and 7 days after quarter end
+    let dueDate = '[due date]';
+    const q = calcVatQuarter(client);
+    if(q) {
+      const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      const qEndIdx = months.indexOf(q.month3);
+      const dueMonth = (qEndIdx + 1) % 12;
+      const dueYear = dueMonth === 0 ? q.year + 1 : q.year;
+      dueDate = `7th ${months[dueMonth]} ${dueYear}`;
+    }
+    return `Dear ${greeting},
+
+VAT PAYMENT REMINDER
+
+If you have not already paid your VAT, please note the payment is due by ${dueDate}.
+
+You can pay by internet banking, telephone banking or BACS Direct Credit. To make the payment you will need HMRC's bank account details below and your VAT registration number.
+
+HMRC BANK DETAILS
+Sort Code:      08-32-00
+Account Number: 11963155
+Account Name:   HMRC VAT
+
+Or pay online at: https://www.gov.uk/pay-vat
+
+If you are unsure of the amount due, please log in to your HMRC VAT online account or contact us and we will advise you.
+
+If you have any questions please do not hesitate to contact us.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   ct_payment: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
