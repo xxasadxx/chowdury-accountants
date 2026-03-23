@@ -541,6 +541,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('mtd_quarterly')">📊 MTD Quarterly</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('agent_auth_code')">🔑 Auth Codes</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('task_completed')">🎉 Task Completed</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('part_records')">📂 Part Records</button>
@@ -1575,6 +1576,43 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  mtd_quarterly: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    // Calculate current MTD quarter period
+    // MTD ITSA quarters: Apr-Jun, Jul-Sep, Oct-Dec, Jan-Mar
+    const now = new Date();
+    const m = now.getMonth(); // 0-indexed
+    let periodStart, periodEnd;
+    if(m >= 3 && m <= 5)      { periodStart='6th April';    periodEnd='5th July';      }
+    else if(m >= 6 && m <= 8) { periodStart='6th July';     periodEnd='5th October';   }
+    else if(m >= 9 && m <= 11){ periodStart='6th October';  periodEnd='5th January';   }
+    else                       { periodStart='6th January';  periodEnd='5th April';     }
+    const yr = now.getFullYear();
+    const taxYear = m >= 3 ? `${yr}/${String(yr+1).slice(2)}` : `${yr-1}/${String(yr).slice(2)}`;
+    const period = `${periodStart} to ${periodEnd} ${yr} (Tax Year ${taxYear})`;
+    return `Dear ${greeting},
+
+Please note, this is an automated message. If you have already sent us all the information requested, then please ignore this message.
+
+Just a reminder that it is time to prepare your next Making Tax Digital (MTD) for Income Tax Self Assessment (ITSA) quarterly update for the period ${period}.
+
+To get started, please send us your records for this period, including:
+
+• Business income and expenses
+• Bank statements or accounting software exports
+• Any supporting information you feel is relevant
+
+Once we have your records, we will take care of the rest and ensure everything is filed correctly with HMRC.
+
+If you are using digital bookkeeping software, please make sure it is up to date and shared with us.
+
+If you have any questions or need help, please do not hesitate to contact us.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   agent_auth_code: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
