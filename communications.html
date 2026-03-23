@@ -6,35 +6,38 @@
 <script>
 (function(){
   var role=localStorage.getItem('ca_role')||'staff';
-  var user=localStorage.getItem('ca_user')||'';
+  var name=localStorage.getItem('ca_name')||'';
   var page=window.location.pathname.split('/').pop()||'index.html';
   var restricted=['revenue-tracker.html','strategic-review.html'];
-  // Redirect staff away from restricted pages
+  // Redirect staff from restricted pages immediately
   if(role!=='admin' && restricted.indexOf(page)!==-1){
-    window.location.href='index.html';return;
+    window.location.replace('index.html');return;
   }
-  // Hide revenue + strategy nav links for staff
-  if(role!=='admin'){
-    document.addEventListener('DOMContentLoaded',function(){
-      // Hide restricted nav links
-      document.querySelectorAll('a[href="revenue-tracker.html"],a[href="strategic-review.html"]').forEach(function(a){
-        a.style.display='none';
-      });
-      // Hide all delete buttons
-      document.querySelectorAll('[onclick*="delete"],[onclick*="Delete"],[onclick*="del("],button.act-del,.btn-del,[class*="delete"],[id*="delete"]').forEach(function(b){
-        b.style.display='none';
-      });
-      // Show logged-in user name in nav if element exists
-      var nameEl=document.getElementById('ca-user-name');
-      if(nameEl) nameEl.textContent=localStorage.getItem('ca_name')||'';
-    });
+  // Log session for admin (store in localStorage)
+  if(name && page==='index.html'){
+    try{
+      var logs=JSON.parse(localStorage.getItem('ca_session_log')||'[]');
+      logs.unshift({user:name,role:role,time:new Date().toISOString(),page:'Portal'});
+      if(logs.length>200)logs=logs.slice(0,200);
+      localStorage.setItem('ca_session_log',JSON.stringify(logs));
+    }catch(e){}
   }
-  // Auto-set staff page to logged-in user
-  if(page==='staff-management.html'){
-    var name=localStorage.getItem('ca_name');
-    if(name && !localStorage.getItem('ca_staff')){
-      localStorage.setItem('ca_staff',name);
+  // Apply restrictions after DOM ready
+  function applyRestrictions(){
+    // Hide restricted nav links
+    if(role!=='admin'){
+      [].forEach.call(document.querySelectorAll('a[href="revenue-tracker.html"],a[href="strategic-review.html"]'),function(a){a.style.display='none';});
+      // Hide delete buttons
+      [].forEach.call(document.querySelectorAll('button.act-del,.btn-delete,[onclick*="delActivity"],[onclick*="deleteClient"]'),function(b){b.style.display='none';});
     }
+    // Show logged-in user in nav
+    var un=document.getElementById('ca-nav-user');
+    if(un) un.textContent=name;
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',applyRestrictions);
+  } else {
+    applyRestrictions();
   }
 })();
 </script>
@@ -272,6 +275,7 @@ select:focus{border-color:var(--blue)}
     <a href="communications.html" class="active">💬 Comms</a>
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html">🚀 Strategy</a>
+    <span id="ca-nav-user" style="color:rgba(255,255,255,.4);font-size:11px;padding:0 8px;white-space:nowrap"></span>
     <a href="login.html" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role'].forEach(function(k){localStorage.removeItem(k);})">Sign out</a>
   </div>
 </div>
