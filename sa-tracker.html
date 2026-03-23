@@ -541,6 +541,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('agent_auth_code')">🔑 Auth Codes</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('task_completed')">🎉 Task Completed</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('part_records')">📂 Part Records</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('vat_payment')">🟢 VAT Payment</button>
@@ -1574,6 +1575,35 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  agent_auth_code: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    const svcs = client.services || [];
+    const codes = [];
+    if(svcs.includes('ct600') || svcs.includes('accounts')) codes.push('• Corporation Tax (CT) authorisation code');
+    if(svcs.includes('sa')) codes.push('• Self Assessment (SA) authorisation code');
+    if(svcs.includes('vat')) codes.push('• VAT (VT) authorisation code');
+    if(svcs.includes('payroll') || svcs.includes('paye')) codes.push('• PAYE (PE) authorisation code');
+    if(!codes.length) {
+      codes.push('• Corporation Tax (CT) authorisation code');
+      codes.push('• Self Assessment (SA) authorisation code');
+    }
+    return `Dear ${greeting},
+
+Please let us have any agent authorisation codes that you should have received in the post from HMRC. These will expire soon so please pass them to us as soon as possible. There is a different code for each tax.
+
+We are expecting the following:
+
+${codes.join('\n')}
+
+The codes look like SA12345678, CT12345678 etc — the letters indicate which tax they relate to.
+
+Please send the codes to us by WhatsApp, email or drop them into our office at your earliest convenience.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   task_completed: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
