@@ -203,6 +203,7 @@ select:focus{border-color:var(--blue)}
         <div class="cl-head">
           <div>Name</div><div>Mobile / Email</div><div>Type</div><div>Last Msg</div><div>Action</div>
         </div>
+        <div style="font-size:10px;color:var(--muted);padding:4px 2px 6px">👆 Click a row to preview message for that client — then click 💬 or 📧 to send</div>
         <div id="cl-body">
           <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading clients…</div>
         </div>
@@ -839,39 +840,53 @@ function renderClients(){
   });
   document.getElementById('cl-count').textContent='('+list.length+')';
   if(!list.length){document.getElementById('cl-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients match</div>';return;}
-  document.getElementById('cl-body').innerHTML=list.slice(0,300).map(c=>{
+  const selId = selectedClient?.id||'';
+  document.getElementById('cl-body').innerHTML=list.slice(0,300).map((c,i)=>{
+    const allIdx = ALL.indexOf(c);
     const lastMsg=LOGS.find(l=>l.client_ref===c.ref);
     const lastDate=lastMsg?new Date(lastMsg.sent_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'—';
     const mob=(c.mobile||'').trim();
     const em=(c.email||'').trim();
-    const sid=c.id.replace(/"/g,'&quot;');
-    const sn=c.name.replace(/"/g,'&quot;');
-    return `<div class="cl-row">
-      <div style="font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+    const isSelected = c.id===selId;
+    const bg = isSelected ? 'background:var(--blue-light);border-left:3px solid var(--blue);' : '';
+    const nameColor = isSelected ? 'color:var(--blue);' : '';
+    const displayName = c.name || c.company_name || c.ref || '—';
+    return `<div class="cl-row" style="${bg}cursor:pointer" onclick="pickClient(${allIdx})">
+      <div style="font-weight:700;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${nameColor}">${displayName}</div>
       <div style="font-size:10px">
         ${mob?'<div style="font-family:var(--mono);color:var(--muted)">'+mob+'</div>':''}
         ${em?'<div style="color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px" title="'+em+'">'+em+'</div>':''}
-        ${!mob&&!em?'<span style="color:var(--red);font-style:italic">no contact</span>':''}
+        ${!mob&&!em?'<span style="color:var(--red);font-style:italic;font-size:10px">no contact</span>':''}
       </div>
       <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
       <div style="font-size:10px;color:var(--muted)">${lastDate}</div>
-      <div style="display:flex;gap:4px">
-        ${mob?'<button title="WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:5px;padding:5px 9px;font-size:13px;cursor:pointer" onclick="sendTo(\''+sid+'\',\''+c.ref+'\',\''+sn+'\',\''+mob.replace(/'/g,"\\'")+'\'\',\''+c.type+'\')">💬</button>':''}
-        ${em?'<button title="Email" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:5px 9px;font-size:13px;cursor:pointer" onclick="emailTo(\''+sid+'\',\''+c.ref+'\',\''+sn+'\',\''+em.replace(/'/g,"\\'")+'\'\',\''+c.type+'\')">📧</button>':''}
+      <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
+        ${mob?'<button title="Send via WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:5px;padding:5px 8px;font-size:13px;cursor:pointer" onclick="sendTo(${allIdx})">💬</button>':''}
+        ${em?'<button title="Send via Email" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:5px 8px;font-size:13px;cursor:pointer" onclick="emailTo(${allIdx})">📧</button>':''}
         ${!mob&&!em?'<span style="color:var(--muted);font-size:10px">—</span>':''}
       </div>
     </div>`;
   }).join('');
 }
 
-async function sendTo(id, ref, name, mobile, type){
-  const clientObj = ALL.find(c=>c.id===id) || {};
-  selectClient(clientObj); // regenerates message with this client's data
-  // Small delay to let textarea update
-  await new Promise(r=>setTimeout(r,50));
+function pickClient(idx){
+  const client = ALL[idx];
+  if(!client) return;
+  selectClient(client);
+  renderClients(); // re-render to show selected highlight
+}
+
+async function sendTo(idx){
+  const client = ALL[idx];
+  if(!client) return;
+  selectClient(client);
+  await new Promise(r=>setTimeout(r,30));
   const body=document.getElementById('msg-body').value.trim();
   if(!body){toast('Select a template first','err');return;}
+  const mob=(client.mobile||'').trim();
+  if(!mob){toast('No mobile number for this client','err');return;}
   const sentBy=document.getElementById('sent-by').value||'Unknown';
+  const id=client.id, ref=client.ref, name=client.name, mobile=mob, type=client.type;
   const tel=mobile.replace(/\D/g,'');
   const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
   window.open('https://wa.me/'+uk+'?text='+encodeURIComponent(body),'_blank');
@@ -888,13 +903,16 @@ async function sendTo(id, ref, name, mobile, type){
   }catch(e){toast('Could not log: '+e.message,'err');}
 }
 
-async function emailTo(id, ref, name, email, type){
-  const clientObj=ALL.find(c=>c.id===id)||{};
-  selectClient(clientObj);
-  await new Promise(r=>setTimeout(r,50));
+async function emailTo(idx){
+  const client = ALL[idx];
+  if(!client) return;
+  selectClient(client);
+  await new Promise(r=>setTimeout(r,30));
   const sentBy=document.getElementById('sent-by').value||'Unknown';
   const finalBody=document.getElementById('msg-body').value.trim();
   if(!finalBody){toast('Select a template first','err');return;}
+  const id=client.id, ref=client.ref, name=client.name, email=(client.email||'').trim(), type=client.type;
+  if(!email){toast('No email address for this client','err');return;}
   const subject=getEmailSubject();
   window.open('mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(finalBody));
   // Log
@@ -961,6 +979,11 @@ function setTpl(key){
 let selectedClient = null;
 function selectClient(client){
   selectedClient = client;
+  const lbl = document.getElementById('selected-client-label');
+  if(lbl){
+    lbl.textContent = '✓ ' + (client.name||client.company_name||client.ref) + (client.type==='ltd'?' (Ltd)':' (SE)');
+    lbl.style.display = 'block';
+  }
   setTpl(currentTpl);
 }
 
