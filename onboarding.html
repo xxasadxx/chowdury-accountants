@@ -191,6 +191,7 @@ input[type=checkbox].toggle{width:16px;height:16px;accent-color:var(--blue);curs
 </div>
 <script>
 (function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
+(function(){var links=document.querySelector('.ca-links');if(!links)return;var active=links.querySelector('a.active');if(active){var offset=active.offsetLeft-16;links.scrollLeft=Math.max(0,offset);}else{links.scrollLeft=0;}})();
 </script>
 
 

@@ -858,6 +858,8 @@
 </div>
 <script>
 (function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
+// Scroll nav so active link is visible
+(function(){var links=document.querySelector('.ca-links');if(!links)return;var active=links.querySelector('a.active');if(active){var offset=active.offsetLeft-16;links.scrollLeft=Math.max(0,offset);}else{links.scrollLeft=0;}})();
 </script>
 
 
@@ -1138,14 +1140,19 @@ async function loadStats() {
     }
   }catch(e){}
 
-  // Calendar overdue + due this week (reuse ltd_clients)
+  // Calendar overdue + due this week (dates stored as DD/MM/YYYY)
   try{
-    const today=new Date().toISOString().slice(0,10);
-    const we=new Date();we.setDate(we.getDate()+7);
-    const r=await fetch(SB_URL+'/rest/v1/ltd_clients?select=accounts_due,conf_due&status=eq.active&limit=1000',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]);
+    const now=new Date();now.setHours(0,0,0,0);
+    const weekEnd=new Date(now);weekEnd.setDate(weekEnd.getDate()+7);
+    const parseDMY=s=>{if(!s)return null;const p=s.split('/');if(p.length<3)return null;return new Date(p[2],p[1]-1,p[0]);};
+    const r=await fetch(SB_URL+'/rest/v1/ltd_clients?select=accounts_due,conf_due&status=eq.active&limit=2000',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]);
     if(Array.isArray(r)){
-      const overdue=r.filter(c=>(c.accounts_due&&c.accounts_due<today)||(c.conf_due&&c.conf_due<today)).length;
-      const week=r.filter(c=>(c.accounts_due&&c.accounts_due>=today&&c.accounts_due<=we.toISOString().slice(0,10))||(c.conf_due&&c.conf_due>=today&&c.conf_due<=we.toISOString().slice(0,10))).length;
+      let overdue=0,week=0;
+      r.forEach(c=>{
+        const ad=parseDMY(c.accounts_due),cd=parseDMY(c.conf_due);
+        if((ad&&ad<now)||(cd&&cd<now)) overdue++;
+        else if((ad&&ad>=now&&ad<=weekEnd)||(cd&&cd>=now&&cd<=weekEnd)) week++;
+      });
       const oEl=document.getElementById('pc-cal-overdue');
       const wEl=document.getElementById('pc-cal-week');
       if(oEl) oEl.textContent=overdue;
