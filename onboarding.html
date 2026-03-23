@@ -784,6 +784,7 @@ function genEngagement(){
   const svcLines=svcs.map(s=>svcMap[s]).filter(Boolean);
   const servicesText=svcLines.length?svcLines.join('\n'):' To be confirmed';
 
+  const isLtd=(c&&c.client_type!=='se');
   const hasAccounts=svcs.includes('accounts');
   const hasBookkeeping=svcs.includes('bookkeeping');
   const hasCT=svcs.includes('ct600');
@@ -796,7 +797,7 @@ function genEngagement(){
 
 Dear ${firstName},
 
-This letter sets out the basis on which we provide services to your company (${name}), so as to avoid any misunderstandings.
+${isLtd?`This letter sets out the basis on which we provide services to your company (${name}), so as to avoid any misunderstandings.`:`This letter sets out the basis on which we provide services to "${name}", so as to avoid any misunderstandings.`}
 
 SERVICES BEING PROVIDED
 ${servicesText}
@@ -886,13 +887,13 @@ You consent to our appointment of AccountancyManager Limited (now BrightManager)
 ────────────────────────────────────────
 AGREEMENT
 
-I confirm that I have read and understood the contents of this letter of engagement and agree that it accurately reflects the services that I have instructed you to provide to my limited company, ${name}.
+${isLtd?`I confirm that I have read and understood the contents of this letter of engagement and agree that it accurately reflects the services that I have instructed you to provide to my limited company, ${name}.`:`I confirm that I have read and understood the contents of this letter of engagement and agree that it accurately reflects the services that I have instructed you to provide.`}
 
 Signed: _______________________________    Date: _______________
 
 Name (printed): ________________________
 
-Company: ${name}
+${isLtd?`Company: ${name}`:''}
 
 ────────────────────────────────────────
 The Chowdury Accountants Ltd
