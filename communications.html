@@ -864,12 +864,13 @@ function renderClients(){
   }).join('');
 }
 
-async function sendTo(id, ref, name, mobile, type, acctRef, vatStagger, compName){
-  // Auto-regenerate with client-specific data before sending
+async function sendTo(id, ref, name, mobile, type){
   const clientObj = ALL.find(c=>c.id===id) || {};
-  selectClient(clientObj);
+  selectClient(clientObj); // regenerates message with this client's data
+  // Small delay to let textarea update
+  await new Promise(r=>setTimeout(r,50));
   const body=document.getElementById('msg-body').value.trim();
-  if(!body){toast('Write or select a message first','err');return;}
+  if(!body){toast('Select a template first','err');return;}
   const sentBy=document.getElementById('sent-by').value||'Unknown';
   const tel=mobile.replace(/\D/g,'');
   const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
@@ -888,12 +889,12 @@ async function sendTo(id, ref, name, mobile, type, acctRef, vatStagger, compName
 }
 
 async function emailTo(id, ref, name, email, type){
-  const body=document.getElementById('msg-body').value.trim();
-  if(!body){toast('Write or select a message first','err');return;}
-  const sentBy=document.getElementById('sent-by').value||'Unknown';
   const clientObj=ALL.find(c=>c.id===id)||{};
   selectClient(clientObj);
+  await new Promise(r=>setTimeout(r,50));
+  const sentBy=document.getElementById('sent-by').value||'Unknown';
   const finalBody=document.getElementById('msg-body').value.trim();
+  if(!finalBody){toast('Select a template first','err');return;}
   const subject=getEmailSubject();
   window.open('mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(finalBody));
   // Log
@@ -946,14 +947,21 @@ function bulkEmail(){
 function setTpl(key){
   currentTpl=key;
   document.querySelectorAll('.tpl-item').forEach(t=>t.classList.remove('active'));
-  document.getElementById('tpl-'+key).classList.add('active');
-  document.getElementById('msg-body').value=SMART_TMPLS[key]?SMART_TMPLS[key](selectedClient||{}):'';
+  const el=document.getElementById('tpl-'+key);
+  if(el) el.classList.add('active');
+  if(selectedClient){
+    document.getElementById('msg-body').value=SMART_TMPLS[key]?SMART_TMPLS[key](selectedClient):'';
+  } else {
+    // No client selected yet — show template with placeholder hint
+    const preview=SMART_TMPLS[key]?SMART_TMPLS[key]({name:'[Client Name]',company_name:'[Company Name]',director_name:'[Director Name]',accounts_ref_date:'',vat_stagger:'',services:[]}):'';
+    document.getElementById('msg-body').value=preview;
+  }
 }
 
 let selectedClient = null;
 function selectClient(client){
   selectedClient = client;
-  setTpl(currentTpl); // regenerate message with this client's data
+  setTpl(currentTpl);
 }
 
 function renderLog(){
