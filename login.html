@@ -65,21 +65,37 @@ window.onload = () => {
 };
 
 function login() {
+  const attempts = parseInt(localStorage.getItem('ca_login_attempts')||'0');
+  const lockUntil = parseInt(localStorage.getItem('ca_lock_until')||'0');
+  const now = Date.now();
+  const err = document.getElementById('error');
+  function showErr(msg){err.textContent='⚠️ '+msg;err.classList.add('show');document.getElementById('pw').value='';setTimeout(()=>err.classList.remove('show'),4000);}
+  if(lockUntil && now < lockUntil){
+    const mins=Math.ceil((lockUntil-now)/60000);
+    showErr('Too many failed attempts. Try again in '+mins+' minute'+(mins>1?'s':'')+'.');
+    return;
+  }
   const un = document.getElementById('un').value.trim().toLowerCase();
   const pw = document.getElementById('pw').value;
   const user = USERS[un];
   if(user && pw === user.pass) {
+    localStorage.removeItem('ca_login_attempts');
+    localStorage.removeItem('ca_lock_until');
     localStorage.setItem('ca_auth', 'true');
     localStorage.setItem('ca_user', un);
     localStorage.setItem('ca_name', user.name);
     localStorage.setItem('ca_role', user.role);
     window.location.href = 'index.html';
   } else {
-    const err = document.getElementById('error');
-    err.classList.add('show');
-    document.getElementById('pw').value = '';
-    document.getElementById('pw').focus();
-    setTimeout(() => err.classList.remove('show'), 3000);
+    const newAttempts = attempts + 1;
+    localStorage.setItem('ca_login_attempts', newAttempts);
+    if(newAttempts >= 5){
+      localStorage.setItem('ca_lock_until', Date.now() + 15*60*1000);
+      localStorage.setItem('ca_login_attempts','0');
+      showErr('Too many failed attempts. Locked for 15 minutes.');
+    } else {
+      showErr('Incorrect username or password. Attempt '+newAttempts+' of 5.');
+    }
   }
 }
 
