@@ -373,6 +373,9 @@ body{padding-top:80px !important}
   if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 })();
 </script>
+<!-- Revenue tracker status elements (required by JS) -->
+<span id="syncStatus" style="display:none"></span>
+<span id="headerBadge" style="display:none"></span>
 
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
