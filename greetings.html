@@ -14,10 +14,10 @@
   if(role!=='admin'){
     var style=document.createElement('style');
     style.innerHTML=
-      'a[href="revenue-tracker.html"]{display:none!important}'+
-      'a[href="strategic-review.html"]{display:none!important}'+
-      'a.tool-card[href="revenue-tracker.html"]{display:none!important}'+
-      'a.tool-card[href="strategic-review.html"]{display:none!important}'+
+      '#nav-revenue{display:none!important}'+
+      '#nav-strategy{display:none!important}'+
+      '#card-revenue{display:none!important}'+
+      '#card-strategy{display:none!important}'+
       'button.act-del{display:none!important}'+
       '.act-del{display:none!important}';
     document.head.appendChild(style);

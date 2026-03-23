@@ -17,10 +17,10 @@
   if(role!=='admin'){
     var style=document.createElement('style');
     style.innerHTML=
-      'a[href="revenue-tracker.html"]{display:none!important}'+
-      'a[href="strategic-review.html"]{display:none!important}'+
-      'a.tool-card[href="revenue-tracker.html"]{display:none!important}'+
-      'a.tool-card[href="strategic-review.html"]{display:none!important}'+
+      '#nav-revenue{display:none!important}'+
+      '#nav-strategy{display:none!important}'+
+      '#card-revenue{display:none!important}'+
+      '#card-strategy{display:none!important}'+
       'button.act-del{display:none!important}'+
       '.act-del{display:none!important}';
     document.head.appendChild(style);
@@ -403,7 +403,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <a href="onboarding.html">🆕 Onboarding</a>
     <a href="communications.html">💬 Comms</a>
     <a href="calendar.html">🗓 Calendar</a>
-    <a href="strategic-review.html">🚀 Strategy</a>
+    <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
     <span id="ca-nav-user" style="color:rgba(255,255,255,.4);font-size:11px;padding:0 8px;white-space:nowrap"></span>
     <a href="#" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.href='login.html';return false;">Sign out</a>
   </div>
