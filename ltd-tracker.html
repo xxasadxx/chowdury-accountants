@@ -2515,10 +2515,8 @@ The Chowdury Accountants Ltd
 283 Featherstall Road North, Oldham, OL1 2NH`;
   },
   meeting: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    return `Dear ${name},
+    const greeting = getGreeting(client);
+    return `Dear ${greeting},
 
 You have a meeting on [DATE] at [TIME] with Md Asadul Chowdury at The Chowdury Accountants, 283 Featherstall Road North, Oldham, OL1 2NH.
 
