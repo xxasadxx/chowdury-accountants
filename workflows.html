@@ -1,0 +1,635 @@
+<!-- CA PORTAL v1773207034 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Workflows — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#fff;--text:#252525;--muted:#7A7A7A;
+  --border:#DEDEDE;--border2:#D0D0D0;
+  --blue:#155FA0;--blue-light:#E5EFF8;
+  --green:#1D7A47;--green-light:#E5F4EC;
+  --amber:#C07A00;--amber-light:#FEF3DC;
+  --red:#D04A02;--red-light:#FCEEE8;
+  --purple:#6D28D9;--purple-light:#EDE9FE;
+  --gold:#c8963c;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --radius:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding-top:92px}
+.page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.page-tabs{display:flex;gap:0;overflow-x:auto;scrollbar-width:none}
+.page-tabs::-webkit-scrollbar{display:none}
+.page-tab{padding:11px 15px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* Staff colours */
+.staff-asad{background:#155FA0;color:#fff}
+.staff-hassan{background:#1D7A47;color:#fff}
+.staff-aminul{background:#6D28D9;color:#fff}
+.staff-nawaz{background:#C07A00;color:#fff}
+.staff-sadat{background:#D04A02;color:#fff}
+.staff-any{background:#374151;color:#fff}
+.staff-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+
+/* Workflow layout */
+.wf-container{max-width:1100px;margin:0 auto;padding:24px}
+.wf-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.wf-header h2{font-family:var(--display);font-size:17px;font-weight:800;margin-bottom:4px}
+.wf-header p{font-size:12px;color:var(--muted);line-height:1.6;max-width:600px}
+.wf-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.wf-meta-item{font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:4px 10px}
+
+/* Steps */
+.steps-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+@media(max-width:800px){.steps-grid{grid-template-columns:1fr}}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s}
+.step-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.step-card.done{border-color:var(--green);background:var(--green-light)}
+.step-card.done .step-body{opacity:.7}
+.step-head{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.step-card.done .step-head{border-bottom-color:var(--green)}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--display)}
+.step-card.done .step-num{background:var(--green)}
+.step-title-wrap{flex:1}
+.step-title{font-weight:700;font-size:13px}
+.step-subtitle{font-size:10px;color:var(--muted);margin-top:1px}
+.step-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.step-check.checked{background:var(--green);border-color:var(--green);color:#fff}
+.step-body{padding:12px 14px;font-size:12px}
+.step-body ul{margin-left:14px;color:#374151}
+.step-body ul li{margin-bottom:4px;line-height:1.5}
+.step-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.step-timing{font-size:10px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:2px 7px}
+
+/* Cover plan */
+.cover-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px}
+.cover-section h3{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text);display:flex;align-items:center;gap:6px}
+.cover-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.cover-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px}
+.cover-card .cc-name{font-weight:700;font-size:12px;margin-bottom:6px}
+.cover-card .cc-absent{font-size:11px;color:var(--muted);margin-bottom:4px}
+.cover-card .cc-cover{font-size:11px;font-weight:600;color:var(--blue)}
+
+/* Timeline bar */
+.timeline{margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px}
+.timeline h3{font-family:var(--display);font-size:13px;font-weight:700;margin-bottom:14px}
+.tl-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:11px}
+.tl-label{width:120px;font-weight:600;flex-shrink:0;color:#374151}
+.tl-bar-wrap{flex:1;height:20px;background:var(--bg);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.tl-bar{height:100%;border-radius:10px;display:flex;align-items:center;padding-left:8px;font-size:9px;font-weight:700;color:#fff;white-space:nowrap}
+.tl-note{width:140px;color:var(--muted);flex-shrink:0;text-align:right}
+
+/* Progress */
+.wf-progress{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;display:flex;align-items:center;gap:16px}
+.prog-bar-wrap{flex:1;height:10px;background:var(--bg);border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.prog-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:10px;transition:width .4s}
+.prog-text{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap}
+.btn{padding:7px 13px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-secondary{background:none;border:1px solid var(--border2);color:#374151}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15);background:var(--green);color:#fff}
+</style>
+</head>
+<body>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+body{padding-top:92px !important}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <span class="ca-date" id="ca-hdr-date"></span>
+  </div>
+  <div class="ca-links" id="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html" class="active">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html">📅 Appointments</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">📅 Calendar</a>
+    <a href="strategic-review.html">📊 Strategy</a>
+    <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+  </div>
+</div>
+<script>
+(function(){
+  var p=window.location.pathname.split('/').pop()||'index.html';
+  if(!p||p==='') p='index.html';
+  if(p.indexOf('.')===-1) p=p+'.html';
+  document.querySelectorAll('#ca-links a:not(.ca-signout)').forEach(function(a){
+    if(a.getAttribute('href')===p) a.classList.add('active');
+  });
+  var el=document.getElementById('ca-hdr-date');
+  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+})();
+</script>
+
+<div class="page-header">
+  <h1>⚙️ Workflows</h1>
+  <p>Step-by-step procedures for every service · Who does what · Cover arrangements · New staff reference</p>
+  <div class="page-tabs" id="wf-tabs">
+    <div class="page-tab active" onclick="setWF('vat')">📊 VAT Returns</div>
+    <div class="page-tab" onclick="setWF('accounts')">📁 Ltd Accounts</div>
+    <div class="page-tab" onclick="setWF('payroll')">💼 Payroll</div>
+    <div class="page-tab" onclick="setWF('sa')">📝 Self Assessment</div>
+    <div class="page-tab" onclick="setWF('cs')">🔒 Conf. Statements</div>
+    <div class="page-tab" onclick="setWF('onboarding')">📋 New Client</div>
+    <div class="page-tab" onclick="setWF('newltd')">🏢 New Ltd Company</div>
+  </div>
+</div>
+
+<div id="wf-content" class="wf-container"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const STAFF = {
+  Asad:   {color:'#155FA0', cls:'staff-asad'},
+  Hassan: {color:'#1D7A47', cls:'staff-hassan'},
+  Aminul: {color:'#6D28D9', cls:'staff-aminul'},
+  Nawaz:  {color:'#C07A00', cls:'staff-nawaz'},
+  Sadat:  {color:'#D04A02', cls:'staff-sadat'},
+};
+function badge(name){const s=STAFF[name]||{cls:'staff-any'};return `<span class="staff-badge ${s.cls}">${name}</span>`;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',2500);}
+
+// ─── WORKFLOW DEFINITIONS ────────────────────────────────────────────────────
+const WORKFLOWS = {
+
+vat: {
+  title: '📊 VAT Returns',
+  subtitle: 'Quarterly VAT returns for all VAT-registered Ltd clients via MTD through Xero/QuickBooks',
+  deadline: 'Submitted by last day of month after quarter end',
+  frequency: 'Quarterly (staggered — Jan/Apr/Jul/Oct, Feb/May/Aug/Nov, Mar/Jun/Sep/Dec)',
+  owner: 'Hassan',
+  steps: [
+    { title: 'Request Info from Client', subtitle: 'Hassan sends request', owner: 'Hassan',
+      timing: '10 working days before quarter end',
+      items: ['Send WhatsApp/email requesting: bank statements, sales invoices, purchase invoices, receipts','Mention the quarter end date and submission deadline','Log request date in VAT Tracker'] },
+    { title: '7-Day Reminder', subtitle: 'If no response after 7 days', owner: 'Hassan',
+      timing: 'Day 7 of month',
+      items: ['Send second reminder via WhatsApp','Escalate to Asad if client still unresponsive after 10 days','Note on VAT tracker: "Chased x2"'] },
+    { title: 'Receive & Scan Documents', subtitle: 'Organise into Hubdoc', owner: 'Hassan',
+      timing: 'Within 2 days of receipt',
+      items: ['Confirm all documents received','Scan/upload to Hubdoc — separate sales and purchase folders','Check bank statement covers full quarter'] },
+    { title: 'Bookkeeping in Xero', subtitle: 'Code transactions', owner: 'Hassan',
+      timing: '3–5 working days',
+      items: ['Code all transactions in Xero','Reconcile bank account fully','Input sales invoices and purchase invoices','Check Flat Rate % if applicable — do NOT use standard rate','Flag any unusual items to Asad before proceeding'] },
+    { title: 'Prepare VAT Return', subtitle: 'Review figures and calculate', owner: 'Hassan',
+      timing: '1 working day after bookkeeping',
+      items: ['Review VAT return figures in Xero','Cross-check Box 1 (output) and Box 4 (input)','Ensure box 7 (net sales) is reasonable vs turnover','Note any adjustments — fuel scale charges, partial exemption if applicable','Save draft return — do not submit yet'] },
+    { title: 'Send Approval to Client', subtitle: 'Client must approve before submission', owner: 'Hassan',
+      timing: 'At least 5 days before deadline',
+      items: ['Email/WhatsApp client with: VAT amount due, period covered, due date for payment','Clearly state: "Please confirm you approve this return"','Log date sent in VAT Tracker'] },
+    { title: 'Submit to HMRC', subtitle: 'After client approval received', owner: 'Hassan',
+      timing: 'Within 2 days of approval, before deadline',
+      items: ['Submit VAT return via MTD in Xero','Screenshot confirmation from HMRC','Save confirmation to client file','Update VAT Tracker — mark as Submitted'] },
+    { title: 'Inform Client of Payment Due', subtitle: 'Send payment reminder', owner: 'Hassan',
+      timing: 'Same day as submission',
+      items: ['Confirm submission to client via WhatsApp','State: VAT amount due and HMRC payment deadline (1 month + 7 days after quarter end)','Include HMRC bank details if client pays by bank transfer','Remind DD clients payment will be collected automatically'] },
+  ],
+  cover: [
+    {absent:'Hassan absent', cover:'Asad reviews Xero file and submits. Sadat can do bookkeeping stage remotely. Aminul can chase clients for documents.'},
+    {absent:'Asad away', cover:'Hassan proceeds as normal. Any unusual items held until Asad returns or decided via WhatsApp.'},
+    {absent:'Both Asad + Hassan', cover:'Sadat completes bookkeeping remotely. Aminul submits after Asad approves remotely. Nawaz chases clients.'},
+  ],
+  timeline: [
+    {label:'Request info', start:0, width:15, color:'#155FA0', note:'Day 1 of month'},
+    {label:'Receive docs', start:15, width:20, color:'#1D7A47', note:'Day 5–10'},
+    {label:'Bookkeeping', start:35, width:25, color:'#6D28D9', note:'Day 10–18'},
+    {label:'Client approval', start:60, width:15, color:'#C07A00', note:'Day 20–23'},
+    {label:'Submit', start:75, width:15, color:'#1D7A47', note:'Day 23–28'},
+    {label:'Payment due', start:90, width:10, color:'#D04A02', note:'7 days later'},
+  ]
+},
+
+accounts: {
+  title: '📁 Ltd Accounts & CT600',
+  subtitle: 'Annual statutory accounts and corporation tax return for all Ltd company clients',
+  deadline: '9 months after company year end (Companies House) · 12 months after year end (HMRC CT)',
+  frequency: 'Annual per company',
+  owner: 'Hassan',
+  steps: [
+    { title: 'Year-End Checklist Sent', subtitle: 'Request all year-end documents', owner: 'Hassan',
+      timing: '1 month after year end',
+      items: ['Send year-end bookkeeping request: full year bank statements, sales invoices, purchase invoices, receipts','Request director loan account details, dividends taken, salary details','Note PAYE year end figures from Aminul (salary, NI, pension)','Set internal completion target: 6 months after year end'] },
+    { title: 'Receive & Organise Documents', subtitle: 'Check everything is complete', owner: 'Hassan',
+      timing: 'Within 1 week of receipt',
+      items: ['Confirm bank statements cover full year (check no months missing)','Reconcile opening bank balance to prior year closing balance','Confirm payroll figures from Aminul match P60','Flag missing items to client before starting — do not proceed with incomplete records'] },
+    { title: 'Full Year Bookkeeping', subtitle: 'Code all transactions in Xero', owner: 'Hassan',
+      timing: '1–2 weeks',
+      items: ['Code all income and expenditure','Separate personal vs business expenditure — query anything unclear','Reconcile all bank accounts and credit cards','Enter opening balances from prior year accounts','Post director salary, NI and pension journals','Post dividends journal if applicable'] },
+    { title: 'Draft Accounts Preparation', subtitle: 'Prepare P&L, Balance Sheet', owner: 'Hassan',
+      timing: '1 week after bookkeeping',
+      items: ['Run P&L report in Xero — review for unusual items','Calculate depreciation on fixed assets','Prepare balance sheet — check it balances','Calculate director loan account closing balance','Flag to Asad: any director loan overdrawn, any large unexplained transactions'] },
+    { title: 'CT600 & Tax Computation', subtitle: 'Corporation tax return', owner: 'Hassan',
+      timing: '1–2 days after accounts',
+      items: ['Open Taxfiler — create CT600 for the year','Input accounts figures into Taxfiler','Compute corporation tax liability','Add capital allowances (AIA on equipment)','Check prior year losses if applicable','Calculate tax due — flag to Asad if different from prior year by more than 20%'] },
+    { title: 'Director Review & Approval', subtitle: 'Send draft to client', owner: 'Asad',
+      timing: '1 week before filing',
+      items: ['Send draft accounts and tax computation to director','Explain: profit, corporation tax due, dividends, director loan balance','Confirm director approves accounts — obtain written/WhatsApp approval','Answer any client queries before filing'] },
+    { title: 'File with Companies House & HMRC', subtitle: 'Submit both filings', owner: 'Hassan',
+      timing: 'Within 1 week of approval',
+      items: ['File filleted accounts on Companies House (online)','File full accounts + CT600 on HMRC via Taxfiler','Screenshot both confirmation receipts','Update Ltd Tracker — accounts filed, CT filed','Send confirmation to client with tax payment details and due date'] },
+    { title: 'Invoice Client', subtitle: 'Raise annual fee invoice', owner: 'Asad',
+      timing: 'Same day as filing',
+      items: ['Raise invoice in Xero for annual accounts fee','If GoCardless client: collect via GoCardless','If non-GoCardless: send invoice and chase within 14 days','Update client ledger'] },
+  ],
+  cover: [
+    {absent:'Hassan absent', cover:'Sadat continues bookkeeping remotely. Asad reviews and files. Aminul handles client communication.'},
+    {absent:'Asad away', cover:'Hassan completes up to client review stage. Asad approves remotely via WhatsApp before Hassan files.'},
+    {absent:'Sadat absent', cover:'Hassan does bookkeeping with Nawaz helping with document organisation.'},
+  ],
+  timeline: [
+    {label:'Request docs', start:0, width:10, color:'#155FA0', note:'Month 1'},
+    {label:'Receive docs', start:10, width:10, color:'#1D7A47', note:'Month 2'},
+    {label:'Bookkeeping', start:20, width:20, color:'#6D28D9', note:'Month 2–4'},
+    {label:'Draft accounts', start:40, width:15, color:'#C07A00', note:'Month 4–5'},
+    {label:'CT600', start:55, width:10, color:'#D04A02', note:'Month 5'},
+    {label:'Client approval', start:65, width:10, color:'#C07A00', note:'Month 5–6'},
+    {label:'Filing', start:75, width:10, color:'#1D7A47', note:'Month 6'},
+    {label:'Invoice', start:85, width:5, color:'#155FA0', note:'Day of filing'},
+  ]
+},
+
+payroll: {
+  title: '💼 Payroll & RTI Submissions',
+  subtitle: 'Monthly payroll processing, RTI submissions to HMRC, pension auto-enrolment and payslips for all Ltd clients with employees',
+  deadline: 'RTI submitted on or before pay date · Pension submitted by 22nd of month',
+  frequency: 'Monthly per client',
+  owner: 'Aminul',
+  steps: [
+    { title: 'Collect Payroll Info', subtitle: 'Request any changes from client', owner: 'Aminul',
+      timing: '5 working days before pay date',
+      items: ['WhatsApp client: "Any changes this month? New starters, leavers, salary changes, bonuses?"','If no response by day 3: assume no changes and proceed','Log: new starters (require P45 or starter checklist), leavers (issue P45)','Check for statutory payments: SSP, SMP, SPP'] },
+    { title: 'Process Payroll in BrightPay', subtitle: 'Calculate pay for all employees', owner: 'Aminul',
+      timing: '2–3 days before pay date',
+      items: ['Open BrightPay — select client and month','Enter any changes (new starters, leavers, salary adjustments, overtime)','Check BrightPay auto-calculates: gross pay, PAYE tax, employee NI, employer NI','Calculate employer pension contribution (minimum 3% employer, 5% employee)','Check student loan deductions if applicable','Review net pay for each employee — sense check vs prior month'] },
+    { title: 'Submit RTI to HMRC', subtitle: 'Full Payment Submission (FPS)', owner: 'Aminul',
+      timing: 'On or before pay date',
+      items: ['Submit FPS via BrightPay to HMRC','Confirm green tick received — screenshot confirmation','If HMRC rejects: check NI number and date of birth are correct','Log submission date in Payroll tracker'] },
+    { title: 'Send Payslips to Client', subtitle: 'Distribute to employer and employees', owner: 'Aminul',
+      timing: 'Same day as RTI submission',
+      items: ['Export payslips from BrightPay as PDF','Email to employer and/or employees as agreed','If BrightPay Connect active: employees get payslips via app automatically','Confirm client has received'] },
+    { title: 'Pension Submission', subtitle: 'NEST or other pension provider', owner: 'Aminul',
+      timing: 'By 22nd of month',
+      items: ['Log in to NEST (or relevant pension provider)','Upload pension contribution file from BrightPay','Confirm employer + employee contributions submitted','Screenshot confirmation','Alert client if pension payment will be collected from their bank account'] },
+    { title: 'PAYE Payment Reminder', subtitle: 'Remind client to pay HMRC', owner: 'Aminul',
+      timing: '19th of following month (postal) / 22nd (electronic)',
+      items: ['WhatsApp client PAYE amount due to HMRC','Include HMRC payment reference (Accounts Office reference)','HMRC bank details: Sort Code 08-32-10, Account 12001039, Ref: [Accounts Office Ref]','Confirm client has paid'] },
+    { title: 'Year End — P60s', subtitle: 'Issued to all employees by 31 May', owner: 'Aminul',
+      timing: 'April — after 5 April year end',
+      items: ['Submit Employer Annual Return (if applicable)','Generate P60 for each employee still employed at 5 April','Send P60s to employer to distribute to employees','Check: all employees have received P60 by 31 May deadline'] },
+    { title: 'P11D — Benefits in Kind', subtitle: 'Company cars, loans etc.', owner: 'Aminul',
+      timing: 'By 6 July each year',
+      items: ['Check with Asad/Hassan: any employees with company cars, medical insurance, loans?','If yes: prepare P11D for each affected employee','Submit P11D to HMRC','Inform affected employees — P11D affects their personal tax code'] },
+  ],
+  cover: [
+    {absent:'Aminul absent', cover:'Asad processes payroll using BrightPay. RTI must still be submitted on time. Nawaz can prepare payslip PDFs.'},
+    {absent:'Nawaz absent', cover:'Aminul handles solo — no change to process.'},
+    {absent:'Aminul + Asad both absent', cover:'Sadat processes remotely via BrightPay Online. Nawaz chases clients for info. Hassan submits RTI if needed.'},
+  ],
+  timeline: [
+    {label:'Request changes', start:0, width:20, color:'#6D28D9', note:'Day 1–5'},
+    {label:'Process payroll', start:20, width:25, color:'#155FA0', note:'Day 5–8'},
+    {label:'RTI submission', start:45, width:10, color:'#1D7A47', note:'Pay date'},
+    {label:'Payslips sent', start:55, width:10, color:'#C07A00', note:'Pay date'},
+    {label:'Pension', start:65, width:15, color:'#6D28D9', note:'By 22nd'},
+    {label:'PAYE reminder', start:80, width:12, color:'#D04A02', note:'19th/22nd'},
+  ]
+},
+
+sa: {
+  title: '📝 Self Assessment Tax Returns',
+  subtitle: 'Annual SA100 returns for all self-employed clients, directors with personal income, and rental property clients',
+  deadline: '31 January (online) · Payment also due 31 January and 31 July (payments on account)',
+  frequency: 'Annual — tax year ends 5 April',
+  owner: 'Aminul',
+  steps: [
+    { title: 'Send Year-End Request', subtitle: 'Request all income information', owner: 'Aminul',
+      timing: 'April–May (after 5 April year end)',
+      items: ['Send checklist requesting: P60 (if employed), bank interest, rental income, business income and expenses, dividends, any other income','Request: student loan details, Gift Aid donations, pension contributions, capital gains if applicable','Set client expectation: target completion by October to avoid January rush'] },
+    { title: 'Receive & Check Documents', subtitle: 'Confirm everything received', owner: 'Aminul',
+      timing: 'Within 1 week of receipt',
+      items: ['Check all income sources covered','For self-employed: full year income and expenses (if no bookkeeping done, client provides summary)','For rental: rental income, mortgage interest, maintenance costs, insurance','Cross-check with prior year return — flag anything missing or unusual','Do not proceed if information is materially incomplete'] },
+    { title: 'Prepare Tax Return in Taxfiler', subtitle: 'Input all income and expenses', owner: 'Aminul',
+      timing: '1–3 days depending on complexity',
+      items: ['Open Taxfiler — create new SA100 for tax year','Input: employment income from P60, self-employment income/expenses, rental income/expenses, dividends, savings interest','Claim allowances: personal allowance, marriage allowance if applicable','Check: pension relief, Gift Aid','Calculate tax liability','Note: if tax > £1,000 → payments on account calculated automatically'] },
+    { title: 'Review & Sense Check', subtitle: 'Check figures before sending to client', owner: 'Asad',
+      timing: '1 day',
+      items: ['Compare tax liability to prior year — if significantly higher or lower, investigate why','Check effective tax rate is reasonable','For SE clients: check expenses are allowable (no personal items)','Check Class 4 NI is calculated if self-employed income > £12,570'] },
+    { title: 'Client Approval', subtitle: 'Send draft to client for review', owner: 'Aminul',
+      timing: 'At least 2 weeks before submission',
+      items: ['Email/WhatsApp client: tax liability, breakdown of income, amount and date due','Explain payments on account if first year over threshold','Obtain confirmation: "I approve this return"','Answer any queries — involve Asad for complex questions'] },
+    { title: 'Submit to HMRC', subtitle: 'File online via Taxfiler', owner: 'Aminul',
+      timing: 'After approval — by 31 January at latest',
+      items: ['Submit SA return via Taxfiler','Screenshot HMRC confirmation','Save confirmation to client file','Send confirmation to client with: tax amount due, due date, how to pay HMRC','Update SA Tracker — mark submitted'] },
+    { title: 'Payment Reminder', subtitle: 'January and July reminders', owner: 'Aminul',
+      timing: 'Mid-January and mid-July',
+      items: ['Send WhatsApp: tax due on 31 January, amount, HMRC payment details','For July payments on account: remind client of 31 July deadline','HMRC payment reference: client UTR followed by K','HMRC bank: Sort 08-32-10, Account 12001039'] },
+  ],
+  cover: [
+    {absent:'Aminul absent', cover:'Asad prepares return. Nawaz chases clients for documents. Sadat can input into Taxfiler remotely.'},
+    {absent:'Asad absent', cover:'Aminul completes through to client approval. Asad reviews and approves remotely before submission.'},
+    {absent:'January rush — all hands', cover:'Hassan assists with simpler SE returns. Priority order: clients with largest bills first, then those who have chased.'},
+  ],
+  timeline: [
+    {label:'Request docs', start:0, width:15, color:'#6D28D9', note:'April–May'},
+    {label:'Receive docs', start:15, width:10, color:'#155FA0', note:'May–Jul'},
+    {label:'Prepare return', start:25, width:20, color:'#1D7A47', note:'Jun–Oct'},
+    {label:'Client approval', start:45, width:15, color:'#C07A00', note:'Oct–Nov'},
+    {label:'Submit', start:60, width:15, color:'#1D7A47', note:'Nov–Jan'},
+    {label:'Payment due', start:75, width:15, color:'#D04A02', note:'31 January'},
+    {label:'Jul payment', start:90, width:10, color:'#D04A02', note:'31 July'},
+  ]
+},
+
+cs: {
+  title: '🔒 Confirmation Statements',
+  subtitle: 'Annual CS01 filing for all Ltd company clients at Companies House',
+  deadline: 'Within 14 days of the confirmation date (review period anniversary)',
+  frequency: 'Annual per company — each company has its own date',
+  owner: 'Aminul',
+  steps: [
+    { title: 'Identify Due Dates', subtitle: 'Check CH Tracker for upcoming CS01s', owner: 'Aminul',
+      timing: 'Monthly review — check 4 weeks ahead',
+      items: ['Open CH Tracker — filter by "Due this month" and "Due next month"','List all companies with CS01 due within 30 days','Cross-reference with Companies House WebFiling portal to confirm dates','Flag any overdue CS01s immediately to Asad'] },
+    { title: 'Check Company Details', subtitle: 'Verify no changes needed', owner: 'Aminul',
+      timing: '2 weeks before due date',
+      items: ['Check with client: any changes to directors, shareholders, PSC, registered address, SIC code?','WhatsApp message: "Your annual confirmation statement is due — are there any changes to your company details?"','If changes: action them BEFORE filing CS01 (address change, director appointment etc.)','If no changes: proceed to file'] },
+    { title: 'Process Any Changes', subtitle: 'File changes with Companies House first', owner: 'Aminul',
+      timing: 'Before CS01 filing',
+      items: ['Director appointment/resignation: AP01/TM01 form','Shareholder change: SH01 (allotment) or update PSC register','Registered office change: AD01','SIC code change: update in WebFiling','Confirm all changes filed and showing on Companies House register before CS01'] },
+    { title: 'File CS01 Online', subtitle: 'Submit confirmation statement', owner: 'Aminul',
+      timing: 'Within 14 days of confirmation date',
+      items: ['Log into Companies House WebFiling (or use third-party software)','Select company — review pre-populated details','Confirm all details are accurate','Pay £50 filing fee (charged to client)','Screenshot confirmation and reference number','Update CH Tracker — mark as filed'] },
+    { title: 'Confirm to Client & Invoice', subtitle: 'Notify client and raise charge', owner: 'Aminul',
+      timing: 'Same day as filing',
+      items: ['WhatsApp/email client: "Your confirmation statement has been filed with Companies House"','Include next due date for their records','Raise invoice: £50 (Companies House fee) + £20 (our admin fee) + VAT = £84 total','Collect via GoCardless if on mandate, otherwise invoice and chase'] },
+  ],
+  cover: [
+    {absent:'Aminul absent', cover:'Hassan files CS01. Aminul must brief Hassan on any pending changes before absence. Nawaz checks CH Tracker daily.'},
+    {absent:'Hassan absent', cover:'No impact — Aminul handles solo.'},
+    {absent:'Both Aminul + Hassan', cover:'Asad files directly via WebFiling. Nawaz checks tracker and flags anything due within 7 days.'},
+  ],
+  timeline: [
+    {label:'Identify due', start:0, width:15, color:'#6D28D9', note:'4 weeks before'},
+    {label:'Check changes', start:15, width:25, color:'#155FA0', note:'2 weeks before'},
+    {label:'File changes', start:40, width:20, color:'#C07A00', note:'Before CS01'},
+    {label:'File CS01', start:60, width:20, color:'#1D7A47', note:'Before deadline'},
+    {label:'Invoice client', start:80, width:10, color:'#D04A02', note:'Same day'},
+  ]
+},
+
+onboarding: {
+  title: '📋 New Client Onboarding',
+  subtitle: 'AML checks, engagement letter, HMRC agent authorisation and system setup for every new client',
+  deadline: 'Complete within 14 days of client agreeing to engage',
+  frequency: 'Per new client',
+  owner: 'Aminul',
+  steps: [
+    { title: 'Initial Enquiry & Quote', subtitle: 'First contact with prospective client', owner: 'Asad',
+      timing: 'Day 0',
+      items: ['Speak with client — understand their business, turnover, needs','Use Quote Engine to generate fee proposal','Send quote on CA letterhead via WhatsApp or email','Follow up within 3 days if no response'] },
+    { title: 'AML — Client Due Diligence', subtitle: 'Mandatory before any work begins', owner: 'Aminul',
+      timing: 'Before signing engagement letter',
+      items: ['Verify client identity: photo ID (passport or driving licence) + proof of address (utility bill, less than 3 months old)','For Ltd companies: also verify all directors and PSCs (25%+ shareholders)','Check HMRC sanctions list and PEP status','Assess risk: Low / Medium / High','Record AML check in client file — never begin work without completed AML'] },
+    { title: 'Engagement Letter', subtitle: 'Send and obtain signed copy', owner: 'Aminul',
+      timing: 'Day 1–2',
+      items: ['Prepare engagement letter via Onboarding page — select service package','Obtain client signature (DocuSign or wet signature)','File signed copy in client file','Do not begin any work until engagement letter is signed'] },
+    { title: 'HMRC Agent Authorisation', subtitle: 'Request 64-8 or online authorisation', owner: 'Aminul',
+      timing: 'Day 2–3',
+      items: ['For SA/PAYE: client authorises agent online via HMRC Government Gateway, or signs form 64-8','For Ltd/CT: authorise CT agent via HMRC online','For VAT: authorise VAT agent — client will need their VAT number and Government Gateway credentials','Log in to HMRC agent account to confirm authorisation received','Note: can take 7–10 days for paper 64-8 to process'] },
+    { title: 'Companies House Agent Setup', subtitle: 'For Ltd company clients', owner: 'Aminul',
+      timing: 'Day 3',
+      items: ['Add client company to Companies House WebFiling account','Obtain client Authentication Code (sent by Companies House to registered office)','Confirm access — file a test document if needed','Add to CH Tracker'] },
+    { title: 'Set Up in Practice Systems', subtitle: 'Taxfiler, Xero, BrightPay', owner: 'Aminul',
+      timing: 'Day 3–5',
+      items: ['Add client to Taxfiler — input UTR, NI number, company number as applicable','Set up Xero/QuickBooks if bookkeeping included in package','Add to BrightPay if payroll included','Set up GoCardless mandate — send payment link to client','Add to relevant tracker: Ltd Tracker, SA Tracker, VAT Tracker, CH Tracker'] },
+    { title: 'GoCardless Direct Debit', subtitle: 'Set up monthly payment mandate', owner: 'Aminul',
+      timing: 'Day 5',
+      items: ['Send GoCardless mandate link to client','Confirm client completes setup','Note monthly payment date and amount','Brief Asad: new client added, monthly DD of £X set up from [date]'] },
+    { title: 'Welcome & Handover', subtitle: 'Confirm setup complete', owner: 'Aminul',
+      timing: 'Day 7–14',
+      items: ['Send welcome message to client: confirm services, who their contact is, how to send documents','Brief Hassan (if Ltd) or Aminul (if SE) on new client background','Note next key deadline: first VAT return, year end, SA submission date','File all onboarding documents: ID, engagement letter, AML record'] },
+  ],
+  cover: [
+    {absent:'Aminul absent', cover:'Nawaz handles document collection and system setup. Asad completes AML check. Hassan handles HMRC authorisation for Ltd clients.'},
+    {absent:'Asad absent', cover:'Aminul handles all steps. Quote and engagement letter sent by Aminul. Asad approves fee remotely if needed.'},
+    {absent:'Nawaz absent', cover:'No significant impact — Aminul handles solo.'},
+  ],
+  timeline: [
+    {label:'Quote sent', start:0, width:8, color:'#155FA0', note:'Day 0'},
+    {label:'AML checks', start:8, width:15, color:'#D04A02', note:'Day 1'},
+    {label:'Engagement ltr', start:23, width:12, color:'#6D28D9', note:'Day 2'},
+    {label:'HMRC auth', start:35, width:15, color:'#C07A00', note:'Day 2–3'},
+    {label:'CH setup', start:50, width:10, color:'#374151', note:'Day 3'},
+    {label:'Systems setup', start:60, width:15, color:'#1D7A47', note:'Day 3–5'},
+    {label:'GoCardless', start:75, width:10, color:'#1D7A47', note:'Day 5'},
+    {label:'Welcome', start:85, width:10, color:'#155FA0', note:'Day 7–14'},
+  ]
+},
+
+newltd: {
+  title: '🏢 New Ltd Company Registration',
+  subtitle: 'Incorporating a new limited company at Companies House and setting up all tax registrations',
+  deadline: 'Company usually incorporated within 24 hours of submission · UTR issued 5–10 working days after incorporation',
+  frequency: 'Per new company',
+  owner: 'Asad (meeting + registration) → Hassan (accounts setup)',
+  steps: [
+    { title: 'Initial Consultation', subtitle: 'Understand client requirements', owner: 'Asad',
+      timing: 'Day 0',
+      items: ['Discuss: company name, business activity, share structure, directors, registered address','Explain: Ltd vs Sole Trader — tax implications, legal responsibilities, IR35 if contractor','Confirm: will we be registered address? (£75/yr charge)','Agree fee for incorporation (£180 + VAT) and ongoing package'] },
+    { title: 'Choose Company Name & Check Availability', subtitle: 'Verify name at Companies House', owner: 'Asad',
+      timing: 'Day 0–1',
+      items: ['Check name on Companies House register: https://find-and-update.company-information.service.gov.uk/','Check name not too similar to existing company','Avoid sensitive words (Bank, Royal, National etc.) — needs permission','Confirm name with client in writing before proceeding'] },
+    { title: 'Collect Director & Shareholder Info', subtitle: 'All required information', owner: 'Asad',
+      timing: 'Day 1',
+      items: ['Director: full legal name, date of birth, nationality, residential address, occupation','Shareholder: same details + number and class of shares','PSC (Person with Significant Control): anyone with 25%+ shares or voting rights','Registered office address (usually our office: 283 Featherstall Road North, OL1 2NH)','Business SIC code — select appropriate code from Companies House list'] },
+    { title: 'Incorporate at Companies House', subtitle: 'File IN01 online — £50 fee', owner: 'Asad',
+      timing: 'Day 1–2',
+      items: ['File via Companies House WebFiling using our agent account','Complete IN01: company name, registered office, directors, shareholders, statement of capital, articles of association (use model articles)','Pay £50 incorporation fee — charge to client','Usually incorporated within a few hours (same working day if before 3pm)','Save: Certificate of Incorporation, Memorandum & Articles, share certificate'] },
+    { title: 'Register for Corporation Tax', subtitle: 'HMRC CT registration', owner: 'Asad',
+      timing: 'Within 3 months of incorporation',
+      items: ['Register new company for CT via HMRC online (or call HMRC if needed)','HMRC issues UTR within 5–10 working days — send to client','Register for HMRC online services using company UTR and authentication code','Note accounting period start date'] },
+    { title: 'PAYE & Payroll Setup', subtitle: 'If client wants to pay salary', owner: 'Aminul',
+      timing: 'Before first payroll',
+      items:['Register employer for PAYE via HMRC online (or call HMRC)','HMRC issues PAYE reference and Accounts Office reference within a few days','Set up company in BrightPay — input PAYE reference, Accounts Office reference','Process first payroll — minimum wage salary is common for directors'] },
+    { title: 'VAT Registration', subtitle: 'If turnover over threshold or client wants to register', owner: 'Hassan',
+      timing: 'When required',
+      items: ['Mandatory: register if turnover exceeds £90,000 (2024/25 threshold)','Voluntary: client may benefit from registering below threshold (input tax recovery)','Register via HMRC VAT registration service online','Decide: Standard Rate vs Flat Rate Scheme (FRS)','MTD: set up Xero/QuickBooks for MTD-compliant VAT submission','HMRC issues VAT number within 10–30 working days'] },
+    { title: 'Full Accounts & Systems Setup', subtitle: 'Hassan takes over', owner: 'Hassan',
+      timing: 'Within 2 weeks of incorporation',
+      items: ['Add company to Taxfiler (CT and SA for directors)','Set up Xero/QuickBooks — chart of accounts, opening balances','Add to Ltd Tracker, CH Tracker, VAT Tracker (if VAT registered)','Set up GoCardless mandate for monthly fees','Brief Asad: company registered, systems set up, next year end date confirmed','Add confirmation statement date to CH Tracker'] },
+    { title: 'Send Welcome Pack to Client', subtitle: 'Everything they need to know', owner: 'Asad',
+      timing: 'Within 1 week of incorporation',
+      items: ['Send: Certificate of Incorporation, share certificate, UTR (when received), VAT number (when received)','Explain: responsibilities as a director — annual accounts, CT return, confirmation statement, PAYE','Confirm: our fees, payment schedule, who to contact for what','Advise: open a business bank account immediately (NatWest, Starling, Monzo Business)'] },
+  ],
+  cover: [
+    {absent:'Asad absent', cover:'Hassan handles incorporation using agent account. Asad approves company name and structure remotely before filing.'},
+    {absent:'Hassan absent', cover:'Asad completes systems setup. Aminul handles PAYE registration if needed.'},
+    {absent:'Aminul absent', cover:'No PAYE impact — setup can wait until Aminul returns unless urgent.'},
+  ],
+  timeline: [
+    {label:'Consultation', start:0, width:8, color:'#155FA0', note:'Day 0'},
+    {label:'Name check', start:8, width:7, color:'#374151', note:'Day 1'},
+    {label:'Collect info', start:15, width:8, color:'#C07A00', note:'Day 1'},
+    {label:'Incorporate', start:23, width:10, color:'#155FA0', note:'Day 1–2'},
+    {label:'CT registration', start:33, width:15, color:'#1D7A47', note:'Within 3 months'},
+    {label:'PAYE setup', start:48, width:12, color:'#6D28D9', note:'If applicable'},
+    {label:'VAT reg', start:60, width:12, color:'#C07A00', note:'If applicable'},
+    {label:'Systems setup', start:72, width:15, color:'#1D7A47', note:'Hassan'},
+    {label:'Welcome pack', start:87, width:10, color:'#155FA0', note:'Week 1'},
+  ]
+},
+
+};
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let curWF = 'vat';
+let checkState = JSON.parse(localStorage.getItem('ca_wf_checks') || '{}');
+
+function saveChecks(){ localStorage.setItem('ca_wf_checks', JSON.stringify(checkState)); }
+
+function setWF(id) {
+  curWF = id;
+  document.querySelectorAll('.page-tab').forEach((t,i) => {
+    const ids = ['vat','accounts','payroll','sa','cs','onboarding','newltd'];
+    t.classList.toggle('active', ids[i] === id);
+  });
+  renderWF();
+}
+
+function toggleStep(wfId, stepIdx) {
+  const key = wfId + '_' + stepIdx;
+  checkState[key] = !checkState[key];
+  saveChecks();
+  renderWF();
+  toast(checkState[key] ? 'Step marked complete ✓' : 'Step unmarked');
+}
+
+function resetWF(wfId) {
+  Object.keys(checkState).filter(k => k.startsWith(wfId + '_')).forEach(k => delete checkState[k]);
+  saveChecks();
+  renderWF();
+  toast('Checklist reset');
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderWF() {
+  const wf = WORKFLOWS[curWF];
+  if(!wf) return;
+
+  const totalSteps = wf.steps.length;
+  const doneSteps = wf.steps.filter((_,i) => checkState[curWF + '_' + i]).length;
+  const pct = Math.round(doneSteps / totalSteps * 100);
+
+  // Steps HTML
+  let stepsHTML = '';
+  wf.steps.forEach((s, i) => {
+    const done = !!checkState[curWF + '_' + i];
+    stepsHTML += `
+    <div class="step-card${done ? ' done' : ''}">
+      <div class="step-head" onclick="toggleStep('${curWF}', ${i})">
+        <div class="step-num">${i + 1}</div>
+        <div class="step-title-wrap">
+          <div class="step-title">${s.title}</div>
+          <div class="step-subtitle">${s.subtitle}</div>
+        </div>
+        <div class="step-check ${done ? 'checked' : ''}">${done ? '✓' : ''}</div>
+      </div>
+      <div class="step-body">
+        <ul>${s.items.map(it => `<li>${it}</li>`).join('')}</ul>
+        <div class="step-meta">
+          ${badge(s.owner)}
+          <span class="step-timing">⏱ ${s.timing}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  // Timeline HTML
+  let tlHTML = '';
+  wf.timeline.forEach(t => {
+    tlHTML += `<div class="tl-row">
+      <div class="tl-label">${t.label}</div>
+      <div class="tl-bar-wrap">
+        <div class="tl-bar" style="margin-left:${t.start}%;width:${t.width}%;background:${t.color}">
+          ${t.width > 8 ? t.label : ''}
+        </div>
+      </div>
+      <div class="tl-note">${t.note}</div>
+    </div>`;
+  });
+
+  // Cover HTML
+  let coverHTML = wf.cover.map(c => `
+    <div class="cover-card">
+      <div class="cc-name">🔴 ${c.absent}</div>
+      <div class="cc-cover">${c.cover}</div>
+    </div>`).join('');
+
+  document.getElementById('wf-content').innerHTML = `
+    <div class="wf-header">
+      <div>
+        <h2>${wf.title}</h2>
+        <p>${wf.subtitle}</p>
+      </div>
+      <div class="wf-meta">
+        <span class="wf-meta-item">📅 ${wf.frequency}</span>
+        <span class="wf-meta-item">⚠️ ${wf.deadline}</span>
+        <span class="wf-meta-item">👤 ${wf.owner}</span>
+      </div>
+    </div>
+
+    <div class="wf-progress">
+      <div style="font-size:12px;font-weight:700;white-space:nowrap">${doneSteps}/${totalSteps} steps</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+      <div class="prog-text">${pct}%</div>
+      <button class="btn btn-secondary" onclick="resetWF('${curWF}')" style="margin-left:8px">↺ Reset</button>
+      <button class="btn btn-blue" onclick="window.print()">🖨 Print</button>
+    </div>
+
+    <div class="steps-grid">${stepsHTML}</div>
+
+    <div class="timeline">
+      <h3>⏱ Typical Timeline</h3>
+      ${tlHTML}
+    </div>
+
+    <div class="cover-section">
+      <h3>🛡 Cover Arrangements — What Happens When Someone Is Absent</h3>
+      <div class="cover-grid">${coverHTML}</div>
+    </div>
+  `;
+}
+
+renderWF();
+</script>
+</body>
+</html>
