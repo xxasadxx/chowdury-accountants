@@ -551,6 +551,7 @@ let curStaff=sessionStorage.getItem('ca_staff')||'Asadul',curView='activities',c
 
 const SB_HEADERS={'Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY};
 const SB_HEADERS_POST={'Content-Type':'application/json','Authorization':'Bearer '+SB_KEY,'apikey':SB_KEY,'Prefer':'return=representation'};
+function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';}
 async function sb(path,opts={}){
   const isWrite=opts.method&&opts.method!=='GET';
   const r=await fetch(SB_URL+'/rest/v1/'+path,{headers:isWrite?SB_HEADERS_POST:SB_HEADERS,...opts});
