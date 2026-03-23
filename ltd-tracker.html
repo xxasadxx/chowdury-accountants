@@ -502,6 +502,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('sa_payment_jan')">💰 SA Payment (Jan)</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('records_received')">✅ Records Received</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('proposal')">📋 Proposal</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('disengagement')">🚪 Disengagement</button>
@@ -2172,6 +2173,33 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  sa_payment_jan: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    const utr = client.utr || '[UTR Reference]';
+    return `Dear ${greeting},
+
+SELF ASSESSMENT TAX PAYMENT REMINDER
+
+If you have not already paid your Self Assessment tax, you are due to pay by 31st January.
+
+You can pay by internet banking, telephone banking or BACS Direct Credit. To make the payment you will need HMRC's bank account details below and your Unique Taxpayer Reference (UTR) number${utr !== '[UTR Reference]' ? ': ' + utr : ' — please contact us if you are unsure of this'}.
+
+HMRC BANK DETAILS
+Sort Code:      08-32-10
+Account Number: 12001039
+Account Name:   HMRC Cumbernauld
+
+Or pay online at: https://www.gov.uk/pay-self-assessment-tax-bill
+
+If you are unsure of the amount due, please log in to your HMRC online account or contact us and we will advise you.
+
+If you have any questions please do not hesitate to contact us.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   records_received: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
