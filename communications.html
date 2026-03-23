@@ -868,28 +868,39 @@ function renderClients(){
   document.getElementById('cl-count').textContent='('+list.length+')';
   if(!list.length){document.getElementById('cl-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients match</div>';return;}
   const selId = selectedClient?.id||'';
-  document.getElementById('cl-body').innerHTML=list.slice(0,300).map((c,i)=>{
-    const allIdx = ALL.indexOf(c);
-    const lastMsg=LOGS.find(l=>l.client_ref===c.ref);
+  const msgTpl = document.getElementById('msg-body').value||'';
+  document.getElementById('cl-body').innerHTML=list.slice(0,300).map((cl,i)=>{
+    const allIdx = ALL.indexOf(cl);
+    const lastMsg=LOGS.find(l=>l.client_ref===cl.ref);
     const lastDate=lastMsg?new Date(lastMsg.sent_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'—';
-    const mob=(c.mobile||'').trim();
-    const em=(c.email||'').trim();
-    const isSelected = c.id===selId;
+    const mob=(cl.mobile||'').trim();
+    const em=(cl.email||'').trim();
+    const isSelected = cl.id===selId;
     const bg = isSelected ? 'background:var(--blue-light);border-left:3px solid var(--blue);' : '';
     const nameColor = isSelected ? 'color:var(--blue);' : '';
-    const displayName = c.name || c.company_name || c.ref || '—';
+    const displayName = cl.name || cl.company_name || cl.ref || '—';
+    // Build WA href directly — same approach as greetings page
+    const tel=mob.replace(/\D/g,'');
+    const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
+    // Get current message for this client
+    const clientMsg = SMART_TMPLS[currentTpl] ? SMART_TMPLS[currentTpl](cl) : msgTpl;
+    const waHref = mob ? 'https://wa.me/'+uk+'?text='+encodeURIComponent(clientMsg) : '';
+    const safeEmail = em.replace(/'/g,"\'");
+    const safeName = displayName.replace(/'/g,"\'");
+    const safeSubject = getEmailSubject().replace(/'/g,"\'");
+    const mailHref = em ? "mailto:"+safeEmail+"?subject="+encodeURIComponent(getEmailSubject())+"&body="+encodeURIComponent(clientMsg) : '';
     return `<div class="cl-row" style="${bg}cursor:pointer" onclick="pickClient(${allIdx})">
       <div style="font-weight:700;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${nameColor}">${displayName}</div>
       <div style="font-size:10px">
         ${mob?'<div style="font-family:var(--mono);color:var(--muted)">'+mob+'</div>':''}
-        ${em?'<div style="color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px" title="'+em+'">'+em+'</div>':''}
+        ${em?'<div style="color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px">'+em+'</div>':''}
         ${!mob&&!em?'<span style="color:var(--red);font-style:italic;font-size:10px">no contact</span>':''}
       </div>
-      <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
+      <div><span class="badge badge-${cl.type}">${cl.type==='ltd'?'Ltd':'SE'}</span></div>
       <div style="font-size:10px;color:var(--muted)">${lastDate}</div>
       <div style="display:flex;gap:4px" onclick="event.stopPropagation()">
-        ${mob?'<button title="Send via WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:5px;padding:5px 8px;font-size:13px;cursor:pointer" onclick="sendTo(${allIdx})">💬</button>':''}
-        ${em?'<button title="Send via Email" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:5px 8px;font-size:13px;cursor:pointer" onclick="emailTo(${allIdx})">📧</button>':''}
+        ${waHref?'<a href="'+waHref+'" target="_blank" onclick="logSend('+allIdx+',\'whatsapp\')" title="Send via WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:5px;padding:5px 9px;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block">💬</a>':''}
+        ${mailHref?'<a href="'+mailHref+'" onclick="logSend('+allIdx+',\'email\')" title="Send via Email" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:5px 9px;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block">📧</a>':''}
         ${!mob&&!em?'<span style="color:var(--muted);font-size:10px">—</span>':''}
       </div>
     </div>`;
@@ -903,60 +914,23 @@ function pickClient(idx){
   renderClients(); // re-render to show selected highlight
 }
 
-async function sendTo(idx){
+async function logSend(idx, delivery){
   const client = ALL[idx];
   if(!client) return;
-  // Regenerate message synchronously before any await
-  selectClient(client);
-  const body=document.getElementById('msg-body').value.trim();
-  if(!body){toast('Select a template first','err');return;}
-  const mob=(client.mobile||'').trim();
-  if(!mob){toast('No mobile number for this client','err');return;}
-  const tel=mob.replace(/\D/g,'');
-  const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
-  // Open WhatsApp immediately (must be synchronous from click gesture)
-  window.open('https://wa.me/'+uk+'?text='+encodeURIComponent(body),'_blank');
-  const sentBy=document.getElementById('sent-by').value||'Unknown';
-  const id=client.id, ref=client.ref, name=client.name, mobile=mob, type=client.type;
-  // Log
+  const body = SMART_TMPLS[currentTpl] ? SMART_TMPLS[currentTpl](client) : document.getElementById('msg-body').value.trim();
+  const sentBy = document.getElementById('sent-by').value||'Unknown';
   try{
     await fetch(SB+'/rest/v1/client_messages',{
       method:'POST',headers:{...H,'Prefer':'return=minimal'},
-      body:JSON.stringify({client_type:type,client_ref:ref,client_name:name,message_body:body,sent_by:sentBy,delivery:'whatsapp'})
+      body:JSON.stringify({client_type:client.type,client_ref:client.ref,client_name:client.name,message_body:body,sent_by:sentBy,delivery:delivery})
     });
     const r=await fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H});
     LOGS=await r.json();
     renderStats();renderClients();
-    toast('Sent & logged ✓');
+    toast(delivery==='whatsapp'?'WhatsApp opened & logged ✓':'Email opened & logged ✓');
   }catch(e){toast('Could not log: '+e.message,'err');}
 }
 
-async function emailTo(idx){
-  const client = ALL[idx];
-  if(!client) return;
-  // Regenerate message synchronously before any await
-  selectClient(client);
-  const finalBody=document.getElementById('msg-body').value.trim();
-  if(!finalBody){toast('Select a template first','err');return;}
-  const email=(client.email||'').trim();
-  if(!email){toast('No email address for this client','err');return;}
-  const subject=getEmailSubject();
-  // Open email immediately (must be synchronous from click gesture)
-  window.open('mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(finalBody));
-  const sentBy=document.getElementById('sent-by').value||'Unknown';
-  const id=client.id, ref=client.ref, name=client.name, type=client.type;
-  // Log
-  try{
-    await fetch(SB+'/rest/v1/client_messages',{
-      method:'POST',headers:{...H,'Prefer':'return=minimal'},
-      body:JSON.stringify({client_type:type,client_ref:ref,client_name:name,message_body:finalBody,sent_by:sentBy,delivery:'email'})
-    });
-    const r=await fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H});
-    LOGS=await r.json();
-    renderStats();renderClients();
-    toast('Email opened & logged ✓');
-  }catch(e){toast('Could not log: '+e.message,'err');}
-}
 
 function getEmailSubject(){
   const subjects={
