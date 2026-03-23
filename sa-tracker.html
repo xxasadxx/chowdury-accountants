@@ -541,6 +541,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('part_records')">📂 Part Records</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('vat_payment')">🟢 VAT Payment</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('ct_payment')">🏛 CT Payment</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('sa_payment_jul')">💰 SA Payment (Jul)</button>
@@ -1572,6 +1573,23 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  part_records: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    return `Dear ${greeting},
+
+Thank you for sending us some of your records, however, we are still waiting on the following:
+
+• [List missing items here]
+
+Could you please provide these at your earliest convenience so we can proceed with your work.
+
+If you have any questions about what is required, please do not hesitate to contact us.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   vat_payment: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
