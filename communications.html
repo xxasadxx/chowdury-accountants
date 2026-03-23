@@ -200,8 +200,12 @@ select:focus{border-color:var(--blue)}
       </div>
 
       <div class="cl-table">
-        <div class="cl-head">
-          <div>Name</div><div>Mobile / Email</div><div>Type</div><div>Last Msg</div><div>Action</div>
+        <div class="cl-head" style="cursor:default">
+          <div onclick="setSort('name')" style="cursor:pointer" id="sh-name">Name ↕</div>
+          <div>Mobile / Email</div>
+          <div onclick="setSort('type')" style="cursor:pointer" id="sh-type">Type ↕</div>
+          <div onclick="setSort('last')" style="cursor:pointer" id="sh-last">Last ↕</div>
+          <div>Action</div>
         </div>
         <div style="font-size:10px;color:var(--muted);padding:4px 2px 6px">👆 Click a row to preview message for that client — then click 💬 or 📧 to send</div>
         <div id="cl-body">
@@ -792,7 +796,7 @@ function getTplKey(body){
   return 'custom';
 }
 
-let ALL=[], LOGS=[], currentTpl='vat';
+let ALL=[], LOGS=[], currentTpl='vat', sortCol='name', sortDir='asc';
 
 async function load(){
   document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px">Loading clients…</div>';
@@ -855,6 +859,16 @@ function renderStats(){
   document.getElementById('k-total').textContent=LOGS.length;
 }
 
+function setSort(col){
+  if(sortCol===col) sortDir=sortDir==='asc'?'desc':'asc';
+  else { sortCol=col; sortDir='asc'; }
+  ['name','type','last'].forEach(k=>{
+    const el=document.getElementById('sh-'+k);
+    if(el) el.textContent=k.charAt(0).toUpperCase()+k.slice(1)+' '+(sortCol===k?(sortDir==='asc'?'↑':'↓'):'↕');
+  });
+  renderClients();
+}
+
 function renderClients(){
   const q=(document.getElementById('srch').value||'').toLowerCase();
   const cf=document.getElementById('client-filter').value;
@@ -863,6 +877,19 @@ function renderClients(){
     if(cf==='se'&&c.type!=='se') return false;
     if(q&&!c.name.toLowerCase().includes(q)&&!c.mobile.includes(q)) return false;
     return true;
+  });
+  // Sort
+  list.sort((a,b)=>{
+    let va='', vb='';
+    if(sortCol==='name'){ va=a.name||''; vb=b.name||''; }
+    else if(sortCol==='type'){ va=a.type||''; vb=b.type||''; }
+    else if(sortCol==='last'){
+      const la=LOGS.find(l=>l.client_ref===a.ref); const lb=LOGS.find(l=>l.client_ref===b.ref);
+      va=la?la.sent_at:''; vb=lb?lb.sent_at:'';
+    }
+    if(va<vb) return sortDir==='asc'?-1:1;
+    if(va>vb) return sortDir==='asc'?1:-1;
+    return 0;
   });
   document.getElementById('cl-count').textContent='('+list.length+')';
   if(!list.length){document.getElementById('cl-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients match</div>';return;}
