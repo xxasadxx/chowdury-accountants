@@ -625,20 +625,6 @@ header{background:#1a1a18;padding:0;position:sticky;top:0;z-index:9999;box-shado
 
   /* ══════════════════════════════════════════════════════════════════ */
 </style>
-<style id="portal-nav-css">
-#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-family:'DM Sans','Mulish',sans-serif;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto;}
-#portal-nav::-webkit-scrollbar{height:3px;}
-#portal-nav::-webkit-scrollbar-track{background:#1a1a18;}
-#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px;}
-.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0;}
-.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap;}
-.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;}
-#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500;}
-#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08);}
-#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13);}
-.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0;}
-.nav-signout:hover{color:rgba(255,255,255,.6)!important;background:rgba(255,255,255,.06)!important;}
-</style>
 </head>
 <body>
 <header>
@@ -678,19 +664,7 @@ header{background:#1a1a18;padding:0;position:sticky;top:0;z-index:9999;box-shado
   if(el) el.textContent = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 })();
 </script>
-  <a href="index.html">🏠 Portal</a>
-  <a href="revenue-tracker.html">💰 Revenue</a>
-  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html">🟢 VAT</a>
-  <a href="paye-tracker.html">💼 PAYE</a>
-  <a href="sa-tracker.html">📋 SA</a>
-  <a href="ch-tracker.html">⚖️ CH Tracker</a>
-  <a href="staff-management.html">👥 Staff</a>
-  <a href="onboarding.html">🆕 Onboarding</a>
-  <a href="communications.html">💬 Comms</a>
-  <a href="strategic-review.html" class="active">📊 Strategy</a>
-  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
-</div>
+
 
 
 
@@ -1630,18 +1604,7 @@ header{background:#1a1a18;padding:0;position:sticky;top:0;z-index:9999;box-shado
 
   renderGrid("all");
   </script>
-  <a href="index.html">🏠 Portal</a>
-  <a href="revenue-tracker.html">💰 Revenue</a>
-  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
-  <a href="vat-tracker.html">🟢 VAT</a>
-  <a href="paye-tracker.html">💼 PAYE</a>
-  <a href="sa-tracker.html">📋 SA</a>
-  <a href="ch-tracker.html">⚖️ CH Tracker</a>
-  <a href="staff-management.html">👥 Staff</a>
-  <a href="calendar.html">📅 Calendar</a>
-  <a href="strategic-review.html">📊 Strategy</a>
-  <a href="login.html" onclick="sessionStorage.removeItem('ca_auth')" style="margin-left:auto;color:rgba(255,255,255,0.3)!important">Sign out</a>
-</div>
+
 
 <script>
 // ═══════ DATA ═══════
