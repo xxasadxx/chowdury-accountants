@@ -102,6 +102,43 @@ select:focus{border-color:var(--blue)}
 /* DB notice */
 .db-notice{background:var(--amber-light);border:1px solid #fcd34d;border-radius:var(--radius);padding:12px 16px;font-size:11px;color:#92400e;margin-bottom:14px;display:none}
 .db-notice code{font-size:10px;display:block;margin:6px 0;background:rgba(0,0,0,.06);padding:8px;border-radius:5px;white-space:pre;overflow-x:auto;font-family:var(--mono)}
+
+/* Greetings tab */
+.greet-main{display:grid;grid-template-columns:290px 1fr 260px;min-height:calc(100vh - 240px)}
+.greet-sidebar{border-right:1px solid var(--border);background:var(--surface);padding:18px;overflow-y:auto}
+.greet-content{padding:20px 24px;background:var(--bg)}
+.greet-preview{border-left:1px solid var(--border);background:var(--surface);padding:18px}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.tpl-btn{padding:9px 12px;border-radius:8px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:var(--bg);text-align:left;transition:all .15s;font-family:var(--sans);color:var(--ink);width:100%}
+.tpl-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+.tpl-btn.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+.tpl-btn strong{display:block;font-size:12px;margin-bottom:1px}
+.tpl-btn span{color:var(--muted);font-size:10px}
+.greet-filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.greet-filt{padding:4px 10px;border-radius:5px;border:1px solid var(--border2);background:none;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);transition:all .15s}
+.greet-filt:hover,.greet-filt.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.greet-cl-head{display:grid;grid-template-columns:1fr 110px 60px 60px;gap:8px;padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.greet-cl-row{display:grid;grid-template-columns:1fr 110px 60px 60px;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s;cursor:pointer}
+.greet-cl-row:hover{background:var(--blue-light)}
+.greet-cl-row.gsent{background:var(--green-light)}
+.greet-cl-row:last-child{border-bottom:none}
+.badge-gsent{background:var(--green-light);color:var(--green)}
+.badge-gunsent{background:var(--border);color:var(--muted)}
+.greet-bubble{background:#E8F8E8;border:1px solid #c3e6c3;border-radius:14px 14px 14px 3px;padding:13px 15px;font-size:12px;line-height:1.7;color:#1a3a1a;white-space:pre-wrap;min-height:100px;max-height:380px;overflow-y:auto;margin-bottom:10px}
+.btn-wa{background:#25D366;color:#fff;font-size:11px;padding:6px 12px;border-radius:6px;cursor:pointer;border:none;font-family:var(--sans);font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-wa:hover{background:#1ea854}
+.greet-kpi-row{display:flex;gap:8px;padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.maint{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-top:12px}
+.maint summary{font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);list-style:none;display:flex;align-items:center;gap:5px}
+.maint summary::-webkit-details-marker{display:none}
+.maint[open] summary{color:var(--ink);margin-bottom:8px}
+.prog-wrap{margin-top:8px;display:none}
+.prog-bar{height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:3px}
+.prog-fill{height:100%;background:var(--green);border-radius:99px;transition:width .2s;width:0%}
+.prog-txt{font-size:10px;color:var(--muted)}
+.g-sent-entry{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);font-size:11px}
+.g-sent-entry:last-child{border-bottom:none}
+.no-mob{color:var(--red);font-size:10px;font-style:italic}
 </style>
 </head>
 <body>
@@ -115,7 +152,6 @@ select:focus{border-color:var(--blue)}
   <a href="sa-tracker.html">📋 SA</a>
   <a href="ch-tracker.html">⚖️ CH Tracker</a>
   <a href="staff-management.html">👥 Staff</a>
-  <a href="greetings.html">📲 Greetings</a>
   <a href="onboarding.html">🆕 Onboarding</a>
   <a href="communications.html" class="active">💬 Comms</a>
   <a href="strategic-review.html">📊 Strategy</a>
@@ -128,6 +164,7 @@ select:focus{border-color:var(--blue)}
   <div class="page-tabs">
     <div class="page-tab active" onclick="setView('send')">📤 Send Messages</div>
     <div class="page-tab" onclick="setView('log')">📋 Message Log</div>
+    <div class="page-tab" onclick="setView('greetings')">📲 Greetings</div>
   </div>
 </div>
 
@@ -275,6 +312,91 @@ select:focus{border-color:var(--blue)}
     <div id="log-body">
       <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading…</div>
     </div>
+  </div>
+</div>
+
+
+<!-- GREETINGS VIEW -->
+<div id="view-greetings" style="display:none">
+  <div class="greet-kpi-row">
+    <div class="kpi"><div class="k">Total Clients</div><div class="v" id="gk-total" style="color:var(--blue)">—</div></div>
+    <div class="kpi"><div class="k">Have Mobile</div><div class="v" id="gk-mobile" style="color:var(--green)">—</div></div>
+    <div class="kpi"><div class="k">Missing Mobile</div><div class="v" id="gk-nomob" style="color:var(--red)">—</div></div>
+    <div class="kpi"><div class="k">Sent This Session</div><div class="v" id="gk-sent" style="color:var(--amber)">0</div></div>
+    <div class="kpi"><div class="k">Ltd</div><div class="v" id="gk-ltd" style="color:var(--muted)">—</div></div>
+    <div class="kpi"><div class="k">SE</div><div class="v" id="gk-se" style="color:var(--muted)">—</div></div>
+  </div>
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex">
+    <div class="page-tab active" id="gtab-compose" onclick="setGreetView('compose')" style="font-size:11px;padding:8px 14px">&#x2709;&#xFE0F; Compose &amp; Send</div>
+    <div class="page-tab" id="gtab-log" onclick="setGreetView('log')" style="font-size:11px;padding:8px 14px">&#x1F4CB; Sent Log</div>
+  </div>
+  <div id="gview-compose">
+    <div class="greet-main">
+      <div class="greet-sidebar">
+        <span class="lbl">Template</span>
+        <div class="tpl-grid">
+          <button class="tpl-btn active" id="gtpl-eid" onclick="G_setTemplate('eid')"><strong>&#x1F319; Eid Mubarak</strong><span>Eid al-Fitr &amp; al-Adha</span></button>
+          <button class="tpl-btn" id="gtpl-ramadan" onclick="G_setTemplate('ramadan')"><strong>&#x1F319; Ramadan</strong><span>Start of Ramadan</span></button>
+          <button class="tpl-btn" id="gtpl-newyear" onclick="G_setTemplate('newyear')"><strong>&#x1F389; New Year</strong><span>Happy New Year</span></button>
+          <button class="tpl-btn" id="gtpl-custom" onclick="G_setTemplate('custom')"><strong>&#x270F;&#xFE0F; Custom</strong><span>Write your own</span></button>
+        </div>
+        <span class="lbl">Message <span style="font-weight:400;color:var(--muted)">(use {name} for director name)</span></span>
+        <textarea id="g-msg-tpl" rows="7" oninput="G_refreshPreview()" placeholder="Write your message..."></textarea>
+        <div style="margin-top:5px"><button class="btn btn-sm btn-secondary" onclick="G_insertVar('{name}')">+ {name}</button></div>
+        <span class="lbl" style="margin-top:14px">Filter clients</span>
+        <div class="greet-filters">
+          <button class="greet-filt on" id="gf-all" onclick="G_setFilter('all')">All</button>
+          <button class="greet-filt" id="gf-mobile" onclick="G_setFilter('mobile')">Has mobile</button>
+          <button class="greet-filt" id="gf-nomob" onclick="G_setFilter('nomob')">No mobile</button>
+          <button class="greet-filt" id="gf-ltd" onclick="G_setFilter('ltd')">Ltd only</button>
+          <button class="greet-filt" id="gf-se" onclick="G_setFilter('se')">SE only</button>
+          <button class="greet-filt" id="gf-unsent" onclick="G_setFilter('unsent')">Not sent yet</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:11px;color:var(--muted)"><span id="gf-count">0</span> clients shown</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-secondary" onclick="G_markAllSent()">&#x2713; Mark all sent</button>
+            <button class="btn btn-sm btn-secondary" onclick="G_clearSent()">&#x21BA; Reset</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:5px">
+          <button class="btn btn-green btn-sm" onclick="G_downloadCSV()">&#x2B07; Download CSV</button>
+          <button class="btn btn-blue btn-sm" onclick="G_copyCSV()">&#x1F4CB; Copy CSV</button>
+        </div>
+        <p style="font-size:10px;color:var(--muted);margin-bottom:10px">CSV for WATI / Interakt bulk WhatsApp tools</p>
+        <details class="maint">
+          <summary>&#x2699;&#xFE0F; Maintenance</summary>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Re-import mobile numbers into Supabase</p>
+          <button class="btn btn-sm btn-secondary" id="g-imp-btn" onclick="G_runImport()">&#x25B6; Re-import Mobiles</button>
+          <div class="prog-wrap" id="g-imp-prog"><div class="prog-bar"><div class="prog-fill" id="g-imp-fill"></div></div><div class="prog-txt" id="g-imp-txt">Working...</div></div>
+          <div id="g-imp-result" style="font-size:11px;margin-top:6px"></div>
+        </details>
+      </div>
+      <div class="greet-content">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-family:var(--display);font-size:14px;font-weight:700">Clients</span>
+          <input style="padding:5px 10px;border:1px solid var(--border2);border-radius:6px;font-size:11px;width:180px;outline:none;font-family:var(--sans)" id="g-srch" placeholder="Search..." oninput="G_renderList()">
+        </div>
+        <div class="cl-table" id="g-client-list">
+          <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading clients...</div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-top:6px">Click a client to open WhatsApp &middot; Green = sent this session</div>
+      </div>
+      <div class="greet-preview">
+        <div class="preview-panel-title">&#x1F441; Preview</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">First client in filtered list</div>
+        <div class="greet-bubble" id="g-preview-msg">&#x2014;</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px" id="g-preview-name">&#x2014;</div>
+        <button class="btn-wa" onclick="G_openFirstWA()">&#x1F4AC; Open in WhatsApp</button>
+      </div>
+    </div>
+  </div>
+  <div id="gview-log" style="display:none;padding:20px 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div><div style="font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:2px">&#x1F4CB; Sent Log</div><div style="font-size:11px;color:var(--muted)">Clients messaged this session</div></div>
+      <button class="btn btn-secondary btn-sm" onclick="G_clearSent();G_renderLog()">&#x21BA; Clear All</button>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden"><div id="g-sent-log-list"></div></div>
   </div>
 </div>
 
@@ -1125,8 +1247,10 @@ function toggleMsg(i){
 function setView(v){
   document.getElementById('view-send').style.display=v==='send'?'block':'none';
   document.getElementById('view-log').style.display=v==='log'?'block':'none';
-  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',i===(v==='send'?0:1)));
+  document.getElementById('view-greetings').style.display=v==='greetings'?'block':'none';
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',i===(v==='send'?0:v==='log'?1:2)));
   if(v==='log') renderLog();
+  if(v==='greetings'&&!G_loaded) G_load();
 }
 
 function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
@@ -1135,6 +1259,196 @@ function toast(msg,type='ok'){const t=document.getElementById('toast');t.textCon
 fetch(SB+'/rest/v1/client_messages?limit=1',{headers:H}).then(r=>{if(!r.ok)document.getElementById('db-notice').style.display='block';}).catch(()=>document.getElementById('db-notice').style.display='block');
 
 load();
+
+// ═══ GREETINGS MODULE ═══
+const G_TMPLS={
+  eid:`Assalamu Alaikum,
+
+Eid Mubarak to you and your family! 🌙✨
+
+Wishing you a blessed and joyful Eid filled with happiness, peace and prosperity.
+
+Best wishes,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  ramadan:`Assalamu Alaikum,
+
+Ramadan Mubarak! 🌙
+
+Wishing you and your loved ones a blessed and peaceful Ramadan.
+
+Best wishes,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  newyear:`Dear Client,
+
+Wishing you and your family a very Happy New Year! 🎉
+
+May the new year bring success, health and prosperity.
+
+Best wishes,
+The Chowdury Accountants Team
+📞 0161 222 4647`,
+  custom:`Dear {name},\n\n`
+};
+let G_ALL=[],G_filter='all',G_sentSet=new Set(JSON.parse(sessionStorage.getItem('ca_greet_sent')||'[]'));
+let G_curTpl='eid',G_sortCol='name',G_sortDir='asc',G_loaded=false;
+
+async function G_load(){
+  G_loaded=true;
+  try{
+    const[ltd,se]=await Promise.all([
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()),
+      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[])
+    ]);
+    let sn={};
+    try{const s=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));s.flat().forEach(c=>{if(c.comp_no&&c.name)sn[String(c.comp_no).padStart(8,'0')]=c.name;});}catch(e){}
+    G_ALL=[...(Array.isArray(ltd)?ltd:[]).map(c=>{const n=String(c.comp_no).padStart(8,'0');return{id:'ltd_'+c.comp_no,type:'ltd',name:sn[n]||c.director_name||n,mobile:c.director_mobile||''};}),
+           ...(Array.isArray(se)?se:[]).map(c=>({id:'se_'+c.id,type:'se',name:c.full_name||'Client',mobile:c.mobile||''}))];
+    G_renderStats();G_renderList();G_setTemplate('eid');
+  }catch(e){document.getElementById('g-client-list').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">Failed to load: '+e.message+'</div>';}
+}
+
+function G_renderStats(){
+  const m=G_ALL.filter(c=>c.mobile.trim());
+  document.getElementById('gk-total').textContent=G_ALL.length;
+  document.getElementById('gk-mobile').textContent=m.length;
+  document.getElementById('gk-nomob').textContent=G_ALL.length-m.length;
+  document.getElementById('gk-ltd').textContent=G_ALL.filter(c=>c.type==='ltd').length;
+  document.getElementById('gk-se').textContent=G_ALL.filter(c=>c.type==='se').length;
+  document.getElementById('gk-sent').textContent=G_sentSet.size;
+}
+
+function G_getFiltered(){
+  const q=(document.getElementById('g-srch').value||'').toLowerCase();
+  return G_ALL.filter(c=>{
+    if(q&&!c.name.toLowerCase().includes(q))return false;
+    if(G_filter==='mobile')return!!c.mobile.trim();
+    if(G_filter==='nomob')return!c.mobile.trim();
+    if(G_filter==='ltd')return c.type==='ltd';
+    if(G_filter==='se')return c.type==='se';
+    if(G_filter==='unsent')return!G_sentSet.has(c.id);
+    return true;
+  });
+}
+
+function G_renderList(){
+  const list=G_getFiltered();
+  document.getElementById('gf-count').textContent=list.length;
+  if(!list.length){document.getElementById('g-client-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients match filter</div>';return;}
+  const tpl=document.getElementById('g-msg-tpl').value;
+  const arr=n=>G_sortCol===n?(G_sortDir==='asc'?' ↑':' ↓'):' ↕';
+  const sorted=[...list].sort((a,b)=>{
+    let va,vb;
+    if(G_sortCol==='name'){va=a.name.toLowerCase();vb=b.name.toLowerCase();}
+    else if(G_sortCol==='mobile'){va=a.mobile||'';vb=b.mobile||'';}
+    else if(G_sortCol==='type'){va=a.type;vb=b.type;}
+    else{va=G_sentSet.has(a.id)?1:0;vb=G_sentSet.has(b.id)?1:0;}
+    return(va<vb?-1:va>vb?1:0)*(G_sortDir==='asc'?1:-1);
+  });
+  let h=`<div class="greet-cl-head"><div onclick="G_doSort('name')" style="cursor:pointer;user-select:none">Name${arr('name')}</div><div onclick="G_doSort('mobile')" style="cursor:pointer;user-select:none">Mobile${arr('mobile')}</div><div onclick="G_doSort('type')" style="cursor:pointer;user-select:none">Type${arr('type')}</div><div onclick="G_doSort('sent')" style="cursor:pointer;user-select:none">Status${arr('sent')}</div></div>`;
+  h+=sorted.slice(0,200).map(c=>{
+    const mob=c.mobile.trim(),sent=G_sentSet.has(c.id);
+    const uk=mob.replace(/\D/g,'').replace(/^0/,'44');
+    const href=mob?`https://wa.me/${uk}?text=${encodeURIComponent(tpl.replace(/{name}/g,c.name))}`:'';
+    return`<div class="greet-cl-row${sent?' gsent':''}" onclick="${mob?`G_openWA('${c.id}','${href.replace(/'/g,"\\'")}')`:''}" title="${mob?'Tap to open WhatsApp':'No mobile number'}">
+      <div style="font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${mob||'<span class="no-mob">no mobile</span>'}</div>
+      <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
+      <div><span class="badge ${sent?'badge-gsent':'badge-gunsent'}">${sent?'Sent':'—'}</span></div>
+    </div>`;
+  }).join('');
+  if(sorted.length>200)h+=`<div style="padding:8px 12px;color:var(--muted);font-size:10px">...and ${sorted.length-200} more. Use filters to narrow down.</div>`;
+  document.getElementById('g-client-list').innerHTML=h;
+  G_refreshPreview(list[0]);
+}
+
+function G_openWA(id,href){window.open(href,'_blank');G_sentSet.add(id);sessionStorage.setItem('ca_greet_sent',JSON.stringify([...G_sentSet]));G_renderStats();G_renderList();}
+
+function G_openFirstWA(){
+  const list=G_getFiltered().filter(c=>c.mobile.trim());
+  if(!list.length){toast('No clients with mobiles in current filter','err');return;}
+  const c=list[0],tpl=document.getElementById('g-msg-tpl').value,msg=tpl.replace(/{name}/g,c.name);
+  const uk=c.mobile.replace(/\D/g,'').replace(/^0/,'44');
+  window.open(`https://wa.me/${uk}?text=${encodeURIComponent(msg)}`,'_blank');
+  G_sentSet.add(c.id);sessionStorage.setItem('ca_greet_sent',JSON.stringify([...G_sentSet]));G_renderStats();G_renderList();
+}
+
+function G_refreshPreview(client){
+  const list=G_getFiltered(),c=client||list[0];
+  if(!c){document.getElementById('g-preview-msg').textContent='No clients loaded';return;}
+  const tpl=document.getElementById('g-msg-tpl').value;
+  document.getElementById('g-preview-msg').textContent=tpl.replace(/{name}/g,c.name);
+  document.getElementById('g-preview-name').textContent='👤 '+c.name+(c.mobile?' · '+c.mobile:' · no mobile');
+}
+
+function G_doSort(col){G_sortCol===col?(G_sortDir=G_sortDir==='asc'?'desc':'asc'):(G_sortCol=col,G_sortDir=col==='sent'?'desc':'asc');G_renderList();}
+
+function G_setTemplate(key){
+  G_curTpl=key;
+  document.querySelectorAll('.tpl-btn').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('gtpl-'+key);if(el)el.classList.add('active');
+  document.getElementById('g-msg-tpl').value=G_TMPLS[key]||'';
+  G_refreshPreview();G_renderList();
+}
+
+function G_insertVar(v){const ta=document.getElementById('g-msg-tpl'),s=ta.selectionStart;ta.value=ta.value.slice(0,s)+v+ta.value.slice(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=s+v.length;ta.focus();G_refreshPreview();}
+
+function G_setFilter(f){G_filter=f;document.querySelectorAll('.greet-filt').forEach(b=>b.classList.remove('on'));document.getElementById('gf-'+f).classList.add('on');G_renderList();}
+
+function G_markAllSent(){G_getFiltered().filter(c=>c.mobile.trim()).forEach(c=>G_sentSet.add(c.id));sessionStorage.setItem('ca_greet_sent',JSON.stringify([...G_sentSet]));toast('Marked as sent');G_renderStats();G_renderList();}
+
+function G_clearSent(){G_sentSet.clear();sessionStorage.removeItem('ca_greet_sent');G_renderStats();G_renderList();toast('Sent log cleared');}
+
+function G_downloadCSV(){
+  const tpl=document.getElementById('g-msg-tpl').value,list=G_getFiltered().filter(c=>c.mobile.trim());
+  if(!list.length){toast('No clients with mobiles','err');return;}
+  const rows=['"Name","Mobile","Message"'];
+  list.forEach(c=>{const m=tpl.replace(/{name}/g,c.name).replace(/"/g,'""');rows.push(`"${c.name.replace(/"/g,'""')}","${c.mobile}","${m}"`);});
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));a.download='greetings_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  toast('Downloaded '+list.length+' messages ✓');
+}
+
+function G_copyCSV(){
+  const tpl=document.getElementById('g-msg-tpl').value,list=G_getFiltered().filter(c=>c.mobile.trim());
+  if(!list.length){toast('No clients with mobiles','err');return;}
+  const rows=['"Name","Mobile","Message"'];
+  list.forEach(c=>{const m=tpl.replace(/{name}/g,c.name).replace(/"/g,'""');rows.push(`"${c.name.replace(/"/g,'""')}","${c.mobile}","${m}"`);});
+  navigator.clipboard.writeText(rows.join('\n')).then(()=>toast('Copied '+list.length+' messages ✓'));
+}
+
+function G_renderLog(){
+  if(!G_sentSet.size){document.getElementById('g-sent-log-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No messages sent this session yet</div>';return;}
+  document.getElementById('g-sent-log-list').innerHTML=[...G_sentSet].map(id=>{
+    const c=G_ALL.find(x=>x.id===id);if(!c)return'';
+    return`<div class="g-sent-entry"><div><span style="font-weight:600">${c.name}</span> <span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${c.mobile||'no mobile'}</span></div>`;
+  }).filter(Boolean).join('');
+}
+
+function setGreetView(v){
+  document.getElementById('gview-compose').style.display=v==='compose'?'block':'none';
+  document.getElementById('gview-log').style.display=v==='log'?'block':'none';
+  document.getElementById('gtab-compose').classList.toggle('active',v==='compose');
+  document.getElementById('gtab-log').classList.toggle('active',v==='log');
+  if(v==='log')G_renderLog();
+}
+
+async function G_runImport(){
+  if(typeof MOBILE_DATA==='undefined'){toast('mobile_data.js not loaded','err');return;}
+  const btn=document.getElementById('g-imp-btn');btn.disabled=true;btn.textContent='Importing...';
+  document.getElementById('g-imp-prog').style.display='block';
+  let done=0,fail=0;
+  for(const rec of MOBILE_DATA){
+    try{await fetch(SB+'/rest/v1/ltd_clients?comp_no=eq.'+rec.comp_no,{method:'PATCH',headers:{...H,'Prefer':'return=minimal'},body:JSON.stringify({director_mobile:rec.mobile})});done++;}catch(e){fail++;}
+    const pct=Math.round((done+fail)/MOBILE_DATA.length*100);
+    document.getElementById('g-imp-fill').style.width=pct+'%';
+    document.getElementById('g-imp-txt').textContent=(done+fail)+' of '+MOBILE_DATA.length;
+  }
+  document.getElementById('g-imp-prog').style.display='none';
+  document.getElementById('g-imp-result').textContent=fail?`⚠️ ${done} updated, ${fail} failed`:`✅ ${done} updated`;
+  btn.textContent='▶ Re-import Mobiles';btn.disabled=false;
+  toast(fail?`${done} updated, ${fail} failed`:'All mobiles updated ✓',fail?'err':'ok');
+}
 </script>
 </body>
 </html>
