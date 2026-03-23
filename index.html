@@ -9,6 +9,41 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script>
+(function(){
+  var role=sessionStorage.getItem('ca_role')||'staff';
+  var user=sessionStorage.getItem('ca_user')||'';
+  var page=window.location.pathname.split('/').pop()||'index.html';
+  var restricted=['revenue-tracker.html','strategic-review.html'];
+  // Redirect staff away from restricted pages
+  if(role!=='admin' && restricted.indexOf(page)!==-1){
+    window.location.href='index.html';return;
+  }
+  // Hide revenue + strategy nav links for staff
+  if(role!=='admin'){
+    document.addEventListener('DOMContentLoaded',function(){
+      // Hide restricted nav links
+      document.querySelectorAll('a[href="revenue-tracker.html"],a[href="strategic-review.html"]').forEach(function(a){
+        a.style.display='none';
+      });
+      // Hide all delete buttons
+      document.querySelectorAll('[onclick*="delete"],[onclick*="Delete"],[onclick*="del("],button.act-del,.btn-del,[class*="delete"],[id*="delete"]').forEach(function(b){
+        b.style.display='none';
+      });
+      // Show logged-in user name in nav if element exists
+      var nameEl=document.getElementById('ca-user-name');
+      if(nameEl) nameEl.textContent=sessionStorage.getItem('ca_name')||'';
+    });
+  }
+  // Auto-set staff page to logged-in user
+  if(page==='staff-management.html'){
+    var name=sessionStorage.getItem('ca_name');
+    if(name && !sessionStorage.getItem('ca_staff')){
+      sessionStorage.setItem('ca_staff',name);
+    }
+  }
+})();
+</script>
 <style>
       :root {
     --bg:          #FBFAE8;
@@ -866,7 +901,7 @@
 
 <div class="hero">
   <div class="hero-text">
-    <h1>Good to see you,<br><em>Asadul.</em></h1>
+    <h1>Good to see you,<br><em id="portal-name">Asadul.</em></h1>
     <p>Your practice management portal. All your trackers, tools and dashboards in one place.</p>
   </div>
   <div class="hero-stats">
@@ -1051,6 +1086,20 @@ async function sb(path) {
     return data;
   } catch(e) { console.warn('SB fetch error:', path, e); return null; }
 }
+
+
+  // Personalise portal for logged-in user
+  (function(){
+    var name = sessionStorage.getItem('ca_name') || 'Asadul';
+    var role = sessionStorage.getItem('ca_role') || 'admin';
+    var el = document.getElementById('portal-name');
+    if(el) el.textContent = name + '.';
+    // Hide Revenue and Strategy cards for non-admin
+    if(role !== 'admin'){
+      var cards = document.querySelectorAll('a.tool-card[href="revenue-tracker.html"], a.tool-card[href="strategic-review.html"]');
+      cards.forEach(function(c){ c.style.display='none'; });
+    }
+  })();
 
 async function loadStats() {
   // Date

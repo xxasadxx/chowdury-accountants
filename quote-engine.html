@@ -2,6 +2,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script>
+(function(){
+  var role=sessionStorage.getItem('ca_role')||'staff';
+  var user=sessionStorage.getItem('ca_user')||'';
+  var page=window.location.pathname.split('/').pop()||'index.html';
+  var restricted=['revenue-tracker.html','strategic-review.html'];
+  if(role!=='admin' && restricted.indexOf(page)!==-1){
+    window.location.href='index.html';return;
+  }
+  if(role!=='admin'){
+    document.addEventListener('DOMContentLoaded',function(){
+      document.querySelectorAll('a[href="revenue-tracker.html"],a[href="strategic-review.html"]').forEach(function(a){
+        a.style.display='none';
+      });
+      document.querySelectorAll('[onclick*="delete"],[onclick*="Delete"],[onclick*="del("],button.act-del,.btn-del,[class*="delete"],[id*="delete"]').forEach(function(b){
+        b.style.display='none';
+      });
+    });
+  }
+  if(page==='staff-management.html'){
+    var name=sessionStorage.getItem('ca_name');
+    if(name && !sessionStorage.getItem('ca_staff')){
+      sessionStorage.setItem('ca_staff',name);
+    }
+  }
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
 <title>Quote Calculator — The Chowdury Accountants</title>

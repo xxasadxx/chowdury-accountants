@@ -3,6 +3,41 @@
 <html lang="en">
 <head>
 <script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script>
+(function(){
+  var role=sessionStorage.getItem('ca_role')||'staff';
+  var user=sessionStorage.getItem('ca_user')||'';
+  var page=window.location.pathname.split('/').pop()||'index.html';
+  var restricted=['revenue-tracker.html','strategic-review.html'];
+  // Redirect staff away from restricted pages
+  if(role!=='admin' && restricted.indexOf(page)!==-1){
+    window.location.href='index.html';return;
+  }
+  // Hide revenue + strategy nav links for staff
+  if(role!=='admin'){
+    document.addEventListener('DOMContentLoaded',function(){
+      // Hide restricted nav links
+      document.querySelectorAll('a[href="revenue-tracker.html"],a[href="strategic-review.html"]').forEach(function(a){
+        a.style.display='none';
+      });
+      // Hide all delete buttons
+      document.querySelectorAll('[onclick*="delete"],[onclick*="Delete"],[onclick*="del("],button.act-del,.btn-del,[class*="delete"],[id*="delete"]').forEach(function(b){
+        b.style.display='none';
+      });
+      // Show logged-in user name in nav if element exists
+      var nameEl=document.getElementById('ca-user-name');
+      if(nameEl) nameEl.textContent=sessionStorage.getItem('ca_name')||'';
+    });
+  }
+  // Auto-set staff page to logged-in user
+  if(page==='staff-management.html'){
+    var name=sessionStorage.getItem('ca_name');
+    if(name && !sessionStorage.getItem('ca_staff')){
+      sessionStorage.setItem('ca_staff',name);
+    }
+  }
+})();
+</script>
 <meta charset="UTF-8"><meta name="viewport" content="width=1280">
 <title>Client Onboarding — The Chowdury Accountants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
