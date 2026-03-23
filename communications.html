@@ -325,17 +325,26 @@ function calcVatQuarter(client) {
   };
 }
 
+function getGreeting(client) {
+  const raw = (client.director_name||'').trim();
+  if (!raw || /^director$/i.test(raw)) return 'Client';
+  // Extract surname — last word of the name, title-cased
+  const parts = raw.split(/\s+/).filter(Boolean);
+  const surname = parts[parts.length - 1];
+  const titled = surname.charAt(0).toUpperCase() + surname.slice(1).toLowerCase();
+  return 'Mr ' + titled;
+}
+
 const SMART_TMPLS = {
   vat: (client) => {
     const q = calcVatQuarter(client);
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     if (q) {
       return `Dear ${greeting},
 
 I hope you are well.
 
-Could you please provide the bookkeeping records for the VAT quarter ending ${q.quarterEnd}. Specifically, we would require the bank statements as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
+Could you please provide the bookkeeping records for the VAT quarter ending ${q.quarterEnd} (${q.month1}, ${q.month2} and ${q.month3} ${q.year}). Specifically, we would require the bank statements as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
 
 Thank you for your cooperation. Please do not hesitate to contact us if you have any queries.
 
@@ -349,9 +358,9 @@ The Chowdury Accountants Team
 
 I hope you are well.
 
-Could you please provide the bookkeeping records for your most recent VAT quarter. Specifically, we would require the bank statements as well as the detailed expense receipts, purchase invoices, and sales figures for those months.
+Could you please provide the bookkeeping records for your most recent VAT quarter, including bank statements, detailed expense receipts, purchase invoices, and sales figures.
 
-Thank you for your cooperation. Please do not hesitate to contact us if you have any queries.
+⚠️ Note: VAT stagger group not set for this client — please set it in the Ltd Tracker to auto-calculate the quarter dates.
 
 Please provide your records to us no later than the 21st of this month.
 
@@ -363,8 +372,7 @@ The Chowdury Accountants Team
 
   accounts: (client) => {
     const p = calcAccountsPeriod(client);
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const periodEnd = p ? p.end : 'your most recent accounting period end';
     return `Dear ${greeting},
 
@@ -401,8 +409,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`,
 
   payroll: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     return `Dear ${greeting},
 
 Please note, this is an automated message. If you have already sent us all the information requested below, then please ignore this message.
@@ -438,8 +445,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`,
 
   mtd_quarterly: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     // Calculate current MTD quarter period
     // MTD ITSA quarters: Apr-Jun, Jul-Sep, Oct-Dec, Jan-Mar
     const now = new Date();
@@ -475,8 +481,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   agent_auth_code: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const svcs = client.services || [];
     const codes = [];
     if(svcs.includes('ct600') || svcs.includes('accounts')) codes.push('• Corporation Tax (CT) authorisation code');
@@ -504,8 +509,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   task_completed: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const compName = client.company_name || client.name || '';
     return `Dear ${greeting},
 
@@ -518,8 +522,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   part_records: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     return `Dear ${greeting},
 
 Thank you for sending us some of your records, however, we are still waiting on the following:
@@ -535,8 +538,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   vat_payment: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     // Calculate VAT due date — 1 month and 7 days after quarter end
     let dueDate = '[due date]';
     const q = calcVatQuarter(client);
@@ -571,8 +573,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   ct_payment: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const compName = client.company_name || client.name || '';
     // CT due 9 months and 1 day after year end
     let dueDate = '[due date]';
@@ -615,8 +616,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   sa_payment_jul: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const utr = client.utr || '[UTR Reference]';
     return `Dear ${greeting},
 
@@ -642,8 +642,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   sa_payment_jan: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const utr = client.utr || '[UTR Reference]';
     return `Dear ${greeting},
 
@@ -669,8 +668,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   records_received: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     return `Dear ${greeting},
 
 Thank you for your records. We have noted their arrival, saved them in your file and will prepare them in due course. If we have any questions for you, we will be in touch.
@@ -680,8 +678,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
   proposal: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
-    const greeting = name && name !== 'Client' ? name : 'Client';
+    const greeting = getGreeting(client);
     const svcs = client.services || [];
     const fee = client.monthly_fee ? `£${client.monthly_fee}/month` : '[fee to be confirmed]';
     const svcMap = {
