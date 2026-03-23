@@ -129,6 +129,45 @@ select:focus{border-color:var(--blue)}
 .g-sent-entry{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--border);font-size:11px}
 .g-sent-entry:last-child{border-bottom:none}
 .no-mob{color:var(--red);font-size:10px;font-style:italic}
+
+/* Letter writer */
+.letter-mode .content{background:var(--surface)}
+.letter-composer{display:grid;grid-template-columns:1fr 420px;gap:0;min-height:calc(100vh - 220px)}
+.letter-editor{padding:20px 24px;border-right:1px solid var(--border);background:var(--bg)}
+.letter-preview-pane{padding:20px;background:#e8e8e8;overflow-y:auto}
+.letter-sheet{background:#fff;width:100%;max-width:680px;margin:0 auto;padding:48px 52px;box-shadow:0 2px 16px rgba(0,0,0,.12);font-family:Arial,sans-serif;font-size:13px;line-height:1.6;color:#222;min-height:900px;position:relative}
+.letter-sheet .lh-name{color:#B8860B;font-weight:700;font-size:22px;text-align:center;margin-bottom:4px;font-family:Arial,sans-serif}
+.letter-sheet .lh-addr{text-align:center;font-size:11px;color:#555;margin-bottom:3px}
+.letter-sheet .lh-divider{border:none;border-top:2px solid #B8860B;margin:10px 0 20px}
+.letter-sheet .ls-date{margin-bottom:14px;font-size:13px}
+.letter-sheet .ls-salutation{margin-bottom:14px}
+.letter-sheet .ls-re{margin-bottom:16px}
+.letter-sheet .ls-body{white-space:pre-wrap;margin-bottom:24px;min-height:200px}
+.letter-sheet .ls-closing{margin-bottom:56px}
+.letter-sheet .ls-sig-name{font-weight:700;margin-bottom:2px}
+.letter-sheet .ls-sig-title{color:#555}
+.letter-sheet .ls-footer{position:absolute;bottom:32px;left:52px;right:52px;text-align:center;font-size:10px;color:#888;border-top:1px solid #B8860B;padding-top:8px}
+.letter-form-row{margin-bottom:12px}
+.letter-form-row label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.letter-form-row input,.letter-form-row textarea,.letter-form-row select{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--ink);background:#fff;outline:none}
+.letter-form-row input:focus,.letter-form-row textarea:focus{border-color:var(--blue)}
+.letter-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.btn-amber{background:#c8963c;color:#fff;border:none}.btn-amber:hover{background:#b07830}
+/* Letter client list */
+.ltr-cl-head{display:grid;grid-template-columns:1fr 120px 80px 130px;gap:8px;padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.ltr-cl-row{display:grid;grid-template-columns:1fr 120px 80px 130px;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s}
+.ltr-cl-row:hover{background:var(--blue-light)}
+.ltr-cl-row.ltr-sent{background:var(--green-light)}
+.btn-wa-sm{background:#25D366;color:#fff;border:none;border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;white-space:nowrap}
+.btn-pdf-sm{background:#c8963c;color:#fff;border:none;border-radius:5px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:var(--sans);font-weight:600;white-space:nowrap}
+
+/* Print styles */
+@media print{
+  body *{visibility:hidden!important}
+  #print-letter,#print-letter *{visibility:visible!important}
+  #print-letter{position:fixed!important;left:0!important;top:0!important;width:100%!important;padding:48px 52px!important;box-shadow:none!important;background:#fff!important}
+  #ca-nav,#ca-nav *{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -225,6 +264,7 @@ body{padding-top:92px !important}
         <div class="tpl-item" id="tpl-disengagement" onclick="setTpl('disengagement')"><div class="tpl-name">🚪 Client Disengagement</div><div class="tpl-desc">Formal disengagement letter</div></div>
         <div class="tpl-item" id="tpl-meeting" onclick="setTpl('meeting')"><div class="tpl-name">📅 Meeting Reminder</div><div class="tpl-desc">Appointment reminder SMS/WhatsApp</div></div>
         <div class="tpl-item" id="tpl-custom" onclick="setTpl('custom')"><div class="tpl-name">✏️ Custom Message</div><div class="tpl-desc">Write your own</div></div>
+        <div class="tpl-item" id="tpl-letter" onclick="setTpl('letter')"><div class="tpl-name">📄 Letter on Letterhead</div><div class="tpl-desc">Print/PDF + WhatsApp to all Ltd clients</div></div>
       </div>
 
       <span class="lbl">Message</span>
@@ -305,6 +345,96 @@ body{padding-top:92px !important}
     </div>
   </div>
 </div>
+
+  <!-- LETTER VIEW — shown when letter template selected -->
+  <div id="letter-view" style="display:none" class="letter-composer">
+    <!-- Left: editor -->
+    <div class="letter-editor">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-family:var(--display);font-size:15px;font-weight:700">📄 Letter Composer</div>
+        <div class="letter-actions">
+          <button class="btn btn-amber" onclick="L_printPDF()">🖨️ Print / Save as PDF</button>
+          <button class="btn btn-secondary" onclick="L_downloadWord()">📝 Download Word</button>
+        </div>
+      </div>
+
+      <div class="letter-form-row">
+        <label>Date</label>
+        <input id="l-date" type="text">
+      </div>
+      <div class="letter-form-row">
+        <label>Salutation</label>
+        <select id="l-salutation">
+          <option value="Dear Valued Client,">Dear Valued Client,</option>
+          <option value="Dear Director,">Dear Director,</option>
+          <option value="Dear Sir/Madam,">Dear Sir/Madam,</option>
+        </select>
+      </div>
+      <div class="letter-form-row">
+        <label>Subject / Re:</label>
+        <input id="l-subject" placeholder="e.g. Important Update: Companies House Confirmation Statement Fees">
+      </div>
+      <div class="letter-form-row">
+        <label>Letter Body</label>
+        <textarea id="l-body" rows="16" oninput="L_refreshPreview()" placeholder="Write your letter here..."></textarea>
+      </div>
+
+      <div style="background:var(--amber-light);border:1px solid #fcd34d;border-radius:8px;padding:10px 12px;font-size:11px;color:#92400e;margin-top:8px">
+        <strong>How to send as PDF via WhatsApp:</strong><br>
+        1. Click "Print / Save as PDF" → save the PDF to your phone<br>
+        2. Use the client list below — tap 📎 to open WhatsApp with a cover message pre-typed<br>
+        3. Attach the saved PDF in WhatsApp before sending<br>
+        Or tap 💬 to send the full letter text directly as a WhatsApp message.
+      </div>
+
+      <!-- Client list for letter sending -->
+      <div style="margin-top:20px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+          <div style="font-family:var(--display);font-size:13px;font-weight:700">Ltd Clients <span id="l-cl-count" style="font-size:11px;color:var(--muted);font-weight:400"></span></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input class="search-box" id="l-srch" placeholder="🔍 Search…" oninput="L_renderClients()" style="width:160px">
+            <button class="btn btn-sm btn-secondary" onclick="L_markAllSent()">✓ Mark all sent</button>
+            <button class="btn btn-sm btn-secondary" onclick="L_resetSent()">↺ Reset</button>
+          </div>
+        </div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">
+          💬 = Send full letter as WhatsApp text &nbsp;|&nbsp; 📎 = Open WhatsApp with PDF cover message (attach PDF manually)
+        </div>
+        <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)">
+          <div class="ltr-cl-head">
+            <div>Company</div><div>Director</div><div>Status</div><div>Send</div>
+          </div>
+          <div id="l-cl-body">
+            <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading Ltd clients…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: live letter preview -->
+    <div class="letter-preview-pane">
+      <div style="font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;text-align:center">Live Preview</div>
+      <div id="print-letter" class="letter-sheet">
+        <div class="lh-name">Chowdury Accountants</div>
+        <div class="lh-addr">283 Featherstall Road North, Oldham, OL1 2NH</div>
+        <div class="lh-addr"><strong>Tel:</strong> 0161 222 4647 &nbsp; <strong>Mob:</strong> 07948 503627</div>
+        <div class="lh-addr"><strong>Email:</strong> info@chowduryaccountants.co.uk &nbsp; <strong>Web:</strong> www.chowduryaccountants.co.uk</div>
+        <hr class="lh-divider">
+        <div class="ls-date" id="l-prev-date">Date: —</div>
+        <div class="ls-salutation" id="l-prev-salutation">Dear Valued Client,</div>
+        <div class="ls-re" id="l-prev-re" style="display:none"><strong>Re: <span id="l-prev-re-text"></span></strong></div>
+        <div class="ls-body" id="l-prev-body"></div>
+        <div class="ls-closing">Best regards,</div>
+        <br><br>
+        <div class="ls-sig-name">Md Asadul Islam Chowdury</div>
+        <div class="ls-sig-title">Managing Director</div>
+        <div class="ls-footer">
+          The Chowdury Accountants Ltd &nbsp;·&nbsp; Company Reg No: 09441520 &nbsp;·&nbsp; VAT No: 403392620
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 <!-- LOG VIEW -->
 <div id="view-log" style="display:none;padding:20px 24px">
@@ -1193,11 +1323,19 @@ function setTpl(key){
   document.querySelectorAll('.tpl-item').forEach(t=>t.classList.remove('active'));
   const el=document.getElementById('tpl-'+key);
   if(el) el.classList.add('active');
+
+  // Toggle letter mode
+  const isLetter = key === 'letter';
+  const letterView = document.getElementById('letter-view');
+  const normalLayout = document.querySelector('#view-send .main');
+  if(letterView) letterView.style.display = isLetter ? 'grid' : 'none';
+  if(normalLayout) normalLayout.style.display = isLetter ? 'none' : 'grid';
+  if(isLetter){ L_init(); return; }
+
   if(selectedClient){
     document.getElementById('msg-body').value=SMART_TMPLS[key]?SMART_TMPLS[key](selectedClient):'';
     refreshPreview();
   } else {
-    // No client selected yet — show template with placeholder hint
     const preview=SMART_TMPLS[key]?SMART_TMPLS[key]({name:'[Client Name]',company_name:'[Company Name]',director_name:'[Director Name]',accounts_ref_date:'',vat_stagger:'',services:[]}):'';
     document.getElementById('msg-body').value=preview;
   }
@@ -1704,6 +1842,194 @@ function B_setFilter(f) {
     if (el) el.classList.toggle('on', x===f);
   });
   B_render();
+}
+
+
+// ═══ LETTER MODULE ═══
+let L_ALL = [], L_sentSet = new Set(), L_inited = false;
+
+function L_todayStr() {
+  const d = new Date();
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const day = d.getDate();
+  const suffix = day===1||day===21||day===31?'st':day===2||day===22?'nd':day===3||day===23?'rd':'th';
+  return day + suffix + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+async function L_init() {
+  // Set date if empty
+  const dateEl = document.getElementById('l-date');
+  if(dateEl && !dateEl.value) dateEl.value = L_todayStr();
+
+  // Wire up live preview
+  ['l-date','l-salutation','l-subject','l-body'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', L_refreshPreview);
+    if(el && el.tagName==='SELECT') el.addEventListener('change', L_refreshPreview);
+  });
+
+  L_refreshPreview();
+
+  if(L_inited && L_ALL.length) { L_renderClients(); return; }
+
+  // Load Ltd clients from Supabase
+  try {
+    const [ltd, seeds] = await Promise.all([
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
+      Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])))
+    ]);
+    const seedFlat = seeds.flat();
+    const seedNames = {};
+    seedFlat.forEach(c=>{ if(c.comp_no&&c.name) seedNames[String(c.comp_no).padStart(8,'0')]=c.name; });
+
+    L_ALL = (Array.isArray(ltd)?ltd:[]).map(c=>{
+      const compNo = String(c.comp_no).padStart(8,'0');
+      return {
+        id: 'ltd_'+c.comp_no,
+        name: seedNames[compNo] || c.director_name || compNo,
+        director: c.director_name || '',
+        mobile: c.director_mobile || '',
+        email: c.director_email || ''
+      };
+    }).filter(c => c.mobile.trim() || c.email.trim());
+
+    L_inited = true;
+    L_renderClients();
+  } catch(e) {
+    document.getElementById('l-cl-body').innerHTML = '<div style="padding:16px;color:var(--red);font-size:12px">Failed to load clients: '+e.message+'</div>';
+  }
+}
+
+function L_refreshPreview() {
+  const date = (document.getElementById('l-date')||{}).value || L_todayStr();
+  const sal = (document.getElementById('l-salutation')||{}).value || 'Dear Valued Client,';
+  const subj = (document.getElementById('l-subject')||{}).value || '';
+  const body = (document.getElementById('l-body')||{}).value || '';
+
+  const prevDate = document.getElementById('l-prev-date');
+  const prevSal = document.getElementById('l-prev-salutation');
+  const prevRe = document.getElementById('l-prev-re');
+  const prevReText = document.getElementById('l-prev-re-text');
+  const prevBody = document.getElementById('l-prev-body');
+
+  if(prevDate) prevDate.textContent = 'Date: ' + date;
+  if(prevSal) prevSal.textContent = sal;
+  if(prevRe) prevRe.style.display = subj ? 'block' : 'none';
+  if(prevReText) prevReText.textContent = subj;
+  if(prevBody) prevBody.textContent = body;
+}
+
+function L_getLetterText(directorName) {
+  const date = (document.getElementById('l-date')||{}).value || L_todayStr();
+  const sal = directorName ? 'Dear ' + L_greetName(directorName) + ',' : ((document.getElementById('l-salutation')||{}).value || 'Dear Valued Client,');
+  const subj = (document.getElementById('l-subject')||{}).value || '';
+  const body = (document.getElementById('l-body')||{}).value || '';
+  let txt = date + '\n\n' + sal;
+  if(subj) txt += '\n\nRe: ' + subj;
+  txt += '\n\n' + body;
+  txt += '\n\nBest regards,\nMd Asadul Islam Chowdury\nManaging Director\nChowdury Accountants';
+  return txt;
+}
+
+function L_greetName(raw) {
+  if(!raw) return 'Director';
+  const parts = raw.trim().split(/\s+/).filter(Boolean);
+  const surname = parts[parts.length-1];
+  return 'Mr ' + surname.charAt(0).toUpperCase() + surname.slice(1).toLowerCase();
+}
+
+function L_printPDF() {
+  L_refreshPreview();
+  setTimeout(() => window.print(), 100);
+}
+
+function L_downloadWord() {
+  const date = (document.getElementById('l-date')||{}).value || L_todayStr();
+  const sal = (document.getElementById('l-salutation')||{}).value || 'Dear Valued Client,';
+  const subj = (document.getElementById('l-subject')||{}).value || '';
+  const body = ((document.getElementById('l-body')||{}).value || '').replace(/\n/g,'<br>');
+
+  const html = `<html><body style="font-family:Arial;font-size:13pt;margin:72pt 72pt 72pt 72pt">
+<p style="text-align:center;font-size:18pt;color:#B8860B;font-weight:bold">Chowdury Accountants</p>
+<p style="text-align:center;font-size:10pt;color:#555">283 Featherstall Road North, Oldham, OL1 2NH</p>
+<p style="text-align:center;font-size:10pt;color:#555">Tel: 0161 222 4647 | Mob: 07948 503627 | Email: info@chowduryaccountants.co.uk</p>
+<hr style="border-top:2px solid #B8860B;margin:10pt 0 20pt">
+<p>Date: ${date}</p>
+<p>${sal}</p>
+${subj ? `<p><strong>Re: ${subj}</strong></p>` : ''}
+<p style="margin-top:12pt">${body}</p>
+<p style="margin-top:48pt">Best regards,</p>
+<br><br>
+<p><strong>Md Asadul Islam Chowdury</strong><br>Managing Director</p>
+<p style="margin-top:60pt;text-align:center;font-size:9pt;color:#888;border-top:1px solid #B8860B;padding-top:6pt">The Chowdury Accountants Ltd &nbsp;·&nbsp; Company Reg No: 09441520 &nbsp;·&nbsp; VAT No: 403392620</p>
+</body></html>`;
+
+  const blob = new Blob([html], {type:'application/msword'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'CA_Letter_' + date.replace(/\s+/g,'_') + '.doc';
+  a.click();
+  toast('Word document downloaded ✓');
+}
+
+function L_renderClients() {
+  const q = (document.getElementById('l-srch')||{}).value?.toLowerCase() || '';
+  const list = L_ALL.filter(c => !q || c.name.toLowerCase().includes(q) || c.director.toLowerCase().includes(q));
+  const total = L_ALL.length;
+  const el = document.getElementById('l-cl-count');
+  if(el) el.textContent = '(' + list.length + ' of ' + total + ' with contact)';
+
+  if(!list.length) {
+    document.getElementById('l-cl-body').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No clients found</div>';
+    return;
+  }
+
+  document.getElementById('l-cl-body').innerHTML = list.slice(0,250).map((c,i) => {
+    const sent = L_sentSet.has(c.id);
+    const mob = c.mobile.trim();
+    const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
+    const letterText = L_getLetterText(c.director);
+    const waTextUrl = mob ? 'https://wa.me/'+uk+'?text='+encodeURIComponent(letterText) : '';
+    const coverMsg = 'Dear ' + L_greetName(c.director) + ',\n\nPlease find attached an important letter from Chowdury Accountants regarding your account.\n\nKind regards,\nChowdury Accountants Team';
+    const waCoverUrl = mob ? 'https://wa.me/'+uk+'?text='+encodeURIComponent(coverMsg) : '';
+
+    return `<div class="ltr-cl-row${sent?' ltr-sent':''}">
+      <div style="font-weight:600;font-size:11px;font-family:var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-size:10px;color:var(--muted)">${c.director||'—'}</div>
+      <div><span class="badge" style="background:${sent?'var(--green-light)':'var(--border)'};color:${sent?'var(--green)':'var(--muted)'}">${sent?'Sent':'—'}</span></div>
+      <div style="display:flex;gap:4px">
+        ${mob ? `<button class="btn-wa-sm" title="Send full letter as WhatsApp text" onclick="L_sendText('${c.id}','${waTextUrl.replace(/'/g,"\\'")}')">💬 Text</button>` : ''}
+        ${mob ? `<button class="btn-pdf-sm" title="Open WhatsApp with PDF cover message" onclick="L_sendPDFCover('${c.id}','${waCoverUrl.replace(/'/g,"\\'")}')">📎 PDF</button>` : ''}
+        ${!mob ? '<span style="font-size:10px;color:var(--muted)">no mobile</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function L_sendText(id, url) {
+  window.open(url, '_blank');
+  L_sentSet.add(id);
+  L_renderClients();
+  toast('Opened WhatsApp ✓');
+}
+
+function L_sendPDFCover(id, url) {
+  window.open(url, '_blank');
+  L_sentSet.add(id);
+  L_renderClients();
+  toast('WhatsApp opened — attach your saved PDF before sending 📎');
+}
+
+function L_markAllSent() {
+  L_ALL.forEach(c => L_sentSet.add(c.id));
+  L_renderClients();
+  toast('All marked as sent');
+}
+
+function L_resetSent() {
+  L_sentSet.clear();
+  L_renderClients();
+  toast('Reset');
 }
 
 </script>
