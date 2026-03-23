@@ -336,9 +336,7 @@ function getGreeting(client) {
   const parts = raw.split(/\s+/).filter(Boolean);
   const surname = parts[parts.length - 1];
   const titled = surname.charAt(0).toUpperCase() + surname.slice(1).toLowerCase();
-  const titleMap = {mr:'Mr',mrs:'Mrs',ms:'Ms',dr:'Dr'};
-  const title = titleMap[client.director_gender||'mr'] || 'Mr';
-  return title + ' ' + titled;
+  return 'Mr ' + titled;
 }
 
 const SMART_TMPLS = {
@@ -802,7 +800,7 @@ async function load(){
   document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px">Loading clients…</div>';
   try{
     // Fetch ltd clients
-    const ltdRes = await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_gender,director_mobile,director_email,status,vat_stagger&limit=1000',{headers:H});
+    const ltdRes = await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status,vat_stagger&limit=1000',{headers:H});
     const ltd = await ltdRes.json();
 
     // Fetch logs
