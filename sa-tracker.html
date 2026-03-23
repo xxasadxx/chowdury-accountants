@@ -541,6 +541,7 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('payment')">💳 Payment Reminder</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('engagement')">📄 Engagement Chaser</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('meeting')">📅 Meeting Reminder</button>
+          <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('ct_payment')">🏛 CT Payment</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('sa_payment_jul')">💰 SA Payment (Jul)</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('sa_payment_jan')">💰 SA Payment (Jan)</button>
           <button class="btn btn-sm btn-secondary" onclick="cm_setTemplate('records_received')">✅ Records Received</button>
@@ -1570,6 +1571,50 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  ct_payment: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    const compName = client.company_name || client.name || '';
+    // CT due 9 months and 1 day after year end
+    let dueDate = '[due date]';
+    const ref = client.accounts_ref_date || '';
+    if(ref) {
+      const parts = ref.split('/');
+      if(parts.length >= 2) {
+        const d = parseInt(parts[0]), m = parseInt(parts[1])-1;
+        const now = new Date();
+        let ye = new Date(now.getFullYear(), m, d);
+        if(ye > now) ye.setFullYear(ye.getFullYear()-1);
+        const ctDue = new Date(ye);
+        ctDue.setMonth(ctDue.getMonth()+9);
+        ctDue.setDate(ctDue.getDate()+1);
+        dueDate = ctDue.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+      }
+    }
+    const utr = client.utr || '[UTR/CT Reference]';
+    return `Dear ${greeting},
+
+CORPORATION TAX PAYMENT REMINDER
+
+If you have not already paid your Corporation Tax${compName?' for '+compName:''}, please note the payment is due by ${dueDate}.
+
+You can pay by internet banking, telephone banking or BACS Direct Credit. To make the payment you will need HMRC's bank account details below and your Corporation Tax reference number${utr !== '[UTR/CT Reference]' ? ': ' + utr : ' — please contact us if you need this'}.
+
+HMRC BANK DETAILS
+Sort Code:      08-32-10
+Account Number: 12001020
+Account Name:   HMRC Cumbernauld
+
+Or pay online at: https://www.gov.uk/pay-corporation-tax
+
+If you are unsure of the amount due, please log in to your HMRC online account or contact us and we will advise you.
+
+If you have any questions please do not hesitate to contact us.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   sa_payment_jul: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
