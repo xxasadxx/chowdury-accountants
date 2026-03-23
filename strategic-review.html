@@ -701,6 +701,7 @@ body{padding-top:92px !important}
     <button class="tab-btn" onclick="showTab('acceleration',this)">📅 12-Month Plan</button>
     <button class="tab-btn" onclick="showTab('routine',this)">🕐 Weekly Routine</button>
     <button class="tab-btn" onclick="showTab('appendix',this)">📎 Appendix</button>
+    <button class="tab-btn" onclick="showTab('tiers',this)">🔷 Service Tiers</button>
   </div>
 
   <!-- ═══════════ EXEC SUMMARY ═══════════ -->
@@ -1852,6 +1853,102 @@ function renderMondayAgenda(){
 // init
 renderTierA(); renderActions(); renderBridge();
 renderKPIs(); renderLCV(); renderPyramid(); renderFlywheel();
+
+// ═══ SERVICE TIERS MODULE ═══
+let TC_ALL = [], TC_TAGS = {};
+
+async function loadTierClients() {
+  try {
+    const [seeds, tags] = await Promise.all([
+      Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[]))),
+      fetch('https://yhvhpfsoqtjwnukgyqap.supabase.co/rest/v1/client_tier_tags?select=*&limit=1000',{
+        headers:{
+          'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4',
+          'Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
+        }
+      }).then(r=>r.json()).catch(()=>[])
+    ]);
+    TC_ALL = seeds.flat().filter(c=>c.status==='active');
+    if(Array.isArray(tags)) tags.forEach(t=>{ TC_TAGS[t.comp_no]=t.tier; });
+    renderTierClients();
+    renderTierStats();
+  } catch(e) { console.log('Tier load error:',e); }
+}
+
+function renderTierClients() {
+  const q = (document.getElementById('tier-srch')||{}).value?.toLowerCase()||'';
+  const tf = (document.getElementById('tier-filter')||{}).value||'';
+  let list = TC_ALL.filter(c=>{
+    if(q && !c.name.toLowerCase().includes(q) && !(c.director_name||'').toLowerCase().includes(q)) return false;
+    const tag = TC_TAGS[c.comp_no]||'';
+    if(tf==='untagged') return !tag;
+    if(tf) return tag===tf;
+    return true;
+  });
+  const el = document.getElementById('tier-client-list');
+  const cnt = document.getElementById('tier-count');
+  if(cnt) cnt.textContent = list.length + ' of ' + TC_ALL.length + ' clients';
+  if(!el) return;
+
+  const TIER_COLORS = {
+    'Compliance':'#374151','Business Services':'#1e40af',
+    'Business Advisory':'#92400e','Wealth Strategies':'#5b21b6',''  :'#9ca3af'
+  };
+  const TIER_BG = {
+    'Compliance':'#f3f4f6','Business Services':'#dbeafe',
+    'Business Advisory':'#fef3c7','Wealth Strategies':'#ede9fe',''  :'#f9fafb'
+  };
+
+  el.innerHTML = list.slice(0,150).map(c=>{
+    const cur = TC_TAGS[c.comp_no]||'';
+    const opts = ['Compliance','Business Services','Business Advisory','Wealth Strategies'];
+    return `<div style="display:grid;grid-template-columns:1fr 160px 140px;padding:7px 12px;border-bottom:1px solid #f3f4f6;align-items:center;font-size:11px">
+      <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="color:#6b7280;font-size:10px">${c.director_name||'—'}</div>
+      <div>
+        <select onchange="TC_setTag('${c.comp_no}',this.value)" style="font-size:10px;padding:3px 6px;border:1px solid #e5e7eb;border-radius:5px;background:${TIER_BG[cur]};color:${TIER_COLORS[cur]};font-weight:600;outline:none;width:100%">
+          <option value="" ${!cur?'selected':''}>— Tag tier —</option>
+          ${opts.map(o=>`<option value="${o}" ${cur===o?'selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+  }).join('') + (list.length>150?`<div style="padding:8px 12px;font-size:10px;color:#9ca3af">...showing 150 of ${list.length}. Use search to narrow down.</div>`:'');
+}
+
+function renderTierStats() {
+  const el = document.getElementById('tier-stats');
+  if(!el) return;
+  const tiers = ['Compliance','Business Services','Business Advisory','Wealth Strategies'];
+  const colors = {'Compliance':'#374151','Business Services':'#1e40af','Business Advisory':'#92400e','Wealth Strategies':'#5b21b6'};
+  const bgs = {'Compliance':'#f3f4f6','Business Services':'#dbeafe','Business Advisory':'#fef3c7','Wealth Strategies':'#ede9fe'};
+  const tagged = Object.values(TC_TAGS).filter(Boolean).length;
+  el.innerHTML = `<div style="font-size:11px;color:#6b7280;align-self:center">Tagged: ${tagged}/${TC_ALL.length}</div>` +
+    tiers.map(t=>{
+      const n = Object.values(TC_TAGS).filter(v=>v===t).length;
+      return `<div style="background:${bgs[t]};color:${colors[t]};padding:6px 12px;border-radius:20px;font-size:11px;font-weight:700">${t}: ${n}</div>`;
+    }).join('');
+}
+
+async function TC_setTag(compNo, tier) {
+  TC_TAGS[compNo] = tier;
+  renderTierStats();
+  try {
+    const SBK = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+    const H2 = {'apikey':SBK,'Authorization':'Bearer '+SBK,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'};
+    await fetch('https://yhvhpfsoqtjwnukgyqap.supabase.co/rest/v1/client_tier_tags',{
+      method:'POST', headers:H2,
+      body: JSON.stringify({comp_no:compNo, tier:tier||null})
+    });
+  } catch(e) { console.log('Tag save error:',e); }
+}
+
+// Auto-load when tier tab is activated
+const _origShowTab = showTab;
+function showTab(id, btn) {
+  _origShowTab(id, btn);
+  if(id==='tiers' && TC_ALL.length===0) loadTierClients();
+}
+
 renderAccelBridge(); renderWeeklyDays(); renderMondayAgenda();
 
 </script>

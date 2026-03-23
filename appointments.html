@@ -89,6 +89,15 @@ body{padding-top:92px !important;font-family:var(--sans);background:var(--bg);co
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue)}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+
+/* Service tiers */
+.tier-compliance{color:#374151;background:#f3f4f6}
+.tier-business{color:#1e40af;background:#dbeafe}
+.tier-advisory{color:#92400e;background:#fef3c7}
+.tier-wealth{color:#5b21b6;background:#ede9fe}
+.tier-badge{display:inline-block;padding:2px 8px;border-radius:9px;font-size:9px;font-weight:700;white-space:nowrap}
+.tier-section-header{padding:8px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+
 /* Client search dropdown */
 .cl-dd-item{padding:9px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .cl-dd-item:last-child{border-bottom:none}
@@ -305,6 +314,16 @@ body{padding-top:92px !important}
       </div>
     </div>
     <div class="form-row">
+      <label>Filter by Tier</label>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px">
+        <button type="button" class="tier-badge tier-compliance" style="cursor:pointer;border:none;padding:4px 10px;font-size:10px" onclick="filterSvcByTier('all')" id="tf-all">All</button>
+        <button type="button" class="tier-badge tier-compliance" style="cursor:pointer;border:none;padding:4px 10px;font-size:10px" onclick="filterSvcByTier('Compliance')" id="tf-compliance">🟤 Compliance</button>
+        <button type="button" class="tier-badge tier-business" style="cursor:pointer;border:none;padding:4px 10px;font-size:10px" onclick="filterSvcByTier('Business Services')" id="tf-business">🔵 Business Services</button>
+        <button type="button" class="tier-badge tier-advisory" style="cursor:pointer;border:none;padding:4px 10px;font-size:10px" onclick="filterSvcByTier('Business Advisory')" id="tf-advisory">🟠 Business Advisory</button>
+        <button type="button" class="tier-badge tier-wealth" style="cursor:pointer;border:none;padding:4px 10px;font-size:10px" onclick="filterSvcByTier('Wealth Strategies')" id="tf-wealth">🟣 Wealth Strategies</button>
+      </div>
+    </div>
+    <div class="form-row">
       <label>Service</label>
       <select id="bk-service" onchange="onServiceChange()">
         <option value="">— Select service —</option>
@@ -371,6 +390,15 @@ body{padding-top:92px !important}
     <div class="form-row">
       <label>Service Name *</label>
       <input id="sv-name" placeholder="e.g. Ltd Company Appointment with Asad">
+    </div>
+    <div class="form-row">
+      <label>Service Tier</label>
+      <select id="sv-tier">
+        <option value="Compliance">🟤 Compliance — Essential base layer</option>
+        <option value="Business Services">🔵 Business Services — Operational support</option>
+        <option value="Business Advisory">🟠 Business Advisory — Strategic guidance</option>
+        <option value="Wealth Strategies">🟣 Wealth Strategies — Premium, high-margin</option>
+      </select>
     </div>
     <div class="form-row-2">
       <div class="form-row" style="margin:0">
@@ -508,10 +536,28 @@ function updateKPIs() {
   document.getElementById('kpi-cancelled').textContent = ALL_APPTS.filter(a=>a.status==='cancelled').length;
 }
 
+let svcTierFilter = 'all';
+function filterSvcByTier(tier) {
+  svcTierFilter = tier;
+  populateServiceDropdown();
+}
 function populateServiceDropdown() {
   const sel = document.getElementById('bk-service');
-  sel.innerHTML = '<option value="">— Select service —</option>' +
-    ALL_SVCS.map(s=>`<option value="${s.id}" data-dur="${s.duration_mins}" data-staff="${s.staff||''}">${s.name}</option>`).join('');
+  const TIERS = ['Compliance','Business Services','Business Advisory','Wealth Strategies'];
+  const filtered = svcTierFilter==='all' ? ALL_SVCS : ALL_SVCS.filter(s=>(s.tier||'Compliance')===svcTierFilter);
+  let html = '<option value="">— Select service —</option>';
+  if(svcTierFilter==='all') {
+    TIERS.forEach(tier => {
+      const group = filtered.filter(s=>(s.tier||'Compliance')===tier);
+      if(!group.length) return;
+      html += `<optgroup label="${tier}">`;
+      html += group.map(s=>`<option value="${s.id}" data-dur="${s.duration_mins}" data-staff="${s.staff||''}">${s.name}${s.price>0?' — £'+s.price:''}</option>`).join('');
+      html += '</optgroup>';
+    });
+  } else {
+    html += filtered.map(s=>`<option value="${s.id}" data-dur="${s.duration_mins}" data-staff="${s.staff||''}">${s.name}${s.price>0?' — £'+s.price:''}</option>`).join('');
+  }
+  sel.innerHTML = html;
 }
 
 function CLsearch(q) {
@@ -769,9 +815,20 @@ function closeCustModal(){document.getElementById('cust-modal').classList.remove
 
 // ── SERVICES ──────────────────────────────────────────────────────────────
 function renderServices() {
-  if(!ALL_SVCS.length){document.getElementById('svc-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">No services yet. Add your first service above.</div>';return;}
-  document.getElementById('svc-list').innerHTML=ALL_SVCS.map(s=>`
-    <div class="svc-card">
+  if(!ALL_SVCS.length){document.getElementById('svc-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">No services yet.</div>';return;}
+  const TIERS = [
+    {key:'Compliance', label:'🟤 Compliance', desc:'Essential base services', cls:'tier-compliance'},
+    {key:'Business Services', label:'🔵 Business Services', desc:'Operational support', cls:'tier-business'},
+    {key:'Business Advisory', label:'🟠 Business Advisory', desc:'Strategic guidance', cls:'tier-advisory'},
+    {key:'Wealth Strategies', label:'🟣 Wealth Strategies', desc:'Premium high-margin', cls:'tier-wealth'},
+  ];
+  let out = '';
+  TIERS.forEach(t => {
+    const group = ALL_SVCS.filter(s=>(s.tier||'Compliance')===t.key);
+    if(!group.length) return;
+    out += `<div style="margin-bottom:20px">
+      <div class="tier-section-header"><span class="tier-badge ${t.cls}">${t.label}</span><span style="color:var(--muted);font-weight:400;font-size:10px">${t.desc} · ${group.length} service${group.length!==1?'s':''}</span></div>`;
+    out += group.map(s=>`<div class="svc-card">
       <div class="svc-dot" style="background:${s.color||'#c8963c'}"></div>
       <div class="svc-info">
         <div class="svc-name">${s.name}</div>
@@ -779,6 +836,9 @@ function renderServices() {
       </div>
       <button class="btn btn-sm btn-secondary" onclick="openSvcModal(${s.id})">Edit</button>
     </div>`).join('');
+    out += '</div>';
+  });
+  document.getElementById('svc-list').innerHTML = out;
 }
 
 // ── ACTIVITY ──────────────────────────────────────────────────────────────
@@ -935,6 +995,7 @@ function openSvcModal(id) {
     document.getElementById('sv-price').value=s.price||0;
     document.getElementById('sv-staff').value=s.staff||'';
     document.getElementById('sv-color').value=s.color||'#155FA0';
+    document.getElementById('sv-tier').value=s.tier||'Compliance';
     document.getElementById('sv-delete-btn').style.display='inline-flex';
   }
   document.getElementById('svc-modal').classList.add('open');
@@ -951,7 +1012,8 @@ async function saveSvc(){
     buffer_mins:parseInt(document.getElementById('sv-buffer').value)||10,
     price:parseFloat(document.getElementById('sv-price').value)||0,
     staff:document.getElementById('sv-staff').value||null,
-    color:document.getElementById('sv-color').value
+    color:document.getElementById('sv-color').value,
+    tier:document.getElementById('sv-tier').value||'Compliance'
   };
   try{
     let method='POST',url=SB+'/rest/v1/appointment_services';
@@ -979,35 +1041,53 @@ async function deleteSvc(){
 
 // ── SEED DEFAULT SERVICES ─────────────────────────────────────────────────
 const DEFAULT_SERVICES = [
-  // Meetings & Consultations
-  {name:'Initial Consultation with Asad',duration_mins:30,buffer_mins:10,price:0,staff:'Asad',color:'#155FA0'},
-  {name:'Ltd Company Appointment with Asad',duration_mins:20,buffer_mins:10,price:0,staff:'Asad',color:'#155FA0'},
-  {name:'Self Employed Tax Return with Asad',duration_mins:20,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0'},
-  {name:'New Ltd Company Registration — Initial Consultation',duration_mins:30,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0'},
-  // Hassan
-  {name:'Ltd Bookkeeping Appointment with Hassan',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47'},
-  {name:'VAT Appointment with Hassan',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47'},
-  // Aminul
-  {name:'Self Employed Bookkeeping Drop with Aminul',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#6D28D9'},
-  {name:'New SE Client Registration with Aminul',duration_mins:30,buffer_mins:10,price:180,staff:'Aminul',color:'#6D28D9'},
-  {name:'Payroll Query with Aminul',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#6D28D9'},
-  // Nawaz
-  {name:'New SE Client Registration with Nawaz',duration_mins:30,buffer_mins:10,price:180,staff:'Nawaz',color:'#C07A00'},
-  {name:'Self Employed Bookkeeping Drop with Nawaz',duration_mins:20,buffer_mins:10,price:0,staff:'Nawaz',color:'#C07A00'},
-  {name:'Universal Credit Appointment with Nawaz',duration_mins:10,buffer_mins:10,price:10,staff:'Nawaz',color:'#C07A00'},
-  // Set up services
-  {name:'Personal UTR Set Up',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
-  {name:'Payroll Registration',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
-  {name:'VAT Registration',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
-  {name:'Limited Company Set Up & UTR',duration_mins:30,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0'},
-  // Admin
-  {name:'Accountant Certificate / Reference',duration_mins:15,buffer_mins:5,price:50,staff:'Asad',color:'#D04A02'},
-  {name:'Confirmation Statement',duration_mins:15,buffer_mins:5,price:84,staff:'Hassan',color:'#1D7A47'},
-  {name:'Company Dissolution DS01',duration_mins:20,buffer_mins:10,price:40,staff:'Asad',color:'#155FA0'},
-  {name:'SA302 / Tax Overview',duration_mins:10,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
-  {name:'Auto Enrolment Registration',duration_mins:30,buffer_mins:10,price:400,staff:'Aminul',color:'#6D28D9'},
-  {name:'Business Plan',duration_mins:60,buffer_mins:10,price:300,staff:'Asad',color:'#155FA0'},
-  {name:'Registered Address Service',duration_mins:10,buffer_mins:5,price:75,staff:'',color:'#6B7280'},
+  // COMPLIANCE
+  {name:'Annual Accounts & CT600 (Ltd)',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#374151',tier:'Compliance'},
+  {name:'Self Assessment Tax Return',duration_mins:20,buffer_mins:10,price:180,staff:'Asad',color:'#374151',tier:'Compliance'},
+  {name:'VAT Return (Standard Rate)',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#374151',tier:'Compliance'},
+  {name:'VAT Return (Flat Rate)',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#374151',tier:'Compliance'},
+  {name:'Payroll Processing & RTI',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#374151',tier:'Compliance'},
+  {name:'Confirmation Statement (CS01)',duration_mins:15,buffer_mins:5,price:84,staff:'Hassan',color:'#374151',tier:'Compliance'},
+  {name:'Bookkeeping Drop — Ltd (Hassan)',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47',tier:'Compliance'},
+  {name:'Bookkeeping Drop — SE (Aminul)',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#6D28D9',tier:'Compliance'},
+  {name:'Bookkeeping Drop — SE (Nawaz)',duration_mins:20,buffer_mins:10,price:0,staff:'Nawaz',color:'#C07A00',tier:'Compliance'},
+  {name:'VAT Appointment with Hassan',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47',tier:'Compliance'},
+  {name:'Personal UTR Set Up',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#374151',tier:'Compliance'},
+  {name:'Payroll Registration',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#374151',tier:'Compliance'},
+  {name:'VAT Registration',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#374151',tier:'Compliance'},
+  {name:'Limited Company Set Up & UTR',duration_mins:30,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0',tier:'Compliance'},
+  {name:'SA302 / Tax Overview',duration_mins:10,buffer_mins:5,price:0,staff:'',color:'#374151',tier:'Compliance'},
+  {name:'Confirmation Statement — Admin',duration_mins:15,buffer_mins:5,price:84,staff:'Hassan',color:'#374151',tier:'Compliance'},
+  {name:'Accountant Certificate / Reference',duration_mins:15,buffer_mins:5,price:50,staff:'Asad',color:'#374151',tier:'Compliance'},
+  {name:'Company Dissolution DS01',duration_mins:20,buffer_mins:10,price:40,staff:'Asad',color:'#374151',tier:'Compliance'},
+  {name:'Registered Address Service',duration_mins:10,buffer_mins:5,price:75,staff:'',color:'#374151',tier:'Compliance'},
+  {name:'Auto Enrolment Registration',duration_mins:30,buffer_mins:10,price:400,staff:'Aminul',color:'#374151',tier:'Compliance'},
+  // BUSINESS SERVICES
+  {name:'Ltd Company Appointment with Asad',duration_mins:20,buffer_mins:10,price:0,staff:'Asad',color:'#155FA0',tier:'Business Services'},
+  {name:'New Ltd Company Registration — Consultation',duration_mins:30,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0',tier:'Business Services'},
+  {name:'New SE Client Registration with Nawaz',duration_mins:30,buffer_mins:10,price:180,staff:'Nawaz',color:'#C07A00',tier:'Business Services'},
+  {name:'New SE Client Registration with Aminul',duration_mins:30,buffer_mins:10,price:180,staff:'Aminul',color:'#6D28D9',tier:'Business Services'},
+  {name:'Payroll Advisory / Auto Enrolment Setup',duration_mins:30,buffer_mins:10,price:400,staff:'Aminul',color:'#6D28D9',tier:'Business Services'},
+  {name:'VAT Advisory & Partial Exemption',duration_mins:30,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47',tier:'Business Services'},
+  {name:'Cloud Software Setup (QuickBooks/Xero)',duration_mins:45,buffer_mins:10,price:150,staff:'Hassan',color:'#1D7A47',tier:'Business Services'},
+  {name:'CIS Submission & Advisory',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#6D28D9',tier:'Business Services'},
+  {name:'Universal Credit Appointment',duration_mins:10,buffer_mins:10,price:10,staff:'Nawaz',color:'#C07A00',tier:'Business Services'},
+  // BUSINESS ADVISORY
+  {name:'Initial Consultation with Asad',duration_mins:30,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'Tax Planning & Structuring',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'Business Valuation',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'R&D Tax Credits Advisory',duration_mins:45,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'Strategic Financial Planning',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'Business Plan',duration_mins:60,buffer_mins:10,price:300,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'Cash Flow Forecasting',duration_mins:45,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  {name:'KPI Analysis & Performance Review',duration_mins:45,buffer_mins:10,price:0,staff:'Asad',color:'#C07A00',tier:'Business Advisory'},
+  // WEALTH STRATEGIES
+  {name:'Tax Planning — Wealth Extraction & Dividends',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#7C3AED',tier:'Wealth Strategies'},
+  {name:'Property Investment Advisory',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#7C3AED',tier:'Wealth Strategies'},
+  {name:'Inheritance Tax & Estate Planning',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#7C3AED',tier:'Wealth Strategies'},
+  {name:'Pension & Retirement Planning',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#7C3AED',tier:'Wealth Strategies'},
+  {name:'Holding Company & Business Structure',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#7C3AED',tier:'Wealth Strategies'},
+  {name:'Succession Planning',duration_mins:60,buffer_mins:10,price:0,staff:'Asad',color:'#7C3AED',tier:'Wealth Strategies'},
 ];
 
 async function seedServicesIfEmpty() {
