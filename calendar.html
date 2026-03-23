@@ -321,23 +321,18 @@ async function D_load() {
     D_ALL = [];
 
     allLtd.forEach(c => {
+      const base = {company:c.name, director:c.director_name||'', mobile:c.director_mobile||'', email:c.director_email||''};
       // Accounts due
       if (c.accounts_due) {
-        const d = parseDate(c.accounts_due);
-        D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
-          type:'accounts', label:'Accounts Due', date:d, dateStr:c.accounts_due, detail:'Annual accounts & CT600'});
+        D_ALL.push({...base, type:'accounts', label:'Accounts Due', date:parseDate(c.accounts_due), dateStr:c.accounts_due, detail:'Annual accounts & CT600'});
       }
       // Conf statement due
       if (c.conf_due) {
-        const d = parseDate(c.conf_due);
-        D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
-          type:'conf', label:'Conf. Statement', date:d, dateStr:c.conf_due, detail:'Companies House confirmation'});
+        D_ALL.push({...base, type:'conf', label:'Conf. Statement', date:parseDate(c.conf_due), dateStr:c.conf_due, detail:'Companies House confirmation'});
       }
       // VAT due (if set)
       if (c.vat_due && c.vat_due.trim()) {
-        const d = parseDate(c.vat_due);
-        D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
-          type:'vat', label:'VAT Return', date:d, dateStr:c.vat_due, detail:'VAT return & payment due'});
+        D_ALL.push({...base, type:'vat', label:'VAT Return', date:parseDate(c.vat_due), dateStr:c.vat_due, detail:'VAT return & payment due'});
       }
       // Birthdays
       if (c.director_dob && c.director_dob.trim()) {
@@ -346,11 +341,9 @@ async function D_load() {
           const today = new Date(); today.setHours(0,0,0,0);
           let bd = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0]));
           if (bd < today) bd = new Date(today.getFullYear()+1, parseInt(p[1])-1, parseInt(p[0]));
-          // Only show birthdays within next 60 days in this view
           const days = Math.round((bd - today)/86400000);
           if (days <= 60) {
-            D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
-              type:'bday', label:'Birthday 🎂', date:bd, dateStr:c.director_dob, detail:'Director birthday'});
+            D_ALL.push({...base, type:'bday', label:'Birthday', date:bd, dateStr:c.director_dob, detail:'Director birthday'});
           }
         }
       }
@@ -435,21 +428,49 @@ function D_render() {
     }
 
     const mob = d.mobile.trim();
-    const waBtn = mob && d.type==='bday' ? (() => {
-      const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
-      const greetName = bdayGreetName(d.director);
-      const msg = encodeURIComponent(`Dear ${greetName},\n\nWishing you a very Happy Birthday! 🎂🎉\n\nMay this special day bring you joy, happiness and all the success you deserve.\n\nBest wishes,\nThe Chowdury Accountants Team\n📞 0161 222 4647`);
-      return `<a href="https://wa.me/${uk}?text=${msg}" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;font-size:11px;padding:5px 10px;border-radius:6px;font-weight:600;font-family:var(--sans);display:inline-block">💬 Send Birthday Wish</a>`;
-    })() : (mob && !isSa ? '' : '');
-
+    const email = (d.email||'').trim();
     const isBday = d.type==='bday';
+    const isSa = d.type==='sa';
+
+    // Build WA message based on type
+    let waHref = '';
+    if (mob) {
+      const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
+      let msg = '';
+      if (isBday) {
+        const greetName = bdayGreetName(d.director);
+        msg = `Dear ${greetName},\n\nWishing you a very Happy Birthday! 🎂🎉\n\nMay this special day bring you joy, happiness and all the success you deserve.\n\nBest wishes,\nThe Chowdury Accountants Team\n📞 0161 222 4647`;
+      } else {
+        const greetName = bdayGreetName(d.director);
+        msg = `Dear ${greetName},\n\nI hope you are well. I am writing regarding your ${d.label} for ${d.company}.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n📞 0161 222 4647`;
+      }
+      waHref = `https://wa.me/${uk}?text=${encodeURIComponent(msg)}`;
+    }
+
+    // Build email href
+    let emailHref = '';
+    if (email) {
+      const greetName = bdayGreetName(d.director);
+      const subject = isBday ? `Happy Birthday from Chowdury Accountants` : `${d.label} — ${d.company}`;
+      const body = isBday
+        ? `Dear ${greetName},\n\nWishing you a very Happy Birthday! 🎂\n\nMay this special day bring you joy and success.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647`
+        : `Dear ${greetName},\n\nI hope you are well. I am writing regarding your ${d.label} for ${d.company}.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647`;
+      emailHref = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    const actionBtns = `
+      <div style="display:flex;gap:5px;align-items:center">
+        ${waHref ? `<a href="${waHref}" target="_blank" title="Send WhatsApp" style="background:#25D366;color:#fff;text-decoration:none;border-radius:6px;padding:5px 8px;font-size:14px;line-height:1;display:inline-flex;align-items:center">💬</a>` : `<span style="opacity:.2;font-size:14px;padding:5px 8px">💬</span>`}
+        ${emailHref ? `<a href="${emailHref}" title="Send Email" style="background:#155fa0;color:#fff;text-decoration:none;border-radius:6px;padding:5px 8px;font-size:14px;line-height:1;display:inline-flex;align-items:center">📧</a>` : `<span style="opacity:.2;font-size:14px;padding:5px 8px">📧</span>`}
+      </div>`;
+
     html += `<div class="event-row${isToday?' is-today':''}${isOverdue?' is-overdue':''}" style="${isBday?'background:#fdf4ff;':''}">
       <div><span class="badge badge-${d.type}">${d.type==='vat'?'VAT':d.type==='accounts'?'Accounts':d.type==='conf'?'Conf.':d.type==='sa'?'SA':d.type==='bday'?'Birthday':'—'}</span></div>
       <div style="font-family:var(--mono);font-size:10px">${fmtDate(d.date)}</div>
       <div style="font-weight:600;font-size:11px;font-family:var(--display)">${d.company}<br><span style="font-weight:400;font-size:10px;color:var(--muted);font-family:var(--sans)">${d.detail}</span></div>
       <div style="font-size:10px;color:var(--ink2)">${d.director||'—'}</div>
       <div>${urgencyBadge(days)}</div>
-      <div>${waBtn}</div>
+      <div>${actionBtns}</div>
     </div>`;
   });
 
