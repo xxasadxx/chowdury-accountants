@@ -226,10 +226,11 @@ select:focus{border-color:var(--blue)}
     </select>
     <select class="search-box" id="log-staff" onchange="renderLog()" style="width:140px">
       <option value="">All staff</option>
+      <option>Asad</option>
+      <option>Sadat</option>
       <option>Hassan</option>
       <option>Aminul</option>
       <option>Nawaz</option>
-      <option>Syed</option>
       <option>Md Asadul Chowdury</option>
     </select>
     <span style="font-size:11px;color:var(--muted)" id="log-count"></span>
@@ -796,8 +797,8 @@ let ALL=[], LOGS=[], currentTpl='vat';
 async function load(){
   try{
     const [ltd,se,logs] = await Promise.all([
-      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status,accounts_ref_date,vat_stagger&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()),
-      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,email,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status,accounts_ref_date,vat_stagger&limit=1000',{headers:H}).then(r=>r.json()),
+      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,email,status&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
       fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H}).then(r=>r.json()).catch(()=>[])
     ]);
     // Get company names from seeds
