@@ -1781,6 +1781,7 @@ function showTab(id,btn){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   if(btn) btn.classList.add('active');
+  if(id==='tiers' && TC_ALL.length===0) loadTierClients();
 }
 
 // ═══ ACCELERATION BRIDGE ═══
@@ -1942,12 +1943,7 @@ async function TC_setTag(compNo, tier) {
   } catch(e) { console.log('Tag save error:',e); }
 }
 
-// Auto-load when tier tab is activated
-const _origShowTab = showTab;
-function showTab(id, btn) {
-  _origShowTab(id, btn);
-  if(id==='tiers' && TC_ALL.length===0) loadTierClients();
-}
+// Tier tab loading handled inside showTab above
 
 renderAccelBridge(); renderWeeklyDays(); renderMondayAgenda();
 
