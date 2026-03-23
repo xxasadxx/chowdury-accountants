@@ -177,6 +177,28 @@ select:focus{border-color:var(--blue)}
   #print-letter{position:fixed!important;left:0!important;top:0!important;width:100%!important;padding:48px 52px!important;box-shadow:none!important;background:#fff!important}
   #ca-nav,#ca-nav *{display:none!important}
 }
+
+.saved-tpl-section{margin-bottom:16px}
+.saved-tpl-header{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.saved-tpl-item{padding:9px 12px;border:1px solid #c8963c33;border-radius:8px;cursor:pointer;margin-bottom:5px;transition:all .15s;background:#fffbf2;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.saved-tpl-item:hover{border-color:#c8963c;background:#fef3dc}
+.saved-tpl-item.active{border-color:#c8963c;background:#fef3dc}
+.saved-tpl-name{font-size:12px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-tpl-type{font-size:9px;color:var(--muted)}
+.saved-tpl-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:2px 5px;border-radius:4px;font-size:12px;flex-shrink:0;line-height:1}
+.saved-tpl-del:hover{background:var(--red-light);color:var(--red)}
+.save-tpl-btn{background:#c8963c;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap}
+.save-tpl-btn:hover{background:#b07830}
+/* Save modal */
+.save-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20000;display:none;align-items:center;justify-content:center}
+.save-modal-overlay.open{display:flex}
+.save-modal{background:#fff;border-radius:12px;padding:24px;width:400px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.save-modal h3{font-family:var(--display);font-size:15px;font-weight:800;margin-bottom:16px}
+.save-modal .smr{margin-bottom:12px}
+.save-modal .smr label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.save-modal .smr input,.save-modal .smr select{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;outline:none}
+.save-modal .smr input:focus{border-color:var(--blue)}
+.save-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
 </style>
 </head>
 <body>
@@ -252,6 +274,10 @@ body{padding-top:92px !important}
   <div class="main">
     <!-- Sidebar: template picker + message editor -->
     <div class="sidebar">
+      <div class="saved-tpl-section" id="saved-tpl-section" style="display:none">
+        <div class="saved-tpl-header"><span>⭐ Saved Templates</span></div>
+        <div id="saved-tpl-list"></div>
+      </div>
       <span class="lbl">Template</span>
       <div class="tpl-list">
         <div class="tpl-item active" id="tpl-vat" onclick="setTpl('vat')"><div class="tpl-name">📊 VAT Bookkeeping Request</div><div class="tpl-desc">Hassan's VAT records request</div></div>
@@ -276,7 +302,7 @@ body{padding-top:92px !important}
         <div class="tpl-item" id="tpl-letter" onclick="setTpl('letter')"><div class="tpl-name">📄 Letter on Letterhead</div><div class="tpl-desc">Print/PDF + WhatsApp to all Ltd clients</div></div>
       </div>
 
-      <span class="lbl">Message</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;margin-top:12px"><span class="lbl" style="margin:0">Message</span><button class="save-tpl-btn" onclick="ST_openSaveModal('message')">💾 Save as Template</button></div>
       <textarea id="msg-body" rows="10" placeholder="Select a template above or write your own..."></textarea>
 
       <span class="lbl" style="margin-top:10px">Sent By</span>
@@ -362,6 +388,7 @@ body{padding-top:92px !important}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div style="font-family:var(--display);font-size:15px;font-weight:700">📄 Letter Composer</div>
         <div class="letter-actions">
+          <button class="save-tpl-btn" onclick="ST_openSaveModal('letter')" style="padding:7px 12px;font-size:12px">💾 Save Letter</button>
           <button class="btn btn-amber" onclick="L_printPDF()">🖨️ Print / Save as PDF</button>
           <button class="btn btn-secondary" onclick="L_downloadWord()">📝 Download Word</button>
         </div>
@@ -612,6 +639,36 @@ body{padding-top:92px !important}
   </div>
 </div>
 
+
+<!-- Save Template Modal -->
+<div class="save-modal-overlay" id="save-modal" onclick="if(event.target===this)ST_closeModal()">
+  <div class="save-modal">
+    <h3>💾 Save Template</h3>
+    <div class="smr">
+      <label>Template Name *</label>
+      <input id="st-name" placeholder="e.g. CH Fee Increase 2026, VAT Reminder Q1...">
+    </div>
+    <div class="smr">
+      <label>Category</label>
+      <select id="st-cat">
+        <option value="message">📨 Message / WhatsApp</option>
+        <option value="letter">📄 Letter on Letterhead</option>
+      </select>
+    </div>
+    <div class="smr">
+      <label>Saved By</label>
+      <select id="st-by">
+        <option value="">— Select —</option>
+        <option>Asad</option><option>Sadat</option><option>Hassan</option><option>Aminul</option><option>Nawaz</option>
+      </select>
+    </div>
+    <div class="save-modal-actions">
+      <button class="btn btn-secondary" onclick="ST_closeModal()">Cancel</button>
+      <button class="btn btn-blue" onclick="ST_save()">Save Template</button>
+    </div>
+    <input type="hidden" id="st-type" value="message">
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2056,6 +2113,130 @@ function L_resetSent() {
   L_renderClients();
   toast('Reset');
 }
+
+
+// ═══ SAVED TEMPLATES MODULE ═══
+let ST_ALL = [];
+
+async function ST_load() {
+  try {
+    const data = await fetch(SB+'/rest/v1/saved_templates?select=*&order=created_at.desc',{headers:H}).then(r=>r.json());
+    ST_ALL = Array.isArray(data) ? data : [];
+    ST_render();
+  } catch(e) { ST_ALL = []; }
+}
+
+function ST_render() {
+  const section = document.getElementById('saved-tpl-section');
+  const list = document.getElementById('saved-tpl-list');
+  if(!section||!list) return;
+  if(!ST_ALL.length) { section.style.display='none'; return; }
+  section.style.display='block';
+  list.innerHTML = ST_ALL.map(t => `
+    <div class="saved-tpl-item" onclick="ST_load_template(${t.id})" id="stpl-${t.id}">
+      <div>
+        <div class="saved-tpl-name">${t.name}</div>
+        <div class="saved-tpl-type">${t.type==='letter'?'📄 Letter':'📨 Message'} ${t.created_by?'· '+t.created_by:''}</div>
+      </div>
+      <button class="saved-tpl-del" onclick="event.stopPropagation();ST_delete(${t.id})" title="Delete">✕</button>
+    </div>`).join('');
+}
+
+function ST_load_template(id) {
+  const t = ST_ALL.find(x => x.id===id);
+  if(!t) return;
+
+  // Highlight in sidebar
+  document.querySelectorAll('.saved-tpl-item').forEach(el=>el.classList.remove('active'));
+  const el = document.getElementById('stpl-'+id);
+  if(el) el.classList.add('active');
+
+  if(t.type === 'letter') {
+    // Switch to letter mode
+    setTpl('letter');
+    setTimeout(() => {
+      const subj = document.getElementById('l-subject');
+      const body = document.getElementById('l-body');
+      if(subj) subj.value = t.subject||'';
+      if(body) body.value = t.body||'';
+      L_refreshPreview();
+      toast('Letter "'+t.name+'" loaded ✓');
+    }, 300);
+  } else {
+    // Switch to message mode — deselect letter if active
+    const normalLayout = document.querySelector('#view-send .main');
+    const letterView = document.getElementById('letter-view');
+    if(normalLayout) normalLayout.style.display='grid';
+    if(letterView) letterView.style.display='none';
+    // Set body
+    const body = document.getElementById('msg-body');
+    if(body) body.value = t.body||'';
+    // Deselect all tpl items
+    document.querySelectorAll('.tpl-item').forEach(x=>x.classList.remove('active'));
+    refreshPreview();
+    toast('Template "'+t.name+'" loaded ✓');
+  }
+}
+
+function ST_openSaveModal(type) {
+  document.getElementById('save-modal').classList.add('open');
+  document.getElementById('st-type').value = type;
+  document.getElementById('st-cat').value = type;
+  document.getElementById('st-name').value = '';
+  document.getElementById('st-name').focus();
+}
+
+function ST_closeModal() {
+  document.getElementById('save-modal').classList.remove('open');
+}
+
+async function ST_save() {
+  const name = document.getElementById('st-name').value.trim();
+  if(!name) { toast('Please enter a template name','err'); return; }
+
+  const type = document.getElementById('st-cat').value;
+  const by = document.getElementById('st-by').value;
+
+  let subject = '', body = '';
+  if(type === 'letter') {
+    subject = (document.getElementById('l-subject')||{}).value||'';
+    body = (document.getElementById('l-body')||{}).value||'';
+  } else {
+    body = (document.getElementById('msg-body')||{}).value||'';
+  }
+
+  if(!body.trim()) { toast('Nothing to save — write your message first','err'); return; }
+
+  try {
+    const res = await fetch(SB+'/rest/v1/saved_templates', {
+      method:'POST',
+      headers:{...H,'Prefer':'return=representation'},
+      body: JSON.stringify({name, type, subject, body, created_by: by||null})
+    });
+    if(!res.ok) throw new Error('Save failed');
+    ST_closeModal();
+    await ST_load();
+    toast('"'+name+'" saved ✓');
+  } catch(e) {
+    toast('Failed to save: '+e.message,'err');
+  }
+}
+
+async function ST_delete(id) {
+  const t = ST_ALL.find(x=>x.id===id);
+  if(!t) return;
+  if(!confirm('Delete "'+t.name+'"?')) return;
+  try {
+    await fetch(SB+'/rest/v1/saved_templates?id=eq.'+id,{method:'DELETE',headers:H});
+    await ST_load();
+    toast('Template deleted');
+  } catch(e) {
+    toast('Delete failed','err');
+  }
+}
+
+// Load saved templates on init
+ST_load();
 
 </script>
 </body>
