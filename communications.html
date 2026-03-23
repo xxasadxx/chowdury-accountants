@@ -138,6 +138,7 @@ select:focus{border-color:var(--blue)}
         <div class="tpl-item" id="tpl-payroll" onclick="setTpl('payroll')"><div class="tpl-name">💼 Payroll Records Request</div><div class="tpl-desc">Request payroll information</div></div>
         <div class="tpl-item" id="tpl-payment" onclick="setTpl('payment')"><div class="tpl-name">💳 Payment Reminder</div><div class="tpl-desc">Outstanding fees reminder</div></div>
         <div class="tpl-item" id="tpl-engagement" onclick="setTpl('engagement')"><div class="tpl-name">📄 Engagement Letter Chaser</div><div class="tpl-desc">Unsigned letter follow-up</div></div>
+        <div class="tpl-item" id="tpl-records_received" onclick="setTpl('records_received')"><div class="tpl-name">✅ Records Received</div><div class="tpl-desc">Confirm client records have arrived</div></div>
         <div class="tpl-item" id="tpl-proposal" onclick="setTpl('proposal')"><div class="tpl-name">📋 Proposal / Quote Email</div><div class="tpl-desc">Services & fee proposal to prospect</div></div>
         <div class="tpl-item" id="tpl-disengagement" onclick="setTpl('disengagement')"><div class="tpl-name">🚪 Client Disengagement</div><div class="tpl-desc">Formal disengagement letter</div></div>
         <div class="tpl-item" id="tpl-meeting" onclick="setTpl('meeting')"><div class="tpl-name">📅 Meeting Reminder</div><div class="tpl-desc">Appointment reminder SMS/WhatsApp</div></div>
@@ -426,6 +427,17 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  records_received: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    return `Dear ${greeting},
+
+Thank you for your records. We have noted their arrival, saved them in your file and will prepare them in due course. If we have any questions for you, we will be in touch.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   proposal: (client) => {
     const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
     const greeting = name && name !== 'Client' ? name : 'Client';
