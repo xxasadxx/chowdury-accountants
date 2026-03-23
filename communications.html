@@ -260,22 +260,30 @@ select:focus{border-color:var(--blue)}
 </script>
 <script>
 (function(){
-  // Make dropdowns work on touch/click (mobile)
   document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(dd){
     var btn = dd.querySelector('.ca-drop-btn');
     if(!btn) return;
+    // Toggle dropdown open/close on button tap
     btn.addEventListener('click', function(e){
       e.stopPropagation();
       var isOpen = dd.classList.contains('open');
-      // Close all dropdowns
       document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
-      // Toggle this one
       if(!isOpen) dd.classList.add('open');
     });
+    // Ensure links inside dropdown navigate properly on mobile
+    dd.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.stopPropagation();
+        var href = a.getAttribute('href');
+        if(href) window.location.href = href;
+      });
+    });
   });
-  // Close on outside click
-  document.addEventListener('click', function(){
-    document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
+  // Close dropdown when tapping outside
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('#ca-nav .ca-dropdown')){
+      document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
+    }
   });
 })();
 </script>
