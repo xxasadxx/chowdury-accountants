@@ -89,6 +89,13 @@ body{padding-top:92px !important;font-family:var(--sans);background:var(--bg);co
 .form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue)}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+/* Client search dropdown */
+.cl-dd-item{padding:9px 12px;cursor:pointer;font-size:11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cl-dd-item:last-child{border-bottom:none}
+.cl-dd-item:hover{background:var(--blue-light)}
+.cl-dd-item .cl-dd-name{font-weight:600;font-size:12px}
+.cl-dd-item .cl-dd-sub{font-size:10px;color:var(--muted)}
+.cl-dd-item .cl-dd-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:9px}
 /* Toast */
 .toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
@@ -281,11 +288,12 @@ body{padding-top:92px !important}
 <div class="modal-overlay" id="book-modal" onclick="if(event.target===this)closeBookModal()">
   <div class="modal">
     <h3>📅 <span id="book-modal-title">Book Appointment</span></h3>
-    <div class="form-row">
-      <label>Client Name *</label>
-      <input id="bk-client" placeholder="Full name" list="bk-client-list">
-      <datalist id="bk-client-list"></datalist>
+    <div class="form-row" style="position:relative">
+      <label>Client Name * <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(search existing or type new)</span></label>
+      <input id="bk-client" placeholder="Type to search clients..." autocomplete="off" oninput="CLsearch(this.value)" onfocus="CLsearch(this.value)" style="width:100%">
+      <div id="cl-dropdown" style="display:none;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--border2);border-radius:0 0 7px 7px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:1000;max-height:220px;overflow-y:auto"></div>
     </div>
+    <div id="bk-client-type-badge" style="display:none;margin:-6px 0 8px;font-size:10px;color:var(--muted)"></div>
     <div class="form-row-2">
       <div class="form-row" style="margin:0">
         <label>Mobile</label>
@@ -429,17 +437,59 @@ let currentView = 'calendar';
 function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
 
 // ── DATA LOADING ─────────────────────────────────────────────────────────
+let ALL_CLIENTS = []; // All existing clients for search
+
 async function loadAll() {
   try {
-    const [appts, svcs] = await Promise.all([
+    const [appts, svcs, ltdClients, saClients] = await Promise.all([
       fetch(SB+'/rest/v1/appointments?select=*&order=appt_date.asc,appt_time.asc',{headers:H}).then(r=>r.json()),
-      fetch(SB+'/rest/v1/appointment_services?select=*&order=name.asc',{headers:H}).then(r=>r.json())
+      fetch(SB+'/rest/v1/appointment_services?select=*&order=name.asc',{headers:H}).then(r=>r.json()),
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
+      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,status&status=eq.active&limit=500',{headers:H}).then(r=>r.json()).catch(()=>[])
     ]);
+
+    // Also get company names from seed files for Ltd clients
+    let seedNames = {};
+    try {
+      const seeds = await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));
+      seeds.flat().forEach(c=>{ if(c.comp_no&&c.name) seedNames[String(c.comp_no).padStart(8,'0')]=c.name; });
+    } catch(e){}
+
     ALL_APPTS = Array.isArray(appts) ? appts : [];
     ALL_SVCS = Array.isArray(svcs) ? svcs : [];
+
+    // Build unified client list
+    ALL_CLIENTS = [];
+    if(Array.isArray(ltdClients)) {
+      ltdClients.forEach(c=>{
+        const compNo = String(c.comp_no).padStart(8,'0');
+        const compName = seedNames[compNo] || '';
+        const dirName = c.director_name || '';
+        ALL_CLIENTS.push({
+          label: compName || dirName,
+          sub: dirName ? (compName ? dirName : '') : '',
+          mobile: c.director_mobile||'',
+          email: c.director_email||'',
+          type: 'Ltd'
+        });
+      });
+    }
+    if(Array.isArray(saClients)) {
+      saClients.forEach(c=>{
+        ALL_CLIENTS.push({
+          label: c.full_name||'',
+          sub: '',
+          mobile: c.mobile||'',
+          email: '',
+          type: 'SE'
+        });
+      });
+    }
+    // Remove empty and sort
+    ALL_CLIENTS = ALL_CLIENTS.filter(c=>c.label).sort((a,b)=>a.label.localeCompare(b.label));
+
     updateKPIs();
     populateServiceDropdown();
-    populateClientDatalist();
     renderCurrentView();
   } catch(e) { toast('Failed to load: '+e.message,'err'); }
 }
@@ -464,11 +514,58 @@ function populateServiceDropdown() {
     ALL_SVCS.map(s=>`<option value="${s.id}" data-dur="${s.duration_mins}" data-staff="${s.staff||''}">${s.name}</option>`).join('');
 }
 
-function populateClientDatalist() {
-  const dl = document.getElementById('bk-client-list');
-  const names = [...new Set(ALL_APPTS.map(a=>a.client_name).filter(Boolean))].sort();
-  dl.innerHTML = names.map(n=>`<option value="${n}">`).join('');
+function CLsearch(q) {
+  const dd = document.getElementById('cl-dropdown');
+  if(!q || q.length < 1) { dd.style.display='none'; return; }
+  const ql = q.toLowerCase();
+
+  // Search ALL_CLIENTS first, then past appointment clients
+  let matches = ALL_CLIENTS.filter(c =>
+    c.label.toLowerCase().includes(ql) ||
+    (c.sub && c.sub.toLowerCase().includes(ql)) ||
+    (c.mobile && c.mobile.includes(q))
+  ).slice(0, 12);
+
+  // Also include past appointment clients not in main list
+  const pastNames = [...new Set(ALL_APPTS.map(a=>a.client_name))].filter(n=>n&&n.toLowerCase().includes(ql));
+  pastNames.forEach(n=>{
+    if(!matches.find(c=>c.label===n)) {
+      const prev = ALL_APPTS.find(a=>a.client_name===n);
+      matches.push({label:n, sub:'Previous client', mobile:prev?.client_mobile||'', email:prev?.client_email||'', type:''});
+    }
+  });
+
+  if(!matches.length) { dd.style.display='none'; return; }
+
+  dd.style.display='block';
+  dd.innerHTML = matches.slice(0,14).map(c=>`
+    <div class="cl-dd-item" onmousedown="CLselect(event,'${c.label.replace(/'/g,"\'")}','${c.mobile.replace(/'/g,"\'")}','${(c.email||'').replace(/'/g,"\'")}','${c.type}')">
+      <div>
+        <div class="cl-dd-name">${c.label}</div>
+        ${c.sub?`<div class="cl-dd-sub">${c.sub}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        ${c.mobile?`<span style="font-size:10px;color:var(--muted)">${c.mobile}</span>`:''}
+        ${c.type?`<span class="cl-dd-badge" style="background:${c.type==='Ltd'?'var(--blue-light)':'var(--purple-light)'};color:${c.type==='Ltd'?'var(--blue)':'var(--purple)'}">${c.type}</span>`:''}
+      </div>
+    </div>`).join('');
 }
+
+function CLselect(e, name, mobile, email, type) {
+  e.preventDefault();
+  document.getElementById('bk-client').value = name;
+  if(mobile) document.getElementById('bk-mobile').value = mobile;
+  if(email) document.getElementById('bk-email').value = email;
+  const badge = document.getElementById('bk-client-type-badge');
+  if(type){ badge.style.display='block'; badge.textContent = '✓ Matched from '+( type==='Ltd'?'Ltd client list':'SA client list'); }
+  document.getElementById('cl-dropdown').style.display='none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#bk-client') && !e.target.closest('#cl-dropdown'))
+    document.getElementById('cl-dropdown').style.display='none';
+});
 
 function onServiceChange() {
   const sel = document.getElementById('bk-service');
@@ -880,7 +977,58 @@ async function deleteSvc(){
   if(el){el.style.color=STAFF_COLORS[s];el.style.borderColor=STAFF_COLORS[s];}
 });
 
-loadAll();
+// ── SEED DEFAULT SERVICES ─────────────────────────────────────────────────
+const DEFAULT_SERVICES = [
+  // Meetings & Consultations
+  {name:'Initial Consultation with Asad',duration_mins:30,buffer_mins:10,price:0,staff:'Asad',color:'#155FA0'},
+  {name:'Ltd Company Appointment with Asad',duration_mins:20,buffer_mins:10,price:0,staff:'Asad',color:'#155FA0'},
+  {name:'Self Employed Tax Return with Asad',duration_mins:20,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0'},
+  {name:'New Ltd Company Registration — Initial Consultation',duration_mins:30,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0'},
+  // Hassan
+  {name:'Ltd Bookkeeping Appointment with Hassan',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47'},
+  {name:'VAT Appointment with Hassan',duration_mins:20,buffer_mins:10,price:0,staff:'Hassan',color:'#1D7A47'},
+  // Aminul
+  {name:'Self Employed Bookkeeping Drop with Aminul',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#6D28D9'},
+  {name:'New SE Client Registration with Aminul',duration_mins:30,buffer_mins:10,price:180,staff:'Aminul',color:'#6D28D9'},
+  {name:'Payroll Query with Aminul',duration_mins:20,buffer_mins:10,price:0,staff:'Aminul',color:'#6D28D9'},
+  // Nawaz
+  {name:'New SE Client Registration with Nawaz',duration_mins:30,buffer_mins:10,price:180,staff:'Nawaz',color:'#C07A00'},
+  {name:'Self Employed Bookkeeping Drop with Nawaz',duration_mins:20,buffer_mins:10,price:0,staff:'Nawaz',color:'#C07A00'},
+  {name:'Universal Credit Appointment with Nawaz',duration_mins:10,buffer_mins:10,price:10,staff:'Nawaz',color:'#C07A00'},
+  // Set up services
+  {name:'Personal UTR Set Up',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
+  {name:'Payroll Registration',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
+  {name:'VAT Registration',duration_mins:20,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
+  {name:'Limited Company Set Up & UTR',duration_mins:30,buffer_mins:10,price:180,staff:'Asad',color:'#155FA0'},
+  // Admin
+  {name:'Accountant Certificate / Reference',duration_mins:15,buffer_mins:5,price:50,staff:'Asad',color:'#D04A02'},
+  {name:'Confirmation Statement',duration_mins:15,buffer_mins:5,price:84,staff:'Hassan',color:'#1D7A47'},
+  {name:'Company Dissolution DS01',duration_mins:20,buffer_mins:10,price:40,staff:'Asad',color:'#155FA0'},
+  {name:'SA302 / Tax Overview',duration_mins:10,buffer_mins:5,price:0,staff:'',color:'#6B7280'},
+  {name:'Auto Enrolment Registration',duration_mins:30,buffer_mins:10,price:400,staff:'Aminul',color:'#6D28D9'},
+  {name:'Business Plan',duration_mins:60,buffer_mins:10,price:300,staff:'Asad',color:'#155FA0'},
+  {name:'Registered Address Service',duration_mins:10,buffer_mins:5,price:75,staff:'',color:'#6B7280'},
+];
+
+async function seedServicesIfEmpty() {
+  if(ALL_SVCS.length > 0) return; // Already have services
+  try {
+    const res = await fetch(SB+'/rest/v1/appointment_services', {
+      method:'POST',
+      headers:{...H,'Prefer':'return=minimal'},
+      body: JSON.stringify(DEFAULT_SERVICES)
+    });
+    if(res.ok) {
+      const fresh = await fetch(SB+'/rest/v1/appointment_services?select=*&order=name.asc',{headers:H}).then(r=>r.json());
+      ALL_SVCS = Array.isArray(fresh) ? fresh : [];
+      populateServiceDropdown();
+      toast('Services loaded ✓');
+    }
+  } catch(e) { console.log('Seed skipped:', e.message); }
+}
+
+async function initApp(){ await loadAll(); await seedServicesIfEmpty(); renderCurrentView(); }
+initApp();
 </script>
 </body>
 </html>
