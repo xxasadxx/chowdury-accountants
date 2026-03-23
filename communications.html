@@ -154,6 +154,7 @@ select:focus{border-color:var(--blue)}
   <a href="staff-management.html">👥 Staff</a>
   <a href="onboarding.html">🆕 Onboarding</a>
   <a href="communications.html" class="active">💬 Comms</a>
+  <a href="calendar.html">📅 Calendar</a>
   <a href="strategic-review.html">📊 Strategy</a>
   <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
 </div>
@@ -329,6 +330,7 @@ select:focus{border-color:var(--blue)}
   <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex">
     <div class="page-tab active" id="gtab-compose" onclick="setGreetView('compose')" style="font-size:11px;padding:8px 14px">&#x2709;&#xFE0F; Compose &amp; Send</div>
     <div class="page-tab" id="gtab-log" onclick="setGreetView('log')" style="font-size:11px;padding:8px 14px">&#x1F4CB; Sent Log</div>
+    <div class="page-tab" id="gtab-bday" onclick="setGreetView('bday')" style="font-size:11px;padding:8px 14px">&#x1F382; Birthdays</div>
   </div>
   <div id="gview-compose">
     <div class="greet-main">
@@ -390,6 +392,49 @@ select:focus{border-color:var(--blue)}
         <button class="btn-wa" onclick="G_openFirstWA()">&#x1F4AC; Open in WhatsApp</button>
       </div>
     </div>
+  </div>
+
+  <!-- BIRTHDAY VIEW -->
+  <div id="gview-bday" style="display:none;padding:20px 24px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="font-family:var(--display);font-size:16px;font-weight:700">&#x1F382; Director Birthdays</div>
+      <div style="display:flex;gap:6px;margin-left:auto;flex-wrap:wrap">
+        <button class="greet-filt on" id="bf-today" onclick="B_setFilter('today')">Today</button>
+        <button class="greet-filt" id="bf-week" onclick="B_setFilter('week')">This Week</button>
+        <button class="greet-filt" id="bf-month" onclick="B_setFilter('month')">This Month</button>
+        <button class="greet-filt" id="bf-all" onclick="B_setFilter('all')">All</button>
+        <button class="greet-filt" id="bf-missing" onclick="B_setFilter('missing')">Missing DOB</button>
+      </div>
+      <input style="padding:5px 10px;border:1px solid var(--border2);border-radius:6px;font-size:11px;width:180px;outline:none;font-family:var(--sans)" id="b-srch" placeholder="Search..." oninput="B_render()">
+    </div>
+    <!-- Stats strip -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <div class="kpi" style="flex:none;min-width:90px"><div class="k">Today</div><div class="v" id="bk-today" style="color:var(--red);font-size:18px">—</div></div>
+      <div class="kpi" style="flex:none;min-width:90px"><div class="k">This Week</div><div class="v" id="bk-week" style="color:var(--amber);font-size:18px">—</div></div>
+      <div class="kpi" style="flex:none;min-width:90px"><div class="k">This Month</div><div class="v" id="bk-month" style="color:var(--blue);font-size:18px">—</div></div>
+      <div class="kpi" style="flex:none;min-width:90px"><div class="k">Have DOB</div><div class="v" id="bk-hasdob" style="color:var(--green);font-size:18px">—</div></div>
+      <div class="kpi" style="flex:none;min-width:90px"><div class="k">Missing DOB</div><div class="v" id="bk-missdob" style="color:var(--muted);font-size:18px">—</div></div>
+    </div>
+    <!-- Template -->
+    <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;margin-bottom:16px">
+      <div>
+        <div class="lbl">Birthday Message Template</div>
+        <textarea id="b-msg-tpl" rows="5" oninput="B_updatePreview()" style="width:100%;border:1px solid var(--border2);border-radius:7px;padding:9px 12px;font-size:12px;resize:vertical;font-family:var(--sans);color:var(--ink);background:#fff;outline:none"></textarea>
+        <div style="margin-top:5px;display:flex;gap:6px">
+          <button class="btn btn-sm btn-secondary" onclick="B_insertVar('{name}')">+ {name}</button>
+          <button class="btn btn-sm btn-secondary" onclick="B_insertVar('{company}')">+ {company}</button>
+        </div>
+      </div>
+      <div>
+        <div class="lbl">Preview</div>
+        <div class="greet-bubble" id="b-preview" style="min-height:80px;font-size:11px">—</div>
+      </div>
+    </div>
+    <!-- Client list -->
+    <div class="cl-table" id="b-client-list">
+      <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading...</div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px">Click &#x1F4AC; to open WhatsApp with birthday message pre-filled</div>
   </div>
   <div id="gview-log" style="display:none;padding:20px 24px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -1428,9 +1473,12 @@ function G_renderLog(){
 function setGreetView(v){
   document.getElementById('gview-compose').style.display=v==='compose'?'block':'none';
   document.getElementById('gview-log').style.display=v==='log'?'block':'none';
+  document.getElementById('gview-bday').style.display=v==='bday'?'block':'none';
   document.getElementById('gtab-compose').classList.toggle('active',v==='compose');
   document.getElementById('gtab-log').classList.toggle('active',v==='log');
+  document.getElementById('gtab-bday').classList.toggle('active',v==='bday');
   if(v==='log')G_renderLog();
+  if(v==='bday')B_init();
 }
 
 async function G_runImport(){
@@ -1449,6 +1497,215 @@ async function G_runImport(){
   btn.textContent='▶ Re-import Mobiles';btn.disabled=false;
   toast(fail?`${done} updated, ${fail} failed`:'All mobiles updated ✓',fail?'err':'ok');
 }
+
+// ═══ BIRTHDAY MODULE ═══
+const B_TPL_DEFAULT = `Dear {name},
+
+Wishing you a very Happy Birthday! 🎂🎉
+
+We hope you have a wonderful day filled with joy and celebrations.
+
+Best wishes,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+
+let B_ALL = [], B_filter = 'today', B_inited = false;
+
+function B_daysUntil(dobStr) {
+  if (!dobStr) return null;
+  const p = dobStr.split('/');
+  if (p.length < 2) return null;
+  try {
+    const d = parseInt(p[0]), m = parseInt(p[1]) - 1;
+    const today = new Date(); today.setHours(0,0,0,0);
+    let bd = new Date(today.getFullYear(), m, d);
+    if (bd < today) bd = new Date(today.getFullYear()+1, m, d);
+    return Math.round((bd - today) / 86400000);
+  } catch(e) { return null; }
+}
+
+function B_isBirthday(dobStr, filter) {
+  const days = B_daysUntil(dobStr);
+  if (days === null) return filter === 'missing';
+  if (filter === 'missing') return false;
+  if (filter === 'today') return days === 0;
+  if (filter === 'week') return days <= 6;
+  if (filter === 'month') return days <= 30;
+  return true; // 'all'
+}
+
+function B_formatDOB(dobStr) {
+  if (!dobStr) return '';
+  const p = dobStr.split('/');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  try { return `${parseInt(p[0])} ${months[parseInt(p[1])-1]}`; } catch(e) { return dobStr; }
+}
+
+function B_age(dobStr) {
+  if (!dobStr) return '';
+  const p = dobStr.split('/');
+  try {
+    const year = parseInt(p[2]);
+    if (!year) return '';
+    const today = new Date();
+    const age = today.getFullYear() - year;
+    return age;
+  } catch(e) { return ''; }
+}
+
+function B_urgencyBadge(days) {
+  if (days === 0) return '<span class="badge" style="background:#fee2e2;color:#dc2626;font-size:10px">🎂 Today!</span>';
+  if (days <= 3) return '<span class="badge" style="background:#fef3dc;color:#c07a00;font-size:10px">'+days+'d away</span>';
+  if (days <= 7) return '<span class="badge" style="background:#e5eff8;color:#155fa0;font-size:10px">'+days+'d away</span>';
+  if (days <= 30) return '<span class="badge" style="background:#f0fdf4;color:#166534;font-size:10px">'+days+'d away</span>';
+  return '<span style="font-size:10px;color:var(--muted)">'+days+'d away</span>';
+}
+
+function B_getGreetingName(directorName) {
+  const raw = (directorName||'').trim();
+  if (!raw) return 'Director';
+  const parts = raw.split(/\s+/).filter(Boolean);
+  const surname = parts[parts.length-1];
+  return 'Mr ' + surname.charAt(0).toUpperCase() + surname.slice(1).toLowerCase();
+}
+
+async function B_init() {
+  if (B_inited && B_ALL.length) { B_render(); return; }
+  // Load from seed JSONs (already cached in window if G_ALL loaded, else fetch)
+  if (G_ALL.length) {
+    // G_ALL has ltd clients — but we need DOB which isn't in G_ALL
+    // Fetch seed files for DOB data
+  }
+  document.getElementById('b-client-list').innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading birthday data...</div>';
+  
+  // Set default template
+  if (!document.getElementById('b-msg-tpl').value) {
+    document.getElementById('b-msg-tpl').value = B_TPL_DEFAULT;
+  }
+
+  try {
+    // Fetch all seed files for full client data including DOB
+    const seeds = await Promise.all([0,1,2,3,4,5,6].map(i =>
+      fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])
+    ));
+    const allLtd = seeds.flat().filter(c => c.status === 'active');
+    B_ALL = allLtd.map(c => ({
+      id: 'ltd_'+c.comp_no,
+      type: 'ltd',
+      company: c.name || '',
+      director: c.director_name || '',
+      mobile: c.director_mobile || '',
+      dob: c.director_dob || ''
+    }));
+
+    // Also try SA clients from Supabase
+    try {
+      const se = await fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,dob&status=eq.active&limit=1000',{headers:H}).then(r=>r.json());
+      if (Array.isArray(se)) {
+        se.forEach(c => B_ALL.push({
+          id: 'se_'+c.id, type: 'se',
+          company: c.full_name||'', director: c.full_name||'',
+          mobile: c.mobile||'', dob: c.dob||''
+        }));
+      }
+    } catch(e) {}
+
+    B_inited = true;
+    B_renderStats();
+    B_render();
+    B_updatePreview();
+  } catch(e) {
+    document.getElementById('b-client-list').innerHTML = '<div style="padding:16px;color:var(--red);font-size:12px">Failed to load: '+e.message+'</div>';
+  }
+}
+
+function B_renderStats() {
+  const withDob = B_ALL.filter(c => c.dob.trim());
+  document.getElementById('bk-today').textContent = withDob.filter(c => B_daysUntil(c.dob) === 0).length;
+  document.getElementById('bk-week').textContent = withDob.filter(c => { const d=B_daysUntil(c.dob); return d!==null&&d<=6; }).length;
+  document.getElementById('bk-month').textContent = withDob.filter(c => { const d=B_daysUntil(c.dob); return d!==null&&d<=30; }).length;
+  document.getElementById('bk-hasdob').textContent = withDob.length;
+  document.getElementById('bk-missdob').textContent = B_ALL.length - withDob.length;
+}
+
+function B_render() {
+  const q = (document.getElementById('b-srch').value||'').toLowerCase();
+  let list = B_ALL.filter(c => {
+    if (q && !c.company.toLowerCase().includes(q) && !c.director.toLowerCase().includes(q)) return false;
+    return B_isBirthday(c.dob, B_filter);
+  });
+
+  // Sort: missing DOB filter → alphabetical; else by days until birthday
+  if (B_filter === 'missing') {
+    list.sort((a,b) => a.company.localeCompare(b.company));
+  } else {
+    list.sort((a,b) => {
+      const da = B_daysUntil(a.dob) ?? 999;
+      const db = B_daysUntil(b.dob) ?? 999;
+      return da - db;
+    });
+  }
+
+  if (!list.length) {
+    const msg = B_filter==='today' ? 'No birthdays today 🎂' :
+                B_filter==='week'  ? 'No birthdays this week' :
+                B_filter==='month' ? 'No birthdays this month' :
+                B_filter==='missing' ? 'All clients have DOB recorded ✓' : 'No clients found';
+    document.getElementById('b-client-list').innerHTML = `<div style="padding:30px;text-align:center;color:var(--muted);font-size:13px">${msg}</div>`;
+    return;
+  }
+
+  const tpl = document.getElementById('b-msg-tpl').value;
+
+  let html = `<div class="cl-head" style="grid-template-columns:2fr 1.2fr 80px 70px 60px 80px">
+    <div>Company</div><div>Director</div><div>Birthday</div><div>Age</div><div>Days</div><div>Action</div>
+  </div>`;
+
+  html += list.map(c => {
+    const days = B_daysUntil(c.dob);
+    const greetName = B_getGreetingName(c.director);
+    const msg = tpl.replace(/{name}/g, greetName).replace(/{company}/g, c.company);
+    const mob = c.mobile.trim();
+    const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
+    const waHref = mob ? `https://wa.me/${uk}?text=${encodeURIComponent(msg)}` : '';
+    const age = B_age(c.dob);
+    const isToday = days === 0;
+    return `<div class="cl-row" style="grid-template-columns:2fr 1.2fr 80px 70px 60px 80px;${isToday?'background:#fff7f7;':''}">
+      <div style="font-weight:600;font-size:11px;font-family:var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.company}${isToday?' 🎂':''}</div>
+      <div style="font-size:11px;color:var(--ink2)">${c.director||'—'}</div>
+      <div style="font-size:11px;font-weight:600">${c.dob ? B_formatDOB(c.dob) : '<span style="color:var(--muted);font-style:italic;font-size:10px">missing</span>'}</div>
+      <div style="font-size:11px;color:var(--muted)">${age ? 'turns '+age : '—'}</div>
+      <div>${c.dob && days!==null ? B_urgencyBadge(days) : '—'}</div>
+      <div>${mob ? `<button class="btn-wa btn-sm" onclick="window.open('${waHref.replace(/'/g,"\\'")}','_blank')">💬 WA</button>` : '<span style="font-size:10px;color:var(--muted)">no mobile</span>'}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('b-client-list').innerHTML = html;
+}
+
+function B_updatePreview() {
+  const tpl = document.getElementById('b-msg-tpl').value;
+  const preview = tpl.replace(/{name}/g, 'Mr Rahman').replace(/{company}/g, 'Sample Restaurant Ltd');
+  document.getElementById('b-preview').textContent = preview;
+}
+
+function B_insertVar(v) {
+  const ta = document.getElementById('b-msg-tpl');
+  const s = ta.selectionStart;
+  ta.value = ta.value.slice(0,s) + v + ta.value.slice(ta.selectionEnd);
+  ta.selectionStart = ta.selectionEnd = s + v.length;
+  ta.focus(); B_updatePreview();
+}
+
+function B_setFilter(f) {
+  B_filter = f;
+  ['today','week','month','all','missing'].forEach(x => {
+    const el = document.getElementById('bf-'+x);
+    if (el) el.classList.toggle('on', x===f);
+  });
+  B_render();
+}
+
 </script>
 </body>
 </html>

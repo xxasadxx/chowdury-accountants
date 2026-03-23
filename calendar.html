@@ -1,0 +1,654 @@
+<!-- CA PORTAL v1773207034 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Calendar — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#FFFFFF;--text:#252525;--ink:#252525;--ink2:#4A4A4A;
+  --muted:#7A7A7A;--border:#DEDEDE;--border2:#D0D0D0;
+  --red:#D04A02;--red-light:#FCEEE8;--green:#1D7A47;--green-light:#E5F4EC;
+  --blue:#155FA0;--blue-light:#E5EFF8;--amber:#C07A00;--amber-light:#FEF3DC;
+  --purple:#6D28D9;--purple-light:#EDE9FE;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --radius:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+#portal-nav{background:#1a1a18;padding:0 20px;display:flex;align-items:center;gap:2px;font-size:12px;position:sticky;top:0;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,.2);flex-wrap:nowrap;height:44px;overflow-x:auto}
+#portal-nav::-webkit-scrollbar{height:3px}#portal-nav::-webkit-scrollbar-track{background:#1a1a18}#portal-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:2px}
+.nav-brand{display:flex;flex-direction:column;margin-right:14px;padding-right:14px;border-right:1px solid rgba(255,255,255,.1);flex-shrink:0}
+.nav-title{color:#c8963c;font-weight:700;font-size:12.5px;line-height:1.3;white-space:nowrap}
+.nav-sub{color:rgba(255,255,255,.3);font-size:9.5px;text-transform:uppercase;letter-spacing:.07em}
+#portal-nav a{color:rgba(255,255,255,.5);text-decoration:none;padding:5px 9px;border-radius:4px;transition:all .15s;white-space:nowrap;font-weight:500}
+#portal-nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+#portal-nav a.active{color:#fff;background:rgba(255,255,255,.13)}
+.nav-signout{margin-left:auto;color:rgba(255,255,255,.25)!important;flex-shrink:0}
+.nav-signout:hover{color:rgba(255,255,255,.6)!important}
+.page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.page-tabs{display:flex}
+.page-tab{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s}
+.page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+/* KPI */
+.kpi-row{display:flex;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:100px}
+.kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:22px;font-weight:700;margin:3px 0 1px;font-family:var(--display)}
+/* Toolbar */
+.toolbar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{padding:7px 13px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1a6b3e}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b83e01}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--ink2)}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:5px}
+.filt{padding:5px 11px;border-radius:6px;border:1px solid var(--border2);background:none;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;color:var(--ink2);transition:all .15s}
+.filt:hover,.filt.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.search-box{padding:6px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none}
+.search-box:focus{border-color:var(--blue)}
+/* Badge */
+.badge{display:inline-block;padding:2px 7px;border-radius:9px;font-size:9px;font-weight:700;white-space:nowrap}
+.badge-overdue{background:#fee2e2;color:#dc2626}
+.badge-today{background:#fef3dc;color:#c07a00}
+.badge-week{background:#dbeafe;color:#1e40af}
+.badge-month{background:#dcfce7;color:#166534}
+.badge-future{background:var(--border);color:var(--muted)}
+.badge-vat{background:#ede9fe;color:#6d28d9}
+.badge-accounts{background:#e5eff8;color:#155fa0}
+.badge-conf{background:#e5f4ec;color:#1d7a47}
+.badge-sa{background:#fef3dc;color:#c07a00}
+.badge-event{background:#f0f0f0;color:#444}
+.badge-holiday{background:#fce7f3;color:#9d174d}
+.badge-hmrc{background:#fee2e2;color:#dc2626}
+.badge-budget{background:#fef3dc;color:#c07a00}
+.badge-bday{background:#fdf4ff;color:#7e22ce}
+/* Main content */
+.cal-content{padding:20px 24px;max-width:1400px}
+/* Event list */
+.event-list{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.event-head{display:grid;grid-template-columns:90px 140px 1fr 120px 90px 100px;gap:10px;padding:8px 14px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.event-row{display:grid;grid-template-columns:90px 140px 1fr 120px 90px 100px;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s}
+.event-row:last-child{border-bottom:none}
+.event-row:hover{background:var(--bg)}
+.event-row.is-today{background:#fffbeb;border-left:3px solid var(--amber)}
+.event-row.is-overdue{background:#fff5f5;border-left:3px solid var(--red)}
+/* Day group header */
+.day-group{padding:8px 14px;background:var(--bg);border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--ink2);font-family:var(--display);display:flex;align-items:center;gap:8px}
+.day-group .day-count{font-size:10px;font-weight:400;color:var(--muted);font-family:var(--sans)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:flex;align-items:center;justify-content:center;display:none}
+.modal{background:#fff;border-radius:12px;padding:24px;width:480px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-family:var(--display);font-size:16px;font-weight:800;margin-bottom:16px}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--ink);background:#fff;outline:none}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue)}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
+/* Empty state */
+.empty-state{padding:40px;text-align:center;color:var(--muted);font-size:13px}
+/* Section heading */
+.section-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-hd h2{font-family:var(--display);font-size:15px;font-weight:700}
+</style>
+</head>
+<body>
+<div id="portal-nav">
+  <div class="nav-brand"><span class="nav-title">CA Chowdury Accountants</span><span class="nav-sub">Practice Portal</span></div>
+  <a href="index.html">🏠 Portal</a>
+  <a href="revenue-tracker.html">💰 Revenue</a>
+  <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+  <a href="vat-tracker.html">🟢 VAT</a>
+  <a href="paye-tracker.html">💼 PAYE</a>
+  <a href="sa-tracker.html">📋 SA</a>
+  <a href="ch-tracker.html">⚖️ CH Tracker</a>
+  <a href="staff-management.html">👥 Staff</a>
+  <a href="onboarding.html">🆕 Onboarding</a>
+  <a href="communications.html">💬 Comms</a>
+  <a href="calendar.html" class="active">📅 Calendar</a>
+  <a href="strategic-review.html">📊 Strategy</a>
+  <a href="login.html" class="nav-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+</div>
+
+<div class="page-header">
+  <h1>📅 Practice Calendar</h1>
+  <p>Client deadlines · Staff holidays · HMRC dates · Practice events</p>
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="setView('deadlines')">📋 Client Deadlines</div>
+    <div class="page-tab" onclick="setView('events')">🗓 Practice Events</div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row" id="kpi-row">
+  <div class="kpi"><div class="k">Overdue</div><div class="v" id="kpi-overdue" style="color:var(--red)">—</div></div>
+  <div class="kpi"><div class="k">Due Today</div><div class="v" id="kpi-today" style="color:var(--amber)">—</div></div>
+  <div class="kpi"><div class="k">Due This Week</div><div class="v" id="kpi-week" style="color:var(--blue)">—</div></div>
+  <div class="kpi"><div class="k">Due This Month</div><div class="v" id="kpi-month" style="color:var(--green)">—</div></div>
+  <div class="kpi"><div class="k">Events This Month</div><div class="v" id="kpi-events" style="color:var(--purple)">—</div></div>
+</div>
+
+<!-- ── DEADLINES VIEW ── -->
+<div id="view-deadlines" style="padding:20px 24px">
+  <div class="toolbar" style="margin-bottom:16px;padding:10px 0;background:none;border:none">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="filt on" id="df-all" onclick="D_setFilter('all')">All Upcoming</button>
+      <button class="filt" id="df-overdue" onclick="D_setFilter('overdue')">🔴 Overdue</button>
+      <button class="filt" id="df-today" onclick="D_setFilter('today')">Today</button>
+      <button class="filt" id="df-week" onclick="D_setFilter('week')">This Week</button>
+      <button class="filt" id="df-month" onclick="D_setFilter('month')">This Month</button>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-left:16px">
+      <button class="filt on" id="dt-vat" onclick="D_toggleType('vat')">🟣 VAT</button>
+      <button class="filt on" id="dt-accounts" onclick="D_toggleType('accounts')">🔵 Accounts</button>
+      <button class="filt on" id="dt-conf" onclick="D_toggleType('conf')">🟢 Conf. Statement</button>
+      <button class="filt on" id="dt-sa" onclick="D_toggleType('sa')">🟡 SA</button>
+      <button class="filt on" id="dt-bday" onclick="D_toggleType('bday')">🟣 Birthdays</button>
+    </div>
+    <input class="search-box" id="d-srch" placeholder="🔍 Search client..." oninput="D_render()" style="width:180px;margin-left:auto">
+  </div>
+
+  <div class="event-list" id="d-list">
+    <div class="empty-state">Loading deadlines...</div>
+  </div>
+</div>
+
+<!-- ── PRACTICE EVENTS VIEW ── -->
+<div id="view-events" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="filt on" id="ef-all" onclick="E_setFilter('all')">All</button>
+      <button class="filt" id="ef-upcoming" onclick="E_setFilter('upcoming')">Upcoming</button>
+      <button class="filt" id="ef-month" onclick="E_setFilter('month')">This Month</button>
+      <button class="filt" id="ef-holiday" onclick="E_setFilter('holiday')">Staff Holidays</button>
+      <button class="filt" id="ef-hmrc" onclick="E_setFilter('hmrc')">HMRC Dates</button>
+    </div>
+    <button class="btn btn-green" onclick="E_openModal()">+ Add Event</button>
+  </div>
+
+  <div class="event-list" id="e-list">
+    <div class="empty-state">Loading events...</div>
+  </div>
+</div>
+
+<!-- Add/Edit Event Modal -->
+<div class="modal-overlay" id="e-modal" onclick="if(event.target===this)E_closeModal()">
+  <div class="modal">
+    <h3 id="modal-title">➕ Add Practice Event</h3>
+    <div class="form-row">
+      <label>Event Title *</label>
+      <input id="ef-title" placeholder="e.g. Hassan holiday, Budget Day, VAT Filing Deadline">
+    </div>
+    <div class="form-row">
+      <label>Date *</label>
+      <input id="ef-date" type="date">
+    </div>
+    <div class="form-row">
+      <label>End Date (optional — for multi-day events)</label>
+      <input id="ef-enddate" type="date">
+    </div>
+    <div class="form-row">
+      <label>Category</label>
+      <select id="ef-cat">
+        <option value="holiday">🏖 Staff Holiday</option>
+        <option value="hmrc">🏛 HMRC / Tax Date</option>
+        <option value="budget">💰 Budget / Finance</option>
+        <option value="practice">🏢 Practice Event</option>
+        <option value="other">📌 Other</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Staff Member (if applicable)</label>
+      <select id="ef-staff">
+        <option value="">— All staff / N/A —</option>
+        <option>Asad</option>
+        <option>Hassan</option>
+        <option>Aminul</option>
+        <option>Nawaz</option>
+        <option>Sadat</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Notes</label>
+      <textarea id="ef-notes" rows="2" placeholder="Any additional details..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button class="btn btn-secondary" onclick="E_closeModal()">Cancel</button>
+      <button class="btn btn-red btn-sm" id="modal-delete" onclick="E_deleteEvent()" style="display:none">Delete</button>
+      <button class="btn btn-blue" onclick="E_saveEvent()">Save Event</button>
+    </div>
+    <input type="hidden" id="ef-edit-id" value="">
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="mobile_data.js"></script>
+<script>
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3200);}
+
+// ── DATE HELPERS ────────────────────────────────────────────────────────────
+function parseDate(str) {
+  if (!str) return null;
+  // DD/MM/YYYY
+  if (str.includes('/')) {
+    const p = str.split('/');
+    if (p.length === 3) return new Date(parseInt(p[2]), parseInt(p[1])-1, parseInt(p[0]));
+    if (p.length === 2) { // DD/MM — use current/next year
+      const today = new Date(); today.setHours(0,0,0,0);
+      let d = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0]));
+      if (d < today) d.setFullYear(d.getFullYear()+1);
+      return d;
+    }
+  }
+  // YYYY-MM-DD
+  if (str.includes('-') && str.length === 10) return new Date(str);
+  return null;
+}
+
+function daysFrom(date) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  if (!date) return null;
+  const d = new Date(date); d.setHours(0,0,0,0);
+  return Math.round((d - today) / 86400000);
+}
+
+function fmtDate(date) {
+  if (!date) return '—';
+  return date.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+}
+
+function urgencyBadge(days) {
+  if (days === null) return '<span class="badge badge-future">—</span>';
+  if (days < 0) return `<span class="badge badge-overdue">Overdue ${Math.abs(days)}d</span>`;
+  if (days === 0) return '<span class="badge badge-today">Due Today</span>';
+  if (days <= 7) return `<span class="badge badge-week">${days}d left</span>`;
+  if (days <= 30) return `<span class="badge badge-month">${days}d left</span>`;
+  return `<span class="badge badge-future">${days}d</span>`;
+}
+
+function groupByDate(items) {
+  const groups = {};
+  items.forEach(item => {
+    const key = item._dateKey || 'Unknown';
+    if (!groups[key]) groups[key] = {label: item._dateLabel, items: []};
+    groups[key].items.push(item);
+  });
+  return groups;
+}
+
+// ── DEADLINES ───────────────────────────────────────────────────────────────
+let D_ALL = [];
+let D_filter = 'all';
+let D_types = new Set(['vat','accounts','conf','sa','bday']);
+
+// Fixed HMRC SA deadlines
+const SA_DEADLINES = [
+  {name:'SA Tax Return Deadline', date:'31/01/2026', type:'sa', detail:'Online SA returns due'},
+  {name:'SA Payment on Account (Jul)', date:'31/07/2026', type:'sa', detail:'2nd payment on account'},
+  {name:'SA Tax Return Deadline', date:'31/01/2027', type:'sa', detail:'Online SA returns due'},
+  {name:'SA Payment on Account (Jul)', date:'31/07/2027', type:'sa', detail:'2nd payment on account'},
+];
+
+async function D_load() {
+  document.getElementById('d-list').innerHTML = '<div class="empty-state">Loading client deadlines...</div>';
+  try {
+    const seeds = await Promise.all([0,1,2,3,4,5,6].map(i =>
+      fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])
+    ));
+    const allLtd = seeds.flat().filter(c => c.status === 'active');
+
+    D_ALL = [];
+
+    allLtd.forEach(c => {
+      // Accounts due
+      if (c.accounts_due) {
+        const d = parseDate(c.accounts_due);
+        D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
+          type:'accounts', label:'Accounts Due', date:d, dateStr:c.accounts_due, detail:'Annual accounts & CT600'});
+      }
+      // Conf statement due
+      if (c.conf_due) {
+        const d = parseDate(c.conf_due);
+        D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
+          type:'conf', label:'Conf. Statement', date:d, dateStr:c.conf_due, detail:'Companies House confirmation'});
+      }
+      // VAT due (if set)
+      if (c.vat_due && c.vat_due.trim()) {
+        const d = parseDate(c.vat_due);
+        D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
+          type:'vat', label:'VAT Return', date:d, dateStr:c.vat_due, detail:'VAT return & payment due'});
+      }
+      // Birthdays
+      if (c.director_dob && c.director_dob.trim()) {
+        const p = c.director_dob.split('/');
+        if (p.length >= 2) {
+          const today = new Date(); today.setHours(0,0,0,0);
+          let bd = new Date(today.getFullYear(), parseInt(p[1])-1, parseInt(p[0]));
+          if (bd < today) bd = new Date(today.getFullYear()+1, parseInt(p[1])-1, parseInt(p[0]));
+          // Only show birthdays within next 60 days in this view
+          const days = Math.round((bd - today)/86400000);
+          if (days <= 60) {
+            D_ALL.push({company: c.name, director: c.director_name||'', mobile: c.director_mobile||'',
+              type:'bday', label:'Birthday 🎂', date:bd, dateStr:c.director_dob, detail:'Director birthday'});
+          }
+        }
+      }
+    });
+
+    // Add fixed SA deadlines
+    SA_DEADLINES.forEach(s => {
+      const d = parseDate(s.date);
+      D_ALL.push({company: s.name, director:'', mobile:'',
+        type:'sa', label:'SA Deadline', date:d, dateStr:s.date, detail:s.detail});
+    });
+
+    // Sort by date ascending
+    D_ALL.sort((a,b) => {
+      if (!a.date) return 1; if (!b.date) return -1;
+      return a.date - b.date;
+    });
+
+    D_renderStats();
+    D_render();
+  } catch(e) {
+    document.getElementById('d-list').innerHTML = `<div class="empty-state" style="color:var(--red)">Failed to load: ${e.message}</div>`;
+  }
+}
+
+function D_renderStats() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate()+7);
+  const monthEnd = new Date(today); monthEnd.setDate(monthEnd.getDate()+30);
+
+  document.getElementById('kpi-overdue').textContent = D_ALL.filter(d=>d.date&&d.date<today&&d.type!=='bday').length;
+  document.getElementById('kpi-today').textContent = D_ALL.filter(d=>{const days=daysFrom(d.date);return days===0;}).length;
+  document.getElementById('kpi-week').textContent = D_ALL.filter(d=>{const days=daysFrom(d.date);return days!==null&&days>0&&days<=7;}).length;
+  document.getElementById('kpi-month').textContent = D_ALL.filter(d=>{const days=daysFrom(d.date);return days!==null&&days>0&&days<=30;}).length;
+}
+
+function D_render() {
+  const q = (document.getElementById('d-srch').value||'').toLowerCase();
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  let list = D_ALL.filter(d => {
+    if (!D_types.has(d.type)) return false;
+    if (q && !d.company.toLowerCase().includes(q) && !d.director.toLowerCase().includes(q)) return false;
+    const days = daysFrom(d.date);
+    if (D_filter === 'overdue') return d.type!=='bday' && days !== null && days < 0;
+    if (D_filter === 'today') return days === 0;
+    if (D_filter === 'week') return days !== null && days >= 0 && days <= 7;
+    if (D_filter === 'month') return days !== null && days >= 0 && days <= 30;
+    // 'all' — show from 90 days ago onwards
+    return days === null || days >= -90;
+  });
+
+  if (!list.length) {
+    document.getElementById('d-list').innerHTML = '<div class="empty-state">No deadlines match the current filters</div>';
+    return;
+  }
+
+  // Group by date
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  // Build rows
+  let prevDateKey = null;
+  let html = `<div class="event-head"><div>Type</div><div>Date</div><div>Client / Event</div><div>Director</div><div>Status</div><div>Action</div></div>`;
+
+  list.forEach(d => {
+    const days = daysFrom(d.date);
+    const dateKey = d.date ? d.date.toISOString().slice(0,10) : 'no-date';
+    const isOverdue = days !== null && days < 0 && d.type !== 'bday';
+    const isToday = days === 0;
+    const isSa = d.type === 'sa';
+
+    // Day group header
+    if (dateKey !== prevDateKey) {
+      prevDateKey = dateKey;
+      let dayLabel = d.date ? `${DAYS[d.date.getDay()]} ${d.date.getDate()} ${MONTHS[d.date.getMonth()]} ${d.date.getFullYear()}` : 'Date unknown';
+      if (isToday) dayLabel = '🔔 Today — ' + dayLabel;
+      else if (days === 1) dayLabel = 'Tomorrow — ' + dayLabel;
+      else if (isOverdue) dayLabel = '⚠️ ' + dayLabel;
+      const itemsOnDay = list.filter(x => x.date && x.date.toISOString().slice(0,10) === dateKey).length;
+      html += `<div class="day-group${isToday?' is-today-group':''}" style="${isToday?'background:#fffbeb;':''}${isOverdue?'background:#fff5f5;':''}">${dayLabel} <span class="day-count">${itemsOnDay} item${itemsOnDay!==1?'s':''}</span></div>`;
+    }
+
+    const mob = d.mobile.trim();
+    const waBtn = mob && !isSa && d.type==='bday' ? (() => {
+      const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
+      const msg = encodeURIComponent(`Dear Director,\n\nWishing you a very Happy Birthday! 🎂🎉\n\nBest wishes,\nThe Chowdury Accountants Team\n📞 0161 222 4647`);
+      return `<a href="https://wa.me/${uk}?text=${msg}" target="_blank" class="btn btn-sm" style="background:#25D366;color:#fff;text-decoration:none;font-size:10px;padding:4px 8px;border-radius:5px">💬 WA</a>`;
+    })() : '';
+
+    html += `<div class="event-row${isToday?' is-today':''}${isOverdue?' is-overdue':''}">
+      <div><span class="badge badge-${d.type}">${d.type==='vat'?'VAT':d.type==='accounts'?'Accounts':d.type==='conf'?'Conf.':d.type==='sa'?'SA':d.type==='bday'?'Birthday':'—'}</span></div>
+      <div style="font-family:var(--mono);font-size:10px">${fmtDate(d.date)}</div>
+      <div style="font-weight:600;font-size:11px;font-family:var(--display)">${d.company}<br><span style="font-weight:400;font-size:10px;color:var(--muted);font-family:var(--sans)">${d.detail}</span></div>
+      <div style="font-size:10px;color:var(--ink2)">${d.director||'—'}</div>
+      <div>${urgencyBadge(days)}</div>
+      <div>${waBtn}</div>
+    </div>`;
+  });
+
+  document.getElementById('d-list').innerHTML = html;
+}
+
+function D_setFilter(f) {
+  D_filter = f;
+  ['all','overdue','today','week','month'].forEach(x => {
+    const el = document.getElementById('df-'+x);
+    if(el) el.classList.toggle('on', x===f);
+  });
+  D_render();
+}
+
+function D_toggleType(t) {
+  const el = document.getElementById('dt-'+t);
+  if (D_types.has(t)) { D_types.delete(t); el.classList.remove('on'); }
+  else { D_types.add(t); el.classList.add('on'); }
+  D_render();
+}
+
+// ── PRACTICE EVENTS ─────────────────────────────────────────────────────────
+const E_STORAGE_KEY = 'ca_practice_events';
+let E_ALL = [];
+let E_filter = 'all';
+let E_editId = null;
+
+// Pre-loaded HMRC fixed dates
+const HMRC_EVENTS = [
+  {id:'hmrc-1', title:'SA Tax Return Deadline (Online)', date:'2026-01-31', cat:'hmrc', staff:'', notes:'Self Assessment returns must be filed online'},
+  {id:'hmrc-2', title:'SA Payment on Account', date:'2026-07-31', cat:'hmrc', staff:'', notes:'Second payment on account due'},
+  {id:'hmrc-3', title:'SA Tax Return Deadline (Online)', date:'2027-01-31', cat:'hmrc', staff:'', notes:'Self Assessment returns must be filed online'},
+  {id:'hmrc-4', title:'VAT Quarter 1 (Group 1)', date:'2026-05-07', cat:'hmrc', staff:'Hassan', notes:'VAT due for Jan-Mar quarter'},
+  {id:'hmrc-5', title:'VAT Quarter 1 (Group 2)', date:'2026-06-07', cat:'hmrc', staff:'Hassan', notes:'VAT due for Feb-Apr quarter'},
+  {id:'hmrc-6', title:'VAT Quarter 1 (Group 3)', date:'2026-07-07', cat:'hmrc', staff:'Hassan', notes:'VAT due for Mar-May quarter'},
+  {id:'hmrc-7', title:'Spring Budget 2026', date:'2026-03-26', cat:'budget', staff:'', notes:'Government Spring Budget announcement'},
+  {id:'hmrc-8', title:'P60 Deadline', date:'2026-05-31', cat:'hmrc', staff:'Aminul', notes:'P60s must be issued to employees'},
+  {id:'hmrc-9', title:'P11D Deadline', date:'2026-07-06', cat:'hmrc', staff:'Aminul', notes:'Benefits in kind returns due'},
+  {id:'hmrc-10', title:'Corporation Tax Payment (9 months)', date:'2026-04-01', cat:'hmrc', staff:'Hassan', notes:'CT payment for companies with Dec 2025 year end'},
+];
+
+function E_load() {
+  // Load from localStorage
+  const stored = JSON.parse(localStorage.getItem(E_STORAGE_KEY)||'[]');
+  E_ALL = [...HMRC_EVENTS, ...stored];
+  // Sort by date
+  E_ALL.sort((a,b) => new Date(a.date) - new Date(b.date));
+  E_renderStats();
+  E_render();
+}
+
+function E_renderStats() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const monthEnd = new Date(today); monthEnd.setDate(monthEnd.getDate()+30);
+  document.getElementById('kpi-events').textContent = E_ALL.filter(e => {
+    const d = new Date(e.date);
+    return d >= today && d <= monthEnd;
+  }).length;
+}
+
+function E_render() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  let list = E_ALL.filter(e => {
+    const d = new Date(e.date);
+    const days = daysFrom(d);
+    if (E_filter === 'upcoming') return days !== null && days >= 0;
+    if (E_filter === 'month') return days !== null && days >= 0 && days <= 30;
+    if (E_filter === 'holiday') return e.cat === 'holiday';
+    if (E_filter === 'hmrc') return e.cat === 'hmrc' || e.cat === 'budget';
+    return true;
+  });
+
+  if (!list.length) {
+    document.getElementById('e-list').innerHTML = '<div class="empty-state">No events match the current filter.<br><button class="btn btn-green" style="margin-top:12px" onclick="E_openModal()">+ Add First Event</button></div>';
+    return;
+  }
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const DAYS_N = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const CAT_LABELS = {holiday:'🏖 Holiday', hmrc:'🏛 HMRC', budget:'💰 Budget', practice:'🏢 Practice', other:'📌 Other'};
+
+  let prevKey = null;
+  let html = `<div class="event-head" style="grid-template-columns:100px 130px 1fr 100px 80px 60px"><div>Category</div><div>Date</div><div>Event</div><div>Staff</div><div>Status</div><div>Edit</div></div>`;
+
+  list.forEach(e => {
+    const d = new Date(e.date);
+    const days = daysFrom(d);
+    const isToday = days === 0;
+    const isOverdue = days !== null && days < 0;
+    const dateKey = e.date;
+
+    if (dateKey !== prevKey) {
+      prevKey = dateKey;
+      let dayLabel = `${DAYS_N[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+      if (isToday) dayLabel = '🔔 Today — ' + dayLabel;
+      const itemsOnDay = list.filter(x => x.date === dateKey).length;
+      html += `<div class="day-group" style="${isToday?'background:#fffbeb;':''}${isOverdue?'background:#fff5f5;':''}">${dayLabel} <span class="day-count">${itemsOnDay} item${itemsOnDay!==1?'s':''}</span></div>`;
+    }
+
+    const isFixed = e.id && e.id.startsWith('hmrc-');
+    html += `<div class="event-row${isToday?' is-today':''}${isOverdue?' is-overdue':''}" style="grid-template-columns:100px 130px 1fr 100px 80px 60px">
+      <div><span class="badge badge-${e.cat||'event'}">${CAT_LABELS[e.cat||'other']||'📌 Other'}</span></div>
+      <div style="font-family:var(--mono);font-size:10px">${fmtDate(d)}${e.enddate?'<br><span style="color:var(--muted)">→ '+fmtDate(new Date(e.enddate))+'</span>':''}</div>
+      <div style="font-weight:600;font-size:11px;font-family:var(--display)">${e.title}${isFixed?'<span style="font-size:9px;color:var(--muted);font-weight:400;margin-left:6px">fixed</span>':''}<br>${e.notes?`<span style="font-weight:400;font-size:10px;color:var(--muted);font-family:var(--sans)">${e.notes}</span>`:''}</div>
+      <div style="font-size:11px;color:var(--ink2)">${e.staff||'—'}</div>
+      <div>${urgencyBadge(days)}</div>
+      <div>${isFixed ? '—' : `<button class="btn btn-sm btn-secondary" onclick="E_openModal('${e.id}')">Edit</button>`}</div>
+    </div>`;
+  });
+
+  document.getElementById('e-list').innerHTML = html;
+}
+
+function E_setFilter(f) {
+  E_filter = f;
+  ['all','upcoming','month','holiday','hmrc'].forEach(x => {
+    const el = document.getElementById('ef-'+x);
+    if(el) el.classList.toggle('on', x===f);
+  });
+  E_render();
+}
+
+function E_openModal(id) {
+  const modal = document.getElementById('e-modal');
+  modal.style.display = 'flex';
+  document.getElementById('ef-edit-id').value = '';
+  document.getElementById('modal-delete').style.display = 'none';
+  document.getElementById('modal-title').textContent = '➕ Add Practice Event';
+
+  if (id) {
+    const stored = JSON.parse(localStorage.getItem(E_STORAGE_KEY)||'[]');
+    const e = stored.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('ef-title').value = e.title||'';
+    document.getElementById('ef-date').value = e.date||'';
+    document.getElementById('ef-enddate').value = e.enddate||'';
+    document.getElementById('ef-cat').value = e.cat||'other';
+    document.getElementById('ef-staff').value = e.staff||'';
+    document.getElementById('ef-notes').value = e.notes||'';
+    document.getElementById('ef-edit-id').value = id;
+    document.getElementById('modal-delete').style.display = 'inline-flex';
+    document.getElementById('modal-title').textContent = '✏️ Edit Event';
+  } else {
+    document.getElementById('ef-title').value = '';
+    document.getElementById('ef-date').value = new Date().toISOString().slice(0,10);
+    document.getElementById('ef-enddate').value = '';
+    document.getElementById('ef-cat').value = 'holiday';
+    document.getElementById('ef-staff').value = '';
+    document.getElementById('ef-notes').value = '';
+  }
+}
+
+function E_closeModal() {
+  document.getElementById('e-modal').style.display = 'none';
+}
+
+function E_saveEvent() {
+  const title = document.getElementById('ef-title').value.trim();
+  const date = document.getElementById('ef-date').value;
+  if (!title) { toast('Please enter an event title','err'); return; }
+  if (!date) { toast('Please select a date','err'); return; }
+
+  const stored = JSON.parse(localStorage.getItem(E_STORAGE_KEY)||'[]');
+  const editId = document.getElementById('ef-edit-id').value;
+  const event = {
+    id: editId || 'ev-' + Date.now(),
+    title, date,
+    enddate: document.getElementById('ef-enddate').value || '',
+    cat: document.getElementById('ef-cat').value,
+    staff: document.getElementById('ef-staff').value,
+    notes: document.getElementById('ef-notes').value.trim()
+  };
+
+  if (editId) {
+    const idx = stored.findIndex(x => x.id === editId);
+    if (idx >= 0) stored[idx] = event; else stored.push(event);
+    toast('Event updated ✓');
+  } else {
+    stored.push(event);
+    toast('Event added ✓');
+  }
+
+  localStorage.setItem(E_STORAGE_KEY, JSON.stringify(stored));
+  E_closeModal();
+  E_load();
+}
+
+function E_deleteEvent() {
+  const editId = document.getElementById('ef-edit-id').value;
+  if (!editId) return;
+  if (!confirm('Delete this event?')) return;
+  const stored = JSON.parse(localStorage.getItem(E_STORAGE_KEY)||'[]');
+  localStorage.setItem(E_STORAGE_KEY, JSON.stringify(stored.filter(x => x.id !== editId)));
+  E_closeModal();
+  E_load();
+  toast('Event deleted');
+}
+
+// ── VIEW SWITCHER ─────────────────────────────────────────────────────────
+function setView(v) {
+  document.getElementById('view-deadlines').style.display = v==='deadlines'?'block':'none';
+  document.getElementById('view-events').style.display = v==='events'?'block':'none';
+  document.querySelectorAll('.page-tab').forEach((t,i) => t.classList.toggle('active', i===(v==='deadlines'?0:1)));
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+D_load();
+E_load();
+</script>
+</body>
+</html>
