@@ -1045,7 +1045,9 @@ function exportPDF() {
       <div style="font-size:13px;color:#666;margin-top:2px">${curStaff} — Activity Report — ${label}</div>
       <div style="font-size:12px;color:#666;margin-top:2px">Total: ${_lastActivities.length} activities · ${totalHrs.toFixed(2)} hours · Generated ${new Date().toLocaleDateString('en-GB')}</div>
       <hr style="margin:10px 0;border:none;border-top:1px solid #e2e6ef">
-    </div>
+    </div>`;
+  window.print();
+}
 
 // ═══ HR MODULE ═══
 const HR_ITEMS = [
