@@ -398,7 +398,7 @@ The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
 
-  sa: (client) => `Dear Client,
+  sa: (client) => { const greeting=getGreeting(client); return `Dear ${greeting},
 
 I hope this message finds you well.
 
@@ -417,7 +417,7 @@ If you have already provided your records for the tax year stated above, please 
 
 Kind regards,
 The Chowdury Accountants Team
-📞 0161 222 4647`,
+📞 0161 222 4647`; },
 
   payroll: (client) => {
     const greeting = getGreeting(client);
@@ -433,7 +433,7 @@ Best regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`;
   },
-  payment: (client) => `Hello,
+  payment: (client) => { const greeting=getGreeting(client); return `Dear ${greeting},
 
 I hope you are well.
 
@@ -443,9 +443,9 @@ If you have any queries regarding your invoice, please do not hesitate to contac
 
 Best regards,
 The Chowdury Accountants Team
-📞 0161 222 4647`,
+📞 0161 222 4647`; },
 
-  engagement: (client) => `Hello,
+  engagement: (client) => { const greeting=getGreeting(client); return `Dear ${greeting},
 
 I hope you are well.
 
@@ -453,7 +453,7 @@ We sent you a Letter of Engagement but have not yet received a signed copy. Coul
 
 Best regards,
 The Chowdury Accountants Team
-📞 0161 222 4647`,
+📞 0161 222 4647`; },
 
   mtd_quarterly: (client) => {
     const greeting = getGreeting(client);
