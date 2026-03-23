@@ -6,7 +6,7 @@
 <title>DB Migration Tool — Chowdury Accountants</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Segoe UI',system-ui,sans-serif;background:#f1f5f9;color:#1e2433;min-height:100vh}
+  body{padding-top:92px !important;font-family:'Segoe UI',system-ui,sans-serif;background:#f1f5f9;color:#1e2433;min-height:100vh}
   .header{background:#1e2433;color:white;padding:18px 28px;display:flex;align-items:center;gap:14px}
   .header h1{font-size:1.1rem;font-weight:700}
   .header span{font-size:0.8rem;opacity:0.6;margin-left:auto}
@@ -52,51 +52,55 @@
 #ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
 #ca-nav .ca-logo img{height:36px;width:auto;display:block}
 #ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
-#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:0;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;position:relative}
 #ca-nav .ca-links::-webkit-scrollbar{display:none}
-#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
-#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
-#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links>a,#ca-nav .ca-links .ca-drop-btn{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;font-family:'Mulish','DM Sans',sans-serif;line-height:1}
+#ca-nav .ca-links>a:hover,#ca-nav .ca-links .ca-drop-btn:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links>a.active,#ca-nav .ca-links .ca-drop-btn.active{color:#fff;border-bottom-color:#c8963c}
 #ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
-#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
-body{padding-top:92px !important}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b}
+#ca-nav .ca-dropdown{position:relative;display:inline-flex;align-items:stretch}
+#ca-nav .ca-dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:0 0 8px 8px;min-width:190px;z-index:100000;box-shadow:0 8px 24px rgba(0,0,0,.4);padding:4px 0}
+#ca-nav .ca-dropdown:hover .ca-dropdown-menu{display:block}
+#ca-nav .ca-dropdown-menu a{display:block;padding:9px 16px;font-size:0.76rem;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s;white-space:nowrap;border:none}
+#ca-nav .ca-dropdown-menu a:hover{color:#fff;background:rgba(200,150,60,.15)}
+#ca-nav .ca-dropdown-menu a.active{color:#c8963c;font-weight:700;background:rgba(200,150,60,.08)}
 </style>
 <div id="ca-nav">
   <div class="ca-band"></div>
   <div class="ca-top">
     <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
-    <span class="ca-date" id="ca-hdr-date"></span>
+    <div class="ca-date" id="ca-hdr-date"></div>
   </div>
-  <div class="ca-links" id="ca-links">
+  <div class="ca-links">
     <a href="index.html">🏠 Portal</a>
     <a href="revenue-tracker.html">💰 Revenue</a>
-    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
-    <a href="vat-tracker.html">🟢 VAT</a>
-    <a href="paye-tracker.html">💼 PAYE</a>
-    <a href="sa-tracker.html">📋 SA</a>
-    <a href="ch-tracker.html">⚖️ CH Tracker</a>
-    <a href="staff-management.html">👥 Staff</a>
-    <a href="appointments.html">📅 Appointments</a>
-    <a href="workflows.html">⚙️ Workflows</a>
-    <a href="onboarding.html">🆕 Onboarding</a>
+    <div class="ca-dropdown"><button class="ca-drop-btn">📊 Trackers &#9662;</button><div class="ca-dropdown-menu">
+        <a href="ltd-tracker.html">🏢 Ltd Companies</a>
+        <a href="vat-tracker.html">🟢 VAT Returns</a>
+        <a href="paye-tracker.html">💼 PAYE</a>
+        <a href="sa-tracker.html">📋 Self Assessment</a>
+        <a href="ch-tracker.html">⚖️ CH Tracker</a>
+      </div></div>
+    <div class="ca-dropdown"><button class="ca-drop-btn">📅 Schedule &#9662;</button><div class="ca-dropdown-menu">
+        <a href="appointments.html">📅 Appointments</a>
+        <a href="calendar.html">🗓 Calendar</a>
+      </div></div>
     <a href="communications.html">💬 Comms</a>
-    <a href="calendar.html">📅 Calendar</a>
-    <a href="strategic-review.html">📊 Strategy</a>
+    <div class="ca-dropdown"><button class="ca-drop-btn">👥 Team &#9662;</button><div class="ca-dropdown-menu">
+        <a href="staff-management.html">👤 Staff</a>
+        <a href="workflows.html">⚙️ Workflows</a>
+      </div></div>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="strategic-review.html">🚀 Strategy</a>
     <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
   </div>
 </div>
 <script>
-(function(){
-  var p=window.location.pathname.split('/').pop()||'index.html';
-  if(!p||p==='') p='index.html';
-  if(p.indexOf('.')===-1) p=p+'.html';
-  document.querySelectorAll('#ca-links a:not(.ca-signout)').forEach(function(a){
-    if(a.getAttribute('href')===p) a.classList.add('active');
-  });
-  var el=document.getElementById('ca-hdr-date');
-  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-})();
+(function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
 </script>
+
+
 
 <div class="header">
   <div>
