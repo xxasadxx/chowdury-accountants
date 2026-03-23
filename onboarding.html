@@ -769,61 +769,138 @@ function getClient(){return cid?CLIENTS.find(x=>x.id===cid):{};}
 function today(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
 
 function genEngagement(){
-  const c=getClient()||{};
-  const name=c.company_name||'[Company Name]';
-  const dir=c.director_name||'[Director Name]';
-  const ye=c.year_end||'[Year End]';
-  const svcs=c.services||[];
-  const lines=[];
-  if(svcs.includes('accounts'))lines.push('Annual Accounts');if(svcs.includes('bookkeeping'))lines.push('Bookkeeping');
-  if(svcs.includes('ct600'))lines.push('CT600 Corporation Tax Return');if(svcs.includes('vat'))lines.push('VAT Returns');
-  if(svcs.includes('payroll'))lines.push('Payroll');if(svcs.includes('sa'))lines.push('Self Assessment Tax Return');
-  if(svcs.includes('paye'))lines.push('PAYE');if(svcs.includes('confirmation'))lines.push('Confirmation Statement');
-  if(svcs.includes('registered'))lines.push('Registered Office Address');
-  document.getElementById('engagement-preview').textContent=`The Chowdury Accountants Ltd
-283 Featherstall Road North, Oldham, OL1 2NH
-Tel: 0161 222 4647 | info@chowduryaccountants.co.uk
+  const c=cid?CLIENTS.find(x=>x.id===cid):{};
+  const fname=c?c.director_name||'':'' ;
+  const firstName = fname && !/^director$/i.test(fname.trim()) ? fname : 'Client';
+  const name=(c&&c.company_name)||'[Company Name]';
+  const ye=(c&&c.year_end)||'[Year End]';
+  const svcs=(c&&c.services)||[];
+  const t=today();
 
-${today()}
+  // Build services list
+  const svcMap={accounts:'Annual Accounts',bookkeeping:'Bookkeeping',ct600:'Corporation Tax Return (CT600)',
+    vat:'VAT Returns',payroll:'Payroll & PAYE',sa:'Self Assessment Tax Return',paye:'PAYE',
+    confirmation:'Confirmation Statement',registered:'Registered Office Address'};
+  const svcLines=svcs.map(s=>svcMap[s]).filter(Boolean);
+  const servicesText=svcLines.length?svcLines.join('\n'):' To be confirmed';
 
-LETTER OF ENGAGEMENT
+  const hasAccounts=svcs.includes('accounts');
+  const hasBookkeeping=svcs.includes('bookkeeping');
+  const hasCT=svcs.includes('ct600');
+  const hasVAT=svcs.includes('vat');
+  const hasPayroll=svcs.includes('payroll')||svcs.includes('paye');
+  const hasCIS=false; // CIS not in services list currently
 
-Dear ${dir},
+  document.getElementById('engagement-preview').textContent=
+`LETTER OF ENGAGEMENT
+
+Dear ${firstName},
 
 This letter sets out the basis on which we provide services to your company (${name}), so as to avoid any misunderstandings.
 
 SERVICES BEING PROVIDED
-${lines.length?lines.map(s=>'• '+s).join('\n'):'• To be confirmed'}
+${servicesText}
 
 ANTI MONEY LAUNDERING LEGISLATION
-All accountants must comply with the Proceeds of Crime Act 2002, the Terrorism Act 2000 and the Money Laundering Regulations 2017. Before we can act for your company, we have to confirm the identity of the directors. If at any time we have grounds to suspect that crime is being committed, we are obliged to make a report to the National Crime Agency (NCA).
+All accountants must comply with the Proceeds of Crime Act 2002, the Terrorism Act 2000 and the Money Laundering Regulations 2017 (the "Anti Money Laundering Legislation"), which are intended to stop the activities of terrorists and other criminals by preventing them using accountancy services. If we do not comply with this legislation, we risk imprisonment.
+
+Before we can act for your company, we have to confirm the identity of the directors. At any time we may also need to obtain evidence confirming the identities of third parties, the source of any money or funding of property or other assets, and other matters.
+
+We assume that our clients are honest and law abiding. However, if at any time we have grounds to suspect that crime is being committed, we are obliged to make a report to the National Crime Agency (NCA). We are prohibited by the legislation from telling you that we have done this. In such circumstances, we cannot do any work for your company without consent from NCA.
+
+'Criminal property' is money, property, other assets, rights or any benefit derived from criminal activity. Activity is considered 'criminal' if it is a crime under UK law, no matter how trivial. Tax evasion is a criminal offence but an honest mistake is not.
+
+Disclaimer: We will not be liable for any loss suffered by you or any third party as a result of our compliance with the Anti Money Laundering Legislation or any UK law.
+
+CLIENT MONIES
+We may, from time to time, hold money on your behalf. Such money will be held in trust in a client bank account, separate from our funds. If there are grounds to suspect that any monies held in a client account are derived directly or indirectly from any criminal activity whatsoever, we may not release such monies until we receive permission to do so from NCA.
 
 FEES
-Our fees are computed on the basis of time spent on your affairs and the responsibility and skill involved. We may invoice you monthly by Direct Debit via GoCardless. Where invoices are not subject to direct debit, our terms are strictly 7 days net. If the company is unable to meet our fees, the directors will be personally, jointly and severally liable.
+Our fees are computed on the basis of time spent on your affairs and the responsibility and skill involved by the partners and staff of this firm. Unless otherwise agreed, our fees will be charged separately for each main class of work and will be billed at appropriate intervals during the course of the year.
 
-RESPONSIBILITIES OF DIRECTORS
-As director of ${name}, you are responsible for ensuring the company maintains proper accounting records. You undertake to provide all records within five months of the year end (${ye}) to avoid penalties.
+We may agree to invoice you monthly for a proportion of your fees payable on a monthly Direct Debit via GoCardless. If invoices are not subject to Direct Debit, our terms are strictly 7 days net. Interest will be charged on all overdue debts at the rate applicable under the Late Payment of Commercial Debts (Interest) Act 1998.
 
+Should you have any disagreement concerning a fee, this must be notified to us within 7 days of the invoice date. In the absence of such notification, you are deemed to have accepted the invoice.
+
+If this letter of engagement covers work for a limited company and the company is unable to meet our fees as and when they fall due then the company's directors will be personally, jointly and severally liable in respect of our outstanding fees.
+
+OWNERSHIP OF RECORDS
+In the event of non-payment of our fees, we may exercise a right of lien over the books and records in our possession and withhold the documents until such time as payment of our invoice is received in full.
+
+FILE DESTRUCTION
+Correspondence and other papers that we may hold older than 6 years will be destroyed unless you request their return in writing.
+
+CUSTOMER SERVICE
+We are committed to providing a high standard of customer service. We welcome suggestions on how our service to you could be improved. If you do need to complain, we will look into your complaint carefully and promptly and do all we can to address your concerns.
+
+THIRD PARTIES
+All accounts, statements and reports prepared by us are for your exclusive use within your business or to meet specific statutory responsibilities. No third party shall acquire any rights under this agreement.
+
+APPLICABLE LAW
+This engagement letter is governed by, and construed in accordance with, the law of England and Wales. Each party irrevocably waives any right it may have to object to any action being brought in Courts of the relevant jurisdiction.
+
+AGREEMENT OF TERMS
+Once agreed, this letter will remain effective from the date of signature until it is replaced. Either party may vary or terminate our authority to act for you at any time without penalty. Notice of termination must be given in writing.
+${hasAccounts?`
+────────────────────────────────────────
+ANNUAL ACCOUNTS – LIMITED COMPANIES
+
+As director of ${name}, under the Companies Acts you are responsible for ensuring that the company maintains proper accounting records. You undertake to keep records of sales invoices, purchase invoices, receipts and payments.
+
+A private company is usually required to file its accounts at Companies House within 9 months of the year end. In order to avoid this we will produce statutory accounts within the required period, provided all your records are complete and presented to us within five months of the year end.
+
+You have instructed us to prepare your financial statements for the year(s) ended ${ye} and subsequent years.
+
+We will prepare the company's accounts on the basis of the information provided to us, in accordance with the provisions of the Companies Act and related Accounting Standards.`:''}${hasBookkeeping?`
+────────────────────────────────────────
+BOOKKEEPING
+
+It is agreed that we should carry out bookkeeping services including: keeping records of receipts, payments and balances; reconciling balances monthly with bank statements; posting and balancing the purchase and sales ledgers; and completing postings to the nominal ledger.
+
+You are responsible for the detection of irregularities and fraud.`:''}${hasCT?`
+────────────────────────────────────────
+CORPORATION TAX
+
+We will prepare a computation for corporation tax purposes for ${ye} and all subsequent years, and prepare and file the corporation tax return (CT600) within 12 months of the year end.
+
+You are legally responsible for making correct returns and for payment of tax on time. We need to receive all relevant information within 5 months of the year end.`:''}${hasPayroll?`
+────────────────────────────────────────
+PAYROLL PREPARATION AND PAYE
+
+To prepare your payroll and RTI returns we will need: personal details of all employees; notification of new starters and leavers; all P45s received; hours worked, rates of pay, bonuses and pension deductions.
+
+Payroll returns must be received by HMRC on or before pay day, otherwise significant penalties may be charged.`:''}${hasVAT?`
+────────────────────────────────────────
+VAT RETURNS
+
+We will prepare and file your VAT returns. We will not be responsible for any penalties arising from late submission. However, we will endeavour to meet the relevant deadlines if we receive all VAT records within 14 days of the end of the VAT return period.
+
+You will ensure that valid VAT invoices are received for all payments where VAT is being reclaimed, and that the VAT rating of supplies is correct.`:''}
+────────────────────────────────────────
 DATA PROTECTION
-We will process your personal data in compliance with GDPR and UK Data Protection Laws. You are the Data Controller; we are the Data Processor for employee data. We have engaged AccountancyManager Limited as a sub-processor.
 
+In the provision of services to you, we are required to process your personal data and the personal data of your employees. Where we are processing your employees' personal data on your behalf, you are the Data Controller and we are the Data Processor.
+
+You consent to our appointment of AccountancyManager Limited (now BrightManager) as a third party processor of Protected Data.
+
+────────────────────────────────────────
 AGREEMENT
-This letter remains effective from the date of signature until replaced. Either party may terminate on written notice.
 
-Please confirm agreement by signing below.
+I confirm that I have read and understood the contents of this letter of engagement and agree that it accurately reflects the services that I have instructed you to provide to my limited company, ${name}.
 
-Yours sincerely,
+Signed: _______________________________    Date: _______________
 
-Md Asadul Chowdury
-Managing Director, The Chowdury Accountants Ltd
+Name (printed): ________________________
 
-────────────────────────────────────────────────
-CLIENT SIGNATURE
+Company: ${name}
 
-Name: _____________________________________________
-Signature: _________________________________________
-Date: _____________________________________________
-Company: ${name}`;
+────────────────────────────────────────
+The Chowdury Accountants Ltd
+283 Featherstall Road North, Oldham, OL1 2NH
+Tel: 0161 222 4647 | info@chowduryaccountants.co.uk
+Company Reg: 09441520 | VAT No: 403392620
+
+${t}`;
 }
 
 function genClearance(){
