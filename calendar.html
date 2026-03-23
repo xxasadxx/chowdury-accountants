@@ -431,37 +431,30 @@ function D_render() {
     const isBday = d.type==='bday';
     const isSa = d.type==='sa';
 
-    // Build WA message based on type
-    let waHref = '';
+    // Build action buttons
+    const greetName = bdayGreetName(d.director);
+    let waBtn = '<span style="opacity:.25;font-size:18px;padding:2px 4px">&#x1F4AC;</span>';
+    let emailBtn = '<span style="opacity:.25;font-size:18px;padding:2px 4px">&#x1F4E7;</span>';
+
     if (mob) {
       const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
-      let msg = '';
-      if (isBday) {
-        const greetName = bdayGreetName(d.director);
-        msg = `Dear ${greetName},\n\nWishing you a very Happy Birthday! 🎂🎉\n\nMay this special day bring you joy, happiness and all the success you deserve.\n\nBest wishes,\nThe Chowdury Accountants Team\n📞 0161 222 4647`;
-      } else {
-        const greetName = bdayGreetName(d.director);
-        msg = `Dear ${greetName},\n\nI hope you are well. I am writing regarding your ${d.label} for ${d.company}.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n📞 0161 222 4647`;
-      }
-      waHref = `https://wa.me/${uk}?text=${encodeURIComponent(msg)}`;
+      const waMsg = isBday
+        ? 'Dear ' + greetName + ',\n\nWishing you a very Happy Birthday! \u{1F382}\u{1F389}\n\nMay this special day bring you joy, happiness and all the success you deserve.\n\nBest wishes,\nThe Chowdury Accountants Team\n\u{1F4DE} 0161 222 4647'
+        : 'Dear ' + greetName + ',\n\nI hope you are well. I am writing regarding your ' + d.label + ' for ' + d.company + '.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n\u{1F4DE} 0161 222 4647';
+      const waUrl = 'https://wa.me/' + uk + '?text=' + encodeURIComponent(waMsg);
+      waBtn = '<a href="' + waUrl + '" target="_blank" title="Send WhatsApp" style="background:#25D366;color:#fff;text-decoration:none;border-radius:6px;padding:5px 9px;font-size:18px;line-height:1;display:inline-flex;align-items:center">&#x1F4AC;</a>';
     }
 
-    // Build email href
-    let emailHref = '';
     if (email) {
-      const greetName = bdayGreetName(d.director);
-      const subject = isBday ? `Happy Birthday from Chowdury Accountants` : `${d.label} — ${d.company}`;
-      const body = isBday
-        ? `Dear ${greetName},\n\nWishing you a very Happy Birthday! 🎂\n\nMay this special day bring you joy and success.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647`
-        : `Dear ${greetName},\n\nI hope you are well. I am writing regarding your ${d.label} for ${d.company}.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647`;
-      emailHref = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      const emailSubject = isBday ? 'Happy Birthday from Chowdury Accountants' : d.label + ' — ' + d.company;
+      const emailBody = isBday
+        ? 'Dear ' + greetName + ',\n\nWishing you a very Happy Birthday!\n\nMay this special day bring you joy and success.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647'
+        : 'Dear ' + greetName + ',\n\nI hope you are well. I am writing regarding your ' + d.label + ' for ' + d.company + '.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647';
+      const emailUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(emailSubject) + '&body=' + encodeURIComponent(emailBody);
+      emailBtn = '<a href="' + emailUrl + '" title="Send Email" style="background:#155fa0;color:#fff;text-decoration:none;border-radius:6px;padding:5px 9px;font-size:18px;line-height:1;display:inline-flex;align-items:center">&#x1F4E7;</a>';
     }
 
-    const actionBtns = `
-      <div style="display:flex;gap:5px;align-items:center">
-        ${waHref ? `<a href="${waHref}" target="_blank" title="Send WhatsApp" style="background:#25D366;color:#fff;text-decoration:none;border-radius:6px;padding:5px 8px;font-size:14px;line-height:1;display:inline-flex;align-items:center">💬</a>` : `<span style="opacity:.2;font-size:14px;padding:5px 8px">💬</span>`}
-        ${emailHref ? `<a href="${emailHref}" title="Send Email" style="background:#155fa0;color:#fff;text-decoration:none;border-radius:6px;padding:5px 8px;font-size:14px;line-height:1;display:inline-flex;align-items:center">📧</a>` : `<span style="opacity:.2;font-size:14px;padding:5px 8px">📧</span>`}
-      </div>`;
+    const actionBtns = '<div style="display:flex;gap:6px;align-items:center">' + waBtn + emailBtn + '</div>';
 
     html += `<div class="event-row${isToday?' is-today':''}${isOverdue?' is-overdue':''}" style="${isBday?'background:#fdf4ff;':''}">
       <div><span class="badge badge-${d.type}">${d.type==='vat'?'VAT':d.type==='accounts'?'Accounts':d.type==='conf'?'Conf.':d.type==='sa'?'SA':d.type==='bday'?'Birthday':'—'}</span></div>
