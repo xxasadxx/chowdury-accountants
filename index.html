@@ -1175,8 +1175,6 @@ async function sb(path) {
 
 async function loadStats() {
   // Date
-  document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('en-GB', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
-
   // Revenue tracker — correct table names from Supabase
   const [ddClients, soClients, pipeline] = await Promise.all([
     sb(encodeURIComponent('Gocardless tracker') + '?select=fee,status'),
@@ -1195,6 +1193,14 @@ async function loadStats() {
     const totalK = Math.floor(total / 1000);
     document.getElementById('dd-rev').textContent = '£' + totalK + 'k+ /mo';
     document.getElementById('stat-revenue').textContent = '£' + totalK + 'k+';
+    // Update MRR tile too
+    var mrrEl=document.getElementById('lt-mrr');
+    var mrrSub=document.getElementById('lt-mrr-sub');
+    if(mrrEl){mrrEl.textContent='£'+Math.round(ddRev).toLocaleString('en-GB');}
+    if(mrrSub){mrrSub.textContent='DD clients (active)';}
+    // Update active clients tile
+    var clEl=document.getElementById('lt-clients');
+    if(clEl){clEl.textContent=activeDD.length.toLocaleString();}
   } else {
     document.getElementById('stat-revenue').textContent = '—';
     document.getElementById('dd-rev').textContent = '—';
