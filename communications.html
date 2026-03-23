@@ -824,6 +824,7 @@ async function load(){
       const cn=String(c.comp_no).padStart(8,'0');
       const compName=seedNames[cn]||c.director_name||cn;
       return{id:'ltd_'+c.comp_no,ref:cn,type:'ltd',name:compName,company_name:compName,
+        director_name:c.director_name||'',
         mobile:c.director_mobile||'',email:c.director_email||'',
         accounts_ref_date:'',vat_stagger:c.vat_stagger||''};
     });
