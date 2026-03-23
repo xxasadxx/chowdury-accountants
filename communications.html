@@ -68,8 +68,8 @@ select{padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-f
 select:focus{border-color:var(--blue)}
 /* Client list */
 .cl-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
-.cl-head{display:grid;grid-template-columns:1fr 120px 70px 80px 130px;gap:8px;padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.cl-row{display:grid;grid-template-columns:1fr 120px 70px 80px 130px;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s}
+.cl-head{display:grid;grid-template-columns:2fr 130px 50px 70px 100px;gap:8px;padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.cl-row{display:grid;grid-template-columns:2fr 130px 50px 70px 100px;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s}
 .cl-row:last-child{border-bottom:none}
 .cl-row:hover{background:var(--blue-light)}
 .badge{display:inline-block;padding:1px 6px;border-radius:9px;font-size:9px;font-weight:700}
@@ -797,7 +797,7 @@ async function load(){
   try{
     const [ltd,se,logs] = await Promise.all([
       fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status,accounts_ref_date,vat_stagger&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()),
-      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
+      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,email,status&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
       fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H}).then(r=>r.json()).catch(()=>[])
     ]);
     // Get company names from seeds
@@ -805,9 +805,9 @@ async function load(){
     try{const seeds=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));seeds.flat().forEach(c=>{if(c.comp_no&&c.name)seedNames[String(c.comp_no).padStart(8,'0')]=c.name;});}catch(e){}
     const ltdArr=(Array.isArray(ltd)?ltd:[]).map(c=>{
       const cn=String(c.comp_no).padStart(8,'0');
-      return{id:'ltd_'+c.comp_no,ref:cn,type:'ltd',name:seedNames[cn]||c.director_name||cn,mobile:c.director_mobile||''};
+      return{id:'ltd_'+c.comp_no,ref:cn,type:'ltd',name:seedNames[cn]||c.director_name||cn,mobile:c.director_mobile||'',email:c.director_email||'',accounts_ref_date:c.accounts_ref_date||'',vat_stagger:c.vat_stagger||'',company_name:seedNames[cn]||cn};
     });
-    const seArr=(Array.isArray(se)?se:[]).map(c=>({id:'se_'+c.id,ref:String(c.id),type:'se',name:c.full_name||'Client',mobile:c.mobile||''}));
+    const seArr=(Array.isArray(se)?se:[]).map(c=>({id:'se_'+c.id,ref:String(c.id),type:'se',name:c.full_name||'Client',mobile:c.mobile||'',email:c.email||'',company_name:c.full_name||''}));
     ALL=[...ltdArr,...seArr];
     LOGS=Array.isArray(logs)?logs:[];
     renderStats();renderClients();
@@ -841,13 +841,24 @@ function renderClients(){
   document.getElementById('cl-body').innerHTML=list.slice(0,300).map(c=>{
     const lastMsg=LOGS.find(l=>l.client_ref===c.ref);
     const lastDate=lastMsg?new Date(lastMsg.sent_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}):'—';
-    const mob=c.mobile.trim();
-    return`<div class="cl-row" style="${mob?'cursor:pointer':'cursor:default;opacity:.6'}">
+    const mob=(c.mobile||'').trim();
+    const em=(c.email||'').trim();
+    const sid=c.id.replace(/"/g,'&quot;');
+    const sn=c.name.replace(/"/g,'&quot;');
+    return `<div class="cl-row">
       <div style="font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
-      <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${mob||'<span style="color:var(--red);font-style:italic">no mobile</span>'}</div>
+      <div style="font-size:10px">
+        ${mob?'<div style="font-family:var(--mono);color:var(--muted)">'+mob+'</div>':''}
+        ${em?'<div style="color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:120px" title="'+em+'">'+em+'</div>':''}
+        ${!mob&&!em?'<span style="color:var(--red);font-style:italic">no contact</span>':''}
+      </div>
       <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
       <div style="font-size:10px;color:var(--muted)">${lastDate}</div>
-      <div>${mob?`<button class="btn btn-sm" style="background:#25D366;color:#fff;border-radius:5px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;border:none" onclick="sendTo('${c.id}','${c.ref}','${c.name.replace(/'/g,"\\'")}','${mob}','${c.type}')">💬 Send</button>`:'—'}</div>
+      <div style="display:flex;gap:4px">
+        ${mob?'<button title="WhatsApp" style="background:#25D366;color:#fff;border:none;border-radius:5px;padding:5px 9px;font-size:13px;cursor:pointer" onclick="sendTo(\''+sid+'\',\''+c.ref+'\',\''+sn+'\',\''+mob.replace(/'/g,"\\'")+'\'\',\''+c.type+'\')">💬</button>':''}
+        ${em?'<button title="Email" style="background:var(--blue);color:#fff;border:none;border-radius:5px;padding:5px 9px;font-size:13px;cursor:pointer" onclick="emailTo(\''+sid+'\',\''+c.ref+'\',\''+sn+'\',\''+em.replace(/'/g,"\\'")+'\'\',\''+c.type+'\')">📧</button>':''}
+        ${!mob&&!em?'<span style="color:var(--muted);font-size:10px">—</span>':''}
+      </div>
     </div>`;
   }).join('');
 }
