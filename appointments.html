@@ -623,7 +623,7 @@ function renderCalendar() {
     document.getElementById('cal-title').textContent=MONTHS[mon.getMonth()]+' '+mon.getFullYear();
 
     const days=[]; for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
-    const hours=[]; for(let h=8;h<=18;h++) hours.push(h);
+    const hours=[]; for(let h=7;h<=20;h++) hours.push(h);
 
     let html=`<div class="week-grid">
       <div class="wh-spacer"></div>`;
@@ -637,7 +637,7 @@ function renderCalendar() {
       html+=`<div class="time-slot">${timeStr}</div>`;
       days.forEach(d=>{
         const ds=d.toISOString().slice(0,10);
-        const slotAppts=appts.filter(a=>a.appt_date===ds&&a.appt_time&&parseInt(a.appt_time)===h);
+        const slotAppts=appts.filter(a=>a.appt_date===ds&&a.appt_time&&parseInt(a.appt_time.split(':')[0])===h);
         html+=`<div class="appt-slot" onclick="openBookModalForDate('${ds}','${timeStr}')">`;
         slotAppts.forEach(a=>{
           const color=STAFF_COLORS[a.staff]||'#c8963c';
@@ -657,7 +657,7 @@ function renderCalendar() {
     const ds=calDate.toISOString().slice(0,10);
     document.getElementById('cal-title').textContent=DAYS[calDate.getDay()]+', '+calDate.getDate()+' '+MONTHS[calDate.getMonth()]+' '+calDate.getFullYear();
     const dayAppts=appts.filter(a=>a.appt_date===ds);
-    const hours=[]; for(let h=8;h<=18;h++) hours.push(h);
+    const hours=[]; for(let h=7;h<=20;h++) hours.push(h);
     const staffList=staffFilter==='all'?['Asad','Hassan','Aminul','Nawaz','Sadat']:[staffFilter];
 
     let html=`<div class="week-grid" style="grid-template-columns:60px repeat(${staffList.length},1fr)">
@@ -667,7 +667,7 @@ function renderCalendar() {
       const timeStr=String(h).padStart(2,'0')+':00';
       html+=`<div class="time-slot">${timeStr}</div>`;
       staffList.forEach(s=>{
-        const slotAppts=dayAppts.filter(a=>a.staff===s&&a.appt_time&&parseInt(a.appt_time)===h);
+        const slotAppts=dayAppts.filter(a=>a.staff===s&&a.appt_time&&parseInt(a.appt_time.split(':')[0])===h);
         const color=STAFF_COLORS[s]||'#c8963c';
         html+=`<div class="appt-slot" onclick="openBookModalForDate('${ds}','${timeStr}','${s}')">`;
         slotAppts.forEach(a=>{
