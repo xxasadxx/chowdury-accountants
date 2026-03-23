@@ -135,6 +135,7 @@ select:focus{border-color:var(--blue)}
         <div class="tpl-item active" id="tpl-vat" onclick="setTpl('vat')"><div class="tpl-name">📊 VAT Bookkeeping Request</div><div class="tpl-desc">Hassan's VAT records request</div></div>
         <div class="tpl-item" id="tpl-sa" onclick="setTpl('sa')"><div class="tpl-name">📝 SA Bookkeeping Request</div><div class="tpl-desc">Aminul's self assessment request</div></div>
         <div class="tpl-item" id="tpl-accounts" onclick="setTpl('accounts')"><div class="tpl-name">📁 Accounts Bookkeeping</div><div class="tpl-desc">Annual accounts records request</div></div>
+        <div class="tpl-item" id="tpl-payroll" onclick="setTpl('payroll')"><div class="tpl-name">💼 Payroll Records Request</div><div class="tpl-desc">Request payroll information</div></div>
         <div class="tpl-item" id="tpl-payment" onclick="setTpl('payment')"><div class="tpl-name">💳 Payment Reminder</div><div class="tpl-desc">Outstanding fees reminder</div></div>
         <div class="tpl-item" id="tpl-engagement" onclick="setTpl('engagement')"><div class="tpl-name">📄 Engagement Letter Chaser</div><div class="tpl-desc">Unsigned letter follow-up</div></div>
         <div class="tpl-item" id="tpl-meeting" onclick="setTpl('meeting')"><div class="tpl-name">📅 Meeting Reminder</div><div class="tpl-desc">Appointment reminder SMS/WhatsApp</div></div>
@@ -386,6 +387,21 @@ Kind regards,
 The Chowdury Accountants Team
 📞 0161 222 4647`,
 
+  payroll: (client) => {
+    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = name && name !== 'Client' ? name : 'Client';
+    return `Dear ${greeting},
+
+Please note, this is an automated message. If you have already sent us all the information requested below, then please ignore this message.
+
+Please could you provide us with your records, so that we can prepare payroll?
+
+You can send copies directly to this chat or by email at your earliest convenience.
+
+Best regards,
+The Chowdury Accountants Team
+📞 0161 222 4647`;
+  },
   payment: (client) => `Hello,
 
 I hope you are well.
