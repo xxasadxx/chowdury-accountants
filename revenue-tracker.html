@@ -77,7 +77,7 @@ header{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 2
 .ss.err{background:var(--red-light);color:var(--red);border-color:var(--red-border);}
 
 /* Tabs */
-.tabs{background:var(--bg);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:0;position:sticky;top:44px;z-index:99;}
+.tabs{background:var(--bg);border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:0;position:sticky;top:80px;z-index:99;}
 .tab{padding:12px 24px;font-size:0.83rem;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;color:var(--muted);transition:all .15s;}
 .tab:hover{color:var(--text2);}
 .tab.active{color:var(--accent);border-bottom-color:var(--accent);}
@@ -90,7 +90,7 @@ header{background:var(--bg);border-bottom:1px solid var(--border);padding:12px 2
 .panel{display:none;padding:20px 24px;max-width:1600px;margin:0 auto;}
 .panel.active{display:block;}
 
-.loading-overlay{position:fixed;inset:0;background:rgba(244,246,251,0.95);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.loading-overlay{position:fixed;top:80px;left:0;right:0;bottom:0;background:rgba(244,246,251,0.95);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
 .loading-overlay.hidden{display:none;}
 .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
