@@ -222,24 +222,24 @@ header h1 span { color: var(--blue); }
     <a href="index.html">🏠 Portal</a>
     <a href="revenue-tracker.html">💰 Revenue</a>
     <div class="ca-dropdown"><button class="ca-drop-btn">📊 Trackers &#9662;</button><div class="ca-dropdown-menu">
-        <a href="ltd-tracker.html" onclick="event.stopPropagation();window.location.assign('ltd-tracker.html');return false;">🏢 Ltd Companies</a>
-        <a href="vat-tracker.html" onclick="event.stopPropagation();window.location.assign('vat-tracker.html');return false;">🟢 VAT Returns</a>
-        <a href="paye-tracker.html" onclick="event.stopPropagation();window.location.assign('paye-tracker.html');return false;">💼 PAYE</a>
-        <a href="sa-tracker.html" onclick="event.stopPropagation();window.location.assign('sa-tracker.html');return false;">📋 Self Assessment</a>
-        <a href="ch-tracker.html" onclick="event.stopPropagation();window.location.assign('ch-tracker.html');return false;">⚖️ CH Tracker</a>
+        <a href="ltd-tracker.html">🏢 Ltd Companies</a>
+        <a href="vat-tracker.html">🟢 VAT Returns</a>
+        <a href="paye-tracker.html">💼 PAYE</a>
+        <a href="sa-tracker.html">📋 Self Assessment</a>
+        <a href="ch-tracker.html">⚖️ CH Tracker</a>
       </div></div>
     <div class="ca-dropdown"><button class="ca-drop-btn">📅 Schedule &#9662;</button><div class="ca-dropdown-menu">
-        <a href="appointments.html" onclick="event.stopPropagation();window.location.assign('appointments.html');return false;">📅 Appointments</a>
-        <a href="calendar.html" onclick="event.stopPropagation();window.location.assign('calendar.html');return false;">🗓 Calendar</a>
+        <a href="appointments.html">📅 Appointments</a>
+        <a href="calendar.html">🗓 Calendar</a>
       </div></div>
     <a href="communications.html">💬 Comms</a>
     <div class="ca-dropdown"><button class="ca-drop-btn active">👥 Team &#9662;</button><div class="ca-dropdown-menu">
-        <a href="staff-management.html" class="active" onclick="event.stopPropagation();window.location.assign('staff-management.html');return false;">👤 Staff</a>
-        <a href="workflows.html" onclick="event.stopPropagation();window.location.assign('workflows.html');return false;">⚙️ Workflows</a>
+        <a href="staff-management.html" class="active">👤 Staff</a>
+        <a href="workflows.html">⚙️ Workflows</a>
       </div></div>
     <a href="onboarding.html">🆕 Onboarding</a>
     <a href="strategic-review.html">🚀 Strategy</a>
-    <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+    <a href="login.html" class="ca-signout">Sign out</a>
   </div>
 </div>
 <script>
@@ -256,9 +256,6 @@ header h1 span { color: var(--blue); }
       document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
       if(!isOpen) dd.classList.add('open');
     });
-  });
-  document.addEventListener('click', function(){
-    document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
   });
 })();
 </script>
