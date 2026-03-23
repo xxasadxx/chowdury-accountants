@@ -796,26 +796,53 @@ function getTplKey(body){
 let ALL=[], LOGS=[], currentTpl='vat';
 
 async function load(){
+  document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px">Loading clients…</div>';
   try{
-    const [ltd,se,logs] = await Promise.all([
-      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status,accounts_ref_date,vat_stagger&limit=1000',{headers:H}).then(r=>r.json()),
-      fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,email,status&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]),
-      fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H}).then(r=>r.json()).catch(()=>[])
-    ]);
+    // Fetch ltd clients
+    const ltdRes = await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_name,director_mobile,director_email,status,accounts_ref_date,vat_stagger&limit=1000',{headers:H});
+    const ltd = await ltdRes.json();
+
+    // Fetch logs
+    const logsRes = await fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H});
+    const logs = await logsRes.json().catch(()=>[]);
+
+    // Debug: show what we got
+    if(!Array.isArray(ltd)){
+      document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">⚠️ Supabase error: '+JSON.stringify(ltd).slice(0,200)+'</div>';
+      return;
+    }
+
     // Get company names from seeds
     let seedNames={};
-    try{const seeds=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));seeds.flat().forEach(c=>{if(c.comp_no&&c.name)seedNames[String(c.comp_no).padStart(8,'0')]=c.name;});}catch(e){}
-    const ltdArr=(Array.isArray(ltd)?ltd:[]).map(c=>{
+    try{
+      const seeds=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])));
+      seeds.flat().forEach(s=>{if(s.comp_no&&s.name)seedNames[String(s.comp_no).padStart(8,'0')]=s.name;});
+    }catch(e){console.warn('Seed load error',e);}
+
+    const ltdArr=ltd.filter(c=>c.comp_no).map(c=>{
       const cn=String(c.comp_no).padStart(8,'0');
-      return{id:'ltd_'+c.comp_no,ref:cn,type:'ltd',name:seedNames[cn]||c.director_name||cn,mobile:c.director_mobile||'',email:c.director_email||'',accounts_ref_date:c.accounts_ref_date||'',vat_stagger:c.vat_stagger||'',company_name:seedNames[cn]||cn};
+      const compName=seedNames[cn]||c.director_name||cn;
+      return{id:'ltd_'+c.comp_no,ref:cn,type:'ltd',name:compName,company_name:compName,
+        mobile:c.director_mobile||'',email:c.director_email||'',
+        accounts_ref_date:c.accounts_ref_date||'',vat_stagger:c.vat_stagger||''};
     });
-    const seArr=(Array.isArray(se)?se:[]).map(c=>({id:'se_'+c.id,ref:String(c.id),type:'se',name:c.full_name||'Client',mobile:c.mobile||'',email:c.email||'',company_name:c.full_name||''}));
+
+    // Fetch SE clients
+    let seArr=[];
+    try{
+      const seRes=await fetch(SB+'/rest/v1/sa_clients?select=id,full_name,mobile,email,status&limit=1000',{headers:H});
+      const se=await seRes.json();
+      if(Array.isArray(se)) seArr=se.map(c=>({id:'se_'+c.id,ref:String(c.id),type:'se',name:c.full_name||'Client',company_name:c.full_name||'',mobile:c.mobile||'',email:c.email||'',accounts_ref_date:'',vat_stagger:''}));
+    }catch(e){console.warn('SE load error',e);}
+
     ALL=[...ltdArr,...seArr];
     LOGS=Array.isArray(logs)?logs:[];
+    console.log('Loaded',ltdArr.length,'Ltd +',seArr.length,'SE =',ALL.length,'total');
     renderStats();renderClients();
     setTpl('vat');
   }catch(e){
-    document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">Failed to load: '+e.message+'</div>';
+    document.getElementById('cl-body').innerHTML='<div style="padding:16px;color:var(--red);font-size:12px">❌ Load error: '+e.message+'</div>';
+    console.error('Load error',e);
   }
 }
 
