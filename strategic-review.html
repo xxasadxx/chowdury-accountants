@@ -629,6 +629,9 @@
 #ca-nav .ca-dropdown-menu a{display:block;padding:9px 16px;font-size:0.76rem;color:rgba(255,255,255,.6);text-decoration:none;transition:all .15s;white-space:nowrap;border:none}
 #ca-nav .ca-dropdown-menu a:hover{color:#fff;background:rgba(200,150,60,.15)}
 #ca-nav .ca-dropdown-menu a.active{color:#c8963c;font-weight:700;background:rgba(200,150,60,.08)}
+
+/* Mobile dropdown - click to open */
+#ca-nav .ca-dropdown.open .ca-dropdown-menu{display:block}
 </style>
 <div id="ca-nav">
   <div class="ca-band"></div>
@@ -662,6 +665,27 @@
 </div>
 <script>
 (function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
+</script>
+<script>
+(function(){
+  // Make dropdowns work on touch/click (mobile)
+  document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(dd){
+    var btn = dd.querySelector('.ca-drop-btn');
+    if(!btn) return;
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var isOpen = dd.classList.contains('open');
+      // Close all dropdowns
+      document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
+      // Toggle this one
+      if(!isOpen) dd.classList.add('open');
+    });
+  });
+  // Close on outside click
+  document.addEventListener('click', function(){
+    document.querySelectorAll('#ca-nav .ca-dropdown').forEach(function(d){ d.classList.remove('open'); });
+  });
+})();
 </script>
 
 
