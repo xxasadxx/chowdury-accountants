@@ -1225,8 +1225,6 @@ loadStats();
   const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
   const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
   const H={'apikey':KEY,'Authorization':'Bearer '+KEY};
-  const fmt=n=>n===null||n===undefined?'—':n;
-  const fmtMoney=n=>n?'£'+Number(n).toLocaleString('en-GB',{maximumFractionDigits:0}):'—';
 
   // 1. This week's appointments
   try{
@@ -1240,54 +1238,54 @@ loadStats();
     document.getElementById('lt-appts-sub').textContent=n===1?'appointment this week':'appointments this week';
   }catch(e){document.getElementById('lt-appts').textContent='—';}
 
-  // 2. Active clients
+  // 2. Active clients — from Gocardless tracker (same source as revenue tracker)
   try{
-    const [ltd,sa]=await Promise.all([
-      fetch(SB+'/rest/v1/ltd_clients?select=id&status=eq.active',{headers:{...H,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}),
-      fetch(SB+'/rest/v1/sa_clients?select=id&status=eq.active',{headers:{...H,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}),
-    ]);
-    document.getElementById('lt-clients').textContent=(ltd+sa).toLocaleString();
-    document.getElementById('lt-clients-sub')||0;
+    const r=await fetch(SB+'/rest/v1/'+encodeURIComponent('Gocardless tracker')+'?select=status',{headers:H}).then(r=>r.json()).catch(()=>[]);
+    const active=Array.isArray(r)?r.filter(c=>c.status==='active').length:0;
+    // Also add SA clients
+    const sa=await fetch(SB+'/rest/v1/sa_clients?select=id&status=eq.active',{headers:{...H,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}).catch(()=>0);
+    const total=active+sa;
+    document.getElementById('lt-clients').textContent=total>0?total.toLocaleString():'600+';
   }catch(e){document.getElementById('lt-clients').textContent='600+';}
 
-  // 3. GoCardless MRR — latest month total
+  // 3. GoCardless MRR — from Gocardless tracker active clients sum
   try{
-    const now=new Date();
-    const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');
-    const start=y+'-'+m+'-01';
-    const end=new Date(y,now.getMonth()+1,0).toISOString().slice(0,10);
-    const r=await fetch(SB+'/rest/v1/gc_payments?select=amount&status=eq.paid&charge_date=gte.'+start+'&charge_date=lte.'+end,{headers:H}).then(r=>r.json()).catch(()=>[]);
-    const total=Array.isArray(r)?r.reduce((s,p)=>s+(parseFloat(p.amount)||0),0):0;
-    document.getElementById('lt-mrr').textContent=total>0?fmtMoney(total):'—';
-    document.getElementById('lt-mrr-sub').textContent='collected '+new Date().toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    const r=await fetch(SB+'/rest/v1/'+encodeURIComponent('Gocardless tracker')+'?select=fee,status',{headers:H}).then(r=>r.json()).catch(()=>[]);
+    if(Array.isArray(r)&&r.length>0){
+      const total=r.filter(c=>c.status==='active').reduce((s,c)=>s+(parseFloat(c.fee)||0),0);
+      document.getElementById('lt-mrr').textContent=total>0?'£'+Math.round(total).toLocaleString('en-GB'):'—';
+      document.getElementById('lt-mrr-sub').textContent='active DD clients';
+    } else {
+      document.getElementById('lt-mrr').textContent='—';
+    }
   }catch(e){document.getElementById('lt-mrr').textContent='—';}
 
-  // 4. Overdue deadlines (Ltd clients with overdue accounts or CS)
+  // 4. Overdue deadlines — from seed files (ltd_clients in Supabase)
   try{
     const today=new Date().toISOString().slice(0,10);
-    const r=await fetch(SB+'/rest/v1/ltd_clients?select=id,accounts_due,conf_due&status=eq.active',{headers:H}).then(r=>r.json()).catch(()=>[]);
+    const r=await fetch(SB+'/rest/v1/ltd_clients?select=comp_no,accounts_due,conf_due&status=eq.active&limit=1000',{headers:H}).then(r=>r.json()).catch(()=>[]);
     const overdue=Array.isArray(r)?r.filter(c=>(c.accounts_due&&c.accounts_due<today)||(c.conf_due&&c.conf_due<today)).length:0;
-    document.getElementById('lt-overdue').textContent=overdue;
-    document.getElementById('lt-overdue-sub').textContent=overdue===1?'client overdue':'clients overdue';
+    document.getElementById('lt-overdue').textContent=overdue||'0';
+    document.getElementById('lt-overdue-sub').textContent='clients with overdue deadlines';
   }catch(e){document.getElementById('lt-overdue').textContent='—';}
 
   // 5. Messages sent today
   try{
     const today=new Date().toISOString().slice(0,10);
-    const r=await fetch(SB+'/rest/v1/client_messages?select=id&sent_at=gte.'+today+'T00:00:00Z',{headers:{...H,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;});
+    const r=await fetch(SB+'/rest/v1/client_messages?select=id&sent_at=gte.'+today+'T00:00:00Z',{headers:{...H,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}).catch(()=>0);
     document.getElementById('lt-msgs').textContent=r;
     document.getElementById('lt-msgs-sub').textContent=r===1?'message sent today':'messages sent today';
   }catch(e){document.getElementById('lt-msgs').textContent='—';}
 
-  // 6. Staff hours this month
+  // 6. Staff hours this month — correct table is staff_activities, column is hours
   try{
     const now=new Date();
     const y=now.getFullYear();const m=String(now.getMonth()+1).padStart(2,'0');
     const start=y+'-'+m+'-01';
     const r=await fetch(SB+'/rest/v1/staff_activities?select=hours&activity_date=gte.'+start,{headers:H}).then(r=>r.json()).catch(()=>[]);
     const total=Array.isArray(r)?r.reduce((s,a)=>s+(parseFloat(a.hours)||0),0):0;
-    document.getElementById('lt-hours').textContent=total>0?total.toFixed(1)+'h':'—';
-    document.getElementById('lt-hours-sub').textContent='logged '+new Date().toLocaleDateString('en-GB',{month:'long'});
+    document.getElementById('lt-hours').textContent=total>0?total.toFixed(1)+'h':'0h';
+    document.getElementById('lt-hours-sub').textContent='logged '+now.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
   }catch(e){document.getElementById('lt-hours').textContent='—';}
 })();
 
