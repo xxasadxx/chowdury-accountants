@@ -430,6 +430,29 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
       <div id="cm-paye-xref" style="margin-top:6px;font-size:11px;color:var(--muted);padding:4px 0">—</div>
       <div class="sec-label" style="margin-top:14px">Notes</div>
       <div class="field"><label>Notes</label><textarea id="cm-notes" placeholder="Any notes..."></textarea></div>
+
+      <div class="sec-label" style="margin-top:14px">Activity Log <span id="cm-act-count" style="font-size:11px;color:var(--muted);font-weight:400"></span></div>
+      <div id="cm-activity-log"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <select id="cm-act-staff" style="width:90px;padding:7px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;background:#fff">
+          <option value="Asadul">Asadul</option>
+          <option value="Hassan">Hassan</option>
+          <option value="Aminul">Aminul</option>
+          <option value="Nawaz">Nawaz</option>
+          <option value="Sadat">Sadat</option>
+        </select>
+        <select id="cm-act-type" style="flex:1;padding:7px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;background:#fff">
+          <option value="Accounts">📊 Accounts Filed</option>
+          <option value="Confirmation Statement">📋 CS Filed</option>
+          <option value="VAT">🟢 VAT Filed</option>
+          <option value="Payroll">💼 Payroll Submitted</option>
+          <option value="Phone">📞 Call Made</option>
+          <option value="Admin">📁 Docs Received</option>
+          <option value="Other">📝 Note</option>
+        </select>
+        <input id="cm-act-note" type="text" placeholder="Note..." style="flex:2;padding:7px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px">
+        <button class="btn btn-blue btn-sm" onclick="addActivity()">+ Add</button>
+      </div>
     </div>
 
     <!-- DIRECTOR TAB -->
@@ -454,28 +477,12 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <!-- CH DEADLINES TAB -->
     <div class="modal-tab-content" id="mtab-deadlines">
       <div class="deadline-grid" id="cm-deadlines-grid"></div>
-      <div class="sec-label">Update Deadlines</div>
+      <div class="sec-label" style="margin-top:14px">Update Deadlines</div>
       <div class="fg">
         <div class="field"><label>Accounts Due</label><input id="cm-accounts-due" type="text" placeholder="DD/MM/YYYY"></div>
         <div class="field"><label>Conf Statement Due</label><input id="cm-conf-due" type="text" placeholder="DD/MM/YYYY"></div>
         <div class="field"><label>Conf Statement Date</label><input id="cm-conf-date" type="text" placeholder="DD/MM/YYYY"></div>
         <div class="field"><label>Next VAT Due</label><input id="cm-vat-due" type="text" placeholder="DD/MM/YYYY"></div>
-      </div>
-      <div class="sec-label" style="margin-top:14px">Activity Log <span id="cm-act-count" style="font-size:11px;color:var(--muted);font-weight:400"></span></div>
-      <div id="cm-activity-log"></div>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <select id="cm-act-type" style="flex:1;padding:7px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px;background:#fff">
-          <option value="accounts_filed">📊 Accounts Filed</option>
-          <option value="cs_filed">📋 CS Filed</option>
-          <option value="vat_filed">🟢 VAT Filed</option>
-          <option value="payroll_filed">💼 Payroll Submitted</option>
-          <option value="email_sent">📧 Email Sent</option>
-          <option value="call_made">📞 Call Made</option>
-          <option value="docs_received">📁 Docs Received</option>
-          <option value="note">📝 Note</option>
-        </select>
-        <input id="cm-act-note" type="text" placeholder="Note..." style="flex:2;padding:7px;border:1px solid var(--border2);border-radius:6px;font-family:var(--sans);font-size:12px">
-        <button class="btn btn-blue btn-sm" onclick="addActivity()">+ Add</button>
       </div>
     </div>
 
@@ -1280,7 +1287,19 @@ async function addActivity(){
   const c=DATA.find(x=>x.id===currentId);if(!c)return;
   const type=document.getElementById('cm-act-type').value;
   const note=document.getElementById('cm-act-note').value.trim();
-  const act={comp_no:c.comp_no||'',client_name:c.name,task_type:type,description:note,activity_date:new Date().toISOString().split('T')[0],staff:'Md Asadul Islam Chowdury'};
+  if(!note){alert('Please add a note');return;}
+  // Use staff selector if present, otherwise default to Asadul
+  const staffEl=document.getElementById('cm-act-staff');
+  const staffName=staffEl?staffEl.value:'Asadul';
+  const act={
+    comp_no:c.comp_no||'',
+    client_name:c.name,
+    task_type:type,
+    description:note,
+    activity_date:new Date().toISOString().split('T')[0],
+    staff:staffName,
+    hours:null
+  };
   try{await sbFetch('staff_activities',{method:'POST',body:JSON.stringify(act)});}catch(e){console.warn(e);}
   document.getElementById('cm-act-note').value='';
   renderActivityLog(c);

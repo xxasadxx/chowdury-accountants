@@ -730,7 +730,11 @@ async function loadActivities(){
   const {s,e}=getDateRange();
   document.getElementById('act-list').innerHTML='<div class="no-data">Loading…</div>';
   try{
-    const data=await sb(`staff_activities?staff=eq.${encodeURIComponent(curStaff)}&activity_date=gte.${s}&activity_date=lte.${e}&order=activity_date.desc,created_at.desc`);
+    // Query by short name OR full name (for backwards compat with old entries)
+    const staffFilter=curStaff==='Asadul'
+      ? `staff=in.(Asadul,Md%20Asadul%20Islam%20Chowdury,Asadul%20Chowdury)`
+      : `staff=eq.${encodeURIComponent(curStaff)}`;
+    const data=await sb(`staff_activities?${staffFilter}&activity_date=gte.${s}&activity_date=lte.${e}&order=activity_date.desc,created_at.desc`);
     _lastActivities=data;
     renderActs(data);updateStats(data);
   }catch(e){console.warn('Activities:',e.message);document.getElementById('act-list').innerHTML='<div class="no-data">No activities this month.</div>';}
