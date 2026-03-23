@@ -450,6 +450,93 @@ body{padding-top:92px !important}
       <span class="save-msg" id="prof-msg"></span>
     </div>
   </div>
+
+  <!-- ═══ HR DOCS VIEW ═══ -->
+  <div class="section" id="view-hr">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="font-family:var(--display);font-size:15px;font-weight:700;margin-bottom:2px">📁 HR Documents</h3>
+        <div style="font-size:11px;color:#666">Recruitment procedures, employee records and HR templates</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;border-left:4px solid #c8963c">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px">📋 Employee Records Checklist</div>
+        <div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">Complete for every new hire. Covers personal details, employment terms, right to work and all required documents.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="Employee_Records_Checklist_CA.docx" download style="background:#1a1a18;color:#fff;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">⬇ Download Word</a>
+          <button onclick="showHRDoc('checklist')" style="background:none;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer">👁 View Online</button>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;border-left:4px solid #155FA0">
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px">📘 Hiring &amp; Recruitment Procedures</div>
+        <div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">8-step recruitment process, interview guidance, first-day onboarding and equal opportunities policy.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a href="Hiring_Recruitment_Procedures_CA.docx" download style="background:#155FA0;color:#fff;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">⬇ Download Word</a>
+          <button onclick="showHRDoc('recruitment')" style="background:none;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer">👁 View Online</button>
+        </div>
+      </div>
+    </div>
+    <div id="hr-checklist" style="display:none;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:16px">
+      <div style="background:#1a1a18;color:#fff;padding:11px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between">
+        <span>📋 Employee Records Checklist</span>
+        <button onclick="document.getElementById('hr-checklist').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;line-height:1">&#x2715;</button>
+      </div>
+      <div style="padding:16px">
+        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap">
+          <div style="font-size:12px"><strong>Employee:</strong> <input id="hc-name" style="border:none;border-bottom:1px solid #ccc;outline:none;font-size:12px;width:200px;margin-left:6px" placeholder="Full name"></div>
+          <div style="font-size:12px"><strong>Start Date:</strong> <input id="hc-date" type="date" style="border:1px solid #ccc;border-radius:4px;font-size:11px;padding:2px 6px;margin-left:6px"></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead><tr style="background:#f5f5f5">
+            <th style="padding:8px 10px;text-align:left;border:1px solid #e5e5e5">Item</th>
+            <th style="padding:8px 10px;text-align:center;border:1px solid #e5e5e5;width:70px">Done</th>
+            <th style="padding:8px 10px;text-align:left;border:1px solid #e5e5e5">Notes</th>
+          </tr></thead>
+          <tbody id="hr-checklist-body"></tbody>
+        </table>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button onclick="hrPrint()" style="background:#1a1a18;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer">&#x1F5A8; Print</button>
+          <button onclick="hrClearChecks()" style="background:none;border:1px solid #ccc;border-radius:6px;padding:7px 14px;font-size:11px;cursor:pointer">&#x21BA; Reset</button>
+        </div>
+      </div>
+    </div>
+    <div id="hr-recruitment" style="display:none;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
+      <div style="background:#155FA0;color:#fff;padding:11px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between">
+        <span>📘 Hiring &amp; Recruitment Procedures</span>
+        <button onclick="document.getElementById('hr-recruitment').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;line-height:1">&#x2715;</button>
+      </div>
+      <div style="padding:20px;font-size:12px;line-height:1.7;overflow-y:auto;max-height:520px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 1</div><div style="font-weight:600">Identify Vacancy &amp; Evaluate Need</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 2</div><div style="font-weight:600">Develop Position Description</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 3</div><div style="font-weight:600">Develop Recruitment Plan</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 4</div><div style="font-weight:600">Post Position &amp; Implement Plan</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 5</div><div style="font-weight:600">Review Applicants &amp; Shortlist</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 6</div><div style="font-weight:600">Conduct Interviews</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 7</div><div style="font-weight:600">Select &amp; Make Offer</div></div>
+          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 8</div><div style="font-weight:600">Finalise Recruitment &amp; Onboard</div></div>
+        </div>
+        <h4 style="margin:0 0 8px;color:#1a1a18;font-size:12px">Key Rules</h4>
+        <ul style="margin-left:18px;color:#374151;margin-bottom:14px">
+          <li style="margin-bottom:3px">All hires require MD approval before advertising</li>
+          <li style="margin-bottom:3px">Right to work verified before start date</li>
+          <li style="margin-bottom:3px">Signed employment contract required on or before Day 1</li>
+          <li style="margin-bottom:3px">Complete Employee Records Checklist on first day</li>
+          <li style="margin-bottom:3px">Probation: 3 months standard with formal review</li>
+          <li style="margin-bottom:3px">Equal opportunities — all decisions based on merit</li>
+        </ul>
+        <h4 style="margin:0 0 8px;color:#1a1a18;font-size:12px">First Day Onboarding</h4>
+        <ul style="margin-left:18px;color:#374151">
+          <li style="margin-bottom:3px">Add to HMRC PAYE scheme and payroll</li>
+          <li style="margin-bottom:3px">Set up email, systems and software access</li>
+          <li style="margin-bottom:3px">Introduce to team — assign buddy for first 2 weeks</li>
+          <li style="margin-bottom:3px">Provide staff handbook and key policies</li>
+          <li style="margin-bottom:3px">Schedule 1-week and 1-month check-in with MD</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -960,101 +1047,6 @@ function exportPDF() {
       <hr style="margin:10px 0;border:none;border-top:1px solid #e2e6ef">
     </div>
 
-  <!-- ═══ HR DOCS VIEW ═══ -->
-  <div class="section" id="view-hr">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-      <div>
-        <h3 style="font-family:var(--display);font-size:15px;font-weight:700;margin-bottom:2px">📁 HR Documents</h3>
-        <div style="font-size:11px;color:#666">Recruitment procedures, employee records and HR templates for Chowdury Accountants</div>
-      </div>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;border-left:4px solid #c8963c">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px">📋 Employee Records Checklist</div>
-        <div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">Complete for every new hire. Covers personal details, employment terms, right to work and all required documents.</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="Employee_Records_Checklist_CA.docx" download style="background:#1a1a18;color:#fff;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">⬇ Download Word</a>
-          <button onclick="showHRDoc('checklist')" style="background:none;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer">👁 View Online</button>
-        </div>
-      </div>
-      <div style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;border-left:4px solid #155FA0">
-        <div style="font-size:13px;font-weight:700;margin-bottom:6px">📘 Hiring & Recruitment Procedures</div>
-        <div style="font-size:11px;color:#666;margin-bottom:14px;line-height:1.6">8-step recruitment process, interview guidance, first-day onboarding and equal opportunities policy.</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <a href="Hiring_Recruitment_Procedures_CA.docx" download style="background:#155FA0;color:#fff;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;text-decoration:none">⬇ Download Word</a>
-          <button onclick="showHRDoc('recruitment')" style="background:none;border:1px solid #ccc;border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer">👁 View Online</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Interactive Checklist -->
-    <div id="hr-checklist" style="display:none;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden;margin-bottom:16px">
-      <div style="background:#1a1a18;color:#fff;padding:11px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between">
-        <span>📋 Employee Records Checklist — Interactive</span>
-        <button onclick="document.getElementById('hr-checklist').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;line-height:1">✕</button>
-      </div>
-      <div style="padding:16px">
-        <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap">
-          <div style="font-size:12px"><strong>Employee:</strong> <input id="hc-name" style="border:none;border-bottom:1px solid #ccc;outline:none;font-size:12px;width:200px;margin-left:6px" placeholder="Full name"></div>
-          <div style="font-size:12px"><strong>Start Date:</strong> <input id="hc-date" type="date" style="border:1px solid #ccc;border-radius:4px;font-size:11px;padding:2px 6px;margin-left:6px"></div>
-        </div>
-        <table style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead><tr style="background:#f5f5f5">
-            <th style="padding:8px 10px;text-align:left;border:1px solid #e5e5e5">Item</th>
-            <th style="padding:8px 10px;text-align:center;border:1px solid #e5e5e5;width:70px">Done ✓</th>
-            <th style="padding:8px 10px;text-align:left;border:1px solid #e5e5e5">Notes</th>
-          </tr></thead>
-          <tbody id="hr-checklist-body"></tbody>
-        </table>
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button onclick="hrPrint()" style="background:#1a1a18;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer">🖨 Print</button>
-          <button onclick="hrClearChecks()" style="background:none;border:1px solid #ccc;border-radius:6px;padding:7px 14px;font-size:11px;cursor:pointer">↺ Reset</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Recruitment Procedures viewer -->
-    <div id="hr-recruitment" style="display:none;background:#fff;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
-      <div style="background:#155FA0;color:#fff;padding:11px 16px;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:space-between">
-        <span>📘 Hiring & Recruitment Procedures</span>
-        <button onclick="document.getElementById('hr-recruitment').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;line-height:1">✕</button>
-      </div>
-      <div style="padding:20px;font-size:12px;line-height:1.7;overflow-y:auto;max-height:520px">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 1</div><div style="font-weight:600">Identify Vacancy & Evaluate Need</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 2</div><div style="font-weight:600">Develop Position Description</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 3</div><div style="font-weight:600">Develop Recruitment Plan</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 4</div><div style="font-weight:600">Post Position & Implement Plan</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 5</div><div style="font-weight:600">Review Applicants & Shortlist</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 6</div><div style="font-weight:600">Conduct Interviews</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 7</div><div style="font-weight:600">Select & Make Offer</div></div>
-          <div style="background:#f8f9fa;border:1px solid #e5e7eb;border-radius:8px;padding:10px;border-left:3px solid #c8963c"><div style="font-weight:700;color:#c8963c;font-size:10px;margin-bottom:2px">STEP 8</div><div style="font-weight:600">Finalise Recruitment & Onboard</div></div>
-        </div>
-        <h4 style="margin:0 0 8px;color:#1a1a18;font-size:12px">Key Rules</h4>
-        <ul style="margin-left:18px;color:#374151;margin-bottom:14px">
-          <li style="margin-bottom:3px">All hires require MD approval before advertising</li>
-          <li style="margin-bottom:3px">Right to work verified before start date (copy passport/visa)</li>
-          <li style="margin-bottom:3px">Signed employment contract required on or before Day 1</li>
-          <li style="margin-bottom:3px">Complete Employee Records Checklist on first day</li>
-          <li style="margin-bottom:3px">Probation: 3 months standard with formal review</li>
-          <li style="margin-bottom:3px">Equal opportunities — all decisions based on merit</li>
-        </ul>
-        <h4 style="margin:0 0 8px;color:#1a1a18;font-size:12px">First Day Onboarding</h4>
-        <ul style="margin-left:18px;color:#374151">
-          <li style="margin-bottom:3px">Add to HMRC PAYE scheme and payroll</li>
-          <li style="margin-bottom:3px">Set up email, systems and software access</li>
-          <li style="margin-bottom:3px">Introduce to team — assign buddy for first 2 weeks</li>
-          <li style="margin-bottom:3px">Provide staff handbook and key policies</li>
-          <li style="margin-bottom:3px">Schedule 1-week and 1-month check-in with MD</li>
-        </ul>
-      </div>
-    </div>
-  </div>`;
-  window.print();
-}
-
-
 // ═══ HR MODULE ═══
 const HR_ITEMS = [
   {sec:'PERSONAL DETAILS', items:['First / Given Name','Surname / Family Name','Current Address','Previous Address (if applicable)','Email Address','Telephone Number','National Insurance Number']},
@@ -1062,63 +1054,43 @@ const HR_ITEMS = [
   {sec:'RIGHT TO WORK & IDENTITY', items:['Proof of Identity — Passport or Driving Licence (copy taken)','Proof of Address — Utility Bill or Bank Statement','Eligible to Work in UK — Verified and Documented']},
   {sec:'DOCUMENTS ON FILE', items:['Job Offer Letter — Signed Copy','Employment Contract — Signed Copy','CV / Covering Letter','Job Advertisement Copy (if applicable)','Timesheet (if applicable)']},
 ];
-
-function showHRDoc(type) {
-  const cl = document.getElementById('hr-checklist');
-  const rc = document.getElementById('hr-recruitment');
-  if(type==='checklist'){ cl.style.display = cl.style.display==='none'?'block':'none'; rc.style.display='none'; renderHRChecklist(); }
-  else { rc.style.display = rc.style.display==='none'?'block':'none'; cl.style.display='none'; }
+function showHRDoc(type){
+  const cl=document.getElementById('hr-checklist');
+  const rc=document.getElementById('hr-recruitment');
+  if(type==='checklist'){cl.style.display=cl.style.display==='none'?'block':'none';rc.style.display='none';renderHRChecklist();}
+  else{rc.style.display=rc.style.display==='none'?'block':'none';cl.style.display='none';}
 }
-
-function renderHRChecklist() {
-  const tbody = document.getElementById('hr-checklist-body');
-  if(!tbody || tbody.innerHTML) return;
-  let rows = '';
-  HR_ITEMS.forEach(sec => {
-    rows += `<tr><td colspan="3" style="padding:7px 10px;background:#1a1a18;color:#fff;font-weight:700;font-size:11px;letter-spacing:.04em">${sec.sec}</td></tr>`;
-    sec.items.forEach((item,i) => {
-      const id = 'hc_'+i+'_'+sec.sec.slice(0,4).replace(/\s/g,'');
-      rows += `<tr>
-        <td style="padding:7px 10px;border:1px solid #e5e5e5;font-size:11px">${item}</td>
-        <td style="padding:7px 10px;border:1px solid #e5e5e5;text-align:center"><input type="checkbox" id="${id}" style="width:16px;height:16px;cursor:pointer"></td>
-        <td style="padding:7px 10px;border:1px solid #e5e5e5"><input style="width:100%;border:none;outline:none;font-size:11px" placeholder="Notes..."></td>
-      </tr>`;
+function renderHRChecklist(){
+  const tbody=document.getElementById('hr-checklist-body');
+  if(!tbody||tbody.innerHTML)return;
+  let rows='';
+  HR_ITEMS.forEach(sec=>{
+    rows+=`<tr><td colspan="3" style="padding:7px 10px;background:#1a1a18;color:#fff;font-weight:700;font-size:11px">${sec.sec}</td></tr>`;
+    sec.items.forEach((item,i)=>{
+      const id='hc_'+i+'_'+sec.sec.slice(0,3).replace(/[\s&]/g,'');
+      rows+=`<tr><td style="padding:7px 10px;border:1px solid #e5e5e5;font-size:11px">${item}</td><td style="padding:7px 10px;border:1px solid #e5e5e5;text-align:center"><input type="checkbox" id="${id}" style="width:16px;height:16px;cursor:pointer"></td><td style="padding:7px 10px;border:1px solid #e5e5e5"><input style="width:100%;border:none;outline:none;font-size:11px" placeholder="Notes..."></td></tr>`;
     });
   });
-  tbody.innerHTML = rows;
+  tbody.innerHTML=rows;
 }
-
-function hrClearChecks() {
-  document.getElementById('hr-checklist-body').innerHTML = '';
-  document.getElementById('hc-name').value='';
-  document.getElementById('hc-date').value='';
+function hrClearChecks(){document.getElementById('hr-checklist-body').innerHTML='';document.getElementById('hc-name').value='';document.getElementById('hc-date').value='';renderHRChecklist();}
+function hrPrint(){
   renderHRChecklist();
-}
-
-function hrPrint() {
-  renderHRChecklist();
-  const name = document.getElementById('hc-name')?.value || '_______________';
-  const date = document.getElementById('hc-date')?.value || '_______________';
-  const w = window.open('','_blank');
-  let rows = '';
-  HR_ITEMS.forEach(sec => {
-    rows += `<tr><td colspan="2" style="background:#1a1a18;color:#fff;padding:6px 10px;font-weight:700;font-size:11px">${sec.sec}</td></tr>`;
-    sec.items.forEach((item,i) => {
-      const cb = document.getElementById('hc_'+i+'_'+sec.sec.slice(0,4).replace(/\s/g,''));
-      rows += `<tr><td style="padding:7px 10px;border:1px solid #e5e5e5;font-size:12px">${item}</td><td style="padding:7px 10px;border:1px solid #e5e5e5;text-align:center;font-size:16px">${cb&&cb.checked?'☑':'☐'}</td></tr>`;
+  const name=document.getElementById('hc-name')?.value||'_______________';
+  const date=document.getElementById('hc-date')?.value||'_______________';
+  const w=window.open('','_blank');
+  let rows='';
+  HR_ITEMS.forEach(sec=>{
+    rows+=`<tr><td colspan="2" style="background:#1a1a18;color:#fff;padding:6px 10px;font-weight:700;font-size:11px">${sec.sec}</td></tr>`;
+    sec.items.forEach((item,i)=>{
+      const cb=document.getElementById('hc_'+i+'_'+sec.sec.slice(0,3).replace(/[\s&]/g,''));
+      rows+=`<tr><td style="padding:7px 10px;border:1px solid #e5e5e5;font-size:12px">${item}</td><td style="padding:7px 10px;border:1px solid #e5e5e5;text-align:center;font-size:16px">${cb&&cb.checked?'&#9745;':'&#9744;'}</td></tr>`;
     });
   });
-  w.document.write(`<!DOCTYPE html><html><head><title>Employee Records Checklist</title><style>body{font-family:Arial;margin:30px;font-size:12px}h2{color:#c8963c;text-align:center}table{width:100%;border-collapse:collapse}@media print{button{display:none}}</style></head><body>
-    <h2>Chowdury Accountants — Employee Records Checklist</h2>
-    <p style="text-align:center"><strong>Employee:</strong> ${name} &nbsp;&nbsp;&nbsp; <strong>Start Date:</strong> ${date}</p>
-    <table>${rows}</table>
-    <p style="margin-top:24px;font-size:10px;color:#999;text-align:center">Confidential — For HR use only · Chowdury Accountants Ltd · Reg: 09441520</p>
-    <script>window.onload=function(){window.print()}</script>
-  </body></html>`);
-  w.document.close();
+  w.document.write('<!DOCTYPE html><html><head><title>Employee Records Checklist</title><style>body{font-family:Arial;margin:30px;font-size:12px}h2{color:#c8963c;text-align:center}table{width:100%;border-collapse:collapse}</style></head><body><h2>Chowdury Accountants - Employee Records Checklist</h2><p style="text-align:center"><strong>Employee:</strong> '+name+'     <strong>Start Date:</strong> '+date+'</p><table>'+rows+'</table><p style="margin-top:20px;font-size:10px;color:#999;text-align:center">Confidential - HR use only - Chowdury Accountants Ltd</p></body></html>');
+  w.document.close();w.print();
 }
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function loadAll(){
   loadActivities();
   document.getElementById('photo-staff-name').textContent=curStaff;
