@@ -443,7 +443,7 @@ function D_render() {
     })() : (mob && !isSa ? '' : '');
 
     const isBday = d.type==='bday';
-    html += `<div class="event-row${isToday?' is-today':''}${isOverdue?' is-overdue':''}" style="${isBday?'background:#fdf4ff;':'}">
+    html += `<div class="event-row${isToday?' is-today':''}${isOverdue?' is-overdue':''}" style="${isBday?'background:#fdf4ff;':''}">
       <div><span class="badge badge-${d.type}">${d.type==='vat'?'VAT':d.type==='accounts'?'Accounts':d.type==='conf'?'Conf.':d.type==='sa'?'SA':d.type==='bday'?'Birthday':'—'}</span></div>
       <div style="font-family:var(--mono);font-size:10px">${fmtDate(d.date)}</div>
       <div style="font-weight:600;font-size:11px;font-family:var(--display)">${d.company}<br><span style="font-weight:400;font-size:10px;color:var(--muted);font-family:var(--sans)">${d.detail}</span></div>
