@@ -1657,7 +1657,7 @@ function B_render() {
 
   const tpl = document.getElementById('b-msg-tpl').value;
 
-  let html = `<div class="cl-head" style="grid-template-columns:2fr 1.2fr 80px 70px 60px 80px">
+  let html = `<div class="cl-head" style="grid-template-columns:2fr 1.2fr 80px 70px 60px 120px">
     <div>Company</div><div>Director</div><div>Birthday</div><div>Age</div><div>Days</div><div>Action</div>
   </div>`;
 
@@ -1670,13 +1670,13 @@ function B_render() {
     const waHref = mob ? `https://wa.me/${uk}?text=${encodeURIComponent(msg)}` : '';
     const age = B_age(c.dob);
     const isToday = days === 0;
-    return `<div class="cl-row" style="grid-template-columns:2fr 1.2fr 80px 70px 60px 80px;${isToday?'background:#fff7f7;':''}">
+    return `<div class="cl-row" style="grid-template-columns:2fr 1.2fr 80px 70px 60px 120px;${isToday?'background:#fff7f7;':''}">
       <div style="font-weight:600;font-size:11px;font-family:var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.company}${isToday?' 🎂':''}</div>
       <div style="font-size:11px;color:var(--ink2)">${c.director||'—'}</div>
       <div style="font-size:11px;font-weight:600">${c.dob ? B_formatDOB(c.dob) : '<span style="color:var(--muted);font-style:italic;font-size:10px">missing</span>'}</div>
       <div style="font-size:11px;color:var(--muted)">${age ? 'turns '+age : '—'}</div>
       <div>${c.dob && days!==null ? B_urgencyBadge(days) : '—'}</div>
-      <div>${mob ? `<button class="btn-wa btn-sm" onclick="window.open('${waHref.replace(/'/g,"\\'")}','_blank')">💬 WA</button>` : '<span style="font-size:10px;color:var(--muted)">no mobile</span>'}</div>
+      <div>${mob ? `<a href="${waHref}" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;font-size:11px;padding:5px 10px;border-radius:6px;font-weight:600;font-family:var(--sans);display:inline-block;white-space:nowrap">💬 Send Wish</a>` : '<span style="font-size:10px;color:var(--muted);font-style:italic">no mobile</span>'}</div>
     </div>`;
   }).join('');
 
