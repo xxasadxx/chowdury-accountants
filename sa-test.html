@@ -2,6 +2,43 @@
 <html>
 <head><meta charset="UTF-8"><title>SA Test</title></head>
 <body>
+<header>
+  <div class="header-band"></div>
+  <div class="header-top">
+    <div class="logo">
+      <img src="ca-logo.png" alt="Chowdury Accountants" style="height:34px;width:auto;object-fit:contain;">
+    </div>
+    <div>
+      <span class="header-date" id="hdr-date"></span>
+    </div>
+  </div>
+  <nav class="header-nav">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">📅 Calendar</a>
+    <a href="strategic-review.html">📊 Strategy</a>
+    <a href="login.html" class="signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+  </nav>
+</header>
+<script>
+(function(){
+  var page = window.location.pathname.split('/').pop() || 'index.html';
+  document.querySelectorAll('.header-nav a:not(.signout)').forEach(function(a){
+    if(a.getAttribute('href') === page) a.classList.add('active');
+  });
+  var d = new Date();
+  var el = document.getElementById('hdr-date');
+  if(el) el.textContent = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+})();
+</script>
 <h2>SA Test Page</h2>
 <div id="status">Starting...</div>
 <table border="1" id="tbl"><thead><tr><th>#</th><th>Name</th><th>UTR</th></tr></thead><tbody id="tbody"></tbody></table>
