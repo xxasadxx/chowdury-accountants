@@ -1467,9 +1467,12 @@ function calcVatQuarter(client) {
 function getGreeting(client) {
   const raw = (client.director_name||'').trim();
   if (!raw || /^director$/i.test(raw)) return 'Client';
-  const parts = raw.split(/s+/).filter(Boolean);
+  const parts = raw.split(/\s+/).filter(Boolean);
   const surname = parts[parts.length - 1];
-  return 'Mr ' + surname.charAt(0).toUpperCase() + surname.slice(1).toLowerCase();
+  const titled = surname.charAt(0).toUpperCase() + surname.slice(1).toLowerCase();
+  const titleMap = {mr:'Mr',mrs:'Mrs',ms:'Ms',dr:'Dr'};
+  const title = titleMap[client.director_gender||'mr'] || 'Mr';
+  return title + ' ' + titled;
 }
 
 const SMART_TMPLS = {

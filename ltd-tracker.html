@@ -425,6 +425,12 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
       <div class="sec-label">Primary Director</div>
       <div class="fg">
         <div class="field"><label>Full Name</label><input id="cm-dir-name" type="text"></div>
+        <div class="field"><label>Title</label><select id="cm-dir-gender" style="width:100%;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:13px;outline:none">
+          <option value="mr">Mr</option>
+          <option value="mrs">Mrs</option>
+          <option value="ms">Ms</option>
+          <option value="dr">Dr</option>
+        </select></div>
         <div class="field"><label>Mobile</label><input id="cm-dir-mobile" type="tel" placeholder="07xxx xxxxxx"></div>
         <div class="field"><label>Email</label><input id="cm-dir-email" type="email"></div>
         <div class="field"><label>Date of Birth</label><input id="cm-dir-dob" type="text" placeholder="DD/MM/YYYY"></div>
@@ -654,7 +660,7 @@ async function init(){
         const local=DATA.find(d=>d.comp_no===r.comp_no);
         if(local){
           ['sector','status','left_year','reason_for_leaving','referred_by','ref_year',
-           'referral_fee_paid','director_name','director_mobile','director_email',
+           'referral_fee_paid','director_name','director_gender','director_mobile','director_email',
            'director_dob','director_ni','director_address','vat_registered',
            'paye_registered','vat_stagger','notes'].forEach(f=>{
             if(r[f]!==undefined&&r[f]!==null&&r[f]!==''){
@@ -680,6 +686,7 @@ async function init(){
             vat_stagger: r.vat_stagger||'',
             notes: r.notes||'',
             director_name: r.director_name||'',
+            director_gender: r.director_gender||'mr',
             director_mobile: r.director_mobile||'',
             director_email: r.director_email||'',
             director_dob: r.director_dob||'',
@@ -1141,6 +1148,7 @@ function openClientModal(id){
   document.getElementById('cm-notes').value=c.notes||'';
   // Director tab
   document.getElementById('cm-dir-name').value=c.director_name||'';
+  document.getElementById('cm-dir-gender').value=c.director_gender||'mr';
   document.getElementById('cm-dir-mobile').value=c.director_mobile||'';
   document.getElementById('cm-dir-email').value=c.director_email||'';
   document.getElementById('cm-dir-dob').value=c.director_dob||'';
@@ -1426,6 +1434,7 @@ async function saveClient(){
     vat_stagger:document.getElementById('cm-vat-stagger').value,
     notes:document.getElementById('cm-notes').value.trim(),
     director_name:document.getElementById('cm-dir-name').value.trim(),
+    director_gender:document.getElementById('cm-dir-gender').value,
     director_mobile:document.getElementById('cm-dir-mobile').value.trim(),
     director_email:document.getElementById('cm-dir-email').value.trim(),
     director_dob:document.getElementById('cm-dir-dob').value.trim(),
