@@ -27,6 +27,7 @@
       '#nav-strategy{display:none!important}'+
       '#card-revenue{display:none!important}'+
       '#card-strategy{display:none!important}'+
+      '#hero-stats{display:none!important}'+
       'button.act-del{display:none!important}'+
       '.act-del{display:none!important}';
     document.head.appendChild(style);
@@ -879,7 +880,7 @@
   <div class="ca-band"></div>
   <div class="ca-top">
     <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
-    <div class="ca-date" id="ca-hdr-date"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div class="ca-date" id="ca-hdr-date"></div><div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Mulish',sans-serif;font-weight:600;letter-spacing:.03em"></div></div>
   </div>
   <div class="ca-links">
     <a href="index.html" class="active">🏠 Portal</a>
@@ -896,7 +897,7 @@
     <a href="communications.html">💬 Comms</a>
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
-    <span id="ca-nav-user" style="color:rgba(255,255,255,.4);font-size:11px;padding:0 8px;white-space:nowrap"></span>
+    <span id="ca-nav-user" style="color:rgba(255,255,255,.55);font-size:11px;padding:0 8px;white-space:nowrap;font-weight:600"></span>
     <a href="#" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.href='login.html';return false;">Sign out</a>
   </div>
 </div>
@@ -913,7 +914,7 @@
     <h1>Good to see you,<br><em id="portal-name">Asadul.</em></h1>
     <p>Your practice management portal. All your trackers, tools and dashboards in one place.</p>
   </div>
-  <div class="hero-stats">
+  <div class="hero-stats" id="hero-stats">
     <div class="hero-stat">
       <div class="k">Active Clients</div>
       <div class="v gold" id="stat-clients">600+</div>

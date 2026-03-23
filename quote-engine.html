@@ -21,6 +21,7 @@
       '#nav-strategy{display:none!important}'+
       '#card-revenue{display:none!important}'+
       '#card-strategy{display:none!important}'+
+      '#hero-stats{display:none!important}'+
       'button.act-del{display:none!important}'+
       '.act-del{display:none!important}';
     document.head.appendChild(style);
@@ -231,7 +232,7 @@ textarea{resize:vertical;min-height:50px}
   <div class="ca-band"></div>
   <div class="ca-top">
     <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
-    <div class="ca-date" id="ca-hdr-date"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div class="ca-date" id="ca-hdr-date"></div><div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Mulish',sans-serif;font-weight:600;letter-spacing:.03em"></div></div>
   </div>
   <div class="ca-links">
     <a href="index.html">🏠 Portal</a>
