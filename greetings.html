@@ -2,43 +2,44 @@
 <script>if(localStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
 <script>
 (function(){
-  var role=localStorage.getItem('ca_role')||'staff';
+  var role=localStorage.getItem('ca_role')||'';
   var name=localStorage.getItem('ca_name')||'';
-  var page=window.location.pathname.split('/').pop()||'index.html';
-  var restricted=['revenue-tracker','strategic-review','revenue-tracker.html','strategic-review.html'];
-  // Redirect staff from restricted pages immediately — check with and without .html
-  var pageBase=page.replace('.html','');
-  if(role!=='admin' && (restricted.indexOf(page)!==-1 || restricted.indexOf(pageBase)!==-1)){
-    window.location.replace('index.html');return;
+  if(!role) return;
+  var path=window.location.pathname;
+  var page=path.split('/').pop().replace('.html','');
+  if(!page) page='index';
+  if(role!=='admin' && (page==='revenue-tracker'||page==='strategic-review')){
+    window.location.replace('index.html'); return;
   }
-  // Log session for admin (store in localStorage)
-  if(name && page==='index.html'){
+  if(role!=='admin'){
+    var style=document.createElement('style');
+    style.innerHTML=
+      'a[href="revenue-tracker.html"]{display:none!important}'+
+      'a[href="strategic-review.html"]{display:none!important}'+
+      'a.tool-card[href="revenue-tracker.html"]{display:none!important}'+
+      'a.tool-card[href="strategic-review.html"]{display:none!important}'+
+      'button.act-del{display:none!important}'+
+      '.act-del{display:none!important}';
+    document.head.appendChild(style);
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    var el=document.getElementById('ca-nav-user');
+    if(el) el.textContent=name?'\u{1F464} '+name:'';
+    if(role==='admin'){
+      var sec=document.getElementById('session-log-section');
+      if(sec) sec.style.display='block';
+    }
+  });
+  if(name){
     try{
       var logs=JSON.parse(localStorage.getItem('ca_session_log')||'[]');
-      logs.unshift({user:name,role:role,time:new Date().toISOString(),page:'Portal'});
-      if(logs.length>200)logs=logs.slice(0,200);
-      localStorage.setItem('ca_session_log',JSON.stringify(logs));
+      var last=logs[0];
+      if(!last||last.user!==name||last.page!==page||(new Date()-new Date(last.time))>300000){
+        logs.unshift({user:name,role:role,time:new Date().toISOString(),page:page});
+        if(logs.length>500)logs=logs.slice(0,500);
+        localStorage.setItem('ca_session_log',JSON.stringify(logs));
+      }
     }catch(e){}
-  }
-  // Apply restrictions after DOM ready
-  function applyRestrictions(){
-    if(role!=='admin'){
-      // Hide restricted nav links (with and without .html)
-      var sel='a[href="revenue-tracker.html"],a[href="strategic-review.html"],a[href="revenue-tracker"],a[href="strategic-review"]';
-      [].forEach.call(document.querySelectorAll(sel),function(a){a.style.display='none';});
-      // Hide restricted tool cards on portal
-      [].forEach.call(document.querySelectorAll('a.tool-card[href="revenue-tracker.html"],a.tool-card[href="strategic-review.html"]'),function(c){c.style.display='none';});
-      // Hide delete buttons
-      [].forEach.call(document.querySelectorAll('button.act-del,.act-del,[onclick*="delActivity"],[onclick*="deleteClient"],[onclick*="delAct"]'),function(b){b.style.display='none';});
-    }
-    // Show logged-in user in nav
-    var un=document.getElementById('ca-nav-user');
-    if(un) un.textContent=name?'👤 '+name:'';
-  }
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',applyRestrictions);
-  } else {
-    applyRestrictions();
   }
 })();
 </script>
