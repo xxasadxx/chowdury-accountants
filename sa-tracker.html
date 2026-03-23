@@ -557,8 +557,9 @@ tr.data-row:hover{background:#f5f3ff;cursor:pointer}
             <option>Nawaz</option>
             <option>Syed</option>
           </select>
-          <button class="btn btn-purple btn-sm" onclick="cm_sendMsg('se')">💬 Send via WhatsApp + Log</button>
-          <button class="btn btn-secondary btn-sm" onclick="cm_logOnly('se')">📋 Log Only (already sent)</button>
+          <button class="btn btn-purple btn-sm" onclick="cm_sendMsg('se')">💬 WhatsApp + Log</button>
+          <button class="btn btn-sm" style="background:var(--blue);color:#fff;border-radius:5px;font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;border:none;padding:4px 9px" onclick="cm_sendEmail('se')">📧 Email + Log</button>
+          <button class="btn btn-secondary btn-sm" onclick="cm_logOnly('se')">📋 Log Only</button>
         </div>
       </div>
       <div class="sec-label">Message History</div>
@@ -1650,13 +1651,25 @@ async function cm_sendMsg(clientType) {
   await cm_logMessage(clientType, body);
 }
 
+async function cm_sendEmail(clientType) {
+  const body = document.getElementById('cm-msg-body').value.trim();
+  if (!body) { alert('Please write a message first'); return; }
+  const email = document.getElementById('cm-director-email')?.value || document.getElementById('cm-email')?.value || '';
+  if (!email) { alert('No email address for this client. Add one in the Director tab first.'); return; }
+  const name = document.getElementById('cm-name')?.value || document.getElementById('cm-full-name')?.value || '';
+  const subjects = {vat:'VAT Records Request',accounts:'Accounts Records Request',sa:'SA Records Request',payment:'Outstanding Fees',engagement:'Letter of Engagement',payroll:'Payroll Records Request',disengagement:'Notice of Disengagement',meeting:'Meeting Reminder',custom:'Message'};
+  const subject = 'Message from Chowdury Accountants';
+  window.open('mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
+  await cm_logMessage(clientType, body, 'email');
+}
+
 async function cm_logOnly(clientType) {
   const body = document.getElementById('cm-msg-body').value.trim();
   if (!body) { alert('Please write or select a message first'); return; }
   await cm_logMessage(clientType, body);
 }
 
-async function cm_logMessage(clientType, body) {
+async function cm_logMessage(clientType, body, delivery='whatsapp') {
   const sentBy = document.getElementById('cm-msg-sentby').value;
   const clientRef = currentClient?.comp_no || currentClient?.id || '';
   const clientName = document.getElementById('cm-name')?.value || document.getElementById('cm-full-name')?.value || '';
@@ -1670,7 +1683,7 @@ async function cm_logMessage(clientType, body) {
         client_name: clientName,
         message_body: body,
         sent_by: sentBy || 'Unknown',
-        delivery: 'whatsapp'
+        delivery: delivery
       })
     });
     loadClientMessages();
