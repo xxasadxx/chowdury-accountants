@@ -166,36 +166,31 @@ textarea{resize:vertical;min-height:50px}
   .preview{background:#fff;padding:0}
   .paper{box-shadow:none;padding:15mm 18mm;max-width:100%}
 }
-
-/* ── Unified portal header ── */
-#portal-nav{display:none !important}
-header{background:#1a1a18 !important;padding:0 !important;position:sticky !important;top:0 !important;z-index:9999 !important;box-shadow:0 2px 8px rgba(0,0,0,.2) !important;flex-wrap:nowrap !important;flex-direction:column !important;justify-content:flex-start !important;align-items:stretch !important;gap:0 !important}
-.header-band{height:4px !important;background:#c8963c !important;display:block !important}
-.header-top{display:flex !important;flex-direction:row !important;align-items:center !important;justify-content:space-between !important;padding:10px 28px !important;border-bottom:1px solid rgba(255,255,255,.06) !important;background:#1a1a18 !important;width:100% !important}
-.header-top .logo{display:flex !important;flex-direction:row !important;align-items:center !important;gap:12px !important;justify-content:flex-start !important;font-size:1rem !important;font-weight:700 !important;color:#fff !important}
-.header-top .logo img{height:34px !important;width:auto !important}
-.header-date{font-size:.72rem !important;color:rgba(255,255,255,.35) !important;letter-spacing:.5px !important;font-family:monospace !important}
-.header-nav{display:flex !important;flex-direction:row !important;align-items:center !important;gap:2px !important;padding:0 24px !important;overflow-x:auto !important;scrollbar-width:none !important;background:#1a1a18 !important;width:100% !important;position:static !important}
-.header-nav::-webkit-scrollbar{display:none !important}
-.header-nav a{font-size:.78rem !important;font-weight:500 !important;color:rgba(255,255,255,.5) !important;text-decoration:none !important;padding:10px 12px !important;border-bottom:3px solid transparent !important;transition:all .15s !important;white-space:nowrap !important;background:none !important;border-radius:0 !important}
-.header-nav a:hover{color:#fff !important;border-bottom-color:rgba(200,150,60,.4) !important;background:none !important}
-.header-nav a.active{color:#fff !important;border-bottom-color:#c8963c !important;background:none !important}
-.header-nav .signout{margin-left:auto !important;color:rgba(255,255,255,.3) !important;font-size:.72rem !important;border-bottom-color:transparent !important;padding:10px 6px !important}
-.header-nav .signout:hover{color:#ff6b6b !important}
 </style>
 </head>
 <body>
-<header>
-  <div class="header-band"></div>
-  <div class="header-top">
-    <div class="logo">
-      <img src="ca-logo.png" alt="Chowdury Accountants" style="height:34px;width:auto;object-fit:contain;">
-    </div>
-    <div>
-      <span class="header-date" id="hdr-date"></span>
-    </div>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:8px 24px;background:#1a1a18;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:32px;width:auto;display:block}
+#ca-nav .ca-date{font-size:11px;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:0;padding:0 20px;background:#1a1a18;overflow-x:auto;scrollbar-width:none}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:12px;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:9px 11px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+body{padding-top:80px !important}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <span class="ca-date" id="ca-hdr-date"></span>
   </div>
-  <nav class="header-nav">
+  <div class="ca-links" id="ca-links">
     <a href="index.html">🏠 Portal</a>
     <a href="revenue-tracker.html">💰 Revenue</a>
     <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
@@ -208,20 +203,20 @@ header{background:#1a1a18 !important;padding:0 !important;position:sticky !impor
     <a href="communications.html">💬 Comms</a>
     <a href="calendar.html">📅 Calendar</a>
     <a href="strategic-review.html">📊 Strategy</a>
-    <a href="login.html" class="signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
-  </nav>
-</header>
+    <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+  </div>
+</div>
 <script>
 (function(){
-  var page = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.header-nav a:not(.signout)').forEach(function(a){
-    if(a.getAttribute('href') === page) a.classList.add('active');
+  var p=window.location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('#ca-links a:not(.ca-signout)').forEach(function(a){
+    if(a.getAttribute('href')===p) a.classList.add('active');
   });
-  var d = new Date();
-  var el = document.getElementById('hdr-date');
-  if(el) el.textContent = d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  var el=document.getElementById('ca-hdr-date');
+  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 })();
 </script>
+
 <script>if(sessionStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
 
 <div class="layout">
