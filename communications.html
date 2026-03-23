@@ -84,6 +84,8 @@ select:focus{border-color:var(--blue)}
 .msg-expand{color:var(--muted);cursor:pointer;font-size:10px;text-decoration:underline}
 .msg-full{display:none;grid-column:1/-1;font-size:11px;white-space:pre-wrap;background:var(--bg);padding:8px 10px;border-radius:6px;color:var(--ink2);margin-top:4px;line-height:1.6}
 /* Toast */
+.preview-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;font-size:11px;white-space:pre-wrap;line-height:1.7;color:var(--ink2);min-height:80px;max-height:220px;overflow-y:auto;margin-top:8px}
+.preview-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:14px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
 .toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:9999;display:none;max-width:300px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
 .toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
 /* DB notice */
@@ -166,7 +168,13 @@ select:focus{border-color:var(--blue)}
         <option>Nawaz</option>
       </select>
 
-      <span class="lbl" style="margin-top:10px">Filter Clients</span>
+      <div class="preview-label">
+        <span>📄 Preview</span>
+        <span id="preview-client-name" style="font-weight:400;color:var(--muted);font-size:10px">No client selected</span>
+      </div>
+      <div class="preview-box" id="preview-box">Select a template and click a client row to preview the message.</div>
+
+      <span class="lbl" style="margin-top:14px">Filter Clients</span>
       <select id="client-filter" style="width:100%" onchange="renderClients()">
         <option value="all">All active clients</option>
         <option value="ltd">Ltd Companies only</option>
@@ -997,6 +1005,7 @@ function setTpl(key){
   if(el) el.classList.add('active');
   if(selectedClient){
     document.getElementById('msg-body').value=SMART_TMPLS[key]?SMART_TMPLS[key](selectedClient):'';
+    refreshPreview();
   } else {
     // No client selected yet — show template with placeholder hint
     const preview=SMART_TMPLS[key]?SMART_TMPLS[key]({name:'[Client Name]',company_name:'[Company Name]',director_name:'[Director Name]',accounts_ref_date:'',vat_stagger:'',services:[]}):'';
@@ -1013,6 +1022,24 @@ function selectClient(client){
     lbl.style.display = 'block';
   }
   setTpl(currentTpl);
+  refreshPreview();
+}
+
+function refreshPreview(){
+  const box = document.getElementById('preview-box');
+  const nameEl = document.getElementById('preview-client-name');
+  if(!box) return;
+  if(!selectedClient){
+    box.textContent = 'Select a template and click a client row to preview the message.';
+    if(nameEl) nameEl.textContent = 'No client selected';
+    return;
+  }
+  const msg = SMART_TMPLS[currentTpl] ? SMART_TMPLS[currentTpl](selectedClient) : document.getElementById('msg-body').value;
+  box.textContent = msg;
+  if(nameEl){
+    const contact = selectedClient.mobile ? '📱 '+selectedClient.mobile : selectedClient.email ? '📧 '+selectedClient.email : 'no contact';
+    nameEl.textContent = (selectedClient.name||selectedClient.ref) + ' · ' + contact;
+  }
 }
 
 function renderLog(){
