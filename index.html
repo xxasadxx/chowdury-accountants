@@ -1244,28 +1244,6 @@ loadStats();
     document.getElementById('lt-appts-sub').textContent=n===1?'appointment this week':'appointments this week';
   }catch(e){document.getElementById('lt-appts').textContent='—';}
 
-  // 2. Active clients — from Gocardless tracker (same source as revenue tracker)
-  try{
-    const r=await fetch(SB+'/rest/v1/'+encodeURIComponent('Gocardless tracker')+'?select=status',{headers:H}).then(r=>r.json()).catch(()=>[]);
-    const active=Array.isArray(r)?r.filter(c=>c.status==='active').length:0;
-    // Also add SA clients
-    const sa=await fetch(SB+'/rest/v1/sa_clients?select=id&status=eq.active',{headers:{...H,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}).catch(()=>0);
-    const total=active+sa;
-    document.getElementById('lt-clients').textContent=total>0?total.toLocaleString():'600+';
-  }catch(e){document.getElementById('lt-clients').textContent='600+';}
-
-  // 3. GoCardless MRR — from Gocardless tracker active clients sum
-  try{
-    const r=await fetch(SB+'/rest/v1/'+encodeURIComponent('Gocardless tracker')+'?select=fee,status',{headers:H}).then(r=>r.json()).catch(()=>[]);
-    if(Array.isArray(r)&&r.length>0){
-      const total=r.filter(c=>c.status==='active').reduce((s,c)=>s+(parseFloat(c.fee)||0),0);
-      document.getElementById('lt-mrr').textContent=total>0?'£'+Math.round(total).toLocaleString('en-GB'):'—';
-      document.getElementById('lt-mrr-sub').textContent='active DD clients';
-    } else {
-      document.getElementById('lt-mrr').textContent='—';
-    }
-  }catch(e){document.getElementById('lt-mrr').textContent='—';}
-
   // 4. Overdue deadlines — from seed files (ltd_clients in Supabase)
   try{
     const today=new Date().toISOString().slice(0,10);
