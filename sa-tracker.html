@@ -1860,14 +1860,14 @@ The Chowdury Accountants Ltd
 www.chowduryaccountants.co.uk`;
   },
   disengagement: (client) => {
-    const name = client.director_name && !/^director$/i.test(client.director_name.trim()) ? client.director_name : (client.company_name || client.name || 'Client');
+    const greeting = getGreeting(client);
     const compName = client.company_name || client.name || '[Company Name]';
     const t = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
     return `The Director of ${compName}
 
 ${t}
 
-Dear ${name},
+Dear ${greeting},
 
 1. PURPOSE
 This letter aims to outline the details related to our disengagement as your accountants and tax advisers, effective immediately except as specified below.
