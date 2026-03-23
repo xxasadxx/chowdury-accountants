@@ -884,59 +884,6 @@
 </div>
 
 
-<!-- LIVE STAT TILES -->
-<div class="live-tiles">
-  <a class="live-tile" href="appointments.html" style="border-left-color:#155FA0">
-    <div class="lt-icon">📅</div>
-    <div class="lt-body">
-      <div class="lt-label">This Week's Appointments</div>
-      <div class="lt-value" id="lt-appts" style="color:#155FA0"><span class="lt-loading">Loading…</span></div>
-      <div class="lt-sub" id="lt-appts-sub">appointments this week</div>
-    </div>
-  </a>
-  <a class="live-tile" href="ltd-tracker.html" style="border-left-color:#1D7A47">
-    <div class="lt-icon">👥</div>
-    <div class="lt-body">
-      <div class="lt-label">Active Clients</div>
-      <div class="lt-value" id="lt-clients" style="color:#1D7A47"><span class="lt-loading">Loading…</span></div>
-      <div class="lt-sub">Ltd + SE combined</div>
-    </div>
-  </a>
-  <a class="live-tile" href="revenue-tracker.html" style="border-left-color:#c8963c">
-    <div class="lt-icon">💰</div>
-    <div class="lt-body">
-      <div class="lt-label">GoCardless MRR</div>
-      <div class="lt-value" id="lt-mrr" style="color:#c8963c"><span class="lt-loading">Loading…</span></div>
-      <div class="lt-sub" id="lt-mrr-sub">monthly recurring revenue</div>
-    </div>
-  </a>
-  <a class="live-tile" href="ltd-tracker.html" style="border-left-color:#D04A02">
-    <div class="lt-icon">⚠️</div>
-    <div class="lt-body">
-      <div class="lt-label">Overdue Deadlines</div>
-      <div class="lt-value" id="lt-overdue" style="color:#D04A02"><span class="lt-loading">Loading…</span></div>
-      <div class="lt-sub" id="lt-overdue-sub">VAT · Accounts · CS combined</div>
-    </div>
-  </a>
-  <a class="live-tile" href="communications.html" style="border-left-color:#6D28D9">
-    <div class="lt-icon">💬</div>
-    <div class="lt-body">
-      <div class="lt-label">Messages Sent Today</div>
-      <div class="lt-value" id="lt-msgs" style="color:#6D28D9"><span class="lt-loading">Loading…</span></div>
-      <div class="lt-sub" id="lt-msgs-sub">WhatsApp &amp; email today</div>
-    </div>
-  </a>
-  <a class="live-tile" href="staff-management.html" style="border-left-color:#0d9488">
-    <div class="lt-icon">⏱</div>
-    <div class="lt-body">
-      <div class="lt-label">Staff Hours This Month</div>
-      <div class="lt-value" id="lt-hours" style="color:#0d9488"><span class="lt-loading">Loading…</span></div>
-      <div class="lt-sub" id="lt-hours-sub">logged across all staff</div>
-    </div>
-  </a>
-</div>
-
-
 <div class="divider"></div>
 
 <!-- LIVE TOOLS -->
@@ -1206,6 +1153,75 @@ async function loadStats() {
     document.getElementById('dd-rev').textContent = '—';
     document.getElementById('dd-count').textContent = '—';
   }
+
+  // ── EXTRA PORTAL CARD STATS ──────────────────────────────────────────────
+
+  // Appointments this week + month
+  try{
+    const today=new Date();today.setHours(0,0,0,0);
+    const ts=today.toISOString().slice(0,10);
+    const we=new Date(today);we.setDate(we.getDate()+7);
+    const me=new Date(today.getFullYear(),today.getMonth()+1,0);
+    const [wk,mo]=await Promise.all([
+      fetch(SB_URL+'/rest/v1/appointments?select=id&appt_date=gte.'+ts+'&appt_date=lte.'+we.toISOString().slice(0,10)+'&status=neq.cancelled',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]),
+      fetch(SB_URL+'/rest/v1/appointments?select=id&appt_date=gte.'+ts+'&appt_date=lte.'+me.toISOString().slice(0,10)+'&status=neq.cancelled',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]),
+    ]);
+    const wkEl=document.getElementById('pc-appts-week');
+    const moEl=document.getElementById('pc-appts-month');
+    if(wkEl) wkEl.textContent=Array.isArray(wk)?wk.length:'—';
+    if(moEl) moEl.textContent=Array.isArray(mo)?mo.length:'—';
+  }catch(e){}
+
+  // Messages today + this month
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const monthStart=today.slice(0,7)+'-01';
+    const [td,mo]=await Promise.all([
+      fetch(SB_URL+'/rest/v1/client_messages?select=id&sent_at=gte.'+today+'T00:00:00Z',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}).catch(()=>0),
+      fetch(SB_URL+'/rest/v1/client_messages?select=id&sent_at=gte.'+monthStart+'T00:00:00Z',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Range':'0-0','Prefer':'count=exact'}}).then(r=>{const c=r.headers.get('Content-Range');return c?parseInt(c.split('/')[1])||0:0;}).catch(()=>0),
+    ]);
+    const tdEl=document.getElementById('pc-msgs-today');
+    const moEl=document.getElementById('pc-msgs-month');
+    if(tdEl) tdEl.textContent=td;
+    if(moEl) moEl.textContent=mo;
+  }catch(e){}
+
+  // Staff hours this month
+  try{
+    const monthStart=new Date().toISOString().slice(0,7)+'-01';
+    const r=await fetch(SB_URL+'/rest/v1/staff_activities?select=hours&activity_date=gte.'+monthStart,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]);
+    const total=Array.isArray(r)?r.reduce((s,a)=>s+(parseFloat(a.hours)||0),0):0;
+    const el=document.getElementById('pc-hours');
+    if(el) el.textContent=total>0?total.toFixed(1)+'h':'0h';
+  }catch(e){}
+
+  // Onboarding pipeline + AML pending
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/onboarding_clients?select=status',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]);
+    if(Array.isArray(r)){
+      const pipeline=r.filter(c=>c.status!=='completed').length;
+      const aml=r.filter(c=>c.status==='aml_pending').length;
+      const pEl=document.getElementById('pc-pipeline');
+      const aEl=document.getElementById('pc-aml');
+      if(pEl) pEl.textContent=pipeline;
+      if(aEl) aEl.textContent=aml;
+    }
+  }catch(e){}
+
+  // Calendar overdue + due this week (reuse ltd_clients)
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const we=new Date();we.setDate(we.getDate()+7);
+    const r=await fetch(SB_URL+'/rest/v1/ltd_clients?select=accounts_due,conf_due&status=eq.active&limit=1000',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}}).then(r=>r.json()).catch(()=>[]);
+    if(Array.isArray(r)){
+      const overdue=r.filter(c=>(c.accounts_due&&c.accounts_due<today)||(c.conf_due&&c.conf_due<today)).length;
+      const week=r.filter(c=>(c.accounts_due&&c.accounts_due>=today&&c.accounts_due<=we.toISOString().slice(0,10))||(c.conf_due&&c.conf_due>=today&&c.conf_due<=we.toISOString().slice(0,10))).length;
+      const oEl=document.getElementById('pc-cal-overdue');
+      const wEl=document.getElementById('pc-cal-week');
+      if(oEl) oEl.textContent=overdue;
+      if(wEl) wEl.textContent=week;
+    }
+  }catch(e){}
 
   // Pipeline
   if (pipeline && pipeline.length > 0) {
