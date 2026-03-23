@@ -336,15 +336,37 @@ function bdayGreetName(directorName) {
 async function D_load() {
   document.getElementById('d-list').innerHTML = '<div class="empty-state">Loading client deadlines...</div>';
   try {
-    const seeds = await Promise.all([0,1,2,3,4,5,6].map(i =>
-      fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])
-    ));
-    const allLtd = seeds.flat().filter(c => c.status === 'active');
+    // Fetch seeds and Supabase contacts in parallel
+    const [seedsRaw, sbContacts] = await Promise.all([
+      Promise.all([0,1,2,3,4,5,6].map(i =>
+        fetch('ltd-seed-'+i+'.json').then(r=>r.json()).catch(()=>[])
+      )),
+      fetch(SB+'/rest/v1/ltd_clients?select=comp_no,director_mobile,director_email&status=eq.active&limit=1000',
+        {headers:{apikey:KEY,'Authorization':'Bearer '+KEY}}).then(r=>r.json()).catch(()=>[])
+    ]);
 
+    // Build mobile/email lookup from Supabase
+    const contactMap = {};
+    if (Array.isArray(sbContacts)) {
+      sbContacts.forEach(c => {
+        contactMap[String(c.comp_no).padStart(8,'0')] = {
+          mobile: c.director_mobile||'', email: c.director_email||''
+        };
+      });
+    }
+
+    const allLtd = seedsRaw.flat().filter(c => c.status === 'active');
     D_ALL = [];
 
     allLtd.forEach(c => {
-      const base = {company:c.name, director:c.director_name||'', mobile:c.director_mobile||'', email:c.director_email||''};
+      const compNo = String(c.comp_no).padStart(8,'0');
+      const contact = contactMap[compNo] || {};
+      const base = {
+        company: c.name,
+        director: c.director_name||'',
+        mobile: contact.mobile || c.director_mobile||'',
+        email: contact.email || c.director_email||''
+      };
       // Accounts due
       if (c.accounts_due) {
         D_ALL.push({...base, type:'accounts', label:'Accounts Due', date:parseDate(c.accounts_due), dateStr:c.accounts_due, detail:'Annual accounts & CT600'});
