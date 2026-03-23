@@ -380,7 +380,41 @@ function D_renderStats() {
   document.getElementById('kpi-month').textContent = D_ALL.filter(d=>{const days=daysFrom(d.date);return days!==null&&days>0&&days<=30;}).length;
 }
 
+let D_RENDERED = [];
+
+function D_openWA(idx) {
+  const d = D_RENDERED[idx];
+  if (!d || !d.mobile) return;
+  const mob = d.mobile.trim();
+  const uk = mob.replace(/\D/g,'').replace(/^0/,'44');
+  const isBday = d.type === 'bday';
+  const greetName = bdayGreetName(d.director);
+  let msg;
+  if (isBday) {
+    msg = 'Dear ' + greetName + ',\n\nWishing you a very Happy Birthday! \uD83C\uDF82\uD83C\uDF89\n\nMay this special day bring you joy, happiness and all the success you deserve.\n\nBest wishes,\nThe Chowdury Accountants Team\n\uD83D\uDCDE 0161 222 4647';
+  } else {
+    msg = 'Dear ' + greetName + ',\n\nI hope you are well. I am writing regarding your ' + d.label + ' for ' + d.company + '.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n\uD83D\uDCDE 0161 222 4647';
+  }
+  window.open('https://wa.me/' + uk + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function D_openEmail(idx) {
+  const d = D_RENDERED[idx];
+  if (!d || !d.email) return;
+  const isBday = d.type === 'bday';
+  const greetName = bdayGreetName(d.director);
+  const subject = isBday ? 'Happy Birthday from Chowdury Accountants' : d.label + ' — ' + d.company;
+  let body;
+  if (isBday) {
+    body = 'Dear ' + greetName + ',\n\nWishing you a very Happy Birthday!\n\nMay this special day bring you joy and success.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647';
+  } else {
+    body = 'Dear ' + greetName + ',\n\nI hope you are well. I am writing regarding your ' + d.label + ' for ' + d.company + '.\n\nPlease do not hesitate to contact us if you need any assistance.\n\nBest wishes,\nThe Chowdury Accountants Team\n0161 222 4647';
+  }
+  window.location.href = 'mailto:' + d.email + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+
 function D_render() {
+  D_RENDERED = [];
   const q = (document.getElementById('d-srch').value||'').toLowerCase();
   const today = new Date(); today.setHours(0,0,0,0);
 
