@@ -414,7 +414,6 @@ function D_render() {
     const dateKey = d.date ? d.date.toISOString().slice(0,10) : 'no-date';
     const isOverdue = days !== null && days < 0 && d.type !== 'bday';
     const isToday = days === 0;
-    const isSa = d.type === 'sa';
 
     // Day group header
     if (dateKey !== prevDateKey) {
