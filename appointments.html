@@ -1,0 +1,886 @@
+<!-- CA PORTAL v1773207034 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(sessionStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Appointments — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#FFFFFF;--text:#252525;--ink:#252525;--ink2:#4A4A4A;
+  --muted:#7A7A7A;--border:#DEDEDE;--border2:#D0D0D0;
+  --red:#D04A02;--red-light:#FCEEE8;--green:#1D7A47;--green-light:#E5F4EC;
+  --blue:#155FA0;--blue-light:#E5EFF8;--amber:#C07A00;--amber-light:#FEF3DC;
+  --gold:#c8963c;--purple:#6D28D9;--purple-light:#EDE9FE;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --radius:10px;
+}
+body{padding-top:92px !important;font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+/* Page header */
+.page-header{padding:18px 24px 0;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted);margin-bottom:14px}
+.page-tabs{display:flex;gap:0}
+.page-tab{padding:11px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.page-tab:hover{color:var(--text)}.page-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+/* KPI */
+.kpi-row{display:flex;gap:10px;padding:14px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.kpi{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;flex:1;min-width:100px}
+.kpi .k{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.kpi .v{font-size:22px;font-weight:700;margin:3px 0 1px;font-family:var(--display)}
+/* Buttons */
+.btn{padding:7px 13px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1a6fb8}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#1a6b3e}
+.btn-gold{background:var(--gold);color:#fff}.btn-gold:hover{background:#b07830}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b83e01}
+.btn-secondary{background:none;border:1px solid var(--border2);color:var(--ink2)}.btn-secondary:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:4px 9px;font-size:11px;border-radius:5px}
+.search-box{padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none}
+.search-box:focus{border-color:var(--blue)}
+/* Badge */
+.badge{display:inline-block;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:700}
+.badge-confirmed{background:#dcfce7;color:#166534}
+.badge-cancelled{background:#fee2e2;color:#dc2626}
+.badge-completed{background:#dbeafe;color:#1e40af}
+.badge-noshow{background:#f3f4f6;color:#6b7280}
+/* Staff pills */
+.staff-pills{display:flex;gap:6px;flex-wrap:wrap;padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+.staff-pill{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:2px solid var(--border2);background:none;color:var(--ink2);transition:all .15s;font-family:var(--sans)}
+.staff-pill.active{color:#fff;border-color:transparent}
+/* Calendar */
+.cal-container{padding:20px 24px}
+.cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.cal-nav h2{font-family:var(--display);font-size:16px;font-weight:700;flex:1}
+.week-grid{display:grid;grid-template-columns:60px repeat(7,1fr);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.week-header{display:contents}
+.wh-spacer{background:var(--bg);border-bottom:2px solid var(--border);border-right:1px solid var(--border);padding:8px}
+.wh-day{background:var(--bg);border-bottom:2px solid var(--border);border-right:1px solid var(--border);padding:8px;text-align:center;font-size:11px;font-weight:700;cursor:pointer}
+.wh-day:last-child{border-right:none}
+.wh-day.today{background:var(--blue);color:#fff;border-radius:0}
+.wh-day .wh-date{font-size:18px;font-weight:800;font-family:var(--display)}
+.wh-day .wh-name{font-size:9px;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+.time-slot{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:3px 4px;font-size:9px;color:var(--muted);font-family:var(--mono);background:var(--bg);min-height:44px;line-height:2.8}
+.appt-slot{border-right:1px solid var(--border);border-bottom:1px solid var(--border);padding:2px;min-height:44px;position:relative;cursor:pointer}
+.appt-slot:hover{background:var(--blue-light)}
+.appt-block{border-radius:5px;padding:3px 6px;font-size:10px;font-weight:600;color:#fff;overflow:hidden;cursor:pointer;margin:1px;transition:opacity .15s}
+.appt-block:hover{opacity:.85}
+.appt-block .ab-name{font-size:10px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.appt-block .ab-time{font-size:9px;opacity:.85}
+.appt-block .ab-svc{font-size:9px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Table */
+.data-table{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:var(--surface)}
+.dt-head{display:grid;gap:10px;padding:8px 14px;background:var(--bg);border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.dt-row{display:grid;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;transition:background .1s}
+.dt-row:last-child{border-bottom:none}
+.dt-row:hover{background:var(--bg)}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000;display:none;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;padding:24px;width:520px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal h3{font-family:var(--display);font-size:16px;font-weight:800;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-row{margin-bottom:12px}
+.form-row label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--ink);background:#fff;outline:none}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--blue)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:10px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:99999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok{background:var(--green);color:#fff}.toast.err{background:var(--red);color:#fff}
+/* Services */
+.svc-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.svc-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.svc-info{flex:1}
+.svc-name{font-weight:700;font-size:13px;margin-bottom:2px}
+.svc-meta{font-size:11px;color:var(--muted)}
+/* Activity */
+.activity-entry{padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px}
+.activity-entry:last-child{border-bottom:none}
+.activity-entry .ae-action{font-weight:700;color:var(--blue)}
+.activity-entry .ae-meta{font-size:10px;color:var(--muted);margin-top:2px}
+/* Day view */
+.day-timeline{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.dt-time-col{width:60px;flex-shrink:0}
+.dt-row-time{display:flex;border-bottom:1px solid var(--border)}
+.dt-time-label{width:60px;padding:0 6px;font-size:9px;color:var(--muted);font-family:var(--mono);border-right:1px solid var(--border);background:var(--bg);line-height:44px;flex-shrink:0}
+.dt-time-cell{flex:1;min-height:44px;border-right:1px solid var(--border);position:relative;cursor:pointer}
+.dt-time-cell:hover{background:var(--blue-light)}
+.dt-time-cell:last-child{border-right:none}
+.view-toggle{display:flex;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:3px}
+.vt-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);font-family:var(--sans)}
+.vt-btn.active{background:var(--blue);color:#fff}
+</style>
+</head>
+<body>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+body{padding-top:92px !important}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <span class="ca-date" id="ca-hdr-date"></span>
+  </div>
+  <div class="ca-links" id="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html" class="active">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html" class="active">📅 Appointments</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">📅 Calendar</a>
+    <a href="strategic-review.html">📊 Strategy</a>
+    <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
+  </div>
+</div>
+<script>
+(function(){
+  var p=window.location.pathname.split('/').pop()||'index.html';
+  if(!p||p==='') p='index.html';
+  if(p.indexOf('.')===-1) p=p+'.html';
+  document.querySelectorAll('#ca-links a:not(.ca-signout)').forEach(function(a){
+    if(a.getAttribute('href')===p) a.classList.add('active');
+  });
+  var el=document.getElementById('ca-hdr-date');
+  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+})();
+</script>
+
+<!-- NAV injected by script below -->
+<div class="page-header">
+  <h1>📅 Appointments</h1>
+  <p>Book, manage and track all client appointments across the team</p>
+  <div class="page-tabs">
+    <div class="page-tab active" onclick="setView('calendar')">📅 Calendar</div>
+    <div class="page-tab" onclick="setView('list')">📋 All Appointments</div>
+    <div class="page-tab" onclick="setView('customers')">👥 Customers</div>
+    <div class="page-tab" onclick="setView('services')">🛠 Services</div>
+    <div class="page-tab" onclick="setView('activity')">📋 Activity</div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-row">
+  <div class="kpi"><div class="k">Today</div><div class="v" id="kpi-today" style="color:var(--blue)">—</div></div>
+  <div class="kpi"><div class="k">This Week</div><div class="v" id="kpi-week" style="color:var(--green)">—</div></div>
+  <div class="kpi"><div class="k">This Month</div><div class="v" id="kpi-month" style="color:var(--amber)">—</div></div>
+  <div class="kpi"><div class="k">Total</div><div class="v" id="kpi-total" style="color:var(--muted)">—</div></div>
+  <div class="kpi"><div class="k">Cancelled</div><div class="v" id="kpi-cancelled" style="color:var(--red)">—</div></div>
+</div>
+
+<!-- Staff filter pills -->
+<div class="staff-pills" id="staff-pills">
+  <button class="staff-pill active" id="sp-all" onclick="setStaffFilter('all')" style="background:var(--ink);border-color:var(--ink);color:#fff">All Staff</button>
+  <button class="staff-pill" id="sp-Asad" onclick="setStaffFilter('Asad')" style="--sc:#155FA0">Asad</button>
+  <button class="staff-pill" id="sp-Hassan" onclick="setStaffFilter('Hassan')" style="--sc:#1D7A47">Hassan</button>
+  <button class="staff-pill" id="sp-Aminul" onclick="setStaffFilter('Aminul')" style="--sc:#6D28D9">Aminul</button>
+  <button class="staff-pill" id="sp-Nawaz" onclick="setStaffFilter('Nawaz')" style="--sc:#C07A00">Nawaz</button>
+  <button class="staff-pill" id="sp-Sadat" onclick="setStaffFilter('Sadat')" style="--sc:#D04A02">Sadat</button>
+  <div style="margin-left:auto">
+    <button class="btn btn-blue" onclick="openBookModal()">+ Book Appointment</button>
+  </div>
+</div>
+
+<!-- ── CALENDAR VIEW ── -->
+<div id="view-calendar" style="padding:20px 24px">
+  <div class="cal-nav">
+    <button class="btn btn-secondary btn-sm" onclick="calNav(-1)">‹ Prev</button>
+    <h2 id="cal-title"></h2>
+    <button class="btn btn-secondary btn-sm" onclick="calNav(1)">Next ›</button>
+    <button class="btn btn-secondary btn-sm" onclick="goToday()">Today</button>
+    <div class="view-toggle">
+      <button class="vt-btn active" id="vt-week" onclick="setCalView('week')">Week</button>
+      <button class="vt-btn" id="vt-day" onclick="setCalView('day')">Day</button>
+    </div>
+  </div>
+  <div id="cal-grid"></div>
+</div>
+
+<!-- ── LIST VIEW ── -->
+<div id="view-list" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+    <input class="search-box" id="list-srch" placeholder="🔍 Search client or service..." oninput="renderList()" style="width:240px">
+    <select class="search-box" id="list-status" onchange="renderList()">
+      <option value="">All statuses</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="completed">Completed</option>
+      <option value="cancelled">Cancelled</option>
+      <option value="noshow">No Show</option>
+    </select>
+    <select class="search-box" id="list-period" onchange="renderList()">
+      <option value="upcoming">Upcoming</option>
+      <option value="today">Today</option>
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+      <option value="all">All Time</option>
+    </select>
+    <span style="font-size:11px;color:var(--muted)" id="list-count"></span>
+  </div>
+  <div class="data-table">
+    <div class="dt-head" style="grid-template-columns:120px 1fr 1fr 100px 90px 100px 80px">
+      <div>Date & Time</div><div>Client</div><div>Service</div><div>Staff</div><div>Duration</div><div>Status</div><div>Actions</div>
+    </div>
+    <div id="list-body"><div style="padding:20px;text-align:center;color:var(--muted)">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── CUSTOMERS VIEW ── -->
+<div id="view-customers" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+    <input class="search-box" id="cust-srch" placeholder="🔍 Search customer..." oninput="renderCustomers()" style="width:240px">
+    <span id="cust-count" style="font-size:11px;color:var(--muted)"></span>
+  </div>
+  <div class="data-table">
+    <div class="dt-head" style="grid-template-columns:1fr 120px 80px 80px">
+      <div>Customer</div><div>Mobile</div><div>Appointments</div><div>Last Visit</div>
+    </div>
+    <div id="cust-body"><div style="padding:20px;text-align:center;color:var(--muted)">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── SERVICES VIEW ── -->
+<div id="view-services" style="display:none;padding:20px 24px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div style="font-family:var(--display);font-size:15px;font-weight:700">Services</div>
+    <button class="btn btn-blue" onclick="openSvcModal()">+ Add Service</button>
+  </div>
+  <div id="svc-list"><div style="padding:20px;text-align:center;color:var(--muted)">Loading…</div></div>
+</div>
+
+<!-- ── ACTIVITY VIEW ── -->
+<div id="view-activity" style="display:none;padding:20px 24px">
+  <div style="font-family:var(--display);font-size:15px;font-weight:700;margin-bottom:14px">Activity Log</div>
+  <div class="data-table">
+    <div id="activity-body"><div style="padding:20px;text-align:center;color:var(--muted)">Loading…</div></div>
+  </div>
+</div>
+
+<!-- ── BOOK APPOINTMENT MODAL ── -->
+<div class="modal-overlay" id="book-modal" onclick="if(event.target===this)closeBookModal()">
+  <div class="modal">
+    <h3>📅 <span id="book-modal-title">Book Appointment</span></h3>
+    <div class="form-row">
+      <label>Client Name *</label>
+      <input id="bk-client" placeholder="Full name" list="bk-client-list">
+      <datalist id="bk-client-list"></datalist>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin:0">
+        <label>Mobile</label>
+        <input id="bk-mobile" placeholder="07xxx xxxxxx">
+      </div>
+      <div class="form-row" style="margin:0">
+        <label>Email</label>
+        <input id="bk-email" placeholder="optional">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Service</label>
+      <select id="bk-service" onchange="onServiceChange()">
+        <option value="">— Select service —</option>
+      </select>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin:0">
+        <label>Staff *</label>
+        <select id="bk-staff">
+          <option value="">— Select —</option>
+          <option>Asad</option><option>Hassan</option><option>Aminul</option>
+          <option>Nawaz</option><option>Sadat</option>
+        </select>
+      </div>
+      <div class="form-row" style="margin:0">
+        <label>Duration (mins)</label>
+        <input id="bk-duration" type="number" value="20" min="5" max="180">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin:0">
+        <label>Date *</label>
+        <input id="bk-date" type="date">
+      </div>
+      <div class="form-row" style="margin:0">
+        <label>Time *</label>
+        <input id="bk-time" type="time" value="09:00">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Status</label>
+      <select id="bk-status">
+        <option value="confirmed">Confirmed</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="noshow">No Show</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label>Notes</label>
+      <textarea id="bk-notes" rows="2" placeholder="Any additional notes..."></textarea>
+    </div>
+    <div class="form-row">
+      <label>Booked By</label>
+      <select id="bk-bookedby">
+        <option value="">— Select —</option>
+        <option>Asad</option><option>Hassan</option><option>Aminul</option>
+        <option>Nawaz</option><option>Sadat</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeBookModal()">Cancel</button>
+      <button class="btn btn-red btn-sm" id="bk-delete-btn" onclick="deleteAppt()" style="display:none">Delete</button>
+      <button class="btn btn-blue" onclick="saveAppt()">Save Appointment</button>
+    </div>
+    <input type="hidden" id="bk-edit-id" value="">
+  </div>
+</div>
+
+<!-- ── SERVICE MODAL ── -->
+<div class="modal-overlay" id="svc-modal" onclick="if(event.target===this)closeSvcModal()">
+  <div class="modal">
+    <h3>🛠 <span id="svc-modal-title">Add Service</span></h3>
+    <div class="form-row">
+      <label>Service Name *</label>
+      <input id="sv-name" placeholder="e.g. Ltd Company Appointment with Asad">
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin:0">
+        <label>Duration (mins)</label>
+        <input id="sv-duration" type="number" value="20" min="5">
+      </div>
+      <div class="form-row" style="margin:0">
+        <label>Buffer (mins)</label>
+        <input id="sv-buffer" type="number" value="10" min="0">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin:0">
+        <label>Price (£)</label>
+        <input id="sv-price" type="number" value="0" min="0" step="0.01">
+      </div>
+      <div class="form-row" style="margin:0">
+        <label>Staff Member</label>
+        <select id="sv-staff">
+          <option value="">Any</option>
+          <option>Asad</option><option>Hassan</option><option>Aminul</option>
+          <option>Nawaz</option><option>Sadat</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Colour</label>
+      <input id="sv-color" type="color" value="#155FA0" style="height:36px;padding:2px 4px">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeSvcModal()">Cancel</button>
+      <button class="btn btn-red btn-sm" id="sv-delete-btn" onclick="deleteSvc()" style="display:none">Delete</button>
+      <button class="btn btn-blue" onclick="saveSvc()">Save Service</button>
+    </div>
+    <input type="hidden" id="sv-edit-id" value="">
+  </div>
+</div>
+
+<!-- Customer History Modal -->
+<div class="modal-overlay" id="cust-modal" onclick="if(event.target===this)closeCustModal()">
+  <div class="modal">
+    <h3>👤 <span id="cust-modal-name"></span></h3>
+    <div id="cust-modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeCustModal()">Close</button>
+      <button class="btn btn-blue" onclick="closeCustModal();openBookModal()">+ Book New</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'};
+
+const STAFF_COLORS = {Asad:'#155FA0',Hassan:'#1D7A47',Aminul:'#6D28D9',Nawaz:'#C07A00',Sadat:'#D04A02',all:'#252525'};
+
+let ALL_APPTS = [], ALL_SVCS = [], staffFilter = 'all', calView = 'week';
+let calDate = new Date(); calDate.setHours(0,0,0,0);
+let currentView = 'calendar';
+
+function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
+
+// ── DATA LOADING ─────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [appts, svcs] = await Promise.all([
+      fetch(SB+'/rest/v1/appointments?select=*&order=appt_date.asc,appt_time.asc',{headers:H}).then(r=>r.json()),
+      fetch(SB+'/rest/v1/appointment_services?select=*&order=name.asc',{headers:H}).then(r=>r.json())
+    ]);
+    ALL_APPTS = Array.isArray(appts) ? appts : [];
+    ALL_SVCS = Array.isArray(svcs) ? svcs : [];
+    updateKPIs();
+    populateServiceDropdown();
+    populateClientDatalist();
+    renderCurrentView();
+  } catch(e) { toast('Failed to load: '+e.message,'err'); }
+}
+
+function updateKPIs() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().slice(0,10);
+  const weekEnd = new Date(today); weekEnd.setDate(weekEnd.getDate()+7);
+  const monthEnd = new Date(today); monthEnd.setDate(monthEnd.getDate()+30);
+
+  const active = ALL_APPTS.filter(a=>a.status!=='cancelled');
+  document.getElementById('kpi-today').textContent = active.filter(a=>a.appt_date===todayStr).length;
+  document.getElementById('kpi-week').textContent = active.filter(a=>a.appt_date>=todayStr&&a.appt_date<=weekEnd.toISOString().slice(0,10)).length;
+  document.getElementById('kpi-month').textContent = active.filter(a=>a.appt_date>=todayStr&&a.appt_date<=monthEnd.toISOString().slice(0,10)).length;
+  document.getElementById('kpi-total').textContent = ALL_APPTS.length;
+  document.getElementById('kpi-cancelled').textContent = ALL_APPTS.filter(a=>a.status==='cancelled').length;
+}
+
+function populateServiceDropdown() {
+  const sel = document.getElementById('bk-service');
+  sel.innerHTML = '<option value="">— Select service —</option>' +
+    ALL_SVCS.map(s=>`<option value="${s.id}" data-dur="${s.duration_mins}" data-staff="${s.staff||''}">${s.name}</option>`).join('');
+}
+
+function populateClientDatalist() {
+  const dl = document.getElementById('bk-client-list');
+  const names = [...new Set(ALL_APPTS.map(a=>a.client_name).filter(Boolean))].sort();
+  dl.innerHTML = names.map(n=>`<option value="${n}">`).join('');
+}
+
+function onServiceChange() {
+  const sel = document.getElementById('bk-service');
+  const opt = sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.dur) document.getElementById('bk-duration').value = opt.dataset.dur;
+  if(opt && opt.dataset.staff) document.getElementById('bk-staff').value = opt.dataset.staff;
+}
+
+// ── STAFF FILTER ─────────────────────────────────────────────────────────
+function setStaffFilter(s) {
+  staffFilter = s;
+  document.querySelectorAll('.staff-pill').forEach(p=>{ p.classList.remove('active'); p.style.background='none'; p.style.color='var(--ink2)'; p.style.borderColor='var(--border2)'; });
+  const el = document.getElementById('sp-'+s);
+  if(el) { el.classList.add('active'); const c=STAFF_COLORS[s]||'#252525'; el.style.background=c; el.style.color='#fff'; el.style.borderColor=c; }
+  renderCurrentView();
+}
+
+function filteredAppts() {
+  return staffFilter==='all' ? ALL_APPTS : ALL_APPTS.filter(a=>a.staff===staffFilter);
+}
+
+// ── VIEW SWITCHER ─────────────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  ['calendar','list','customers','services','activity'].forEach(x=>{
+    document.getElementById('view-'+x).style.display = x===v?'block':'none';
+  });
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',i===['calendar','list','customers','services','activity'].indexOf(v)));
+  renderCurrentView();
+}
+
+function renderCurrentView() {
+  if(currentView==='calendar') renderCalendar();
+  else if(currentView==='list') renderList();
+  else if(currentView==='customers') renderCustomers();
+  else if(currentView==='services') renderServices();
+  else if(currentView==='activity') renderActivity();
+}
+
+// ── CALENDAR ─────────────────────────────────────────────────────────────
+function setCalView(v) { calView=v; document.getElementById('vt-week').classList.toggle('active',v==='week'); document.getElementById('vt-day').classList.toggle('active',v==='day'); renderCalendar(); }
+function calNav(dir) { if(calView==='week') calDate.setDate(calDate.getDate()+dir*7); else calDate.setDate(calDate.getDate()+dir); renderCalendar(); }
+function goToday() { calDate=new Date(); calDate.setHours(0,0,0,0); renderCalendar(); }
+
+function renderCalendar() {
+  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const today=new Date(); today.setHours(0,0,0,0);
+  const appts=filteredAppts().filter(a=>a.status!=='cancelled');
+
+  if(calView==='week') {
+    // Get Monday of current week
+    const dow=calDate.getDay();
+    const mon=new Date(calDate); mon.setDate(calDate.getDate()-(dow===0?6:dow-1));
+    document.getElementById('cal-title').textContent=MONTHS[mon.getMonth()]+' '+mon.getFullYear();
+
+    const days=[]; for(let i=0;i<7;i++){const d=new Date(mon);d.setDate(mon.getDate()+i);days.push(d);}
+    const hours=[]; for(let h=8;h<=18;h++) hours.push(h);
+
+    let html=`<div class="week-grid">
+      <div class="wh-spacer"></div>`;
+    days.forEach(d=>{
+      const isToday=d.toISOString().slice(0,10)===today.toISOString().slice(0,10);
+      html+=`<div class="wh-day${isToday?' today':''}"><div class="wh-date">${d.getDate()}</div><div class="wh-name">${DAYS[d.getDay()]}</div></div>`;
+    });
+
+    hours.forEach(h=>{
+      const timeStr=String(h).padStart(2,'0')+':00';
+      html+=`<div class="time-slot">${timeStr}</div>`;
+      days.forEach(d=>{
+        const ds=d.toISOString().slice(0,10);
+        const slotAppts=appts.filter(a=>a.appt_date===ds&&a.appt_time&&parseInt(a.appt_time)===h);
+        html+=`<div class="appt-slot" onclick="openBookModalForDate('${ds}','${timeStr}')">`;
+        slotAppts.forEach(a=>{
+          const color=STAFF_COLORS[a.staff]||'#c8963c';
+          html+=`<div class="appt-block" style="background:${color}" onclick="event.stopPropagation();openEditModal(${a.id})" title="${a.client_name} — ${a.service_name||''}">
+            <div class="ab-name">${a.client_name}</div>
+            <div class="ab-svc">${a.service_name||''}</div>
+          </div>`;
+        });
+        html+='</div>';
+      });
+    });
+    html+='</div>';
+    document.getElementById('cal-grid').innerHTML=html;
+
+  } else {
+    // Day view
+    const ds=calDate.toISOString().slice(0,10);
+    document.getElementById('cal-title').textContent=DAYS[calDate.getDay()]+', '+calDate.getDate()+' '+MONTHS[calDate.getMonth()]+' '+calDate.getFullYear();
+    const dayAppts=appts.filter(a=>a.appt_date===ds);
+    const hours=[]; for(let h=8;h<=18;h++) hours.push(h);
+    const staffList=staffFilter==='all'?['Asad','Hassan','Aminul','Nawaz','Sadat']:[staffFilter];
+
+    let html=`<div class="week-grid" style="grid-template-columns:60px repeat(${staffList.length},1fr)">
+      <div class="wh-spacer"></div>`;
+    staffList.forEach(s=>{const c=STAFF_COLORS[s]||'#252525';html+=`<div class="wh-day"><div class="wh-name" style="color:${c};font-size:11px;font-weight:700">${s}</div></div>`;});
+    hours.forEach(h=>{
+      const timeStr=String(h).padStart(2,'0')+':00';
+      html+=`<div class="time-slot">${timeStr}</div>`;
+      staffList.forEach(s=>{
+        const slotAppts=dayAppts.filter(a=>a.staff===s&&a.appt_time&&parseInt(a.appt_time)===h);
+        const color=STAFF_COLORS[s]||'#c8963c';
+        html+=`<div class="appt-slot" onclick="openBookModalForDate('${ds}','${timeStr}','${s}')">`;
+        slotAppts.forEach(a=>{
+          html+=`<div class="appt-block" style="background:${color}" onclick="event.stopPropagation();openEditModal(${a.id})">
+            <div class="ab-name">${a.client_name}</div>
+            <div class="ab-time">${a.appt_time||''}</div>
+            <div class="ab-svc">${a.service_name||''}</div>
+          </div>`;
+        });
+        html+='</div>';
+      });
+    });
+    html+='</div>';
+    document.getElementById('cal-grid').innerHTML=html;
+  }
+}
+
+// ── LIST VIEW ─────────────────────────────────────────────────────────────
+function renderList() {
+  const q=(document.getElementById('list-srch').value||'').toLowerCase();
+  const status=document.getElementById('list-status').value;
+  const period=document.getElementById('list-period').value;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const todayStr=today.toISOString().slice(0,10);
+  const weekEnd=new Date(today);weekEnd.setDate(weekEnd.getDate()+7);
+  const monthEnd=new Date(today);monthEnd.setMonth(monthEnd.getMonth()+1);
+
+  let list=filteredAppts().filter(a=>{
+    if(q&&!a.client_name.toLowerCase().includes(q)&&!(a.service_name||'').toLowerCase().includes(q)) return false;
+    if(status&&a.status!==status) return false;
+    if(period==='today') return a.appt_date===todayStr;
+    if(period==='week') return a.appt_date>=todayStr&&a.appt_date<=weekEnd.toISOString().slice(0,10);
+    if(period==='month') return a.appt_date>=todayStr&&a.appt_date<=monthEnd.toISOString().slice(0,10);
+    if(period==='upcoming') return a.appt_date>=todayStr;
+    return true;
+  });
+  list.sort((a,b)=>a.appt_date>b.appt_date?1:a.appt_date<b.appt_date?-1:0);
+  document.getElementById('list-count').textContent=list.length+' appointments';
+
+  if(!list.length){document.getElementById('list-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">No appointments found</div>';return;}
+
+  document.getElementById('list-body').innerHTML=list.map(a=>{
+    const d=new Date(a.appt_date+'T'+a.appt_time);
+    const dateStr=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    const timeStr=a.appt_time?a.appt_time.slice(0,5):'';
+    const color=STAFF_COLORS[a.staff]||'#c8963c';
+    return`<div class="dt-row" style="grid-template-columns:120px 1fr 1fr 100px 90px 100px 80px">
+      <div style="font-family:var(--mono);font-size:10px">${dateStr}<br>${timeStr}</div>
+      <div style="font-weight:600">${a.client_name}<br><span style="font-size:10px;color:var(--muted)">${a.client_mobile||''}</span></div>
+      <div style="font-size:11px">${a.service_name||'—'}</div>
+      <div><span style="background:${color};color:#fff;padding:2px 8px;border-radius:9px;font-size:10px;font-weight:600">${a.staff||'—'}</span></div>
+      <div style="font-size:11px">${a.duration_mins||20} mins</div>
+      <div><span class="badge badge-${a.status||'confirmed'}">${a.status||'confirmed'}</span></div>
+      <div><button class="btn btn-sm btn-secondary" onclick="openEditModal(${a.id})">Edit</button></div>
+    </div>`;
+  }).join('');
+}
+
+// ── CUSTOMERS VIEW ────────────────────────────────────────────────────────
+function renderCustomers() {
+  const q=(document.getElementById('cust-srch').value||'').toLowerCase();
+  const custMap={};
+  ALL_APPTS.forEach(a=>{
+    const key=a.client_name;
+    if(!custMap[key]) custMap[key]={name:a.client_name,mobile:a.client_mobile||'',appts:[],last:''};
+    custMap[key].appts.push(a);
+    if(!custMap[key].last||a.appt_date>custMap[key].last) custMap[key].last=a.appt_date;
+  });
+  let customers=Object.values(custMap).filter(c=>!q||c.name.toLowerCase().includes(q));
+  customers.sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById('cust-count').textContent=customers.length+' customers';
+  document.getElementById('cust-body').innerHTML=customers.map(c=>`
+    <div class="dt-row" style="grid-template-columns:1fr 120px 80px 80px;cursor:pointer" onclick="showCustHistory('${c.name.replace(/'/g,"\\'")}')">
+      <div style="font-weight:600">${c.name}</div>
+      <div style="font-size:11px;color:var(--muted)">${c.mobile||'—'}</div>
+      <div style="font-size:11px">${c.appts.length}</div>
+      <div style="font-size:10px;color:var(--muted)">${c.last?new Date(c.last).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—'}</div>
+    </div>`).join('');
+}
+
+function showCustHistory(name) {
+  const appts=ALL_APPTS.filter(a=>a.client_name===name).sort((a,b)=>b.appt_date>a.appt_date?1:-1);
+  document.getElementById('cust-modal-name').textContent=name;
+  document.getElementById('cust-modal-body').innerHTML=appts.length?`
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">${appts.length} appointment${appts.length!==1?'s':''}</div>
+    <div style="max-height:350px;overflow-y:auto">
+    ${appts.map(a=>`<div style="padding:8px 10px;border:1px solid var(--border);border-radius:7px;margin-bottom:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:600;font-size:12px">${a.service_name||'Appointment'}</div>
+        <span class="badge badge-${a.status||'confirmed'}">${a.status||'confirmed'}</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:3px">${new Date(a.appt_date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'})} at ${(a.appt_time||'').slice(0,5)} · ${a.staff||'—'}</div>
+      ${a.notes?`<div style="font-size:10px;color:var(--ink2);margin-top:4px;font-style:italic">${a.notes}</div>`:''}
+    </div>`).join('')}
+    </div>`:'<div style="padding:20px;text-align:center;color:var(--muted)">No appointments yet</div>';
+  document.getElementById('cust-modal').classList.add('open');
+}
+function closeCustModal(){document.getElementById('cust-modal').classList.remove('open');}
+
+// ── SERVICES ──────────────────────────────────────────────────────────────
+function renderServices() {
+  if(!ALL_SVCS.length){document.getElementById('svc-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">No services yet. Add your first service above.</div>';return;}
+  document.getElementById('svc-list').innerHTML=ALL_SVCS.map(s=>`
+    <div class="svc-card">
+      <div class="svc-dot" style="background:${s.color||'#c8963c'}"></div>
+      <div class="svc-info">
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-meta">${s.duration_mins} mins · ${s.buffer_mins||0} min buffer · ${s.price>0?'£'+s.price:'Free'}${s.staff?' · '+s.staff:''}</div>
+      </div>
+      <button class="btn btn-sm btn-secondary" onclick="openSvcModal(${s.id})">Edit</button>
+    </div>`).join('');
+}
+
+// ── ACTIVITY ──────────────────────────────────────────────────────────────
+async function renderActivity() {
+  try{
+    const data=await fetch(SB+'/rest/v1/appt_activity?select=*&order=created_at.desc&limit=100',{headers:H}).then(r=>r.json());
+    const list=Array.isArray(data)?data:[];
+    if(!list.length){document.getElementById('activity-body').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted)">No activity yet</div>';return;}
+    let prevDate='';
+    document.getElementById('activity-body').innerHTML=list.map(a=>{
+      const d=new Date(a.created_at);
+      const dateStr=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+      const timeStr=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      let header='';
+      if(dateStr!==prevDate){prevDate=dateStr;header=`<div style="padding:8px 14px;background:var(--bg);font-size:11px;font-weight:700;border-bottom:1px solid var(--border)">${dateStr}</div>`;}
+      return header+`<div class="activity-entry">
+        <span style="color:var(--muted);font-family:var(--mono);font-size:10px">${timeStr}</span>
+        <span style="margin-left:8px;font-size:11px;font-weight:600;color:var(--blue)">${a.done_by||'—'}</span>
+        <span class="ae-action" style="margin-left:6px">${a.action}</span>
+        <div class="ae-meta">${a.detail||''}</div>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('activity-body').innerHTML='<div style="padding:16px;color:var(--red)">Failed to load activity</div>';}
+}
+
+// ── BOOK MODAL ────────────────────────────────────────────────────────────
+function openBookModal() {
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById('bk-edit-id').value='';
+  document.getElementById('book-modal-title').textContent='Book Appointment';
+  document.getElementById('bk-client').value='';
+  document.getElementById('bk-mobile').value='';
+  document.getElementById('bk-email').value='';
+  document.getElementById('bk-service').value='';
+  document.getElementById('bk-staff').value=staffFilter!=='all'?staffFilter:'';
+  document.getElementById('bk-duration').value='20';
+  document.getElementById('bk-date').value=today;
+  document.getElementById('bk-time').value='09:00';
+  document.getElementById('bk-status').value='confirmed';
+  document.getElementById('bk-notes').value='';
+  document.getElementById('bk-bookedby').value='';
+  document.getElementById('bk-delete-btn').style.display='none';
+  document.getElementById('book-modal').classList.add('open');
+}
+
+function openBookModalForDate(date,time,staff) {
+  openBookModal();
+  document.getElementById('bk-date').value=date;
+  document.getElementById('bk-time').value=time;
+  if(staff) document.getElementById('bk-staff').value=staff;
+}
+
+function openEditModal(id) {
+  const a=ALL_APPTS.find(x=>x.id===id);
+  if(!a) return;
+  document.getElementById('bk-edit-id').value=id;
+  document.getElementById('book-modal-title').textContent='Edit Appointment';
+  document.getElementById('bk-client').value=a.client_name||'';
+  document.getElementById('bk-mobile').value=a.client_mobile||'';
+  document.getElementById('bk-email').value=a.client_email||'';
+  document.getElementById('bk-service').value=a.service_id||'';
+  document.getElementById('bk-staff').value=a.staff||'';
+  document.getElementById('bk-duration').value=a.duration_mins||20;
+  document.getElementById('bk-date').value=a.appt_date||'';
+  document.getElementById('bk-time').value=a.appt_time?a.appt_time.slice(0,5):'';
+  document.getElementById('bk-status').value=a.status||'confirmed';
+  document.getElementById('bk-notes').value=a.notes||'';
+  document.getElementById('bk-bookedby').value=a.booked_by||'';
+  document.getElementById('bk-delete-btn').style.display='inline-flex';
+  document.getElementById('book-modal').classList.add('open');
+}
+
+function closeBookModal(){document.getElementById('book-modal').classList.remove('open');}
+
+async function saveAppt() {
+  const client=document.getElementById('bk-client').value.trim();
+  const staff=document.getElementById('bk-staff').value;
+  const date=document.getElementById('bk-date').value;
+  const time=document.getElementById('bk-time').value;
+  if(!client||!staff||!date||!time){toast('Please fill in required fields','err');return;}
+
+  const svcSel=document.getElementById('bk-service');
+  const svc=ALL_SVCS.find(s=>s.id==svcSel.value);
+  const editId=document.getElementById('bk-edit-id').value;
+
+  const payload={
+    client_name:client,
+    client_mobile:document.getElementById('bk-mobile').value.trim()||null,
+    client_email:document.getElementById('bk-email').value.trim()||null,
+    service_id:svc?svc.id:null,
+    service_name:svc?svc.name:(document.getElementById('bk-service').options[document.getElementById('bk-service').selectedIndex]?.text||null),
+    staff,
+    duration_mins:parseInt(document.getElementById('bk-duration').value)||20,
+    appt_date:date,
+    appt_time:time+':00',
+    status:document.getElementById('bk-status').value,
+    notes:document.getElementById('bk-notes').value.trim()||null,
+    booked_by:document.getElementById('bk-bookedby').value||null
+  };
+
+  try {
+    let method='POST', url=SB+'/rest/v1/appointments';
+    if(editId){method='PATCH';url+=`?id=eq.${editId}`;}
+    const res=await fetch(url,{method,headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(editId?payload:{...payload})});
+    if(!res.ok) throw new Error('Save failed');
+
+    // Log activity
+    const action=editId?'Updated':'Booked';
+    const detail=`${action}: ${client} — ${svc?svc.name:'Appointment'} on ${date} at ${time} with ${staff}`;
+    await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
+      appointment_id:editId||null,action,detail,done_by:payload.booked_by||staff
+    })});
+
+    closeBookModal();
+    await loadAll();
+    toast((editId?'Appointment updated':'Appointment booked')+' ✓');
+  } catch(e){toast('Error: '+e.message,'err');}
+}
+
+async function deleteAppt() {
+  const id=document.getElementById('bk-edit-id').value;
+  if(!id) return;
+  const a=ALL_APPTS.find(x=>x.id==id);
+  if(!confirm('Delete this appointment?')) return;
+  try {
+    await fetch(SB+'/rest/v1/appointments?id=eq.'+id,{method:'DELETE',headers:H});
+    await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
+      action:'Deleted',detail:`Deleted: ${a?.client_name} on ${a?.appt_date}`,done_by:'—'
+    })});
+    closeBookModal();await loadAll();toast('Appointment deleted');
+  }catch(e){toast('Delete failed','err');}
+}
+
+// ── SERVICE MODAL ─────────────────────────────────────────────────────────
+function openSvcModal(id) {
+  document.getElementById('sv-edit-id').value='';
+  document.getElementById('svc-modal-title').textContent='Add Service';
+  document.getElementById('sv-name').value='';
+  document.getElementById('sv-duration').value='20';
+  document.getElementById('sv-buffer').value='10';
+  document.getElementById('sv-price').value='0';
+  document.getElementById('sv-staff').value='';
+  document.getElementById('sv-color').value='#155FA0';
+  document.getElementById('sv-delete-btn').style.display='none';
+
+  if(id){
+    const s=ALL_SVCS.find(x=>x.id===id);
+    if(!s) return;
+    document.getElementById('sv-edit-id').value=id;
+    document.getElementById('svc-modal-title').textContent='Edit Service';
+    document.getElementById('sv-name').value=s.name||'';
+    document.getElementById('sv-duration').value=s.duration_mins||20;
+    document.getElementById('sv-buffer').value=s.buffer_mins||10;
+    document.getElementById('sv-price').value=s.price||0;
+    document.getElementById('sv-staff').value=s.staff||'';
+    document.getElementById('sv-color').value=s.color||'#155FA0';
+    document.getElementById('sv-delete-btn').style.display='inline-flex';
+  }
+  document.getElementById('svc-modal').classList.add('open');
+}
+function closeSvcModal(){document.getElementById('svc-modal').classList.remove('open');}
+
+async function saveSvc(){
+  const name=document.getElementById('sv-name').value.trim();
+  if(!name){toast('Service name required','err');return;}
+  const editId=document.getElementById('sv-edit-id').value;
+  const payload={
+    name,
+    duration_mins:parseInt(document.getElementById('sv-duration').value)||20,
+    buffer_mins:parseInt(document.getElementById('sv-buffer').value)||10,
+    price:parseFloat(document.getElementById('sv-price').value)||0,
+    staff:document.getElementById('sv-staff').value||null,
+    color:document.getElementById('sv-color').value
+  };
+  try{
+    let method='POST',url=SB+'/rest/v1/appointment_services';
+    if(editId){method='PATCH';url+=`?id=eq.${editId}`;}
+    const res=await fetch(url,{method,headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(payload)});
+    if(!res.ok) throw new Error('Save failed');
+    closeSvcModal();await loadAll();toast((editId?'Service updated':'Service added')+' ✓');
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+
+async function deleteSvc(){
+  const id=document.getElementById('sv-edit-id').value;
+  if(!confirm('Delete this service?')) return;
+  try{
+    await fetch(SB+'/rest/v1/appointment_services?id=eq.'+id,{method:'DELETE',headers:H});
+    closeSvcModal();await loadAll();toast('Service deleted');
+  }catch(e){toast('Delete failed','err');}
+}
+
+// Init staff pill colours
+['Asad','Hassan','Aminul','Nawaz','Sadat'].forEach(s=>{
+  const el=document.getElementById('sp-'+s);
+  if(el){el.style.color=STAFF_COLORS[s];el.style.borderColor=STAFF_COLORS[s];}
+});
+
+loadAll();
+</script>
+</body>
+</html>
