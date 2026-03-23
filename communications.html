@@ -49,10 +49,21 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .search-box{padding:6px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;color:var(--text);background:#fff;outline:none}
 .search-box:focus{border-color:var(--blue)}
 /* Layout */
-.main{display:grid;grid-template-columns:320px 1fr;min-height:calc(100vh - 200px)}
+.main{display:grid;grid-template-columns:280px 1fr 280px;min-height:calc(100vh - 200px)}
+@media(max-width:1100px){.main{grid-template-columns:260px 1fr 260px}}
 @media(max-width:900px){.main{grid-template-columns:1fr}}
 .sidebar{border-right:1px solid var(--border);background:var(--surface);padding:18px;overflow-y:auto}
 .content{padding:20px 24px;background:var(--bg)}
+/* Preview panel */
+.preview-panel{border-left:1px solid var(--border);background:var(--surface);padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:0}
+.preview-panel-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+.preview-bubble{background:#E8F8E8;border:1px solid #c3e6c3;border-radius:14px 14px 14px 3px;padding:13px 15px;font-size:12px;line-height:1.7;color:#1a3a1a;white-space:pre-wrap;min-height:120px;flex:1;overflow-y:auto;max-height:420px}
+.preview-bubble.empty{background:var(--bg);border-color:var(--border);color:var(--muted);font-style:italic;font-size:11px;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}
+.preview-client-chip{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;min-height:40px}
+.preview-client-chip .chip-name{font-weight:700;color:var(--text);font-size:11px;line-height:1.3}
+.preview-client-chip .chip-contact{font-size:10px;color:var(--muted)}
+.preview-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.preview-actions .btn{flex:1;text-align:center;font-size:11px;padding:7px 8px}
 /* Templates */
 .tpl-list{margin-bottom:14px}
 .tpl-item{padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;margin-bottom:6px;transition:all .15s}
@@ -168,12 +179,6 @@ select:focus{border-color:var(--blue)}
         <option>Nawaz</option>
       </select>
 
-      <div class="preview-label">
-        <span>📄 Preview</span>
-        <span id="preview-client-name" style="font-weight:400;color:var(--muted);font-size:10px">No client selected</span>
-      </div>
-      <div class="preview-box" id="preview-box">Select a template and click a client row to preview the message.</div>
-
       <span class="lbl" style="margin-top:14px">Filter Clients</span>
       <select id="client-filter" style="width:100%" onchange="renderClients()">
         <option value="all">All active clients</option>
@@ -182,7 +187,7 @@ select:focus{border-color:var(--blue)}
       </select>
 
       <div style="margin-top:12px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--muted)">
-        💡 Click a client row to open WhatsApp and log the message automatically.
+        💡 Click a client row to preview — then send via WhatsApp or Email.
       </div>
     </div>
 
@@ -219,6 +224,22 @@ select:focus{border-color:var(--blue)}
         <div id="cl-body">
           <div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading clients…</div>
         </div>
+      </div>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel">
+      <div class="preview-panel-title">👁 Preview</div>
+      <div class="preview-client-chip" id="preview-chip">
+        <div>
+          <div class="chip-name" id="preview-client-name">No client selected</div>
+          <div class="chip-contact" id="preview-client-contact">Click a row to preview</div>
+        </div>
+      </div>
+      <div class="preview-bubble empty" id="preview-box">Select a template then click any client row to preview the message here.</div>
+      <div class="preview-actions" id="preview-actions" style="display:none">
+        <button class="btn btn-green preview-actions" id="preview-wa-btn" onclick="sendPreviewWA()" style="flex:1;font-size:11px;padding:7px 8px">💬 WhatsApp</button>
+        <button class="btn btn-blue preview-actions" id="preview-email-btn" onclick="sendPreviewEmail()" style="flex:1;font-size:11px;padding:7px 8px">📧 Email</button>
       </div>
     </div>
   </div>
@@ -1026,18 +1047,43 @@ function selectClient(client){
 function refreshPreview(){
   const box = document.getElementById('preview-box');
   const nameEl = document.getElementById('preview-client-name');
+  const contactEl = document.getElementById('preview-client-contact');
+  const actionsEl = document.getElementById('preview-actions');
   if(!box) return;
   if(!selectedClient){
-    box.textContent = 'Select a template and click a client row to preview the message.';
+    box.textContent = 'Select a template then click any client row to preview the message here.';
+    box.className = 'preview-bubble empty';
     if(nameEl) nameEl.textContent = 'No client selected';
+    if(contactEl) contactEl.textContent = 'Click a row to preview';
+    if(actionsEl) actionsEl.style.display = 'none';
     return;
   }
   const msg = SMART_TMPLS[currentTpl] ? SMART_TMPLS[currentTpl](selectedClient) : document.getElementById('msg-body').value;
   box.textContent = msg;
-  if(nameEl){
-    const contact = selectedClient.mobile ? '📱 '+selectedClient.mobile : selectedClient.email ? '📧 '+selectedClient.email : 'no contact';
-    nameEl.textContent = (selectedClient.name||selectedClient.ref) + ' · ' + contact;
+  box.className = 'preview-bubble';
+  if(nameEl) nameEl.textContent = (selectedClient.name||selectedClient.ref) + (selectedClient.type==='ltd'?' (Ltd)':' (SE)');
+  if(contactEl){
+    const parts = [];
+    if(selectedClient.mobile) parts.push('📱 '+selectedClient.mobile);
+    if(selectedClient.email) parts.push('📧 '+selectedClient.email);
+    contactEl.textContent = parts.length ? parts.join(' · ') : 'No contact info';
   }
+  if(actionsEl) actionsEl.style.display = 'flex';
+}
+
+function sendPreviewWA(){
+  if(!selectedClient||!selectedClient.mobile) return toast('No mobile number for this client','err');
+  const msg = SMART_TMPLS[currentTpl] ? SMART_TMPLS[currentTpl](selectedClient) : document.getElementById('msg-body').value;
+  const num = selectedClient.mobile.replace(/\s+/g,'').replace(/^\+?44/,'44').replace(/^0/,'44');
+  window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank');
+  logMessage(selectedClient, msg, 'whatsapp');
+}
+
+function sendPreviewEmail(){
+  if(!selectedClient||!selectedClient.email) return toast('No email address for this client','err');
+  const msg = SMART_TMPLS[currentTpl] ? SMART_TMPLS[currentTpl](selectedClient) : document.getElementById('msg-body').value;
+  window.open('mailto:'+selectedClient.email+'?subject='+encodeURIComponent(getEmailSubject())+'&body='+encodeURIComponent(msg));
+  logMessage(selectedClient, msg, 'email');
 }
 
 function renderLog(){
