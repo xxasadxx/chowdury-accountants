@@ -985,42 +985,38 @@ function genWelcome(){
   const fname=c?c.director_name||'':'' ;
   const firstName=fname&&!/^director$/i.test(fname.trim())?fname:'Client';
   const name=(c&&c.company_name)||'';
-  const svcs=(c&&c.services)||[];
-  const hasVAT=svcs.includes('vat');
-  const hasSA=svcs.includes('sa');
-  const hasPayroll=svcs.includes('payroll')||svcs.includes('paye');
   document.getElementById('welcome-preview').textContent=
 `Dear ${firstName},
 
-Welcome to The Chowdury Accountants${name?' — thank you for choosing us as your accountant for '+name:''}. We look forward to working with you.
+Welcome to The Chowdury Accountants${name?' — thank you for choosing us to act as your accountants for '+name:''}. We look forward to working with you.
 
 IMPORTANT INFORMATION
 We are providing the services quoted only. If you need additional services, please ask for a further or amended quote.
 
 AGENT REGISTRATION WITH HMRC
-We will be registering with HMRC to be your agent for the relevant taxes. HMRC will send you an authorisation code for each tax, which you will need to pass on to us as soon as you receive them so that we can complete the registration process.
+We will be registering with HMRC to be your agent for the relevant taxes. HMRC will send you an authorisation code, for each tax, which you will need to pass on to us as soon as you get them please so that we can finish the registration process.
 
 The authorisation codes look like SA12345678, although the letters may be CT, VT or PE instead.
-${hasSA?`
+
 REGISTERING FOR SELF ASSESSMENT
-If we have registered you for self-assessment, HMRC will send you a confirmation with your tax reference. Please send us a copy of the confirmation when you receive it — we cannot register as your agent without this.
-`:''}
-ID VERIFICATION
-We remind you that we need photographic and address ID from you. This is to comply with Money Laundering Regulations. Please provide these at your earliest convenience if you have not already done so.
+If we have registered you for self-assessment, HMRC will send you a confirmation with your tax reference. Please send us a copy of the confirmation when you get it; we cannot register as your agent without this.
+
+ID
+We remind you that we need photograph and address ID from you. Please come in to our office to verify your identity at 283 Featherstall Road North, Oldham, OL1 2NH. This is to comply with money laundering regulations.
 
 GOING FORWARD
-To prepare your returns we will require certain information which we shall request from you in due course. Please respond promptly to our requests to avoid any delays or penalties.
+To prepare your returns we will require certain information which we shall request from you in due course.
 
 HMRC AND COMPANIES HOUSE LETTERS
-Please be aware that HMRC and Companies House do not always send us copies of the letters they send to you. Please always forward a copy or photograph of any letters you receive from HMRC or Companies House — especially if you have questions, as we cannot help without knowing exactly what they are saying to you.
-${hasVAT?`
+Please be aware that HMRC and Companies House do not always send us copies of the letters that they send out. Please always send us a scanned copy or photograph of any letters you receive from HMRC or Companies House. (Especially if you have questions for us regarding the letter. We cannot help if we don't know exactly what they are saying to you.)
+
 VAT
-The VAT registration limit is currently turnover of £90,000 (previous 12 months). Please inform us promptly if you are approaching this threshold.
-`:''}${hasPayroll?`
+The VAT registration limit is currently turnover of £90,000 (previous 12 months).
+
 MINIMUM WAGES
-Please ensure all employees (except directors without a contract of employment) are paid at least the National Minimum Wage. HMRC expect a record of hours worked to be kept. Penalties for underpayment are 100% of the wages that should have been paid.
-`:''}
-Finally, thank you for choosing The Chowdury Accountants. We are committed to providing you with an excellent service and look forward to working with you.
+We are seeing HMRC imposing the minimum wages legislation on all employees, except directors without a contract of employment. For other employees, they expect a record of hours worked to be kept. Penalties for paying less than the minimum wage are 100% of the wages that should have been paid. Please discuss this with us if you need further information.
+
+Finally we thank you for choosing us as your accountant and look forward to working with you going forwards.
 
 Best regards,
 Md Asadul Chowdury
