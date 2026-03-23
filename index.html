@@ -881,45 +881,7 @@
 (function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();}})();
 </script>
 
-<header>
-  <div class="header-band"></div>
-  <div class="header-top">
-    <div class="logo">
-      <img src="ca-logo.png" alt="Chowdury Accountants" style="height:36px;width:auto;object-fit:contain;">
-    </div>
-    <div class="header-right">
-      <span class="header-date" id="hdr-date"></span>
-    </div>
-  </div>
-  <nav class="header-nav">
-        <a href="index.html" class="active">Portal</a>
-    <a href="revenue-tracker.html">Revenue</a>
-    <a href="ltd-tracker.html">Ltd Tracker</a>
-    <a href="vat-tracker.html">VAT</a>
-    <a href="paye-tracker.html">PAYE</a>
-    <a href="sa-tracker.html">SA</a>
-    <a href="ch-tracker.html">CH Tracker</a>
-    <a href="staff-management.html">Staff</a>
-    <a href="calendar.html">📅 Calendar</a>
-  <a href="strategic-review.html">Strategy</a>
-  <a href="appointments.html">📅 Appointments</a>
-    <a href="workflows.html">⚙️ Workflows</a>
-    <a href="onboarding.html">🆕 Onboarding</a>
-  <a href="communications.html">💬 Comms</a>
-    <a href="#" class="signout" onclick="sessionStorage.removeItem('ca_auth');window.location.href='login.html';return false;">Sign out</a>
-  </nav>
-</header>
-<script>
-(function(){
-  const page = window.location.pathname.split('/').pop() || 'index.html';
-  document.querySelectorAll('.header-nav a:not(.signout)').forEach(a => {
-    const href = a.getAttribute('href') || '';
-    const isActive = (href === 'index.html' && (page === '' || page === 'index.html')) ||
-                     (href !== 'index.html' && page === href);
-    if (isActive) { a.classList.add('active'); }
-  });
-})();
-</script>
+
 
 <div class="hero">
   <div class="hero-text">
