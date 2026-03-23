@@ -906,17 +906,18 @@ function pickClient(idx){
 async function sendTo(idx){
   const client = ALL[idx];
   if(!client) return;
+  // Regenerate message synchronously before any await
   selectClient(client);
-  await new Promise(r=>setTimeout(r,30));
   const body=document.getElementById('msg-body').value.trim();
   if(!body){toast('Select a template first','err');return;}
   const mob=(client.mobile||'').trim();
   if(!mob){toast('No mobile number for this client','err');return;}
+  const tel=mob.replace(/\D/g,'');
+  const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
+  // Open WhatsApp immediately (must be synchronous from click gesture)
+  window.open('https://wa.me/'+uk+'?text='+encodeURIComponent(body),'_blank');
   const sentBy=document.getElementById('sent-by').value||'Unknown';
   const id=client.id, ref=client.ref, name=client.name, mobile=mob, type=client.type;
-  const tel=mobile.replace(/\D/g,'');
-  const uk=tel.startsWith('0')?'44'+tel.slice(1):tel;
-  window.open('https://wa.me/'+uk+'?text='+encodeURIComponent(body),'_blank');
   // Log
   try{
     await fetch(SB+'/rest/v1/client_messages',{
@@ -933,15 +934,17 @@ async function sendTo(idx){
 async function emailTo(idx){
   const client = ALL[idx];
   if(!client) return;
+  // Regenerate message synchronously before any await
   selectClient(client);
-  await new Promise(r=>setTimeout(r,30));
-  const sentBy=document.getElementById('sent-by').value||'Unknown';
   const finalBody=document.getElementById('msg-body').value.trim();
   if(!finalBody){toast('Select a template first','err');return;}
-  const id=client.id, ref=client.ref, name=client.name, email=(client.email||'').trim(), type=client.type;
+  const email=(client.email||'').trim();
   if(!email){toast('No email address for this client','err');return;}
   const subject=getEmailSubject();
+  // Open email immediately (must be synchronous from click gesture)
   window.open('mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(finalBody));
+  const sentBy=document.getElementById('sent-by').value||'Unknown';
+  const id=client.id, ref=client.ref, name=client.name, type=client.type;
   // Log
   try{
     await fetch(SB+'/rest/v1/client_messages',{
