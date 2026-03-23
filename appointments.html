@@ -212,7 +212,7 @@ body{padding-top:92px !important;font-family:var(--sans);background:var(--bg);co
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html">🚀 Strategy</a>
     <span id="ca-nav-user" style="color:rgba(255,255,255,.4);font-size:11px;padding:0 8px;white-space:nowrap"></span>
-    <a href="login.html" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role'].forEach(function(k){localStorage.removeItem(k);})">Sign out</a>
+    <a href="#" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.href='login.html';return false;">Sign out</a>
   </div>
 </div>
 <script>
