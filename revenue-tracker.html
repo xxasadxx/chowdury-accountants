@@ -329,42 +329,37 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
 <style id="ca-nav-style">
 #ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
 #ca-nav .ca-band{display:block;height:4px;background:#c8963c}
-#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:10px 24px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
-#ca-nav .ca-logo img{height:32px;width:auto;display:block}
-#ca-nav .ca-date{font-size:0.68rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap}
-#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;padding:0 16px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #ca-nav .ca-links::-webkit-scrollbar{display:none}
-#ca-nav .ca-links a{font-size:0.76rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:9px 12px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s;-webkit-tap-highlight-color:rgba(200,150,60,.2)}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
 #ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
 #ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
-#ca-nav .ca-links .ca-sep{color:rgba(255,255,255,.15);padding:0 2px;font-size:10px;display:inline-block;line-height:37px}
-#ca-nav .ca-links .ca-signout{color:rgba(255,255,255,.25);font-size:11px;margin-left:8px}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
 </style>
 <div id="ca-nav">
   <div class="ca-band"></div>
   <div class="ca-top">
-    <div class="ca-logo"><img src="ca-logo.png" alt="CA"></div>
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
     <div class="ca-date" id="ca-hdr-date"></div>
   </div>
   <div class="ca-links">
     <a href="index.html">🏠 Portal</a>
     <a href="revenue-tracker.html" class="active">💰 Revenue</a>
-    <span class="ca-sep">|</span>
-    <a href="ltd-tracker.html">🏢 Ltd</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
     <a href="vat-tracker.html">🟢 VAT</a>
     <a href="paye-tracker.html">💼 PAYE</a>
     <a href="sa-tracker.html">📋 SA</a>
-    <a href="ch-tracker.html">⚖️ CH</a>
-    <span class="ca-sep">|</span>
-    <a href="appointments.html">📅 Appts</a>
-    <a href="calendar.html">🗓 Calendar</a>
-    <span class="ca-sep">|</span>
-    <a href="communications.html">💬 Comms</a>
-    <span class="ca-sep">|</span>
-    <a href="staff-management.html">👤 Staff</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html">📅 Appointments</a>
     <a href="workflows.html">⚙️ Workflows</a>
-    <span class="ca-sep">|</span>
     <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html">🚀 Strategy</a>
     <a href="login.html" class="ca-signout" onclick="sessionStorage.removeItem('ca_auth')">Sign out</a>
   </div>
