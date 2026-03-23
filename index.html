@@ -1198,9 +1198,9 @@ async function loadStats() {
     var mrrSub=document.getElementById('lt-mrr-sub');
     if(mrrEl){mrrEl.textContent='£'+Math.round(ddRev).toLocaleString('en-GB');}
     if(mrrSub){mrrSub.textContent='DD clients (active)';}
-    // Update active clients tile
+    // Update active clients tile (DD + SO combined)
     var clEl=document.getElementById('lt-clients');
-    if(clEl){clEl.textContent=activeDD.length.toLocaleString();}
+    if(clEl){clEl.textContent=totalClients.toLocaleString();}
   } else {
     document.getElementById('stat-revenue').textContent = '—';
     document.getElementById('dd-rev').textContent = '—';
