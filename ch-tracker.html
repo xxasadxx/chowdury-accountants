@@ -8,9 +8,10 @@
   var role=localStorage.getItem('ca_role')||'staff';
   var name=localStorage.getItem('ca_name')||'';
   var page=window.location.pathname.split('/').pop()||'index.html';
-  var restricted=['revenue-tracker.html','strategic-review.html'];
-  // Redirect staff from restricted pages immediately
-  if(role!=='admin' && restricted.indexOf(page)!==-1){
+  var restricted=['revenue-tracker','strategic-review','revenue-tracker.html','strategic-review.html'];
+  // Redirect staff from restricted pages immediately — check with and without .html
+  var pageBase=page.replace('.html','');
+  if(role!=='admin' && (restricted.indexOf(page)!==-1 || restricted.indexOf(pageBase)!==-1)){
     window.location.replace('index.html');return;
   }
   // Log session for admin (store in localStorage)
@@ -24,15 +25,18 @@
   }
   // Apply restrictions after DOM ready
   function applyRestrictions(){
-    // Hide restricted nav links
     if(role!=='admin'){
-      [].forEach.call(document.querySelectorAll('a[href="revenue-tracker.html"],a[href="strategic-review.html"]'),function(a){a.style.display='none';});
+      // Hide restricted nav links (with and without .html)
+      var sel='a[href="revenue-tracker.html"],a[href="strategic-review.html"],a[href="revenue-tracker"],a[href="strategic-review"]';
+      [].forEach.call(document.querySelectorAll(sel),function(a){a.style.display='none';});
+      // Hide restricted tool cards on portal
+      [].forEach.call(document.querySelectorAll('a.tool-card[href="revenue-tracker.html"],a.tool-card[href="strategic-review.html"]'),function(c){c.style.display='none';});
       // Hide delete buttons
-      [].forEach.call(document.querySelectorAll('button.act-del,.btn-delete,[onclick*="delActivity"],[onclick*="deleteClient"]'),function(b){b.style.display='none';});
+      [].forEach.call(document.querySelectorAll('button.act-del,.act-del,[onclick*="delActivity"],[onclick*="deleteClient"],[onclick*="delAct"]'),function(b){b.style.display='none';});
     }
     // Show logged-in user in nav
     var un=document.getElementById('ca-nav-user');
-    if(un) un.textContent=name;
+    if(un) un.textContent=name?'👤 '+name:'';
   }
   if(document.readyState==='loading'){
     document.addEventListener('DOMContentLoaded',applyRestrictions);
