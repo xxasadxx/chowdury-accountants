@@ -303,7 +303,6 @@ window.caAudit = (function(){
         <th onclick="sortBy('accounts_due')">Accounts Due</th>
         <th onclick="sortBy('conf_due')">CS Due</th>
         <th onclick="sortBy('vat_due')" style="cursor:pointer">VAT Due</th>
-        <th>Outstanding</th>
         <th onclick="sortBy('alerts')">Alert</th>
       </tr></thead>
       <tbody id="clients-tbody"></tbody>
@@ -998,8 +997,7 @@ function renderKPIsClients(){
     <div class="kpi"><div class="k">Active</div><div class="v" style="color:var(--green)">${active}</div></div>
     <div class="kpi"><div class="k">Red Alerts</div><div class="v" style="color:var(--red)">${reds}</div><div class="sub">Urgent</div></div>
     <div class="kpi"><div class="k">Hospitality</div><div class="v" style="color:var(--orange)">${hosp}</div><div class="sub">Restaurants etc</div></div>
-    <div class="kpi"><div class="k">Total Fees</div><div class="v" style="color:var(--blue)">${fmt(totalFees)}</div><div class="sub">All periods</div></div>
-    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--amber)">${fmt(totalOut)}</div><div class="sub">Unpaid</div></div>
+
   `;
 }
 
@@ -1007,9 +1005,8 @@ function renderClientsTable(){
   const d=getFiltered();
   document.getElementById('clients-count').textContent=`${d.length} of ${DATA.length}`;
   const tb=document.getElementById('clients-tbody');
-  if(!d.length){tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:30px;color:var(--muted)">No companies found</td></tr>';return;}
+  if(!d.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">No companies found</td></tr>';return;}
   tb.innerHTML=d.map((c,i)=>{
-    const out=getClientOutstanding(c);
     const dc=dateClass(c.accounts_due), cc=dateClass(c.conf_due), vc=dateClass(c.vat_due);
     return`<tr class="data-row" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
@@ -1020,7 +1017,6 @@ function renderClientsTable(){
       <td class="${dc}">${esc(c.accounts_due||'—')}</td>
       <td class="${cc}">${esc(c.conf_due||'—')}</td>
       <td class="${vc}">${esc(c.vat_due||'—')}</td>
-      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono);font-size:11px">${out>0?fmt(out):'✅'}</td>
       <td>${alertBadge(c.alerts)}</td>
     </tr>`;
   }).join('');
