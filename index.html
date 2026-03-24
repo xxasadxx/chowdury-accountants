@@ -37,8 +37,11 @@
         '.act-del{display:none!important}';
       document.head.appendChild(style);
     } else {
-      // Show audit immediately if DOM ready, otherwise wait
-      function showAudit(){var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';}
+      // Show audit nav + card immediately if DOM ready, otherwise wait
+      function showAudit(){
+        var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';
+        var ca=document.getElementById('card-audit');if(ca)ca.style.display='';
+      }
       if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',showAudit);}else{showAudit();}
     }
     window.addEventListener('DOMContentLoaded',function(){
@@ -971,7 +974,7 @@ window.caAudit = (function(){
 
     <a href="ltd-tracker.html" class="tool-card live">
       <div class="card-top"><div class="card-icon" style="background:#ede9fe">🏢</div><span class="card-status status-live">● Live</span></div>
-      <div class="card-body"><h3>Ltd Co Tracker</h3><p>306 limited company clients — accounts deadlines, confirmation statements, fees and director details.</p></div>
+      <div class="card-body"><h3>Ltd Tracker</h3><p>306 limited company clients — accounts deadlines, confirmation statements, fees and director details.</p></div>
       <div class="card-stats">
         <div class="card-stat"><div class="k">Companies</div><div class="v blue">306</div></div>
         <div class="card-stat"><div class="k">🔴 Red Alerts</div><div class="v red">23</div></div>
@@ -999,7 +1002,7 @@ window.caAudit = (function(){
 
     <a href="sa-tracker.html" class="tool-card live">
       <div class="card-top"><div class="card-icon" style="background:#ede9fe">📋</div><span class="card-status status-live">● Live</span></div>
-      <div class="card-body"><h3>Self Assessment</h3><p>383 SA clients — UTR numbers, personal details, contact info, ID uploads and notes.</p></div>
+      <div class="card-body"><h3>SA Tracker</h3><p>383 SA clients — UTR numbers, personal details, contact info, ID uploads and notes.</p></div>
       <div class="card-stats">
         <div class="card-stat"><div class="k">SA Clients</div><div class="v" style="color:#7c3aed">383</div></div>
         <div class="card-stat"><div class="k">Tax Year</div><div class="v">2024/25</div></div>
@@ -1036,7 +1039,7 @@ window.caAudit = (function(){
 
     <a href="communications.html" class="tool-card live">
       <div class="card-top"><div class="card-icon" style="background:#ede9fe">💬</div><span class="card-status status-live">● Live</span></div>
-      <div class="card-body"><h3>Communications</h3><p>WhatsApp templates, bulk messaging, birthday greetings, letters on letterhead and saved templates.</p></div>
+      <div class="card-body"><h3>Comms</h3><p>WhatsApp templates, bulk messaging, birthday greetings, letters on letterhead and saved templates.</p></div>
       <div class="card-stats">
         <div class="card-stat"><div class="k">Sent Today</div><div class="v" style="color:#6D28D9" id="pc-msgs-today">—</div></div>
         <div class="card-stat"><div class="k">This Month</div><div class="v" style="color:#6D28D9" id="pc-msgs-month">—</div></div>
@@ -1045,7 +1048,7 @@ window.caAudit = (function(){
 
     <a href="staff-management.html" class="tool-card live">
       <div class="card-top"><div class="card-icon" style="background:#f0fdf4">👤</div><span class="card-status status-live">● Live</span></div>
-      <div class="card-body"><h3>Staff Management</h3><p>Activity logs, profiles, holiday tracker and HR documents for all 5 staff members.</p></div>
+      <div class="card-body"><h3>Staff</h3><p>Activity logs, profiles, holiday tracker and HR documents for all 5 staff members.</p></div>
       <div class="card-stats">
         <div class="card-stat"><div class="k">Staff</div><div class="v green">5</div></div>
         <div class="card-stat"><div class="k">Hours This Month</div><div class="v green" id="pc-hours">—</div></div>
@@ -1063,7 +1066,7 @@ window.caAudit = (function(){
 
     <a href="onboarding.html" class="tool-card live">
       <div class="card-top"><div class="card-icon" style="background:#fffbeb">🆕</div><span class="card-status status-live">● Live</span></div>
-      <div class="card-body"><h3>Client Onboarding</h3><p>New client pipeline, AML register, engagement letters, quote calculator and auto-add to trackers.</p></div>
+      <div class="card-body"><h3>Onboarding</h3><p>New client pipeline, AML register, engagement letters, quote calculator and auto-add to trackers.</p></div>
       <div class="card-stats">
         <div class="card-stat"><div class="k">In Pipeline</div><div class="v gold" id="pc-pipeline">—</div></div>
         <div class="card-stat"><div class="k">AML Pending</div><div class="v red" id="pc-aml">—</div></div>
@@ -1088,26 +1091,29 @@ window.caAudit = (function(){
       </div><div class="card-arrow">↗</div>
     </a>
 
+    <a href="tax-calculator.html" class="tool-card live">
+      <div class="card-top"><div class="card-icon" style="background:#ede9fe">🧮</div><span class="card-status status-live">● Live</span></div>
+      <div class="card-body"><h3>Tax Calc</h3><p>UK income tax, NI, CGT and optimal salary/dividend split calculator for 2024/25 and 2025/26.</p></div>
+      <div class="card-stats">
+        <div class="card-stat"><div class="k">Income Types</div><div class="v" style="color:#7c3aed">6</div></div>
+        <div class="card-stat"><div class="k">Tax Years</div><div class="v" style="color:#7c3aed">2024/25 &amp; 2025/26</div></div>
+      </div><div class="card-arrow">↗</div>
+    </a>
+
+    <a href="audit.html" class="tool-card live" id="card-audit" style="display:none">
+      <div class="card-top"><div class="card-icon" style="background:#f0ede0">🔍</div><span class="card-status status-live">● Live</span></div>
+      <div class="card-body"><h3>Audit</h3><p>Complete staff action log, login session history and access management. Admin only.</p></div>
+      <div class="card-stats">
+        <div class="card-stat"><div class="k">Today</div><div class="v" style="color:#374151" id="pc-audit-today">—</div></div>
+        <div class="card-stat"><div class="k">This Week</div><div class="v" style="color:#374151" id="pc-audit-week">—</div></div>
+      </div><div class="card-arrow">↗</div>
+    </a>
+
   </div>
 </div>
 
 
-<div id="session-log-section" style="display:none;max-width:960px;margin:0 auto;padding:16px 32px 0">
-  <div style="background:#fff;border:1px solid #DEDEDE;border-radius:10px;overflow:hidden;margin-bottom:24px">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #f0ede0;background:#FBFAE8">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="font-size:13px">🔐</span>
-        <span style="font-family:'Raleway',sans-serif;font-size:13px;font-weight:700;color:#252525">Session Log</span>
-        <span style="font-size:11px;color:#7A7A7A">— staff login activity, visible to you only</span>
-      </div>
-      <button onclick="clearSessionLog()" style="padding:4px 10px;border:1px solid #DEDEDE;border-radius:5px;background:#fff;font-size:10px;font-weight:600;cursor:pointer;color:#D04A02;font-family:'Mulish',sans-serif">Clear Log</button>
-    </div>
-    <div id="session-log-list" style="font-size:12px;padding:0 18px"></div>
-    <div style="padding:10px 18px;background:#f8f7ee;border-top:1px solid #f0ede0">
-      <p style="font-size:10px;color:#7A7A7A">🔓 <strong>Locked out?</strong> Staff must clear browser storage: Chrome → Settings → Privacy → Clear browsing data → tick "Cookies and site data" → Clear. Locks are device-side only.</p>
-    </div>
-  </div>
-</div>
+
 
 <footer>
   <p>Chowdury Accountants Ltd · 283 Featherstall Road North, Oldham · Internal use only</p>
@@ -1130,43 +1136,6 @@ async function sb(path) {
     return data;
   } catch(e) { console.warn('SB fetch error:', path, e); return null; }
 }
-
-
-  // Session log — admin only
-  var role=localStorage.getItem('ca_role')||'staff';
-  if(role==='admin'){
-    var sec=document.getElementById('session-log-section');
-    if(sec) sec.style.display='block';
-    var logs=[];
-    try{logs=JSON.parse(localStorage.getItem('ca_session_log')||'[]');}catch(e){}
-    var el=document.getElementById('session-log-list');
-    if(el){
-      if(!logs.length){el.innerHTML='<div style="color:#7A7A7A;padding:8px 0">No sessions logged yet.</div>';}
-      else{
-        // Group by date
-        var rows=logs.map(function(l){
-          var d=new Date(l.time);
-          var date=d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
-          var time=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-          var colour=l.role==='admin'?'#155FA0':l.user==='Hassan'?'#1D7A47':l.user==='Aminul'?'#6D28D9':l.user==='Nawaz'?'#C07A00':'#D04A02';
-          return '<div style="display:flex;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid #f0f0f0">'
-            +'<span style="background:'+colour+';color:#fff;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap">'+l.user+'</span>'
-            +'<span style="color:#252525;font-weight:600;min-width:60px">'+time+'</span>'
-            +'<span style="color:#7A7A7A">'+date+'</span>'
-            +(l.role==='admin'?'<span style="color:#c8963c;font-size:10px;margin-left:auto">Admin</span>':'')
-            +'</div>';
-        }).join('');
-        el.innerHTML=rows;
-      }
-    }
-  }
-
-  function clearSessionLog(){
-    if(confirm('Clear all session logs?')){
-      localStorage.removeItem('ca_session_log');
-      document.getElementById('session-log-list').innerHTML='<div style="color:#7A7A7A;padding:8px 0">No sessions logged yet.</div>';
-    }
-  }
 
   // Personalise portal for logged-in user
   (function(){

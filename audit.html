@@ -147,18 +147,24 @@ window.caAudit = (function(){
 </script>
 
 <div class="page-header">
-  <h1>🔍 Audit Trail</h1>
-  <p>Complete log of all staff actions — who did what, when and where · Admin only</p>
+  <h1>🔍 Audit &amp; Session Log</h1>
+  <p>Staff actions, login history and session activity · Admin only</p>
 </div>
 
-<div class="container">
+<!-- SUB TABS -->
+<div style="display:flex;gap:0;border-bottom:2px solid var(--border);margin:0 0 0 0;padding:0 24px;background:var(--surface)">
+  <button id="atab-audit" onclick="showATab('audit')" style="padding:11px 20px;font-size:13px;font-weight:600;color:var(--gold);border:none;border-bottom:3px solid var(--gold);margin-bottom:-2px;background:none;cursor:pointer;font-family:var(--sans);white-space:nowrap">🔍 Audit Trail</button>
+  <button id="atab-session" onclick="showATab('session')" style="padding:11px 20px;font-size:13px;font-weight:600;color:var(--muted);border:none;border-bottom:3px solid transparent;margin-bottom:-2px;background:none;cursor:pointer;font-family:var(--sans);white-space:nowrap">🔐 Session Log</button>
+</div>
+
+<!-- TAB: AUDIT TRAIL -->
+<div id="apanel-audit" class="container">
   <div class="stats-bar" id="stats-bar">
     <div class="stat-card"><div class="k">Total Events</div><div class="v" id="stat-total" style="color:var(--blue)">—</div></div>
     <div class="stat-card"><div class="k">Today</div><div class="v" id="stat-today" style="color:var(--green)">—</div></div>
     <div class="stat-card"><div class="k">This Week</div><div class="v" id="stat-week" style="color:var(--amber)">—</div></div>
     <div class="stat-card"><div class="k">Most Active</div><div class="v" id="stat-top" style="color:var(--purple);font-size:15px">—</div></div>
   </div>
-
   <div class="filters">
     <input type="text" class="search-input" id="search" placeholder="🔍 Search detail..." oninput="applyFilters()">
     <select class="filter-select" id="filter-staff" onchange="applyFilters()">
@@ -185,15 +191,33 @@ window.caAudit = (function(){
     <button class="btn btn-red" onclick="clearAuditLog()">🗑 Clear Log</button>
     <span class="count-badge" id="count-badge">— events</span>
   </div>
-
   <div class="timeline">
     <div class="tl-header">
       <span>Time</span><span>Staff</span><span>Action</span><span>Detail</span><span>Page</span>
     </div>
     <div id="audit-list"><div class="loading">Loading audit trail…</div></div>
   </div>
-
   <div class="pagination" id="pagination"></div>
+</div>
+
+<!-- TAB: SESSION LOG -->
+<div id="apanel-session" style="display:none" class="container">
+  <div style="max-width:720px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #f0ede0;background:#FBFAE8">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:13px">🔐</span>
+          <span style="font-family:var(--display);font-size:13px;font-weight:700">Session Log</span>
+          <span style="font-size:11px;color:var(--muted)">— staff login activity, stored on this device only</span>
+        </div>
+        <button onclick="clearSessionLog()" style="padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:#fff;font-size:10px;font-weight:600;cursor:pointer;color:var(--red);font-family:var(--sans)">Clear Log</button>
+      </div>
+      <div id="session-log-list" style="font-size:12px;padding:0 18px"></div>
+      <div style="padding:10px 18px;background:#f8f7ee;border-top:1px solid #f0ede0">
+        <p style="font-size:10px;color:var(--muted)">🔓 <strong>Locked out?</strong> Staff must clear browser storage: Chrome → Settings → Privacy → Clear browsing data → tick "Cookies and site data" → Clear. Locks are device-side and cannot be reset remotely.</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 
@@ -352,6 +376,52 @@ async function clearAuditLog(){
 }
 
 init();
+
+// ── TAB SWITCHING ────────────────────────────────────────
+function showATab(tab) {
+  var panels = ['audit','session'];
+  panels.forEach(function(p) {
+    var panel = document.getElementById('apanel-'+p);
+    var btn = document.getElementById('atab-'+p);
+    if (!panel || !btn) return;
+    var active = (p === tab);
+    panel.style.display = active ? 'block' : 'none';
+    btn.style.color = active ? 'var(--gold)' : 'var(--muted)';
+    btn.style.borderBottomColor = active ? 'var(--gold)' : 'transparent';
+  });
+  if (tab === 'session') renderSessionLog();
+}
+
+// ── SESSION LOG ──────────────────────────────────────────
+function renderSessionLog() {
+  var el = document.getElementById('session-log-list');
+  if (!el) return;
+  var logs = [];
+  try { logs = JSON.parse(localStorage.getItem('ca_session_log') || '[]'); } catch(e) {}
+  if (!logs.length) {
+    el.innerHTML = '<div style="color:var(--muted);padding:14px 0;font-size:12px">No sessions logged yet.</div>';
+    return;
+  }
+  var colours = {Asadul:'#155FA0',Hassan:'#1D7A47',Aminul:'#6D28D9',Nawaz:'#C07A00',Sadat:'#D04A02'};
+  el.innerHTML = logs.map(function(l) {
+    var d = new Date(l.time);
+    var date = d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    var time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    var col = colours[l.user] || '#6b7280';
+    return '<div style="display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede0">'
+      + '<span style="background:'+col+';color:#fff;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap">'+l.user+'</span>'
+      + '<span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);min-width:46px">'+time+'</span>'
+      + '<span style="color:var(--muted);font-size:12px">'+date+'</span>'
+      + (l.role==='admin'?'<span style="color:var(--gold);font-size:10px;font-weight:700;margin-left:auto">Admin</span>':'')
+      + '</div>';
+  }).join('');
+}
+
+function clearSessionLog() {
+  if (!confirm('Clear all session logs?')) return;
+  localStorage.removeItem('ca_session_log');
+  renderSessionLog();
+}
 </script>
 </body>
 </html>
