@@ -2,7 +2,7 @@
 // Proxies requests to GoCardless API to avoid CORS issues
 // Called from the frontend as: /.netlify/functions/gc-proxy?endpoint=payments&after=2026-01-01
 
-const GC_TOKEN = 'live_T37rCj9-vy2dTwZ3C_g9uLh0xgZFtxf55f0Ney6M';
+const GC_TOKEN = 'live_zTE6grGCyTMR4tobPZ1shAuALQeirL622mFy78Zs';
 const GC_BASE  = 'https://api.gocardless.com';
 const GC_VER   = '2015-07-06';
 
