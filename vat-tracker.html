@@ -1,0 +1,934 @@
+<!-- CA PORTAL v1773207034 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var _sb=supabase.createClient(
+    'https://yhvhpfsoqtjwnukgyqap.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
+  );
+  _sb.auth.getSession().then(function(r){
+    var session=r.data&&r.data.session;
+    if(!session){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('ca_role')||'staff';
+    var name=localStorage.getItem('ca_name')||'';
+    if(role!=='admin'){
+      var style=document.createElement('style');
+      style.innerHTML='#nav-revenue{display:none!important}#nav-strategy{display:none!important}#card-revenue{display:none!important}#card-strategy{display:none!important}#hero-stats{display:none!important}button.act-del{display:none!important}.act-del{display:none!important}';
+      document.head.appendChild(style);
+    }
+    window.addEventListener('DOMContentLoaded',function(){
+      var fullNames={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
+      var hu=document.getElementById('ca-hdr-user');if(hu)hu.textContent=fullNames[name]||name;
+    });
+  });
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>VAT Tracker — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🟢</text></svg>">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+    --bg:          #FBFAE8;
+    --surface:     #FFFFFF;
+    --ink:         #252525;
+    --ink2:        #4A4A4A;
+    --muted:       #7A7A7A;
+    --border:      #DEDEDE;
+    --red:         #D04A02;
+    --red-dark:    #A83900;
+    --red-light:   #FCEEE8;
+    --green:       #1D7A47;
+    --green-light: #E5F4EC;
+    --blue:        #155FA0;
+    --blue-light:  #E5EFF8;
+    --amber:       #C07A00;
+    --amber-light: #FEF3DC;
+    --gold:        #D04A02;
+    --gold-light:  #FCEEE8;
+    --gold-dark:   #A83900;
+    --slate:       #5A5A6A;
+    --slate-light: #F0F0F4;
+    --dark:        #252525;
+    --sans:   'Mulish', sans-serif;
+    --display:'Raleway', sans-serif;
+    --serif:  'Raleway', sans-serif;
+    --mono:   'Fira Code', monospace;
+  
+    /* ── PwC universal aliases ── */
+    --white:        #FFFFFF;
+    --text:         #252525;
+    --text2:        #4A4A4A;
+    --text-muted:   #7A7A7A;
+    --accent:       #D04A02;
+    --accent-light: #FCEEE8;
+    --accent-border:#E8BBA8;
+    --border2:      #CECECE;
+    --surface2:     #F8F8F8;
+    --shadow:       0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+    --shadow-md:    0 4px 16px rgba(0,0,0,0.1);
+    --radius:       2px;
+    --purple:       #7C3AED;
+    --purple-light: #EDE9FE;
+    --purple-border:#C4B5FD;
+    --teal:         #0D9488;
+    --teal-light:   #CCFBF1;
+    --teal-border:  #5EEAD4;
+    --orange:       #EA580C;
+    --orange-light: #FFF0E8;
+    --orange-border:#FED7AA;
+    --green-border: #86EFAC;
+    --amber-border: #FCD34D;
+    --red-border:   #FCA5A5;
+    --blue-bg:      #E5EFF8;
+    --green-bg:     #E5F4EC;
+    --red-bg:       #FCEEE8;
+    --yellow:       #D97706;
+    --yellow-bg:    #FFFBEB;
+    --yellow-mid:   #FDE68A;
+    --dc-bg:        #F9F9F9;
+    --dc-color:     #252525;
+  }
+body {padding-top:92px !important; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 13px; min-height: 100vh; }
+
+/* Summary cards */
+.kpi-row { display: flex; gap: 12px; padding: 16px 20px; flex-wrap: wrap; }
+.kpi { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; flex: 1; min-width: 130px; }
+.kpi .k { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.kpi .v { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+.kpi .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+/* Toolbar */
+.toolbar { background: var(--bg); border-bottom: 1px solid var(--border); border-top: 1px solid var(--border); padding: 10px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.filter-btn { padding: 6px 13px; border-radius: 20px; border: 1px solid var(--border2); cursor: pointer; font-family: var(--sans); font-size: 11px; font-weight: 600; background: var(--bg); color: var(--text2); transition: all 0.15s; white-space: nowrap; }
+.filter-btn:hover { border-color: var(--blue); color: var(--blue); }
+.filter-btn.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.filter-btn.red.active { background: var(--red); border-color: var(--red); color:#fff; }
+.filter-btn.amber.active { background: var(--yellow); border-color: var(--yellow); color:#fff; }
+.filter-btn.green.active { background: var(--green); border-color: var(--green); color:#fff; }
+.search-box { padding: 7px 11px; border: 1px solid var(--border2); border-radius: 8px; font-family: var(--sans); font-size: 12px; background: var(--surface2); color: var(--text); outline: none; width: 200px; }
+.search-box:focus { border-color: var(--blue); }
+.count-badge { font-size: 11px; color: var(--text-muted); margin-left: auto; font-weight: 600; }
+
+/* Table */
+.table-wrap { padding: 16px 20px 20px; overflow-x: auto; background: var(--bg); border-radius: 10px; border: 1px solid var(--border); margin: 0 20px 20px; }
+table { width: 100%; border-collapse: collapse; }
+th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; padding: 10px 14px; background: var(--bg); border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; cursor: pointer; user-select: none; }
+th:hover { color: var(--blue); }
+td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 12px; vertical-align: middle; background: var(--bg); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8f9ff; }
+
+/* Badges */
+.days-badge { display: inline-block; padding: 3px 9px; border-radius: 10px; font-family: var(--mono); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.days-overdue { background: #fee2e2; color: var(--red); }
+.days-soon { background: #fef3c7; color: var(--yellow); }
+.days-ok { background: #dcfce7; color: var(--green); }
+.days-future { background: #eff6ff; color: var(--blue); }
+
+.stagger-badge { display: inline-block; padding: 2px 8px; border-radius: 8px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.g1 { background: #eff6ff; color: #1d4ed8; }
+.g2 { background: #f3e8ff; color: #6d28d9; }
+.g3 { background: #f0fdf4; color: #15803d; }
+
+.company-link { color: var(--text); font-weight: 400; text-decoration: none; cursor: pointer; }
+.company-link:hover { text-decoration: underline; }
+
+/* Status dot */
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.dot-red { background: var(--red); }
+.dot-amber { background: var(--yellow); }
+.dot-green { background: var(--green); }
+
+/* Progress bar for quarter */
+.quarter-bar { background: var(--surface2); border-radius: 4px; height: 6px; width: 80px; overflow: hidden; margin-top: 2px; }
+.quarter-fill { height: 100%; border-radius: 4px; }
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:flex-start;justify-content:space-between}
+.modal-title{font-size:16px;font-weight:700;color:#1a1a1a}
+.modal-sub{font-size:11px;color:#6b7280;margin-top:3px;font-family:monospace}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280}
+.modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto}
+.modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end}
+.vd-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vd-field label{font-size:10px;font-weight:600;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:4px}
+.vd-field .val{font-size:13px;font-weight:600;color:#1a1a1a;padding:6px 10px;background:#f9fafb;border-radius:6px}
+
+/* VAT EDIT MODAL */
+.vat-modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.vat-modal-bg.open{display:flex}
+.vat-modal{background:#fff;border-radius:14px;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden}
+.vat-modal-header{padding:20px 24px 16px;border-bottom:1px solid #e5e7eb;display:flex;align-items:flex-start;justify-content:space-between}
+.vat-modal-body{padding:20px 24px;max-height:72vh;overflow-y:auto}
+.vat-modal-footer{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end;align-items:center}
+.vf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.vf-full{grid-column:1/-1}
+.vf-label{font-size:10px;font-weight:600;text-transform:uppercase;color:#6b7280;display:block;margin-bottom:4px}
+.vf-input{width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#f9fafb}
+.vf-input:focus{outline:none;border-color:#155FA0;background:#fff}
+.vf-select{width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;font-family:inherit;box-sizing:border-box;background:#f9fafb;cursor:pointer}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div class="ca-date" id="ca-hdr-date"></div>
+  </div>
+  <div class="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html" id="nav-revenue">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html" class="active">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html">📅 Appointments</a>
+    <a href="workflows.html">⚙️ Workflows</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">🗓 Calendar</a>
+    <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
+  </div>
+</div>
+<script>
+(function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
+(function(){var links=document.querySelector('.ca-links');if(!links)return;var active=links.querySelector('a.active');if(active){var offset=active.offsetLeft-16;links.scrollLeft=Math.max(0,offset);}else{links.scrollLeft=0;}})();
+</script>
+
+
+
+
+<!-- KPI Row -->
+<div class="kpi-row" id="kpi-row"></div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="filter-btn active" onclick="setFilter('all',this)">All (42)</button>
+  <button class="filter-btn red" onclick="setFilter('overdue',this)">🔴 Overdue</button>
+  <button class="filter-btn amber" onclick="setFilter('soon',this)">🟡 Due ≤30 days</button>
+  <button class="filter-btn green" onclick="setFilter('ok',this)">🟢 This Quarter</button>
+  <button class="filter-btn" onclick="setFilter('g1',this)">Group 1</button>
+  <button class="filter-btn" onclick="setFilter('g2',this)">Group 2</button>
+  <button class="filter-btn" onclick="setFilter('g3',this)">Group 3</button>
+  <input class="search-box" type="text" placeholder="🔍 Search company..." oninput="searchTable(this.value)">
+  <span class="count-badge" id="count-badge">42 clients</span>
+  <div style="margin-left:auto;display:flex;gap:6px">
+    <button onclick="openAddVatModal()" style="background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer">+ Add Client</button>
+    <button onclick="exportVatExcel()" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" onmouseover="this.style.borderColor='#16a34a';this.style.color='#16a34a'" onmouseout="this.style.borderColor='';this.style.color=''">⬇ Excel</button>
+    <button onclick="exportVatPDF()" style="background:none;border:1px solid var(--border2);border-radius:7px;padding:7px 13px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2)" onmouseover="this.style.borderColor='#3b82f6';this.style.color='#3b82f6'" onmouseout="this.style.borderColor='';this.style.color=''">🖨 PDF</button>
+  </div>
+</div>
+
+<!-- Table -->
+<div class="table-wrap">
+  <table id="vat-table">
+    <thead>
+      <tr>
+        <th onclick="sortBy('id')">#</th>
+        <th onclick="sortBy('name')">Company</th>
+        <th onclick="sortBy('vat_stagger')">Stagger</th>
+        <th onclick="sortBy('vat_due')">Next VAT Due</th>
+        <th onclick="sortBy('days_until')">Status</th>
+        <th>Quarter Progress</th>
+        <th>CH Alert</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="vat-tbody"></tbody>
+  </table>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+
+async function sbFetch(path, opts={}) {
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...opts.headers
+    },
+    ...opts
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function parseDaysUntil(vatDue) {
+  if (!vatDue) return 999;
+  const [d,m,y] = vatDue.split('/');
+  return Math.round((new Date(y,m-1,d) - new Date()) / 86400000);
+}
+
+const VAT_DATA_SEED = [{"id": 73, "name": "CLOSE PROPERTIES LIMITED", "comp_no": "13385860", "alerts": "Amber", "accounts_ref_date": "29/05", "accounts_due": "29/05/2026", "conf_date": "28/02/2026", "conf_due": "14/03/2026", "vat_due": "07/07/2025", "vat_stagger": "Group 1"}, {"id": 214, "name": "RAHMAN PACKAGING LIMITED", "comp_no": "07461907", "alerts": "", "accounts_ref_date": "24/12", "accounts_due": "24/09/2026", "conf_date": "11/06/2026", "conf_due": "25/06/2026", "vat_due": "07/11/2025", "vat_stagger": "Group 2"}, {"id": 16, "name": "AL-AMIN FOODSTORE LTD", "comp_no": "12578448", "alerts": "Red", "accounts_ref_date": "28/04", "accounts_due": "28/04/2026", "conf_date": "25/08/2026", "conf_due": "08/09/2026", "vat_due": "07/03/2026", "vat_stagger": "Group 3"}, {"id": 12, "name": "AK OPTICAL GROUP LTD", "comp_no": "15921589", "alerts": "", "accounts_ref_date": "31/08", "accounts_due": "28/05/2026", "conf_date": "27/08/2026", "conf_due": "10/09/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 28, "name": "ARIA CASH AND CARRY LTD", "comp_no": "08757436", "alerts": "", "accounts_ref_date": "28/11", "accounts_due": "28/08/2026", "conf_date": "26/01/2027", "conf_due": "09/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 46, "name": "BENGAL CURRY POT LIMITED", "comp_no": "10164490", "alerts": "", "accounts_ref_date": "27/05", "accounts_due": "27/02/2027", "conf_date": "26/01/2027", "conf_due": "09/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 169, "name": "MCDHABA INDIAN RESTAURANT LTD", "comp_no": "SC798919", "alerts": "", "accounts_ref_date": "29/02", "accounts_due": "30/11/2026", "conf_date": "12/02/2027", "conf_due": "26/02/2027", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 206, "name": "PROSPECT STORE LTD", "comp_no": "13773879", "alerts": "Red", "accounts_ref_date": "29/11", "accounts_due": "29/08/2026", "conf_date": "22/02/2026", "conf_due": "08/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 225, "name": "RR RESTAURANT LIMITED", "comp_no": "07965986", "alerts": "Red", "accounts_ref_date": "27/02", "accounts_due": "27/11/2026", "conf_date": "01/03/2026", "conf_due": "15/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 246, "name": "SJ MOTOR SERVICES LTD", "comp_no": "12824538", "alerts": "", "accounts_ref_date": "30/08", "accounts_due": "30/05/2026", "conf_date": "18/09/2026", "conf_due": "02/10/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 262, "name": "SPICY VALLEY TODMORDEN LTD", "comp_no": "12627379", "alerts": "", "accounts_ref_date": "31/05", "accounts_due": "31/05/2026", "conf_date": "11/06/2026", "conf_due": "25/06/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 272, "name": "SYLHETI BAZAR LIMITED", "comp_no": "11184309", "alerts": "", "accounts_ref_date": "28/02", "accounts_due": "30/11/2026", "conf_date": "23/03/2026", "conf_due": "06/04/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 276, "name": "THE CHOWDURY ACCOUNTANTS LTD", "comp_no": "09441520", "alerts": "", "accounts_ref_date": "21/02", "accounts_due": "21/11/2026", "conf_date": "14/08/2026", "conf_due": "28/08/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 278, "name": "THE MEGNA LTD", "comp_no": "12457757", "alerts": "Amber", "accounts_ref_date": "25/02", "accounts_due": "25/11/2026", "conf_date": "15/03/2026", "conf_due": "29/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 291, "name": "UNITED SALVAGE LTD", "comp_no": "15061998", "alerts": "", "accounts_ref_date": "31/08", "accounts_due": "31/05/2026", "conf_date": "09/08/2026", "conf_due": "23/08/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 297, "name": "WO GROUP LIMITED", "comp_no": "12021205", "alerts": "", "accounts_ref_date": "29/05", "accounts_due": "29/05/2026", "conf_date": "09/09/2026", "conf_due": "23/09/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 301, "name": "YAS INTERNATIONAL LIMITED", "comp_no": "11079885", "alerts": "Amber", "accounts_ref_date": "28/11", "accounts_due": "28/08/2026", "conf_date": "09/03/2026", "conf_due": "23/03/2026", "vat_due": "07/04/2026", "vat_stagger": "Group 1"}, {"id": 2, "name": "A1 GERMAN BREAKERS GROUP UK LTD", "comp_no": "15129309", "alerts": "", "accounts_ref_date": "30/09", "accounts_due": "30/06/2026", "conf_date": "11/09/2026", "conf_due": "25/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 45, "name": "BEGAL FAST FOOD OLDHAM LTD", "comp_no": "13616227", "alerts": "", "accounts_ref_date": "28/09", "accounts_due": "28/06/2026", "conf_date": "11/09/2026", "conf_due": "25/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 63, "name": "CHENNAI LANDLORD LTD", "comp_no": "13963731", "alerts": "Red", "accounts_ref_date": "30/03", "accounts_due": "30/12/2026", "conf_date": "07/03/2026", "conf_due": "21/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 152, "name": "LIJA CATERING LTD", "comp_no": "14330589", "alerts": "", "accounts_ref_date": "30/09", "accounts_due": "30/06/2026", "conf_date": "31/08/2026", "conf_due": "14/09/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 158, "name": "MAA LEGAL SERVICES LIMITED", "comp_no": "11728106", "alerts": "", "accounts_ref_date": "30/12", "accounts_due": "30/09/2026", "conf_date": "27/06/2026", "conf_due": "11/07/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 167, "name": "MB TAKEAWAY LTD", "comp_no": "12879940", "alerts": "", "accounts_ref_date": "28/09", "accounts_due": "28/06/2026", "conf_date": "04/10/2026", "conf_due": "18/10/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 195, "name": "NUSEER RAFIQ - (Travel Line Mini Bus)", "comp_no": "", "alerts": "Red", "accounts_ref_date": "", "accounts_due": "", "conf_date": "", "conf_due": "", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 205, "name": "PROJECT INTERIM LIMITED", "comp_no": "14740056", "alerts": "Amber", "accounts_ref_date": "31/03", "accounts_due": "31/03/2026", "conf_date": "17/03/2026", "conf_due": "31/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 235, "name": "SCHOLARED UK LTD", "comp_no": "14967711", "alerts": "Red", "accounts_ref_date": "28/06", "accounts_due": "28/03/2026", "conf_date": "21/02/2026", "conf_due": "07/03/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 244, "name": "SHAZNA TAKEAWAY LIMITED", "comp_no": "10087517", "alerts": "Amber", "accounts_ref_date": "30/03", "accounts_due": "30/03/2026", "conf_date": "04/08/2026", "conf_due": "18/08/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 306, "name": "ZIGGY\u2019S SCHOOLWEAR (BOLTON) LTD", "comp_no": "14751431", "alerts": "Amber", "accounts_ref_date": "31/03", "accounts_due": "31/03/2026", "conf_date": "25/05/2026", "conf_due": "08/06/2026", "vat_due": "07/05/2026", "vat_stagger": "Group 2"}, {"id": 1, "name": "2020 OPTIX LTD", "comp_no": "07239795", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "30/04/2026", "conf_due": "14/05/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 10, "name": "AH TAKEAWAY LTD", "comp_no": "12267533", "alerts": "Amber", "accounts_ref_date": "29/10", "accounts_due": "29/07/2026", "conf_date": "23/11/2026", "conf_due": "07/12/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 25, "name": "ANMOL WARRINGTON LIMITED", "comp_no": "13355676", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "23/04/2026", "conf_due": "07/05/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 40, "name": "BALLY OFF LICENCE LTD", "comp_no": "13671931", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "10/10/2026", "conf_due": "24/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 48, "name": "BENGAL ROSE LTD", "comp_no": "13681584", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "14/10/2026", "conf_due": "28/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 58, "name": "BRTA LIMITED", "comp_no": "12716060", "alerts": "Red", "accounts_ref_date": "31/07", "accounts_due": "30/04/2027", "conf_date": "02/07/2026", "conf_due": "16/07/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 64, "name": "CHILLI INDIAN LTD", "comp_no": "13697837", "alerts": "Amber", "accounts_ref_date": "29/10", "accounts_due": "29/07/2026", "conf_date": "21/10/2026", "conf_due": "04/11/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 75, "name": "COPPICE BAZAR LTD", "comp_no": "14029671", "alerts": "Amber", "accounts_ref_date": "30/04", "accounts_due": "31/01/2027", "conf_date": "28/03/2026", "conf_due": "11/04/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 79, "name": "D' GRAND HAVELI LTD", "comp_no": "12262936", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "08/02/2027", "conf_due": "22/02/2027", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 107, "name": "GLOBAL LEARNING PATHWAY LIMITED", "comp_no": "13358224", "alerts": "Amber", "accounts_ref_date": "27/04", "accounts_due": "27/04/2026", "conf_date": "09/12/2026", "conf_due": "23/12/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 126, "name": "IMON TANDOORI LIMITED", "comp_no": "11956917", "alerts": "Amber", "accounts_ref_date": "28/04", "accounts_due": "28/01/2027", "conf_date": "05/07/2026", "conf_due": "19/07/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 143, "name": "KINGFISHER BD RESTAURANT LTD", "comp_no": "14605750", "alerts": "Red", "accounts_ref_date": "31/01", "accounts_due": "31/10/2026", "conf_date": "19/01/2027", "conf_due": "02/02/2027", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 216, "name": "RAZAK & SONS LIMITED", "comp_no": "13676974", "alerts": "Amber", "accounts_ref_date": "30/10", "accounts_due": "30/07/2026", "conf_date": "12/10/2026", "conf_due": "26/10/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}, {"id": 236, "name": "SEQUENTIAL SERVICES LIMITED", "comp_no": "12097769", "alerts": "Amber", "accounts_ref_date": "30/07", "accounts_due": "30/04/2027", "conf_date": "20/03/2026", "conf_due": "03/04/2026", "vat_due": "07/06/2026", "vat_stagger": "Group 3"}];
+let VAT_DATA = [];
+
+let filtered = [];
+
+async function loadVatData() {
+  // Always render hardcoded data first so page is never blank
+  VAT_DATA = VAT_DATA_SEED.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
+  filtered = [...VAT_DATA];
+  renderKPIs();
+  render();
+  // Then merge with Supabase — seed is base, Supabase adds new or removes (vat_registered=false)
+  try {
+    const sbRows = await sbFetch('ltd_clients?select=comp_no,vat_registered,vat_stagger,status&limit=1000');
+    if (sbRows && sbRows.length > 0) {
+      // Build map of comp_no -> supabase row
+      const sbMap = {};
+      sbRows.forEach(r => { if(r.comp_no) sbMap[r.comp_no] = r; });
+
+      // Start with seed, apply Supabase overrides
+      let result = VAT_DATA_SEED.map(s => {
+        const sb = sbMap[s.comp_no];
+        if (!sb) return s; // not in Supabase, keep seed as-is
+        // If Supabase explicitly marks not VAT registered, exclude
+        if (sb.vat_registered === false) return null;
+        return {
+          ...s,
+          vat_stagger: sb.vat_stagger || s.vat_stagger || '',
+          status: sb.status || s.status || 'active'
+        };
+      }).filter(r => r && r.vat_stagger && !['ceased','left'].includes(r.status||'active'));
+
+      // Add any NEW clients from Supabase not in seed (vat_registered=true)
+      const seedCompNos = new Set(VAT_DATA_SEED.map(s => s.comp_no));
+      const allVatTrue = sbRows.filter(r => r.vat_registered === true);
+      console.log('🔍 VAT debug — Supabase rows total:', sbRows.length, '| vat_registered=true:', allVatTrue.length);
+      console.log('🔍 VAT true clients:', allVatTrue.map(r => `${r.comp_no} stagger=${r.vat_stagger} inSeed=${seedCompNos.has(r.comp_no)}`));
+      const newClients = sbRows.filter(r =>
+        r.vat_registered === true && r.comp_no && !seedCompNos.has(r.comp_no) &&
+        !['ceased','left'].includes(r.status||'active')
+      );
+      console.log('🔍 New VAT clients (not in seed):', newClients.map(r => r.comp_no));
+      if (newClients.length > 0) {
+        // Load all ltd seeds to get names and details
+        let allLtdData = [];
+        try {
+          const seedFiles = [0,1,2,3,4,5,6];
+          const fetches = await Promise.all(seedFiles.map(i => fetch(`/ltd-seed-${i}.json`).then(r=>r.ok?r.json():[])));
+          allLtdData = fetches.flat();
+        } catch(e) { console.warn('Could not load ltd seeds:', e.message); }
+        const ltdMap = {};
+        allLtdData.forEach(r => { if(r.comp_no) ltdMap[r.comp_no] = r; });
+
+        const staggerDues = {'Group 1':'07/04/2026','Group 2':'07/05/2026','Group 3':'07/06/2026'};
+        newClients.forEach(r => {
+          const ltd = ltdMap[r.comp_no] || {};
+          const stagger = r.vat_stagger || ltd.vat_stagger || '';
+          result.push({
+            id: r.comp_no,
+            name: ltd.name || r.comp_no,
+            comp_no: r.comp_no,
+            vat_stagger: stagger,
+            vat_due: staggerDues[stagger] || '',
+            alerts: ltd.alerts || r.alerts || '',
+            accounts_due: ltd.accounts_due || '',
+            conf_due: ltd.conf_due || '',
+            status: r.status || 'active'
+          });
+        });
+      }
+
+      if (result.length > 0) {
+        VAT_DATA = result.map(r => ({...r, days_until: parseDaysUntil(r.vat_due)}));
+        filtered = [...VAT_DATA];
+        renderKPIs();
+        render();
+      }
+    }
+  } catch(e) {
+    console.warn('Supabase load failed, using seed data:', e.message);
+  }
+}
+let currentFilter = 'all';
+let currentSearch = '';
+let sortCol = 'days_until';
+let sortDir = 1;
+
+function init() {
+  loadVatData();
+}
+
+function renderKPIs() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const overdue = VAT_DATA.filter(c => c.days_until < 0).length;
+  const soon = VAT_DATA.filter(c => c.days_until >= 0 && c.days_until <= 30).length;
+  const g1 = VAT_DATA.filter(c => c.vat_stagger === 'Group 1').length;
+  const g2 = VAT_DATA.filter(c => c.vat_stagger === 'Group 2').length;
+  const g3 = VAT_DATA.filter(c => c.vat_stagger === 'Group 3').length;
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi"><div class="k">Total VAT Clients</div><div class="v" style="color:var(--blue)">${VAT_DATA.length}</div><div class="sub">Registered for VAT</div></div>
+    <div class="kpi"><div class="k">Overdue</div><div class="v" style="color:var(--red)">${overdue}</div><div class="sub">Past filing date</div></div>
+    <div class="kpi"><div class="k">Due ≤ 30 Days</div><div class="v" style="color:var(--yellow)">${soon}</div><div class="sub">Action required soon</div></div>
+    <div class="kpi"><div class="k">Group 1</div><div class="v" style="color:#1d4ed8">${g1}</div><div class="sub">Jan/Apr/Jul/Oct</div></div>
+    <div class="kpi"><div class="k">Group 2</div><div class="v" style="color:#6d28d9">${g2}</div><div class="sub">Feb/May/Aug/Nov</div></div>
+    <div class="kpi"><div class="k">Group 3</div><div class="v" style="color:#15803d">${g3}</div><div class="sub">Mar/Jun/Sep/Dec</div></div>
+  `;
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function searchTable(q) {
+  currentSearch = q.toLowerCase();
+  render();
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = 1; }
+  render();
+}
+
+function quarterProgress(vatDueStr) {
+  try {
+    const due = new Date(vatDueStr.split('/').reverse().join('-'));
+    // Quarter ends 1 month before due (VAT due = end of month after quarter end)
+    const qEnd = new Date(due); qEnd.setMonth(qEnd.getMonth() - 1);
+    const qStart = new Date(qEnd); qStart.setMonth(qStart.getMonth() - 3);
+    const now = new Date();
+    const total = qEnd - qStart;
+    const elapsed = Math.min(now - qStart, total);
+    const pct = Math.max(0, Math.min(100, Math.round(elapsed / total * 100)));
+    const color = pct > 90 ? 'var(--red)' : pct > 66 ? 'var(--yellow)' : 'var(--green)';
+    return `<div class="quarter-bar"><div class="quarter-fill" style="width:${pct}%;background:${color}"></div></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${pct}% through quarter</div>`;
+  } catch { return '—'; }
+}
+
+function daysBadge(days) {
+  if (days < 0) return `<span class="days-badge days-overdue">⚠ ${Math.abs(days)}d overdue</span>`;
+  if (days <= 7) return `<span class="days-badge days-soon">🔥 ${days}d left</span>`;
+  if (days <= 30) return `<span class="days-badge days-soon">⏰ ${days}d left</span>`;
+  if (days <= 90) return `<span class="days-badge days-ok">✓ ${days}d left</span>`;
+  return `<span class="days-badge days-future">${days}d left</span>`;
+}
+
+function render() {
+  let data = [...VAT_DATA];
+
+  // Filter
+  if (currentFilter === 'overdue') data = data.filter(c => c.days_until < 0);
+  else if (currentFilter === 'soon') data = data.filter(c => c.days_until >= 0 && c.days_until <= 30);
+  else if (currentFilter === 'ok') data = data.filter(c => c.days_until > 30 && c.days_until <= 90);
+  else if (currentFilter === 'g1') data = data.filter(c => c.vat_stagger === 'Group 1');
+  else if (currentFilter === 'g2') data = data.filter(c => c.vat_stagger === 'Group 2');
+  else if (currentFilter === 'g3') data = data.filter(c => c.vat_stagger === 'Group 3');
+
+  // Search
+  if (currentSearch) data = data.filter(c => c.name.toLowerCase().includes(currentSearch));
+
+  // Sort
+  data.sort((a, b) => {
+    let av = a[sortCol], bv = b[sortCol];
+    if (typeof av === 'string') av = av.toLowerCase();
+    if (typeof bv === 'string') bv = bv.toLowerCase();
+    return av < bv ? -sortDir : av > bv ? sortDir : 0;
+  });
+
+  document.getElementById('count-badge').textContent = `${data.length} client${data.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('vat-tbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted)">No clients match this filter</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map((c, i) => {
+    const staggerClass = c.vat_stagger === 'Group 1' ? 'g1' : c.vat_stagger === 'Group 2' ? 'g2' : 'g3';
+    const alertDot = c.alerts === 'Red' ? '<span class="dot dot-red"></span>' : c.alerts === 'Amber' ? '<span class="dot dot-amber"></span>' : '<span class="dot dot-green"></span>';
+    return `<tr>
+      <td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">${i+1}</td>
+      <td><span class="company-link" onclick="openVatModal(${c.id})" style="cursor:pointer">${c.name}</span><div style="font-size:10px;color:var(--text-muted);font-family:var(--mono)">${c.comp_no}</div></td>
+      <td><span class="stagger-badge ${staggerClass}">${c.vat_stagger}</span></td>
+      <td style="font-family:var(--mono);font-size:12px">${c.vat_due}</td>
+      <td>${daysBadge(c.days_until)}</td>
+      <td>${quarterProgress(c.vat_due)}</td>
+      <td>${alertDot}${c.alerts || '—'}</td>
+      <td style="white-space:nowrap">
+        <button onclick="openVatModal(${c.id})" style="background:none;border:1px solid var(--border2);border-radius:5px;padding:3px 8px;color:var(--text-muted);cursor:pointer;font-size:11px;margin-right:4px">✏️</button>
+        <button onclick="removeVatClient(${c.id})" style="background:none;border:1px solid #ef4444;border-radius:5px;padding:3px 8px;color:#ef4444;cursor:pointer;font-size:11px">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+init();
+
+// ==================== VAT ADD / EDIT / REMOVE ====================
+function openAddVatModal() { document.getElementById('vat-add-modal').style.display='flex'; ['vaf-name','vaf-compno','vaf-vat-due'].forEach(id=>document.getElementById(id).value=''); }
+function closeAddVatModal() { document.getElementById('vat-add-modal').style.display='none'; }
+
+async function saveNewVatClient() {
+  const name = document.getElementById('vaf-name').value.trim();
+  if (!name) { alert('Company name required'); return; }
+  const payload = {
+    name,
+    comp_no: document.getElementById('vaf-compno').value.trim().toUpperCase(),
+    vat_due: document.getElementById('vaf-vat-due').value.trim(),
+    vat_stagger: document.getElementById('vaf-stagger').value,
+    alerts: document.getElementById('vaf-alerts').value,
+    accounts_due:'', conf_due:'', accounts_ref_date:'', conf_date:''
+  };
+  try {
+    const [saved] = await sbFetch('ltd_clients', {
+      method:'POST', body: JSON.stringify(payload),
+      headers:{'Prefer':'return=representation'}
+    });
+    VAT_DATA.push({...saved, days_until: parseDaysUntil(saved.vat_due)});
+    closeAddVatModal();
+    renderKPIs();
+    render();
+    alert(`✅ ${name} added and saved!`);
+  } catch(e) { alert('Error saving: ' + e.message); }
+}
+
+function openEditVat(id) {
+  const co = VAT_DATA.find(x => x.id === id);
+  if (!co) return;
+  document.getElementById('vef-id').value = id;
+  document.getElementById('vef-name').value = co.name || '';
+  document.getElementById('vef-compno').value = co.comp_no || '';
+  document.getElementById('vef-vat-due').value = co.vat_due || '';
+  document.getElementById('vef-stagger').value = co.vat_stagger || 'Group 1';
+  document.getElementById('vef-alerts').value = co.alerts || '';
+  document.getElementById('vat-edit-modal').style.display='flex';
+}
+function closeEditVatModal() { document.getElementById('vat-edit-modal').style.display='none'; }
+
+async function saveEditVatClient() {
+  const id = parseInt(document.getElementById('vef-id').value);
+  const idx = VAT_DATA.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const payload = {
+    name: document.getElementById('vef-name').value.trim(),
+    comp_no: document.getElementById('vef-compno').value.trim().toUpperCase(),
+    vat_due: document.getElementById('vef-vat-due').value.trim(),
+    vat_stagger: document.getElementById('vef-stagger').value,
+    alerts: document.getElementById('vef-alerts').value
+  };
+  try {
+    await sbFetch(`ltd_clients?id=eq.${id}`, {
+      method:'PATCH', body: JSON.stringify(payload),
+      headers:{'Prefer':'return=minimal'}
+    });
+    Object.assign(VAT_DATA[idx], payload, {days_until: parseDaysUntil(payload.vat_due)});
+    closeEditVatModal();
+    renderKPIs();
+    render();
+    alert('✅ Changes saved!');
+  } catch(e) { alert('Error saving: ' + e.message); }
+}
+
+async function removeVatClient(id) {
+  const co = VAT_DATA.find(x => x.id === id);
+  if (!co || !confirm(`Remove ${co.name} from VAT tracker?\nThis clears their VAT details but keeps them in Ltd tracker.`)) return;
+  try {
+    await sbFetch(`ltd_clients?id=eq.${id}`, {
+      method:'PATCH', body: JSON.stringify({vat_due:'', vat_stagger:''}),
+      headers:{'Prefer':'return=minimal'}
+    });
+    VAT_DATA.splice(VAT_DATA.findIndex(x=>x.id===id), 1);
+    renderKPIs();
+    render();
+    alert(`🗑 ${co.name} removed from VAT tracker.`);
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function exportVatExcel() {
+  const rows = VAT_DATA.map((d,i) => ({'#':i+1,'Company Name':d.name,'Comp No':d.comp_no||'','VAT Due':d.vat_due||'','Stagger Group':d.vat_stagger||'','Days Until':d.days_until,'Alert':d.alerts||''}));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:40},{wch:12},{wch:12},{wch:14},{wch:10},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws, 'VAT Clients');
+  XLSX.writeFile(wb, `VATClients_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+function exportVatPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+  doc.setFontSize(14); doc.setFont('helvetica','bold');
+  doc.text('The Chowdury Accountants — VAT Client List', 14, 16);
+  doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text(`${VAT_DATA.length} VAT clients · Generated ${new Date().toLocaleDateString('en-GB')}`, 14, 22);
+  doc.autoTable({
+    startY: 26,
+    head: [['#','Company Name','Comp No','VAT Due','Stagger Group','Days Until','Alert']],
+    body: VAT_DATA.map((d,i) => [i+1, d.name, d.comp_no||'', d.vat_due||'', d.vat_stagger||'', d.days_until, d.alerts||'']),
+    styles:{fontSize:8,cellPadding:2},
+    headStyles:{fillColor:[30,36,51],textColor:255,fontStyle:'bold'},
+    alternateRowStyles:{fillColor:[248,249,252]},
+    columnStyles:{1:{cellWidth:60}}
+  });
+  doc.save(`VATClients_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+
+
+function openVatModal(id) {
+  const co = (VAT_DATA.length ? VAT_DATA : VAT_DATA_SEED).find(x => x.id === id);
+  if (!co) return;
+  document.getElementById('vm-id').value = id;
+  document.getElementById('vm-title').textContent = co.name;
+  document.getElementById('vm-sub').textContent = 'Co. No: ' + (co.comp_no || '—');
+  document.getElementById('vm-name').value = co.name || '';
+  document.getElementById('vm-comp-no').value = co.comp_no || '';
+  document.getElementById('vm-stagger').value = co.vat_stagger || 'Group 1';
+  document.getElementById('vm-alerts').value = co.alerts || 'Green';
+  document.getElementById('vm-vat-due').value = co.vat_due || '';
+  document.getElementById('vm-accounts-ref').value = co.accounts_ref_date || '';
+  document.getElementById('vm-accounts-due').value = co.accounts_due || '';
+  document.getElementById('vm-conf-date').value = co.conf_date || '';
+  document.getElementById('vm-conf-due').value = co.conf_due || '';
+  const ch = document.getElementById('vm-ch-link');
+  ch.href = co.comp_no ? 'https://find-and-update.company-information.service.gov.uk/company/' + co.comp_no : '#';
+  document.getElementById('vat-modal-bg').classList.add('open');
+}
+function closeVatModal() {
+  document.getElementById('vat-modal-bg').classList.remove('open');
+}
+async function saveVatClient() {
+  const id = parseInt(document.getElementById('vm-id').value);
+  const updates = {
+    name: document.getElementById('vm-name').value.trim(),
+    comp_no: document.getElementById('vm-comp-no').value.trim(),
+    vat_stagger: document.getElementById('vm-stagger').value,
+    alerts: document.getElementById('vm-alerts').value,
+    vat_due: document.getElementById('vm-vat-due').value.trim(),
+    accounts_ref_date: document.getElementById('vm-accounts-ref').value.trim(),
+    accounts_due: document.getElementById('vm-accounts-due').value.trim(),
+    conf_date: document.getElementById('vm-conf-date').value.trim(),
+    conf_due: document.getElementById('vm-conf-due').value.trim()
+  };
+  try {
+    const res = await fetch(SUPA_URL + '/rest/v1/ltd_clients?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(updates)
+    });
+    if (!res.ok) throw new Error('Save failed');
+    // Update local data
+    const idx = VAT_DATA.findIndex(x => x.id === id);
+    if (idx >= 0) Object.assign(VAT_DATA[idx], updates);
+    const idx2 = VAT_DATA_SEED.findIndex(x => x.id === id);
+    if (idx2 >= 0) Object.assign(VAT_DATA_SEED[idx2], updates);
+    filtered = [...VAT_DATA];
+    renderKPIs(); render();
+    closeVatModal();
+  } catch(e) {
+    alert('Save failed: ' + e.message);
+  }
+}
+async function removeVatClient() {
+  const id = parseInt(document.getElementById('vm-id').value);
+  const name = document.getElementById('vm-name').value;
+  if (!confirm('Remove ' + name + ' from VAT tracker?')) return;
+  try {
+    await fetch(SUPA_URL + '/rest/v1/ltd_clients?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ vat_registered: false })
+    });
+    VAT_DATA = VAT_DATA.filter(x => x.id !== id);
+    filtered = [...VAT_DATA];
+    renderKPIs(); render();
+    closeVatModal();
+  } catch(e) { alert('Remove failed: ' + e.message); }
+}
+</script>
+
+<!-- Add VAT Client Modal -->
+<div class="modal-bg" id="vat-add-modal" onclick="if(event.target===this)closeAddVatModal()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#111827;border:1px solid #2d3748;border-radius:12px;padding:24px;width:95%;max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:700;color:#f1f5f9">➕ Add VAT Client</div>
+      <button onclick="closeAddVatModal()" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Name *</div>
+        <input id="vaf-name" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Number</div>
+        <input id="vaf-compno" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Due Date</div>
+        <input id="vaf-vat-due" type="text" placeholder="07/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Stagger Group</div>
+        <select id="vaf-stagger" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="Group 1">Group 1 (due 7 Apr)</option>
+          <option value="Group 2">Group 2 (due 7 May)</option>
+          <option value="Group 3">Group 3 (due 7 Jun)</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Alert Status</div>
+        <select id="vaf-alerts" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="">None</option>
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="saveNewVatClient()" style="margin-top:16px;width:100%;background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">✅ Add Client</button>
+  </div>
+</div>
+
+<!-- Edit VAT Client Modal -->
+<div class="modal-bg" id="vat-edit-modal" onclick="if(event.target===this)closeEditVatModal()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#111827;border:1px solid #2d3748;border-radius:12px;padding:24px;width:95%;max-width:480px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:15px;font-weight:700;color:#f1f5f9">✏️ Edit VAT Client</div>
+      <button onclick="closeEditVatModal()" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <input type="hidden" id="vef-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="grid-column:1/-1">
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Name *</div>
+        <input id="vef-name" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Company Number</div>
+        <input id="vef-compno" type="text" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Due Date</div>
+        <input id="vef-vat-due" type="text" placeholder="07/MM/YYYY" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">VAT Stagger</div>
+        <select id="vef-stagger" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="Group 1">Group 1</option>
+          <option value="Group 2">Group 2</option>
+          <option value="Group 3">Group 3</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:#64748b;margin-bottom:4px">Alert Status</div>
+        <select id="vef-alerts" style="width:100%;background:#1e2433;border:1px solid #2d3748;border-radius:6px;padding:8px;color:#f1f5f9;font-size:12px;box-sizing:border-box">
+          <option value="">None</option>
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="saveEditVatClient()" style="margin-top:16px;width:100%;background:#3b82f6;color:#fff;border:none;border-radius:7px;padding:11px;font-size:13px;font-weight:700;cursor:pointer">💾 Save Changes</button>
+  </div>
+</div>
+
+
+
+
+<!-- VAT EDIT MODAL -->
+<div class="vat-modal-bg" id="vat-modal-bg" onclick="if(event.target===this)closeVatModal()">
+<div class="vat-modal">
+  <div class="vat-modal-header">
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#1a1a1a" id="vm-title">VAT Client</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:3px;font-family:monospace" id="vm-sub">—</div>
+    </div>
+    <button onclick="closeVatModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
+  </div>
+  <div class="vat-modal-body">
+    <input type="hidden" id="vm-id">
+    <div class="vf-grid">
+      <div class="vf-full">
+        <label class="vf-label">Company Name</label>
+        <input class="vf-input" id="vm-name" type="text">
+      </div>
+      <div>
+        <label class="vf-label">Company Number</label>
+        <input class="vf-input" id="vm-comp-no" type="text">
+      </div>
+      <div>
+        <label class="vf-label">VAT Quarter Group</label>
+        <select class="vf-select" id="vm-stagger">
+          <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
+          <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
+          <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Alert Status</label>
+        <select class="vf-select" id="vm-alerts">
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Next VAT Due</label>
+        <input class="vf-input" id="vm-vat-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Year End</label>
+        <input class="vf-input" id="vm-accounts-ref" type="text" placeholder="DD/MM">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Due</label>
+        <input class="vf-input" id="vm-accounts-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Conf. Statement Date</label>
+        <input class="vf-input" id="vm-conf-date" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div class="vf-full">
+        <label class="vf-label">Conf. Statement Due</label>
+        <input class="vf-input" id="vm-conf-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+    </div>
+    <a id="vm-ch-link" href="#" target="_blank" style="font-size:11px;color:#155FA0;text-decoration:none;display:inline-block;margin-top:4px">🔗 View on Companies House ↗</a>
+  </div>
+  <div class="vat-modal-footer">
+    <button onclick="removeVatClient()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;margin-right:auto">🗑 Remove</button>
+    <button onclick="closeVatModal()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Cancel</button>
+    <button onclick="saveVatClient()" style="background:#155FA0;color:#fff;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600">💾 Save Changes</button>
+  </div>
+</div>
+</div>
+
+
+<script>
+window.caAudit = (function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action,detail,page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    fetch(SB+'/rest/v1/audit_log',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({staff:staff,action:action,detail:detail,page:page||'VAT Tracker',created_at:new Date().toISOString()})}).catch(function(){});
+  }
+  return {log:log};
+})();
+</script>
+</body>
+</html>
+
+
+
+<!-- VAT EDIT MODAL -->
+<div class="vat-modal-bg" id="vat-modal-bg" onclick="if(event.target===this)closeVatModal()">
+<div class="vat-modal">
+  <div class="vat-modal-header">
+    <div>
+      <div style="font-size:16px;font-weight:700;color:#1a1a1a" id="vm-title">VAT Client</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:3px;font-family:monospace" id="vm-sub">—</div>
+    </div>
+    <button onclick="closeVatModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#6b7280">✕</button>
+  </div>
+  <div class="vat-modal-body">
+    <input type="hidden" id="vm-id">
+    <div class="vf-grid">
+      <div class="vf-full">
+        <label class="vf-label">Company Name</label>
+        <input class="vf-input" id="vm-name" type="text">
+      </div>
+      <div>
+        <label class="vf-label">Company Number</label>
+        <input class="vf-input" id="vm-comp-no" type="text">
+      </div>
+      <div>
+        <label class="vf-label">VAT Quarter Group</label>
+        <select class="vf-select" id="vm-stagger">
+          <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
+          <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
+          <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Alert Status</label>
+        <select class="vf-select" id="vm-alerts">
+          <option value="Green">Green</option>
+          <option value="Amber">Amber</option>
+          <option value="Red">Red</option>
+        </select>
+      </div>
+      <div>
+        <label class="vf-label">Next VAT Due</label>
+        <input class="vf-input" id="vm-vat-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Year End</label>
+        <input class="vf-input" id="vm-accounts-ref" type="text" placeholder="DD/MM">
+      </div>
+      <div>
+        <label class="vf-label">Accounts Due</label>
+        <input class="vf-input" id="vm-accounts-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div>
+        <label class="vf-label">Conf. Statement Date</label>
+        <input class="vf-input" id="vm-conf-date" type="text" placeholder="DD/MM/YYYY">
+      </div>
+      <div class="vf-full">
+        <label class="vf-label">Conf. Statement Due</label>
+        <input class="vf-input" id="vm-conf-due" type="text" placeholder="DD/MM/YYYY">
+      </div>
+    </div>
+    <a id="vm-ch-link" href="#" target="_blank" style="font-size:11px;color:#155FA0;text-decoration:none;display:inline-block;margin-top:4px">🔗 View on Companies House ↗</a>
+  </div>
+  <div class="vat-modal-footer">
+    <button onclick="removeVatClient()" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;padding:8px 16px;border-radius:7px;cursor:pointer;font-size:13px;margin-right:auto">🗑 Remove</button>
+    <button onclick="closeVatModal()" style="background:#f1f5f9;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px">Cancel</button>
+    <button onclick="saveVatClient()" style="background:#155FA0;color:#fff;border:none;padding:8px 18px;border-radius:7px;cursor:pointer;font-size:13px;font-weight:600">💾 Save Changes</button>
+  </div>
+</div>
+</div>
+
+
+<script>
+window.caAudit = (function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action,detail,page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    fetch(SB+'/rest/v1/audit_log',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({staff:staff,action:action,detail:detail,page:page||'VAT Tracker',created_at:new Date().toISOString()})}).catch(function(){});
+  }
+  return {log:log};
+})();
+</script>
+</body>
+</html>
