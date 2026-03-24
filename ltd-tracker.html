@@ -976,6 +976,11 @@ function getFiltered(){
   if(searchQ){const q=searchQ.toLowerCase();d=d.filter(c=>c.name?.toLowerCase().includes(q)||c.comp_no?.includes(q)||c.director_name?.toLowerCase().includes(q));}
   d.sort((a,b)=>{
     let av=a[sortCol]||'',bv=b[sortCol]||'';
+    const dateCols=['accounts_due','conf_due','vat_due','conf_date'];
+    if(dateCols.includes(sortCol)){
+      const parse=s=>{if(!s)return sortDir>0?9999999999999:-9999999999999;const p=s.split('/');return p.length===3?new Date(p[2],p[1]-1,p[0]).getTime():sortDir>0?9999999999999:-9999999999999;};
+      return (parse(av)-parse(bv))*sortDir;
+    }
     return String(av).toLowerCase()<String(bv).toLowerCase()?-sortDir:String(av).toLowerCase()>String(bv).toLowerCase()?sortDir:0;
   });
   return d;
@@ -1757,37 +1762,48 @@ async function getIdToken(){
 
 async function syncFromID(){
   const btn=document.getElementById('sync-id-btn');
-  btn.disabled=true;btn.textContent='⏳ Syncing ID...';
+  btn.disabled=true;btn.textContent='⏳ Syncing...';
   const ss=document.getElementById('sync-status');
   try{
+    ss.textContent='🔐 Authenticating with Inform Direct...';
     const tok=await getIdToken();
-    if(!tok){ss.textContent='❌ ID key not yet activated — contact Inform Direct';btn.disabled=false;btn.textContent='📋 Sync ID';return;}
-    // Get all companies from Inform Direct
+    if(!tok){ss.textContent='❌ Auth failed — check API key activation';btn.disabled=false;btn.textContent='📋 Sync ID';return;}
+    ss.textContent='✅ Authenticated. Fetching companies...';
     const r=await fetch(ID_PROXY+'?env=production&endpoint=companies&token='+encodeURIComponent(tok));
-    const d=await r.json();
-    const companies=Array.isArray(d)?d:(d.companies||d.Companies||[]);
-    let updated=0;
+    const text=await r.text();
+    let d;try{d=JSON.parse(text);}catch(e){ss.textContent='❌ Bad response: '+text.slice(0,100);btn.disabled=false;btn.textContent='📋 Sync ID';return;}
+    const companies=Array.isArray(d)?d:(d.companies||d.Companies||d.data||[]);
+    ss.textContent='📋 Got '+companies.length+' companies from Inform Direct. Matching...';
+    let updated=0,matched=0;
     for(const c of companies){
-      const compNo=(c.companyNumber||c.CompanyNumber||'').replace(/\s/g,'').toUpperCase();
+      const compNo=(c.companyNumber||c.CompanyNumber||c.company_number||'').replace(/\s/g,'').toUpperCase();
       if(!compNo) continue;
-      const local=DATA.find(x=>x.comp_no===compNo);
-      if(!local) continue;
-      // Extract officer/director info
-      const officers=c.officers||c.Officers||[];
-      const director=officers.find(o=>(o.role||o.Role||'').toLowerCase().includes('director'));
+      const local=DATA.find(x=>(x.comp_no||'').toUpperCase()===compNo);
+      if(!local){continue;}
+      matched++;
+      // Try to get director name from various field structures
+      const officers=c.officers||c.Officers||c.directors||[];
+      const director=officers.find?.(o=>(o.role||o.Role||o.officerRole||'').toLowerCase().includes('director'));
       if(director){
-        const name=[(director.forename||director.Forename||''),(director.surname||director.Surname||'')].join(' ').trim();
-        if(name && !local.director_name){
-          local.director_name=name;
-          await sbSave(local);
-          updated++;
-        }
+        const name=[(director.forename||director.firstName||director.Forename||''),(director.surname||director.lastName||director.Surname||'')].join(' ').trim()||director.name||director.Name||'';
+        if(name&&!local.director_name){local.director_name=name;await sbSave(local);updated++;}
+      }
+      // Also sync next CS date if available
+      const csDate=c.nextConfirmationStatementDate||c.confirmationStatementDueDate||c.NextCSDate||'';
+      if(csDate&&!local.conf_due){
+        const d2=new Date(csDate);
+        if(!isNaN(d2)){local.conf_due=`${String(d2.getDate()).padStart(2,'0')}/${String(d2.getMonth()+1).padStart(2,'0')}/${d2.getFullYear()}`;await sbSave(local);updated++;}
       }
     }
-    ss.textContent='✅ ID sync: '+updated+' updated · '+new Date().toLocaleTimeString('en-GB');
+    ss.textContent=`✅ Done — ${matched} matched, ${updated} records updated · ${new Date().toLocaleTimeString('en-GB')}`;
+    if(matched===0) ss.textContent+=' ⚠️ No company numbers matched — check data format';
+    renderAll();
   }catch(e){
-    ss.textContent='❌ ID sync failed: '+e.message;
+    ss.textContent='❌ Sync failed: '+e.message;
+    console.error('ID Sync error:',e);
   }
+  btn.disabled=false;btn.textContent='📋 Sync ID';
+}
   btn.disabled=false;btn.textContent='📋 Sync ID';
 }
 
