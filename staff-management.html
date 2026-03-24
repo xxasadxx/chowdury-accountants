@@ -2,49 +2,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>if(localStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  var role=localStorage.getItem('ca_role')||'';
-  var name=localStorage.getItem('ca_name')||'';
-  if(!role) return;
-  var path=window.location.pathname;
-  var page=path.split('/').pop().replace('.html','');
-  if(!page) page='index';
-  if(role!=='admin' && (page==='revenue-tracker'||page==='strategic-review')){
-    window.location.replace('index.html'); return;
-  }
-  if(role!=='admin'){
-    var style=document.createElement('style');
-    style.innerHTML=
-      '#nav-revenue{display:none!important}'+
-      '#nav-strategy{display:none!important}'+
-      '#card-revenue{display:none!important}'+
-      '#card-strategy{display:none!important}'+
-      '#hero-stats{display:none!important}'+
-      'button.act-del{display:none!important}'+
-      '.act-del{display:none!important}';
-    document.head.appendChild(style);
-  }
-  window.addEventListener('DOMContentLoaded',function(){
-    var el=document.getElementById('ca-nav-user');
-    if(el) el.textContent=name?'\u{1F464} '+name:'';
-    if(role==='admin'){
-      var sec=document.getElementById('session-log-section');
-      if(sec) sec.style.display='block';
+  var _sb=supabase.createClient(
+    'https://yhvhpfsoqtjwnukgyqap.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
+  );
+  _sb.auth.getSession().then(function(r){
+    var session=r.data&&r.data.session;
+    if(!session){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('ca_role')||'staff';
+    var name=localStorage.getItem('ca_name')||'';
+    var page=window.location.pathname.split('/').pop().replace('.html','');
+    if(!page)page='index';
+    if(role!=='admin'&&(page==='revenue-tracker'||page==='strategic-review')){
+      window.location.replace('index.html');return;
     }
+    if(role!=='admin'){
+      var style=document.createElement('style');
+      style.innerHTML=
+        '#nav-revenue{display:none!important}'+
+        '#nav-strategy{display:none!important}'+
+        '#card-revenue{display:none!important}'+
+        '#card-strategy{display:none!important}'+
+        '#hero-stats{display:none!important}'+
+        'button.act-del{display:none!important}'+
+        '.act-del{display:none!important}';
+      document.head.appendChild(style);
+    }
+    window.addEventListener('DOMContentLoaded',function(){
+      var fullNames={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
+      var hu=document.getElementById('ca-hdr-user');
+      if(hu)hu.textContent=fullNames[name]||name;
+      var nu=document.getElementById('ca-nav-user');
+      if(nu)nu.textContent=name?'Signed in: '+name:'';
+    });
   });
-  if(name){
-    try{
-      var logs=JSON.parse(localStorage.getItem('ca_session_log')||'[]');
-      var last=logs[0];
-      if(!last||last.user!==name||last.page!==page||(new Date()-new Date(last.time))>300000){
-        logs.unshift({user:name,role:role,time:new Date().toISOString(),page:page});
-        if(logs.length>500)logs=logs.slice(0,500);
-        localStorage.setItem('ca_session_log',JSON.stringify(logs));
-      }
-    }catch(e){}
-  }
 })();
 </script>
 <meta charset="UTF-8">
@@ -269,7 +263,7 @@ header h1 span { color: var(--blue); }
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
     <span id="ca-nav-user" style="color:rgba(255,255,255,.4);font-size:11px;padding:0 8px;white-space:nowrap"></span>
-    <a href="#" class="ca-signout" onclick="['ca_auth','ca_user','ca_name','ca_role','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.href='login.html';return false;">Sign out</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
   </div>
 </div>
 <script>

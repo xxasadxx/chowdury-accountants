@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign In — Chowdury Accountants</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@700;800&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -23,8 +24,12 @@ input[type="password"]{padding-right:44px;letter-spacing:.1em}
 .toggle-pw{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;color:#7A7A7A;font-size:16px;user-select:none}
 .error{background:#FCEEE8;border:1px solid rgba(185,28,28,.2);border-radius:8px;padding:10px 14px;font-size:13px;color:#D04A02;display:none;margin-bottom:16px}
 .error.show{display:block}
-button{width:100%;padding:13px;background:#252525;color:#fff;border:none;border-radius:8px;font-size:15px;font-family:'Mulish',sans-serif;font-weight:700;cursor:pointer;transition:background .15s;margin-top:4px}
+button{width:100%;padding:13px;background:#252525;color:#fff;border:none;border-radius:8px;font-size:15px;font-family:'Mulish',sans-serif;font-weight:700;cursor:pointer;transition:background .15s;margin-top:4px;position:relative}
 button:hover{background:#c8963c}
+button:disabled{opacity:.6;cursor:not-allowed}
+.spinner{display:none;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;position:absolute;right:16px;top:50%;transform:translateY(-50%)}
+button.loading .spinner{display:block}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
 .footer-note{font-size:11px;color:#7A7A7A;text-align:center;margin-top:20px}
 </style>
 </head>
@@ -33,11 +38,11 @@ button:hover{background:#c8963c}
   <div class="band"></div>
   <div class="logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
   <h1>Practice Portal</h1>
-  <p class="subtitle">Sign in with your username and password</p>
-  <div class="error" id="error">⚠️ Incorrect username or password.</div>
+  <p class="subtitle">Sign in with your email and password</p>
+  <div class="error" id="error"></div>
   <div class="field">
-    <label>Username</label>
-    <input type="text" id="un" placeholder="Username" autocomplete="username" onkeydown="if(event.key==='Enter')document.getElementById('pw').focus()">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="your@email.com" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('pw').focus()">
   </div>
   <div class="field">
     <label>Password</label>
@@ -46,54 +51,80 @@ button:hover{background:#c8963c}
       <span class="toggle-pw" onclick="togglePw()">👁</span>
     </div>
   </div>
-  <button onclick="login()">Sign In →</button>
+  <button id="btn" onclick="login()">Sign In → <span class="spinner"></span></button>
   <p class="footer-note">Chowdury Accountants Ltd · Internal use only</p>
 </div>
 
 <script>
-const USERS = {
-  'm.chowdury': { pass: 'sjtheking007',  name: 'Asadul', role: 'admin' },
-  'h.ali':       { pass: 'Ali2026%',      name: 'Hassan', role: 'staff' },
-  'a.choudhury': { pass: 'Choudhury2026#',name: 'Aminul', role: 'staff' },
-  's.nawaz':     { pass: 'Nawaz2026@',    name: 'Nawaz',  role: 'staff' },
-  's.hossain':   { pass: 'Hossain2026!',  name: 'Sadat',  role: 'staff' },
+const { createClient } = supabase;
+const sb = createClient(
+  'https://yhvhpfsoqtjwnukgyqap.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
+);
+
+// Role map — used as fallback if user_profiles table not ready
+const ROLE_MAP = {
+  'asad@chowduryaccountants.co.uk':    {role:'admin', name:'Asadul', full_name:'Md Asadul Chowdury'},
+  'hassan@chowduryaccountants.co.uk':  {role:'staff', name:'Hassan', full_name:'Hassan Ali'},
+  'amin@chowduryaccountants.co.uk':    {role:'staff', name:'Aminul', full_name:'Aminul Choudhury'},
+  'info@chowduryaccountants.co.uk':    {role:'staff', name:'Nawaz',  full_name:'Syed Nawaz'},
+  'sadat@chowduryaccountants.co.uk':   {role:'staff', name:'Sadat',  full_name:'Sadat Hossain'},
 };
 
-window.onload = () => {
-  document.getElementById('un').focus();
-  if(localStorage.getItem('ca_auth')==='true') window.location.href='index.html';
+window.onload = async () => {
+  document.getElementById('email').focus();
+  // Check if already logged in
+  const { data: { session } } = await sb.auth.getSession();
+  if(session) window.location.href = 'index.html';
 };
 
-function login() {
-  const attempts = parseInt(localStorage.getItem('ca_login_attempts')||'0');
-  const locked = localStorage.getItem('ca_locked')==='true';
+function showError(msg) {
   const err = document.getElementById('error');
-  function showErr(msg){err.textContent='⚠️ '+msg;err.classList.add('show');document.getElementById('pw').value='';setTimeout(()=>err.classList.remove('show'),5000);}
-  if(locked){
-    showErr('This device is locked. Please contact Asadul to unlock.');
+  err.textContent = '⚠️ ' + msg;
+  err.classList.add('show');
+  setTimeout(() => err.classList.remove('show'), 5000);
+}
+
+async function login() {
+  const btn = document.getElementById('btn');
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const pw = document.getElementById('pw').value;
+  if(!email || !pw) { showError('Please enter your email and password.'); return; }
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+
+  if(error) {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    if(error.message.includes('Invalid login')) {
+      showError('Incorrect email or password.');
+    } else if(error.message.includes('too many')) {
+      showError('Too many attempts. Please wait a few minutes.');
+    } else {
+      showError(error.message);
+    }
+    document.getElementById('pw').value = '';
     return;
   }
-  const un = document.getElementById('un').value.trim().toLowerCase();
-  const pw = document.getElementById('pw').value;
-  const user = USERS[un];
-  if(user && pw === user.pass) {
-    localStorage.removeItem('ca_login_attempts');
-    localStorage.removeItem('ca_locked');
-    localStorage.setItem('ca_auth', 'true');
-    localStorage.setItem('ca_user', un);
-    localStorage.setItem('ca_name', user.name);
-    localStorage.setItem('ca_role', user.role);
-    window.location.href = 'index.html';
-  } else {
-    const newAttempts = attempts + 1;
-    localStorage.setItem('ca_login_attempts', newAttempts);
-    if(newAttempts >= 2){
-      localStorage.setItem('ca_locked','true');
-      showErr('Too many failed attempts. This device is now locked. Contact Asadul to unlock.');
-    } else {
-      showErr('Incorrect username or password. '+(2-newAttempts)+' attempt remaining.');
-    }
-  }
+
+  // Store role/name — from user_metadata or fallback map
+  const meta = data.user.user_metadata || {};
+  const fallback = ROLE_MAP[email] || {};
+  const role = meta.role || fallback.role || 'staff';
+  const name = meta.name || fallback.name || email.split('@')[0];
+  const fullName = meta.full_name || fallback.full_name || name;
+
+  localStorage.setItem('ca_role', role);
+  localStorage.setItem('ca_name', name);
+  localStorage.setItem('ca_full_name', fullName);
+  localStorage.setItem('ca_email', email);
+  localStorage.removeItem('ca_login_attempts');
+  localStorage.removeItem('ca_locked');
+
+  window.location.href = 'index.html';
 }
 
 function togglePw() {
