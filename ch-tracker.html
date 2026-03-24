@@ -1069,31 +1069,6 @@ function profit(d) {
 function isCharged(d) {
   return d.charged !== null && d.charged !== '' && d.charged !== undefined;
 }
-function relDate(dateStr) {
-  if(!dateStr) return '<span style="color:var(--muted)">—</span>';
-  var today = new Date(); today.setHours(0,0,0,0);
-  var d = new Date(dateStr); d.setHours(0,0,0,0);
-  var diff = Math.round((d - today) / 86400000);
-  var label, bg, color;
-  if(diff === 0)      { label='Today';     bg='#dc2626'; color='#fff'; }
-  else if(diff === 1) { label='Tomorrow';  bg='#d97706'; color='#fff'; }
-  else if(diff ===-1) { label='Yesterday'; bg='#7c3aed'; color='#fff'; }
-  else if(diff > 0) {
-    if(diff <= 7)        { label='in '+diff+' days';              bg='#dc2626'; color='#fff'; }
-    else if(diff <= 14)  { label='in '+diff+' days';              bg='#d97706'; color='#fff'; }
-    else if(diff <= 31)  { label='in '+Math.round(diff/7)+' wks'; bg='#059669'; color='#fff'; }
-    else if(diff <= 60)  { label='in a month';                    bg='#059669'; color='#fff'; }
-    else if(diff < 365)  { var mo=Math.round(diff/30); label='in '+mo+' month'+(mo>1?'s':'');  bg='#059669'; color='#fff'; }
-    else                 { var yr=Math.round(diff/365); label='in '+yr+' year'+(yr>1?'s':'');   bg='#059669'; color='#fff'; }
-  } else {
-    var ago = -diff;
-    if(ago <= 7)         { label=ago+' day'+(ago>1?'s':'')+' ago';          bg='#6b7280'; color='#fff'; }
-    else if(ago <= 31)   { var wk=Math.round(ago/7); label=wk+' wk'+(wk>1?'s':'')+' ago'; bg='#6b7280'; color='#fff'; }
-    else if(ago < 365)   { var mo2=Math.round(ago/30); label=mo2+' mo'+(mo2>1?'s':'')+' ago'; bg='#374151'; color='#fff'; }
-    else                 { var yr2=Math.round(ago/365); label=yr2+' yr'+(yr2>1?'s':'')+' ago'; bg='#374151'; color='#fff'; }
-  }
-  return '<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:'+bg+';color:'+color+';white-space:nowrap">'+label+'</span>';
-}
 function typeShort(t) {
   if (t === 'Confirmation Statement') return 'Conf. Stmt';
   return t;
@@ -1171,7 +1146,7 @@ function renderDashboard() {
   document.getElementById('recent-body').innerHTML = recent.map(d => {
     const p = profit(d);
     return `<tr>
-      <td style="white-space:nowrap">${relDate(d.date)}<br><span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${d.date}</span></td>
+      <td style="color:var(--muted);white-space:nowrap">${d.date}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
       <td><span class="type-badge ${typeClass(d.type)}">${typeShort(d.type)}</span></td>
       <td class="ch-cost">${fmt(d.ch_cost)}</td>
@@ -1229,7 +1204,7 @@ function renderTable() {
   document.getElementById('main-body').innerHTML = paged.map(d => {
     const p = profit(d);
     return `<tr>
-      <td style="white-space:nowrap">${relDate(d.date)}<br><span style="font-size:10px;color:var(--muted);font-family:var(--mono)">${d.date}</span></td>
+      <td style="white-space:nowrap;color:var(--muted);font-family:var(--mono);font-size:11px">${d.date}</td>
       <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${d.company}">${d.company}</td>
       <td style="white-space:nowrap;font-size:11px;color:var(--muted)">${d.fy}</td>
       <td><span class="type-badge ${typeClass(d.type)}">${typeShort(d.type)}</span></td>
@@ -1427,7 +1402,7 @@ function openMonthModal(month) {
   document.getElementById('mm-body').innerHTML = rows.map(d => {
     const pr = profit(d);
     return '<tr>' +
-      '<td style="white-space:nowrap">'+relDate(d.date)+'<br><span style="font-size:10px;color:var(--muted);font-family:var(--mono)">'+d.date+'</span></td>' +
+      '<td style="color:var(--muted);white-space:nowrap;font-family:var(--mono);font-size:11px">'+d.date+'</td>' +
       '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+d.company+'">'+d.company+'</td>' +
       '<td><span class="type-badge '+typeClass(d.type)+'">'+typeShort(d.type)+'</span></td>' +
       '<td class="ch-cost">'+fmt(d.ch_cost)+'</td>' +
