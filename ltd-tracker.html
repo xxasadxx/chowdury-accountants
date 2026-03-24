@@ -1203,7 +1203,6 @@ function renderPayeXref(id){
 }
 function openClientModal(id){
   const c=DATA.find(x=>x.id===id);if(!c)return;
-  try{if(window.caAudit)caAudit.log('open','Opened client record ['+c.name+']','Ltd Tracker');}catch(e){}
   currentId=id;
   document.getElementById('cm-title').textContent=c.name;
   document.getElementById('cm-sub').textContent=`Co. No: ${c.comp_no||'—'}${c.director_name?' · '+c.director_name:''}`;
