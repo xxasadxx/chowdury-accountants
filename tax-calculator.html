@@ -331,13 +331,32 @@ window.caAudit=(function(){var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co',KEY
         <div class="card">
           <div class="card-head"><h2>🏢 Ltd Director Optimal Split</h2></div>
           <div class="card-body">
-            <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Enter the total profit available from your company. The calculator finds the salary/dividend combination that maximises your take-home pay.</p>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Enter the company profit <strong>before Corporation Tax</strong>. CT is calculated and deducted automatically to find what can be paid as dividends.</p>
+
+            <!-- MODE SWITCHER -->
+            <div style="display:flex;gap:6px;margin-bottom:14px;background:#f0ede0;border-radius:20px;padding:3px;width:fit-content">
+              <button id="mode-btn-max" class="pb active" onclick="setSplitMode('max')">💰 Maximise Take-Home</button>
+              <button id="mode-btn-target" class="pb" onclick="setSplitMode('target')">🎯 Target Take-Home</button>
+            </div>
+
             <div class="isec">
               <div class="ilbl"><span class="dot" style="background:#7C3AED"></span>Company Details</div>
-              <div class="irow"><label>Total profit to extract (£)</label><div class="iw"><span class="px">£</span><input type="number" id="s-profit" placeholder="e.g. 60000" oninput="calcSplit()" min="0"></div></div>
+              <div class="irow"><label>Company profit <span style="font-size:10px;color:var(--green);font-weight:700">BEFORE Corporation Tax</span></label><div class="iw"><span class="px">£</span><input type="number" id="s-profit" placeholder="e.g. 120000" oninput="calcSplit()" min="0"></div></div>
               <div class="irow"><label>Other non-company income (£)</label><div class="iw"><span class="px">£</span><input type="number" id="s-oth" placeholder="0" oninput="calcSplit()" min="0"></div></div>
               <div class="irow"><label>Employer pension contribution (£)</label><div class="iw"><span class="px">£</span><input type="number" id="s-pen" placeholder="0" oninput="calcSplit()" min="0"></div></div>
             </div>
+
+            <!-- TARGET MODE INPUTS -->
+            <div id="target-inputs" style="display:none">
+              <div class="isec">
+                <div class="ilbl"><span class="dot" style="background:#0D9488"></span>🎯 Target Take-Home</div>
+                <div class="irow"><label>Desired net annual take-home (£)</label><div class="iw"><span class="px">£</span><input type="number" id="s-target" placeholder="e.g. 120000" oninput="calcSplit()" min="0"></div></div>
+                <div style="margin-top:6px;padding:8px 10px;background:#f0fdf4;border-radius:6px;border-left:3px solid var(--green)">
+                  <span id="target-monthly" style="font-size:11px;color:var(--green);font-weight:700">Enter a target above</span>
+                </div>
+              </div>
+            </div>
+
             <div class="isec">
               <div class="ilbl"><span class="dot" style="background:#6B7280"></span>Options</div>
               <div style="display:flex;flex-direction:column;gap:8px">
@@ -559,10 +578,20 @@ function calc(){
 }
 
 // ── OPTIMAL SPLIT ─────────────────────────────────────────
+var splitMode='max';
+function setSplitMode(m){
+  splitMode=m;
+  document.getElementById('mode-btn-max').classList.toggle('active',m==='max');
+  document.getElementById('mode-btn-target').classList.toggle('active',m==='target');
+  document.getElementById('target-inputs').style.display=m==='target'?'block':'none';
+  calcSplit();
+}
+
 function calcSplit(){
   var R=RATES[CY];
   var profit=g('s-profit'),otherInc=g('s-oth'),empPen=g('s-pen');
   var sole=gb('s-sole'),inclCT=gb('s-ct');
+  if(splitMode==='target'){calcSplitTarget(R,profit,otherInc,empPen,sole,inclCT);return;}
   if(!profit){document.getElementById('split-res').innerHTML='<div class="es"><div class="ei">🏢</div><p>Enter company profit on the left<br>to see the optimal split</p></div>';return;}
 
   // Max salary company can afford including employer NI (sal + (sal-niST)*niER <= availProfit)
@@ -623,6 +652,129 @@ function calcSplit(){
   var best=results[bi];
   h+='<div class="disc" style="margin-top:12px">💡 <strong>Optimal:</strong> Salary <strong>£'+fM(best.sal)+'</strong> + Dividends <strong>£'+fM(best.div)+'</strong>'+(empPen>0?' + Employer pension £'+fM(empPen):'')+'. Corp Tax: '+(inclCT?'25%/19% marginal':'excluded')+'. Always confirm with your accountant. Estimates only.</div>';
   document.getElementById('split-res').innerHTML=h;
+}
+
+// ── TARGET TAKE-HOME ──────────────────────────────────────
+function calcSplitTarget(R,profit,otherInc,empPen,sole,inclCT){
+  var target=g('s-target');
+  var el=document.getElementById('target-monthly');
+  if(target>0){el.textContent='= £'+fM(Math.round(target/12))+'/month  |  £'+fM(Math.round(target/52))+'/week';el.style.color='var(--green)';}
+  else{el.textContent='Enter a target above';el.style.color='var(--muted)';}
+  if(!target){document.getElementById('split-res').innerHTML='<div class="es"><div class="ei">🎯</div><p>Enter your target net annual take-home<br>to find the optimal combination</p></div>';return;}
+
+  var availForSal=Math.max(0,profit-empPen);
+  var maxSal=(availForSal+R.niST*R.niER)/(1+R.niER);
+
+  function runSc(salIn){
+    var sal=Math.min(salIn,maxSal);if(sal<0)sal=0;
+    var eni=Math.max(0,sal-R.niST)*R.niER;
+    var profAfter=Math.max(0,profit-sal-eni-empPen);
+    var ct=inclCT?(profAfter<=R.ctThr?profAfter*R.ctR:profAfter*R.ctRM):0;
+    var divAvail=Math.max(0,profAfter-ct);
+    var itr=itUK(sal+otherInc,R.pa,R);
+    var dAA=Math.max(0,divAvail-R.divA),bFD=sal+otherInc,dT=0;
+    if(dAA>0){var dB=Math.max(0,Math.min(dAA,R.hThr-bFD)),dH=Math.max(0,Math.min(dAA-dB,R.aThr-R.hThr)),dA=Math.max(0,dAA-dB-dH);dT=dB*R.divBR+dH*R.divHR+dA*R.divAR;}
+    var empNI=Math.min(Math.max(0,sal-R.niPT),R.niUEL-R.niPT)*R.niR1+Math.max(0,sal-R.niUEL)*R.niR2;
+    var th=sal+divAvail-itr.tax-dT-empNI;
+    var totTax=itr.tax+dT+empNI+ct+eni;
+    return{sal:sal,div:divAvail,th:th,ct:ct,eni:eni,pTax:itr.tax+dT+empNI,totTax:totTax,eff:profit>0?(totTax/profit*100):0,shortfall:target-th};
+  }
+
+  // Test key salary points and find which scenarios achieve the target
+  var testSals=[0,R.niST,R.pa,R.hThr,maxSal];
+  var candidates=testSals.map(function(s){return runSc(s);});
+
+  // Find best (closest take-home >= target with lowest tax)
+  var achievable=candidates.filter(function(c){return c.th>=target;});
+  var notAchievable=candidates.filter(function(c){return c.th<target;});
+
+  // Best achieving scenario = highest take-home among those >= target (i.e. lowest over-extraction)
+  // But really we want: among those >= target, the one with lowest total tax
+  achievable.sort(function(a,b){return a.totTax-b.totTax;});
+  notAchievable.sort(function(a,b){return b.th-a.th;}); // closest shortfall first
+
+  var salLabels={0:'All Dividends',5000:'NI Threshold (£5,000)',9100:'NI Threshold (£9,100)',12570:'Personal Allowance (£12,570)',50270:'Basic Rate Limit (£50,270)'};
+  function lbl(s){return salLabels[Math.round(s)]||'Salary: £'+fM(s);}
+
+  var h='';
+
+  if(achievable.length===0){
+    // Target not achievable from this profit
+    var closest=notAchievable[0];
+    h+='<div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:14px;margin-bottom:14px">';
+    h+='<div style="font-weight:700;color:#c2410c;margin-bottom:4px">⚠️ Target not achievable from £'+fM(profit)+' profit</div>';
+    h+='<div style="font-size:12px;color:var(--text2)">Maximum take-home from this profit is <strong>£'+fM(closest.th)+'</strong> — a shortfall of <strong>£'+fM(Math.abs(closest.shortfall))+'</strong>.</div>';
+    h+='<div style="font-size:12px;color:var(--muted);margin-top:6px">You would need approximately <strong>£'+fM(profit + Math.abs(closest.shortfall)*1.35)+'</strong> in company profit to achieve £'+fM(target)+' net take-home.</div>';
+    h+='</div>';
+  } else {
+    var best=achievable[0];
+    // Target IS achievable — show the optimal way
+    h+='<div style="background:var(--green-light);border:1px solid #86efac;border-radius:8px;padding:14px;margin-bottom:14px">';
+    h+='<div style="font-weight:700;color:var(--green);font-size:14px;margin-bottom:8px">✓ Target of £'+fM(target)+'/yr (£'+fM(Math.round(target/12))+'/mo) is achievable</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">';
+    h+='<div style="background:#fff;border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase">Optimal Salary</div><div style="font-size:18px;font-weight:800;font-family:var(--display);color:var(--purple)">£'+fM(best.sal)+'</div><div style="font-size:10px;color:var(--muted)">£'+fM(Math.round(best.sal/12))+'/mo</div></div>';
+    h+='<div style="background:#fff;border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase">Dividends</div><div style="font-size:18px;font-weight:800;font-family:var(--display);color:var(--purple)">£'+fM(best.div)+'</div><div style="font-size:10px;color:var(--muted)">£'+fM(Math.round(best.div/12))+'/mo</div></div>';
+    h+='<div style="background:#fff;border-radius:6px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase">Eff. Tax Rate</div><div style="font-size:18px;font-weight:800;font-family:var(--display);color:var(--red)">'+best.eff.toFixed(1)+'%</div><div style="font-size:10px;color:var(--muted)">on company profit</div></div>';
+    h+='</div>';
+    h+='<div style="font-size:11px;color:var(--green)">Take-home: <strong>£'+fM(best.th)+'/yr</strong> (surplus of £'+fM(best.th-target)+' vs target)</div>';
+    h+='</div>';
+
+    // If there are multiple achieving scenarios, show them ranked by efficiency
+    if(achievable.length>1){
+      h+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">All strategies that achieve £'+fM(target)+' target</div>';
+      h+='<div style="overflow-x:auto"><table class="st"><thead><tr><th>Strategy</th><th>Salary</th><th>Dividends</th><th>Corp Tax</th><th>Tax Paid</th><th>Take-Home</th><th>Eff %</th></tr></thead><tbody>';
+      achievable.forEach(function(r,i){
+        var isBest=(i===0);
+        h+='<tr'+(isBest?' class="br"':'')+'><td>'+lbl(r.sal)+'</td><td>£'+fM(r.sal)+'</td><td>£'+fM(r.div)+'</td><td style="color:var(--red)">£'+fM(r.ct)+'</td><td style="color:var(--red)">£'+fM(r.pTax)+'</td><td style="color:var(--green);font-weight:700">£'+fM(r.th)+'</td><td>'+r.eff.toFixed(1)+'%</td></tr>';
+      });
+      h+='</tbody></table></div>';
+    }
+  }
+
+  // Always show what profit is needed to hit target via each strategy
+  h+='<div style="margin-top:14px">';
+  h+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">How much profit do you need to hit £'+fM(target)+'/yr?</div>';
+  h+='<div style="overflow-x:auto"><table class="st"><thead><tr><th>Strategy</th><th>Salary</th><th>Min. Profit Needed</th><th>Eff. Tax</th></tr></thead><tbody>';
+  // For each strategy, work backwards: what profit P gives take-home=target?
+  var strategies=[
+    {lbl:'All Dividends',sal:0},
+    {lbl:'NI Threshold (£'+fM(sole?R.niST:R.niPT)+')',sal:sole?R.niST:R.niPT},
+    {lbl:'Personal Allowance (£'+fM(R.pa)+')',sal:R.pa},
+    {lbl:'Basic Rate Limit (£'+fM(R.hThr)+')',sal:R.hThr},
+  ];
+  strategies.forEach(function(sc){
+    // Binary search for minimum profit that achieves target take-home with this salary
+    var lo=target,hi=target*4,iters=0,found=false;
+    while(lo<hi&&iters<60){
+      var mid=(lo+hi)/2,res=runWithProfit(mid,sc.sal,otherInc,empPen,inclCT,R);
+      if(res.th>=target){hi=mid;found=true;}else{lo=mid;}
+      iters++;
+    }
+    var minP=Math.ceil(hi),res2=runWithProfit(minP,sc.sal,otherInc,empPen,inclCT,R);
+    var isBest=(sc.sal===best.sal);
+    h+='<tr'+(isBest?' class="br"':'')+'><td>'+sc.lbl+'</td><td>£'+fM(sc.sal)+'/yr</td><td style="font-weight:700">£'+fM(minP)+'</td><td>'+(minP>0?(res2.totTax/minP*100).toFixed(1)+'%':'—')+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+  h+='</div>';
+  h+='<div class="disc" style="margin-top:12px">📋 Profit figures are <strong>before Corporation Tax</strong>. CT deducted before dividends. Personal tax calculated on salary + dividends received. Estimates only — always confirm with your accountant.</div>';
+  document.getElementById('split-res').innerHTML=h;
+}
+
+function runWithProfit(profit,salIn,otherInc,empPen,inclCT,R){
+  var availForSal=Math.max(0,profit-empPen);
+  var maxSal=(availForSal+R.niST*R.niER)/(1+R.niER);
+  var sal=Math.min(salIn,maxSal);if(sal<0)sal=0;
+  var eni=Math.max(0,sal-R.niST)*R.niER;
+  var profAfter=Math.max(0,profit-sal-eni-empPen);
+  var ct=inclCT?(profAfter<=R.ctThr?profAfter*R.ctR:profAfter*R.ctRM):0;
+  var divAvail=Math.max(0,profAfter-ct);
+  var itr=itUK(sal+otherInc,R.pa,R);
+  var dAA=Math.max(0,divAvail-R.divA),bFD=sal+otherInc,dT=0;
+  if(dAA>0){var dB=Math.max(0,Math.min(dAA,R.hThr-bFD)),dH=Math.max(0,Math.min(dAA-dB,R.aThr-R.hThr)),dA=Math.max(0,dAA-dB-dH);dT=dB*R.divBR+dH*R.divHR+dA*R.divAR;}
+  var empNI=Math.min(Math.max(0,sal-R.niPT),R.niUEL-R.niPT)*R.niR1+Math.max(0,sal-R.niUEL)*R.niR2;
+  var th=sal+divAvail-itr.tax-dT-empNI;
+  var totTax=itr.tax+dT+empNI+ct+eni;
+  return{sal:sal,div:divAvail,th:th,ct:ct,pTax:itr.tax+dT+empNI,totTax:totTax};
 }
 
 // ── CGT ───────────────────────────────────────────────────
