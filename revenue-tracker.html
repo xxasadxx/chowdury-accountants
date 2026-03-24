@@ -2259,20 +2259,70 @@ function exportRevPDF(type){
 
 <script id="gc-history-script">
 var GC_DATA_LOADED=false;
-function loadGCDataThen(cb){
-  var dbg=document.getElementById('gc-debug');
-  if(GC_DATA_LOADED){
-    if(dbg)dbg.textContent='✅ Data already loaded, calling render...';
-    cb();return;
+async function loadGCDataThen(cb){
+  var dbg = document.getElementById('gc-debug');
+
+  // Try live Supabase data first
+  if (!GC_DATA_LOADED) {
+    try {
+      const H = {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY};
+      const SB = SB_URL;
+
+      // Check if gc_monthly_summary has data
+      const summaryRes = await fetch(SB + '/rest/v1/gc_monthly_summary?select=*&order=month.asc', {headers: H});
+      if (summaryRes.ok) {
+        const summaryData = await summaryRes.json();
+        if (summaryData && summaryData.length > 0) {
+          // Build GC_MONTHLY from live Supabase data
+          window.GC_MONTHLY = summaryData.map(r => ({
+            month: r.month,
+            total: parseFloat(r.total_revenue) || 0,
+            payment_count: r.payment_count || 0
+          }));
+
+          // Fetch customer/mandate summary for active count
+          const mandateRes = await fetch(SB + '/rest/v1/gc_mandates?select=gc_id,status,customer_id&status=eq.active', {headers: H});
+          const mandateData = mandateRes.ok ? await mandateRes.json() : [];
+
+          // Fetch customers for GC_CLIENTS
+          const custRes = await fetch(SB + '/rest/v1/gc_customers?select=gc_id,given_name,family_name,company_name,email', {headers: H});
+          const custData = custRes.ok ? await custRes.json() : [];
+
+          // Build active customer IDs from active mandates
+          const activeCustIds = new Set(mandateData.map(m => m.customer_id));
+
+          window.GC_CLIENTS = custData.map(c => ({
+            name: c.company_name || (c.given_name + ' ' + c.family_name).trim(),
+            customer_id: c.gc_id,
+            active: activeCustIds.has(c.gc_id),
+            total_paid: 0, monthly_avg: 0, payment_count: 0,
+            first_payment: null, last_payment: null, failed_count: 0
+          }));
+
+          // If GC_PAYMENTS_BY_CID not populated, set empty
+          if (!window.GC_PAYMENTS_BY_CID) window.GC_PAYMENTS_BY_CID = {};
+
+          GC_DATA_LOADED = true;
+          if (dbg) dbg.innerHTML = '✅ Live data from Supabase (' + summaryData.length + ' months, ' + mandateData.length + ' active mandates)';
+          cb();
+          return;
+        }
+      }
+    } catch(e) {
+      console.warn('Live GC data unavailable, falling back to static JSON:', e.message);
+    }
+  } else {
+    if (dbg) dbg.textContent = '✅ Data already loaded, calling render...';
+    cb(); return;
   }
-var s=document.createElement('script');
-  s.src='gc-data.js?v=3';
-  s.onload=function(){
-    GC_DATA_LOADED=true;
-cb();
-  };
-  s.onerror=function(){
-    if(dbg)dbg.innerHTML='<span style="color:red">❌ Failed to load gc-data.js — file not found on server</span>';
+
+  // Fallback: load static gc-data.js
+  if (dbg) dbg.innerHTML = '⚠️ Using cached data (live sync not yet run)';
+  var s = document.createElement('script');
+  s.src = 'gc-data.js?v=3';
+  s.onload = function(){ GC_DATA_LOADED = true; cb(); };
+  s.onerror = function(){
+    if (dbg) dbg.innerHTML = '<span style="color:red">❌ Failed to load gc-data.js</span>';
   };
   document.head.appendChild(s);
 }

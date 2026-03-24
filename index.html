@@ -976,9 +976,9 @@ window.caAudit = (function(){
       <div class="card-top"><div class="card-icon" style="background:#ede9fe">🏢</div><span class="card-status status-live">● Live</span></div>
       <div class="card-body"><h3>Ltd Tracker</h3><p>306 limited company clients — accounts deadlines, confirmation statements, fees and director details.</p></div>
       <div class="card-stats">
-        <div class="card-stat"><div class="k">Companies</div><div class="v blue">306</div></div>
-        <div class="card-stat"><div class="k">🔴 Red Alerts</div><div class="v red">23</div></div>
-        <div class="card-stat"><div class="k">🟡 Amber</div><div class="v amber">46</div></div>
+        <div class="card-stat"><div class="k">Companies</div><div class="v blue" data-live="ltd-count">306</div></div>
+        <div class="card-stat"><div class="k">🔴 Red Alerts</div><div class="v red" data-live="ltd-red">23</div></div>
+        <div class="card-stat"><div class="k">🟡 Amber</div><div class="v amber" data-live="ltd-amber">46</div></div>
       </div><div class="card-arrow">↗</div>
     </a>
 
@@ -995,7 +995,7 @@ window.caAudit = (function(){
       <div class="card-top"><div class="card-icon" style="background:#ccfbf1">💼</div><span class="card-status status-live">● Live</span></div>
       <div class="card-body"><h3>PAYE Tracker</h3><p>243 PAYE employers, 1,007 employees. PAYE references, payroll contacts and RTI tracking.</p></div>
       <div class="card-stats">
-        <div class="card-stat"><div class="k">Employers</div><div class="v" style="color:#0d9488">243</div></div>
+        <div class="card-stat"><div class="k">Employers</div><div class="v" style="color:#0d9488" data-live="paye-count">243</div></div>
         <div class="card-stat"><div class="k">Employees</div><div class="v blue">1,007</div></div>
       </div><div class="card-arrow">↗</div>
     </a>
@@ -1004,7 +1004,7 @@ window.caAudit = (function(){
       <div class="card-top"><div class="card-icon" style="background:#ede9fe">📋</div><span class="card-status status-live">● Live</span></div>
       <div class="card-body"><h3>SA Tracker</h3><p>383 SA clients — UTR numbers, personal details, contact info, ID uploads and notes.</p></div>
       <div class="card-stats">
-        <div class="card-stat"><div class="k">SA Clients</div><div class="v" style="color:#7c3aed">383</div></div>
+        <div class="card-stat"><div class="k">SA Clients</div><div class="v" style="color:#7c3aed" data-live="sa-count">383</div></div>
         <div class="card-stat"><div class="k">Tax Year</div><div class="v">2024/25</div></div>
       </div><div class="card-arrow">↗</div>
     </a>
@@ -1258,13 +1258,99 @@ async function loadStats() {
     document.getElementById('dd-pipeline').textContent = '—';
   }
 
-  // CH billing stats
-  // CH stats come from DATA in ch-tracker (all 453 txns have pre-set charge values)
-  // Total billed: £39,490 | CH cost: £18,235 | Profit: £21,255 | Uncharged: 0
-  document.getElementById('ch-count').textContent = '453 txns';
-  document.getElementById('ch-profit').textContent = '£39k billed';
-  document.getElementById('ch-uncharged').textContent = '0 to bill';
-  document.getElementById('ch-potential').textContent = '£21k profit';
+  // ── LIVE COUNTS: Ltd, PAYE, SA, CH ───────────────────────────────────────
+  const H2 = {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Range': '0-0', 'Prefer': 'count=exact'};
+
+  // Ltd Tracker — live counts + alert breakdown
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/ltd_clients?select=alerts,accounts_due,conf_due&status=eq.active&limit=2000', {headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}}).then(r => r.json()).catch(() => []);
+    if (Array.isArray(r)) {
+      const now = new Date(); now.setHours(0,0,0,0);
+      const parse = s => { if(!s)return null; const p=s.split('/'); return p.length===3?new Date(p[2],p[1]-1,p[0]):null; };
+      let red = 0, amber = 0;
+      r.forEach(c => {
+        const ad = parse(c.accounts_due), cd = parse(c.conf_due);
+        const overdue = (ad&&ad<now)||(cd&&cd<now);
+        const soon = !overdue && ((ad&&(ad-now)/86400000<=30)||(cd&&(cd-now)/86400000<=30));
+        if (overdue) red++;
+        else if (soon || c.alerts === 'Red') red++;
+        else if (c.alerts === 'Amber') amber++;
+      });
+      const compEl = document.querySelector('#card-companies .v.blue');
+      const redEl  = document.querySelector('#card-companies .v.red');
+      const amberEl = document.querySelector('#card-companies .v.amber');
+      // Use IDs instead
+      document.querySelectorAll('[data-live="ltd-count"]').forEach(el => el.textContent = r.length);
+      document.querySelectorAll('[data-live="ltd-red"]').forEach(el => el.textContent = red);
+      document.querySelectorAll('[data-live="ltd-amber"]').forEach(el => el.textContent = amber);
+    }
+  } catch(e) {}
+
+  // SA Tracker — live count
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/sa_clients?select=id', {headers: H2});
+    const cr = r.headers.get('Content-Range');
+    const count = cr ? parseInt(cr.split('/')[1]) || 0 : 0;
+    document.querySelectorAll('[data-live="sa-count"]').forEach(el => el.textContent = count);
+  } catch(e) {}
+
+  // PAYE — live employer count
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/paye_employers?select=id', {headers: H2});
+    const cr = r.headers.get('Content-Range');
+    const count = cr ? parseInt(cr.split('/')[1]) || 0 : 0;
+    document.querySelectorAll('[data-live="paye-count"]').forEach(el => el.textContent = count);
+  } catch(e) {}
+
+  // CH Cost Tracker — live from Supabase
+  try {
+    const r = await fetch(SB_URL + '/rest/v1/ch_transactions?select=ch_cost,charged,charge_date', {headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}}).then(r => r.json()).catch(() => null);
+    if (Array.isArray(r) && r.length) {
+      const total = r.length;
+      const billed = r.reduce((s,t) => s + (parseFloat(t.charged)||0), 0);
+      const uncharged = r.filter(t => !t.charge_date).length;
+      document.getElementById('ch-count').textContent = total + ' txns';
+      document.getElementById('ch-profit').textContent = '£' + Math.round(billed/1000) + 'k billed';
+      document.getElementById('ch-uncharged').textContent = uncharged + ' to bill';
+    } else {
+      // Fallback to known static values
+      document.getElementById('ch-count').textContent = '453 txns';
+      document.getElementById('ch-profit').textContent = '£39k billed';
+      document.getElementById('ch-uncharged').textContent = '0 to bill';
+    }
+  } catch(e) {
+    document.getElementById('ch-count').textContent = '453 txns';
+    document.getElementById('ch-profit').textContent = '£39k billed';
+    document.getElementById('ch-uncharged').textContent = '0 to bill';
+  }
+
+  // VAT — live overdue count
+  try {
+    const now = new Date(); now.setHours(0,0,0,0);
+    const r = await fetch(SB_URL + '/rest/v1/vat_clients?select=next_due&status=eq.active', {headers: {'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY}}).then(r => r.json()).catch(() => []);
+    if (Array.isArray(r)) {
+      const parse = s => { if(!s)return null; const p=s.split('/'); return p.length===3?new Date(p[2],p[1]-1,p[0]):null; };
+      const overdue = r.filter(c => { const d=parse(c.next_due); return d&&d<now; }).length;
+      const vatEl = document.getElementById('vat-overdue');
+      if (vatEl) vatEl.textContent = overdue;
+    }
+  } catch(e) {}
+
+  // Audit stats — today + this week
+  try {
+    const now = new Date(); now.setHours(0,0,0,0);
+    const week = new Date(now); week.setDate(week.getDate() - 7);
+    const [td, wk] = await Promise.all([
+      fetch(SB_URL + '/rest/v1/audit_log?created_at=gte.' + now.toISOString(), {headers: H2}),
+      fetch(SB_URL + '/rest/v1/audit_log?created_at=gte.' + week.toISOString(), {headers: H2})
+    ]);
+    const tdCount = td.headers.get('Content-Range');
+    const wkCount = wk.headers.get('Content-Range');
+    const atEl = document.getElementById('pc-audit-today');
+    const awEl = document.getElementById('pc-audit-week');
+    if (atEl) atEl.textContent = tdCount ? parseInt(tdCount.split('/')[1])||0 : '—';
+    if (awEl) awEl.textContent = wkCount ? parseInt(wkCount.split('/')[1])||0 : '—';
+  } catch(e) {}
 }
 
 loadStats();
