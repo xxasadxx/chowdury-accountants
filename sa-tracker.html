@@ -1376,6 +1376,7 @@ async function saveClient(){
     ref_year:document.getElementById('cm-ref-year').value.trim(),
   });
   await sbSave(c);
+  try{if(window.caAudit)caAudit.log('edit','Saved SA client ['+c.name+']','SA Tracker');}catch(e){}
   closeClientModal();renderAll();
   btn.textContent='💾 Save';btn.disabled=false;
 }

@@ -539,6 +539,7 @@ async function saveClient() {
   try {
     await sbFetch(`paye_clients?id=eq.${currentId}`,{method:'PATCH',body:JSON.stringify(r),headers:{'Prefer':'return=minimal'}});
   } catch(e){console.warn('Save failed:',e.message);}
+  try{if(window.caAudit){var en=document.getElementById('m-name')?document.getElementById('m-name').value:'employer';caAudit.log('edit','Saved PAYE employer ['+en+']','PAYE Tracker');}}catch(e){}
   closeModal(); applyFilter();
   btn.textContent='💾 Save Changes';btn.disabled=false;
 }
