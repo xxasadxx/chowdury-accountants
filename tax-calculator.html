@@ -573,9 +573,13 @@ function calcSplit(){
     {lbl:'All Salary',sal:Math.min(profit,R.aThr)},
   ];
 
+  // Max salary company can afford including employer NI (sal + (sal-niST)*niER <= availProfit)
+  var availForSal=Math.max(0,profit-empPen);
+  var maxSal=(availForSal+R.niST*R.niER)/(1+R.niER); // algebraic cap
+
   var results=[];
   scenarios.forEach(function(sc){
-    var sal=Math.min(sc.sal,profit-empPen);if(sal<0)sal=0;
+    var sal=Math.min(sc.sal,maxSal);if(sal<0)sal=0;
     var eni=Math.max(0,sal-R.niST)*R.niER;
     var profAfter=Math.max(0,profit-sal-eni-empPen);
     var ct=inclCT?(profAfter<=R.ctThr?profAfter*R.ctR:profAfter*R.ctRM):0;
