@@ -66,13 +66,11 @@ window.onload = () => {
 
 function login() {
   const attempts = parseInt(localStorage.getItem('ca_login_attempts')||'0');
-  const lockUntil = parseInt(localStorage.getItem('ca_lock_until')||'0');
-  const now = Date.now();
+  const locked = localStorage.getItem('ca_locked')==='true';
   const err = document.getElementById('error');
-  function showErr(msg){err.textContent='⚠️ '+msg;err.classList.add('show');document.getElementById('pw').value='';setTimeout(()=>err.classList.remove('show'),4000);}
-  if(lockUntil && now < lockUntil){
-    const mins=Math.ceil((lockUntil-now)/60000);
-    showErr('Too many failed attempts. Try again in '+mins+' minute'+(mins>1?'s':'')+'.');
+  function showErr(msg){err.textContent='⚠️ '+msg;err.classList.add('show');document.getElementById('pw').value='';setTimeout(()=>err.classList.remove('show'),5000);}
+  if(locked){
+    showErr('This device is locked. Please contact Asadul to unlock.');
     return;
   }
   const un = document.getElementById('un').value.trim().toLowerCase();
@@ -80,7 +78,7 @@ function login() {
   const user = USERS[un];
   if(user && pw === user.pass) {
     localStorage.removeItem('ca_login_attempts');
-    localStorage.removeItem('ca_lock_until');
+    localStorage.removeItem('ca_locked');
     localStorage.setItem('ca_auth', 'true');
     localStorage.setItem('ca_user', un);
     localStorage.setItem('ca_name', user.name);
@@ -89,12 +87,11 @@ function login() {
   } else {
     const newAttempts = attempts + 1;
     localStorage.setItem('ca_login_attempts', newAttempts);
-    if(newAttempts >= 5){
-      localStorage.setItem('ca_lock_until', Date.now() + 15*60*1000);
-      localStorage.setItem('ca_login_attempts','0');
-      showErr('Too many failed attempts. Locked for 15 minutes.');
+    if(newAttempts >= 2){
+      localStorage.setItem('ca_locked','true');
+      showErr('Too many failed attempts. This device is now locked. Contact Asadul to unlock.');
     } else {
-      showErr('Incorrect username or password. Attempt '+newAttempts+' of 5.');
+      showErr('Incorrect username or password. '+(2-newAttempts)+' attempt remaining.');
     }
   }
 }
