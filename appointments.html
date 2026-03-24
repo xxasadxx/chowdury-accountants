@@ -1000,13 +1000,14 @@ async function saveAppt() {
     const res=await fetch(url,{method,headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(editId?payload:{...payload})});
     if(!res.ok) throw new Error('Save failed');
 
-    // Log activity
-    const action=editId?'Updated':'Booked';
-    const detail=`${action}: ${client} — ${svc?svc.name:'Appointment'} on ${date} at ${time} with ${staff}`;
-    await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
-      appointment_id:editId||null,action,detail,done_by:payload.booked_by||staff
-    })});
-
+    // Log activity (non-critical)
+    try{
+      const action=editId?'Updated':'Booked';
+      const detail=`${action}: ${client} — ${svc?svc.name:'Appointment'} on ${date} at ${time} with ${staff}`;
+      await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
+        appointment_id:editId||null,action,detail,done_by:payload.booked_by||staff
+      })});
+    }catch(e){}
     if(window.caAudit)caAudit.log('book',(editId?'Updated':'Booked')+' appointment for ['+client+'] on '+date,'Appointments');
     closeBookModal();
     await loadAll();
@@ -1021,9 +1022,9 @@ async function deleteAppt() {
   if(!confirm('Delete this appointment?')) return;
   try {
     await fetch(SB+'/rest/v1/appointments?id=eq.'+id,{method:'DELETE',headers:H});
-    await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
+    try{await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
       action:'Deleted',detail:`Deleted: ${a?.client_name} on ${a?.appt_date}`,done_by:'—'
-    })});
+    })});}catch(e){}
     if(window.caAudit)caAudit.log('delete','Deleted appointment','Appointments');
     closeBookModal();await loadAll();toast('Appointment deleted');
   }catch(e){toast('Delete failed','err');}

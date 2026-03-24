@@ -1203,6 +1203,7 @@ function renderPayeXref(id){
 }
 function openClientModal(id){
   const c=DATA.find(x=>x.id===id);if(!c)return;
+  try{if(window.caAudit)caAudit.log('open','Opened client record ['+c.name+']','Ltd Tracker');}catch(e){}
   currentId=id;
   document.getElementById('cm-title').textContent=c.name;
   document.getElementById('cm-sub').textContent=`Co. No: ${c.comp_no||'—'}${c.director_name?' · '+c.director_name:''}`;
@@ -1568,6 +1569,7 @@ async function saveClient(){
 
   closeClientModal();renderAll();
   btn.textContent='💾 Save';btn.disabled=false;
+  try{if(window.caAudit){var cn=document.getElementById('cm-name')?document.getElementById('cm-name').value:'client';caAudit.log('edit','Saved client record ['+cn+']','Ltd Tracker');}}catch(e){}
 }
 async function sbSave(c){
   // Never include name in payload; comp_no is the PK for upsert
