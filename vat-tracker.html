@@ -615,7 +615,7 @@ function openVatModal(id) {
   document.getElementById('vm-sub').textContent = 'Co. No: ' + (co.comp_no || '—');
   document.getElementById('vm-name').value = co.name || '';
   document.getElementById('vm-comp-no').value = co.comp_no || '';
-  document.getElementById('vm-stagger').value = co.vat_stagger || 'Group 1';
+  document.getElementById('vm-stagger').value = co.vat_stagger || '';
   document.getElementById('vm-alerts').value = co.alerts || 'Green';
   document.getElementById('vm-vat-due').value = co.vat_due || '';
   document.getElementById('vm-accounts-ref').value = co.accounts_ref_date || '';
@@ -648,7 +648,7 @@ async function saveVatClient() {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify(updates)
     });
-    if (!res.ok) throw new Error('Save failed');
+    if (!res.ok) {const errText = await res.text(); throw new Error(errText.slice(0,200));}
     // Update local data
     const idx = VAT_DATA.findIndex(x => x.id === id);
     if (idx >= 0) Object.assign(VAT_DATA[idx], updates);
@@ -791,6 +791,7 @@ async function removeVatClient() {
       <div>
         <label class="vf-label">VAT Quarter Group</label>
         <select class="vf-select" id="vm-stagger">
+          <option value="">— Not set —</option>
           <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
           <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
           <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
@@ -876,6 +877,7 @@ window.caAudit = (function(){
       <div>
         <label class="vf-label">VAT Quarter Group</label>
         <select class="vf-select" id="vm-stagger">
+          <option value="">— Not set —</option>
           <option value="Group 1">Group 1 (Jan/Apr/Jul/Oct)</option>
           <option value="Group 2">Group 2 (Feb/May/Aug/Nov)</option>
           <option value="Group 3">Group 3 (Mar/Jun/Sep/Dec)</option>
