@@ -19,12 +19,18 @@
       var style=document.createElement('style');
       style.innerHTML='#nav-revenue{display:none!important}#nav-strategy{display:none!important}#card-revenue{display:none!important}#card-strategy{display:none!important}#hero-stats{display:none!important}button.act-del{display:none!important}.act-del{display:none!important}';
       document.head.appendChild(style);
+    } else {
+      var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';
     }
-    window.addEventListener('DOMContentLoaded',function(){
+    function applyNav(){
       var fullNames={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
       var hu=document.getElementById('ca-hdr-user');if(hu)hu.textContent=fullNames[name]||name;
-      if(role==='admin'){var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';}
-    });
+    }
+    if(document.readyState==='loading'){
+      window.addEventListener('DOMContentLoaded',applyNav);
+    } else {
+      applyNav();
+    }
   });
 })();
 </script>
