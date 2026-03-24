@@ -565,47 +565,51 @@ function calcSplit(){
   var sole=gb('s-sole'),inclCT=gb('s-ct');
   if(!profit){document.getElementById('split-res').innerHTML='<div class="es"><div class="ei">🏢</div><p>Enter company profit on the left<br>to see the optimal split</p></div>';return;}
 
-  var scenarios=[
-    {lbl:'Minimum Salary',sal:12570},
-    {lbl:'NI Threshold',sal:sole?R.niST:R.niPT},
-    {lbl:'Personal Allowance',sal:R.pa},
-    {lbl:'Basic Rate Limit',sal:R.hThr},
-    {lbl:'All Salary',sal:Math.min(profit,R.aThr)},
-  ];
-
   // Max salary company can afford including employer NI (sal + (sal-niST)*niER <= availProfit)
   var availForSal=Math.max(0,profit-empPen);
-  var maxSal=(availForSal+R.niST*R.niER)/(1+R.niER); // algebraic cap
+  var maxSal=(availForSal+R.niST*R.niER)/(1+R.niER);
 
-  var results=[];
-  scenarios.forEach(function(sc){
-    var sal=Math.min(sc.sal,maxSal);if(sal<0)sal=0;
+  // Helper: compute all figures for a given salary
+  function runScenario(lbl,salIn){
+    var sal=Math.min(salIn,maxSal);if(sal<0)sal=0;
     var eni=Math.max(0,sal-R.niST)*R.niER;
     var profAfter=Math.max(0,profit-sal-eni-empPen);
     var ct=inclCT?(profAfter<=R.ctThr?profAfter*R.ctR:profAfter*R.ctRM):0;
     var divAvail=Math.max(0,profAfter-ct);
-
-    // Personal tax
     var itr=itUK(sal+otherInc,R.pa,R);
     var dAA=Math.max(0,divAvail-R.divA),bFD=sal+otherInc,dT=0;
     if(dAA>0){var dB=Math.max(0,Math.min(dAA,R.hThr-bFD)),dH=Math.max(0,Math.min(dAA-dB,R.aThr-R.hThr)),dA=Math.max(0,dAA-dB-dH);dT=dB*R.divBR+dH*R.divHR+dA*R.divAR;}
     var empNI=Math.min(Math.max(0,sal-R.niPT),R.niUEL-R.niPT)*R.niR1+Math.max(0,sal-R.niUEL)*R.niR2;
     var totTax=itr.tax+dT+empNI+ct+eni;
     var th=sal+divAvail-itr.tax-dT-empNI;
-    results.push({lbl:sc.lbl,sal:sal,div:divAvail,ct:ct,eni:eni,pTax:itr.tax+dT+empNI,th:th,totTax:totTax,eff:profit>0?(totTax/profit*100):0});
-  });
+    return{lbl:lbl,sal:sal,div:divAvail,ct:ct,eni:eni,pTax:itr.tax+dT+empNI,th:th,totTax:totTax,eff:profit>0?(totTax/profit*100):0};
+  }
 
+  var scenarios=[
+    {lbl:'All Dividends (no salary)',sal:0},
+    {lbl:'NI Threshold (£'+fM(sole?R.niST:R.niPT)+')',sal:sole?R.niST:R.niPT},
+    {lbl:'Personal Allowance (£'+fM(R.pa)+')',sal:R.pa},
+    {lbl:'Basic Rate Limit (£'+fM(R.hThr)+')',sal:R.hThr},
+    {lbl:'All Salary',sal:maxSal},
+  ];
+
+  var results=scenarios.map(function(sc){return runScenario(sc.lbl,sc.sal);});
+
+  // Find the best take-home across all scenarios
   var bi=0;results.forEach(function(r,i){if(r.th>results[bi].th)bi=i;});
 
+  // Always show 3 highlight cards: All Dividends (idx 0), Best Mix (bi), All Salary (last)
+  var lastIdx=results.length-1;
+  var cardIdxs=[0,bi,lastIdx].filter(function(v,i,a){return a.indexOf(v)===i;});
+
   var h='<div class="sg">';
-  var show=[Math.max(0,bi-1),bi,Math.min(results.length-1,bi+1)].filter(function(v,i,a){return a.indexOf(v)===i;});
-  show.forEach(function(i){var r=results[i],best=(i===bi);
+  cardIdxs.forEach(function(i){var r=results[i],best=(i===bi);
     h+='<div class="sc'+(best?' best':'')+'"><div class="scl">'+r.lbl+'</div>';
     h+='<div class="scsal">Salary: £'+fM(r.sal)+'</div>';
     h+='<div class="scdiv">Dividends: £'+fM(r.div)+'</div>';
     h+='<div class="scth">£'+fM(r.th)+'</div>';
     h+='<div class="sctx">Tax+CT: £'+fM(r.totTax)+' ('+r.eff.toFixed(1)+'%)</div>';
-    if(best)h+='<div class="scbb">✓ Optimal</div>';
+    if(best)h+='<div class="scbb">✓ Best take-home</div>';
     h+='</div>';
   });
   h+='</div>';
