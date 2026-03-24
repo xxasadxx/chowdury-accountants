@@ -371,7 +371,6 @@ window.caAudit = (function(){
         <th onclick="sortBy('status')">Status</th>
         <th>Years</th>
         <th onclick="sortBy('phone')">Phone</th>
-        <th>Outstanding</th>
         <th onclick="sortBy('alerts')">Alert</th>
       </tr></thead>
       <tbody id="clients-tbody"></tbody>
@@ -862,8 +861,7 @@ function renderKPIsClients(){
     <div class="kpi"><div class="k">Total Clients</div><div class="v" style="color:var(--purple)">${total}</div><div class="sub">All years</div></div>
     <div class="kpi"><div class="k">Active</div><div class="v" style="color:var(--green)">${active}</div><div class="sub">Current</div></div>
     <div class="kpi"><div class="k">Left</div><div class="v" style="color:var(--red)">${left}</div><div class="sub">No longer clients</div></div>
-    <div class="kpi"><div class="k">Total Fees</div><div class="v" style="color:var(--blue)">${fmt(totalFees)}</div><div class="sub">All years</div></div>
-    <div class="kpi"><div class="k">Outstanding</div><div class="v" style="color:var(--amber)">${fmt(totalOut)}</div><div class="sub">Unpaid</div></div>
+
     <div class="kpi"><div class="k">Have Phone</div><div class="v">${withPhone}</div><div class="sub">of ${total}</div></div>
   `;
 }
@@ -874,7 +872,6 @@ function renderClientsTable(){
   const tb=document.getElementById('clients-tbody');
   if(!d.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--muted)">No clients found</td></tr>';return;}
   tb.innerHTML=d.map((c,i)=>{
-    const out=getClientOutstanding(c);
     const years=(c.tax_years||[]).map(y=>`<span class="badge badge-grey" style="font-size:9px;margin:1px">${y.year}</span>`).join('');
     return`<tr class="data-row" onclick="openClientModal(${c.id})">
       <td style="color:var(--muted);font-size:11px">${i+1}</td>
@@ -884,7 +881,6 @@ function renderClientsTable(){
       <td>${statusBadge(c.status)}</td>
       <td style="white-space:nowrap">${years||'<span style="color:var(--muted);font-size:11px">—</span>'}</td>
       <td style="font-size:11px">${c.phone?'✅ '+esc(c.phone):'<span style="color:var(--muted)">—</span>'}</td>
-      <td class="${out>0?'money-red':'money-green'}" style="font-family:var(--mono);font-size:11px">${out>0?fmt(out):'✅ Clear'}</td>
       <td>${alertBadge(c.alerts)}</td>
     </tr>`;
   }).join('');

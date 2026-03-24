@@ -733,7 +733,7 @@ async function logActivity(){
     });
     if(!r.ok){const err=await r.text();throw new Error(err);}
     msg.textContent='✓ Saved';msg.className='save-msg ok';
-    if(window.caAudit){var cn=document.getElementById('f-client')?document.getElementById('f-client').value:'';var desc=document.getElementById('f-desc')?document.getElementById('f-desc').value:'';caAudit.log('log','Logged activity'+(cn?' for ['+cn+']':'')+': '+desc,'Staff');}
+    if(window.caAudit){var acn=document.getElementById('f-client')?document.getElementById('f-client').value:'';var adesc=document.getElementById('f-desc')?document.getElementById('f-desc').value:'';caAudit.log('log','Logged activity'+(acn?' for ['+acn+']':'')+': '+adesc,'Staff');}
     ['f-desc','f-from','f-to','f-client','f-comp-no','f-date-end','f-hours-manual'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.getElementById('f-hours').textContent='—';hoursVal=null;
     setTimeout(()=>{msg.textContent='';},2500);
@@ -903,7 +903,7 @@ async function saveProfile(){
     };
     await sb('staff_profiles',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(profileData)});
     msg.textContent='✓ Saved';msg.className='save-msg ok';
-    if(window.caAudit){var cn=document.getElementById('f-client')?document.getElementById('f-client').value:'';var desc=document.getElementById('f-desc')?document.getElementById('f-desc').value:'';caAudit.log('log','Logged activity'+(cn?' for ['+cn+']':'')+': '+desc,'Staff');}
+    if(window.caAudit){var acn=document.getElementById('f-client')?document.getElementById('f-client').value:'';var adesc=document.getElementById('f-desc')?document.getElementById('f-desc').value:'';caAudit.log('log','Logged activity'+(acn?' for ['+acn+']':'')+': '+adesc,'Staff');}
     setTimeout(()=>{msg.textContent='';},2500);loadActivities();
   }catch(e){
     const txt=e.message||'';
