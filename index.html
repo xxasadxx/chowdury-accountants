@@ -36,6 +36,8 @@
         'button.act-del{display:none!important}'+
         '.act-del{display:none!important}';
       document.head.appendChild(style);
+    } else {
+      var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';
     }
     window.addEventListener('DOMContentLoaded',function(){
       var fullNames={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
@@ -892,10 +894,29 @@
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
     <span id="ca-nav-user" style="color:rgba(255,255,255,.55);font-size:11px;padding:0 8px;white-space:nowrap;font-weight:600"></span>
-    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
+    <a href="audit.html" id="nav-audit" style="display:none">🔍 Audit</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');try{if(window.caAudit)caAudit.log('logout','Signed out','nav');}catch(e){}
+    await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
   </div>
 </div>
 <script>
+
+// ── AUDIT LOGGER ─────────────────────────────────────────────────────────
+window.caAudit = (function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action, detail, page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    var pg=page||window.location.pathname.split('/').pop().replace('.html','');
+    fetch(SB+'/rest/v1/audit_log',{
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({staff:staff,action:action,detail:detail,page:pg,created_at:new Date().toISOString()})
+    }).catch(function(){});
+  }
+  return {log:log};
+})();
+
 (function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
 // Scroll nav so active link is visible
 (function(){var links=document.querySelector('.ca-links');if(!links)return;var active=links.querySelector('a.active');if(active){var offset=active.offsetLeft-16;links.scrollLeft=Math.max(0,offset);}else{links.scrollLeft=0;}})();

@@ -1,0 +1,342 @@
+<!-- CA PORTAL v1774314000 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if(localStorage.getItem("ca_auth")!=="true"){window.location.href="login.html";}</script>
+<meta charset="UTF-8"><meta name="viewport" content="width=1280">
+<title>Audit Trail — The Chowdury Accountants</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@700;800&family=Mulish:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#FBFAE8;--surface:#fff;--text:#252525;--muted:#7A7A7A;--border:#DEDEDE;--blue:#155FA0;--green:#1D7A47;--amber:#C07A00;--red:#D04A02;--purple:#6D28D9;--gold:#c8963c;--sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;padding-top:92px}
+.page-header{padding:18px 24px 14px;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-header h1{font-family:var(--display);font-size:20px;font-weight:800;margin-bottom:2px}
+.page-header p{font-size:11px;color:var(--muted)}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+
+/* Filters */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+.filter-select{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:12px;background:#fff;color:var(--text);cursor:pointer}
+.filter-select:focus{outline:none;border-color:var(--gold)}
+.search-input{padding:7px 12px;border:1px solid var(--border);border-radius:7px;font-family:var(--sans);font-size:12px;background:#fff;width:220px}
+.search-input:focus{outline:none;border-color:var(--gold)}
+.btn{padding:7px 14px;border-radius:7px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#b53d00}
+.btn-secondary{background:#fff;border:1px solid var(--border);color:var(--text)}.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.count-badge{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--muted);margin-left:auto}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-card .k{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.stat-card .v{font-size:22px;font-weight:800;font-family:var(--display)}
+
+/* Timeline */
+.timeline{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.tl-item{display:grid;grid-template-columns:140px 80px 100px 1fr auto;gap:12px;align-items:center;padding:11px 16px;border-bottom:1px solid #f5f5f0;font-size:12px;transition:background .1s}
+.tl-item:hover{background:#fffef5}
+.tl-item:last-child{border-bottom:none}
+.tl-header{display:grid;grid-template-columns:140px 80px 100px 1fr auto;gap:12px;padding:9px 16px;background:#f8f7ec;border-bottom:2px solid var(--border);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.tl-time{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.staff-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap;color:#fff}
+.action-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:10px;font-weight:600}
+.tl-detail{color:var(--text);line-height:1.4}
+.tl-detail .client{color:var(--blue);font-weight:600}
+.tl-page{font-size:10px;color:var(--muted);text-align:right;white-space:nowrap}
+.no-data{padding:48px;text-align:center;color:var(--muted);font-size:13px}
+.loading{padding:32px;text-align:center;color:var(--muted)}
+
+/* Action colours */
+.act-login{background:#e8f5e9;color:#1D7A47}
+.act-logout{background:#fce4e4;color:#D04A02}
+.act-edit{background:#e3f2fd;color:#155FA0}
+.act-open{background:#f3e5f5;color:#6D28D9}
+.act-send{background:#fff8e1;color:#C07A00}
+.act-book{background:#e8f5e9;color:#1D7A47}
+.act-file{background:#e3f2fd;color:#155FA0}
+.act-log{background:#f5f5f5;color:#374151}
+.act-delete{background:#fce4e4;color:#D04A02}
+
+/* Staff colours */
+.s-Asadul{background:#155FA0}.s-Hassan{background:#1D7A47}.s-Aminul{background:#6D28D9}.s-Nawaz{background:#C07A00}.s-Sadat{background:#D04A02}
+
+.pagination{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:16px;font-size:12px}
+.page-btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-family:var(--sans);font-size:12px}
+.page-btn.active{background:var(--gold);color:#fff;border-color:var(--gold)}
+.page-btn:hover:not(.active){border-color:var(--gold);color:var(--gold)}
+</style>
+</head>
+<body>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div class="ca-date" id="ca-hdr-date"></div><div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Mulish',sans-serif;font-weight:600;letter-spacing:.03em"></div></div>
+  </div>
+  <div class="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html" id="nav-revenue">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html" class="active">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html">📅 Appointments</a>
+    <a href="workflows.html">⚙️ Workflows</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">🗓 Calendar</a>
+    <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
+    <span id="ca-nav-user" style="color:rgba(255,255,255,.4);font-size:11px;padding:0 8px;white-space:nowrap"></span>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');try{if(window.caAudit)caAudit.log('logout','Signed out','nav');}catch(e){}
+    await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
+  </div>
+</div>
+<script>
+
+// ── AUDIT LOGGER ─────────────────────────────────────────────────────────
+window.caAudit = (function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action, detail, page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    var pg=page||window.location.pathname.split('/').pop().replace('.html','');
+    fetch(SB+'/rest/v1/audit_log',{
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({staff:staff,action:action,detail:detail,page:pg,created_at:new Date().toISOString()})
+    }).catch(function(){});
+  }
+  return {log:log};
+})();
+
+(function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
+(function(){var links=document.querySelector('.ca-links');if(!links)return;var active=links.querySelector('a.active');if(active){var offset=active.offsetLeft-16;links.scrollLeft=Math.max(0,offset);}else{links.scrollLeft=0;}})();
+</script>
+
+<div class="page-header">
+  <h1>🔍 Audit Trail</h1>
+  <p>Complete log of all staff actions — who did what, when and where · Admin only</p>
+</div>
+
+<div class="container">
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card"><div class="k">Total Events</div><div class="v" id="stat-total" style="color:var(--blue)">—</div></div>
+    <div class="stat-card"><div class="k">Today</div><div class="v" id="stat-today" style="color:var(--green)">—</div></div>
+    <div class="stat-card"><div class="k">This Week</div><div class="v" id="stat-week" style="color:var(--amber)">—</div></div>
+    <div class="stat-card"><div class="k">Most Active</div><div class="v" id="stat-top" style="color:var(--purple);font-size:15px">—</div></div>
+  </div>
+
+  <div class="filters">
+    <input type="text" class="search-input" id="search" placeholder="🔍 Search detail..." oninput="applyFilters()">
+    <select class="filter-select" id="filter-staff" onchange="applyFilters()">
+      <option value="">All Staff</option>
+      <option>Asadul</option><option>Hassan</option><option>Aminul</option><option>Nawaz</option><option>Sadat</option>
+    </select>
+    <select class="filter-select" id="filter-action" onchange="applyFilters()">
+      <option value="">All Actions</option>
+      <option value="login">Login</option>
+      <option value="logout">Logout</option>
+      <option value="open">Opened Record</option>
+      <option value="edit">Edited Record</option>
+      <option value="send">Sent Messages</option>
+      <option value="book">Booked Appointment</option>
+      <option value="file">Filed Deadline</option>
+      <option value="log">Activity Logged</option>
+    </select>
+    <select class="filter-select" id="filter-period" onchange="applyFilters()">
+      <option value="today">Today</option>
+      <option value="week">This Week</option>
+      <option value="month" selected>This Month</option>
+      <option value="all">All Time</option>
+    </select>
+    <button class="btn btn-red" onclick="clearAuditLog()">🗑 Clear Log</button>
+    <span class="count-badge" id="count-badge">— events</span>
+  </div>
+
+  <div class="timeline">
+    <div class="tl-header">
+      <span>Time</span><span>Staff</span><span>Action</span><span>Detail</span><span>Page</span>
+    </div>
+    <div id="audit-list"><div class="loading">Loading audit trail…</div></div>
+  </div>
+
+  <div class="pagination" id="pagination"></div>
+</div>
+
+
+<script>
+window.caAudit = (function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action,detail,page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    var pg=page||window.location.pathname.split('/').pop().replace('.html','');
+    fetch(SB+'/rest/v1/audit_log',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({staff:staff,action:action,detail:detail,page:pg,created_at:new Date().toISOString()})}).catch(function(){});
+  }
+  return {log:log};
+})();
+</script>
+<script>
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+// Check admin
+const role=localStorage.getItem('ca_role')||'staff';
+if(role!=='admin'){window.location.replace('index.html');}
+
+let ALL_LOGS=[];
+let filtered=[];
+const PAGE_SIZE=50;
+let curPage=1;
+
+async function sb(path){
+  const r=await fetch(SB_URL+'/rest/v1/'+path,{headers:H});
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):[];
+}
+
+async function init(){
+  // Create table if not exists - try inserting a dummy then delete
+  await ensureTable();
+  await loadLogs();
+}
+
+async function ensureTable(){
+  // Try to query - if fails table doesn't exist yet
+  try{
+    await fetch(SB_URL+'/rest/v1/audit_log?limit=1',{headers:H});
+  }catch(e){}
+}
+
+async function loadLogs(){
+  try{
+    const data=await sb('audit_log?select=*&order=created_at.desc&limit=2000');
+    ALL_LOGS=Array.isArray(data)?data:[];
+    updateStats();
+    applyFilters();
+  }catch(e){
+    document.getElementById('audit-list').innerHTML='<div class="no-data">No audit log yet — actions will appear here as staff use the portal.</div>';
+  }
+}
+
+function updateStats(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const weekStart=new Date(today);weekStart.setDate(weekStart.getDate()-7);
+  
+  document.getElementById('stat-total').textContent=ALL_LOGS.length.toLocaleString();
+  document.getElementById('stat-today').textContent=ALL_LOGS.filter(l=>new Date(l.created_at)>=today).length;
+  document.getElementById('stat-week').textContent=ALL_LOGS.filter(l=>new Date(l.created_at)>=weekStart).length;
+  
+  // Most active staff
+  const counts={};
+  ALL_LOGS.forEach(l=>{if(l.staff)counts[l.staff]=(counts[l.staff]||0)+1;});
+  const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+  document.getElementById('stat-top').textContent=top?top[0]+' ('+top[1]+')':'—';
+}
+
+function applyFilters(){
+  const search=document.getElementById('search').value.toLowerCase();
+  const staff=document.getElementById('filter-staff').value;
+  const action=document.getElementById('filter-action').value;
+  const period=document.getElementById('filter-period').value;
+  
+  const now=new Date();
+  let cutoff=new Date(0);
+  if(period==='today'){cutoff=new Date(now);cutoff.setHours(0,0,0,0);}
+  else if(period==='week'){cutoff=new Date(now);cutoff.setDate(now.getDate()-7);}
+  else if(period==='month'){cutoff=new Date(now);cutoff.setDate(1);cutoff.setHours(0,0,0,0);}
+  
+  filtered=ALL_LOGS.filter(l=>{
+    if(staff&&l.staff!==staff)return false;
+    if(action&&l.action!==action)return false;
+    if(new Date(l.created_at)<cutoff)return false;
+    if(search&&!(l.detail||'').toLowerCase().includes(search)&&!(l.staff||'').toLowerCase().includes(search))return false;
+    return true;
+  });
+  
+  curPage=1;
+  document.getElementById('count-badge').textContent=filtered.length.toLocaleString()+' events';
+  renderPage();
+}
+
+function renderPage(){
+  const start=(curPage-1)*PAGE_SIZE;
+  const page=filtered.slice(start,start+PAGE_SIZE);
+  
+  if(!filtered.length){
+    document.getElementById('audit-list').innerHTML='<div class="no-data">No events match your filters.</div>';
+    document.getElementById('pagination').innerHTML='';
+    return;
+  }
+  
+  const ACT_LABELS={login:'Login',logout:'Logout',open:'Opened',edit:'Edited',send:'Sent',book:'Booked',file:'Filed',log:'Activity','delete':'Deleted'};
+  const ACT_CLS={login:'act-login',logout:'act-logout',open:'act-open',edit:'act-edit',send:'act-send',book:'act-book',file:'act-file',log:'act-log','delete':'act-delete'};
+  
+  document.getElementById('audit-list').innerHTML=page.map(l=>{
+    const d=new Date(l.created_at);
+    const date=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'});
+    const time=d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    const staffCls='s-'+(l.staff||'');
+    const actCls=ACT_CLS[l.action]||'act-log';
+    const actLabel=ACT_LABELS[l.action]||l.action||'—';
+    const detail=l.detail||'—';
+    const clientMatch=detail.match(/\[([^\]]+)\]/);
+    const displayDetail=clientMatch
+      ?detail.replace('['+clientMatch[1]+']','<span class="client">'+clientMatch[1]+'</span>')
+      :detail;
+    return `<div class="tl-item">
+      <span class="tl-time">${date} ${time}</span>
+      <span><span class="staff-badge ${staffCls}">${l.staff||'—'}</span></span>
+      <span><span class="action-badge ${actCls}">${actLabel}</span></span>
+      <span class="tl-detail">${displayDetail}</span>
+      <span class="tl-page">${l.page||''}</span>
+    </div>`;
+  }).join('');
+  
+  // Pagination
+  const totalPages=Math.ceil(filtered.length/PAGE_SIZE);
+  if(totalPages<=1){document.getElementById('pagination').innerHTML='';return;}
+  let pg='';
+  for(let i=1;i<=Math.min(totalPages,10);i++){
+    pg+=`<button class="page-btn${i===curPage?' active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  if(totalPages>10) pg+=`<span style="color:var(--muted)">… ${totalPages} pages</span>`;
+  document.getElementById('pagination').innerHTML=pg;
+}
+
+function goPage(n){curPage=n;renderPage();window.scrollTo(0,0);}
+
+async function clearAuditLog(){
+  if(!confirm('Clear ALL audit log entries? This cannot be undone.'))return;
+  try{
+    await fetch(SB_URL+'/rest/v1/audit_log?id=gt.0',{method:'DELETE',headers:H});
+    ALL_LOGS=[];filtered=[];
+    document.getElementById('audit-list').innerHTML='<div class="no-data">Audit log cleared.</div>';
+    updateStats();
+    document.getElementById('count-badge').textContent='0 events';
+  }catch(e){alert('Error clearing log: '+e.message);}
+}
+
+init();
+</script>
+</body>
+</html>
