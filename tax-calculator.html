@@ -1,0 +1,867 @@
+<!-- CA PORTAL — Tax Calculator -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var _sb=supabase.createClient(
+    'https://yhvhpfsoqtjwnukgyqap.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
+  );
+  _sb.auth.getSession().then(function(r){
+    var session=r.data&&r.data.session;
+    if(!session){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('ca_role')||'staff';
+    var name=localStorage.getItem('ca_name')||'';
+    if(role!=='admin'){
+      var style=document.createElement('style');
+      style.innerHTML='#nav-revenue{display:none!important}#nav-strategy{display:none!important}';
+      document.head.appendChild(style);
+    } else {
+      function showAudit(){var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';}
+      if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',showAudit);}else{showAudit();}
+    }
+    window.addEventListener('DOMContentLoaded',function(){
+      var fullNames={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
+      var hu=document.getElementById('ca-hdr-user');
+      if(hu)hu.textContent=fullNames[name]||name;
+    });
+  });
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Tax Calculator — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#FFFFFF;--ink:#252525;--ink2:#4A4A4A;--muted:#7A7A7A;
+  --border:#DEDEDE;--red:#D04A02;--red-dark:#A83900;--red-light:#FCEEE8;
+  --green:#1D7A47;--green-light:#E5F4EC;--blue:#155FA0;--blue-light:#E5EFF8;
+  --amber:#C07A00;--amber-light:#FEF3DC;--gold:#C8963C;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+  --teal:#0D9488;--teal-light:#CCFBF1;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+  --text:#252525;--text2:#4A4A4A;--text-muted:#7A7A7A;
+  --accent:#D04A02;--accent-light:#FCEEE8;
+  --shadow:0 1px 4px rgba(0,0,0,0.06),0 2px 8px rgba(0,0,0,0.04);
+  --radius:8px;
+}
+body{padding-top:108px !important;font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── NAV ── */
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+</style>
+
+/* ── LAYOUT ── */
+.calc-wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.calc-header{margin-bottom:20px}
+.calc-header h1{font-family:var(--display);font-size:22px;font-weight:800;color:var(--text)}
+.calc-header p{font-size:12px;color:var(--muted);margin-top:4px}
+
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+@media(max-width:900px){.calc-grid{grid-template-columns:1fr}}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.card-head{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.card-head h2{font-size:13px;font-weight:700;color:var(--text)}
+.card-head .badge-pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.card-body{padding:16px 18px}
+
+/* ── INPUTS ── */
+.income-section{margin-bottom:16px}
+.income-section:last-child{margin-bottom:0}
+.income-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.income-label .dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.income-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-bottom:6px}
+.income-row label{font-size:12px;color:var(--text2);font-weight:500}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap .prefix{position:absolute;left:9px;font-size:12px;color:var(--muted);font-family:var(--mono);pointer-events:none}
+.input-wrap input{padding:7px 9px 7px 22px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:13px;font-weight:600;color:var(--text);background:#fff;width:140px;text-align:right}
+.input-wrap input:focus{outline:none;border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,.07)}
+.input-wrap input.has-value{border-color:var(--purple);background:#faf9ff}
+select.ctrl{padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--sans);font-size:12px;background:#fff;color:var(--text);cursor:pointer;width:100%}
+select.ctrl:focus{outline:none;border-color:var(--purple)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.toggle-row label{font-size:12px;color:var(--text2);font-weight:500}
+.toggle{position:relative;display:inline-block;width:36px;height:20px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:20px;transition:.2s}
+.toggle-slider:before{content:'';position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--purple)}
+.toggle input:checked+.toggle-slider:before{transform:translateX(16px)}
+
+/* ── YEAR TAB ── */
+.year-tabs{display:flex;gap:4px;margin-bottom:16px}
+.year-tab{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all .15s;font-family:var(--sans)}
+.year-tab.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+/* ── RESULTS ── */
+.result-summary{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.result-kpi{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;text-align:center}
+.result-kpi .rk{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.result-kpi .rv{font-size:17px;font-weight:800;margin-top:3px;font-family:var(--display)}
+.result-kpi .rsub{font-size:9px;color:var(--muted);margin-top:2px}
+.rv.green{color:var(--green)}
+.rv.red{color:var(--red)}
+.rv.purple{color:var(--purple)}
+.rv.amber{color:var(--amber)}
+
+.result-table{width:100%;border-collapse:collapse;font-size:12px}
+.result-table th{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:6px 10px;border-bottom:2px solid var(--border);text-align:left}
+.result-table th:last-child{text-align:right}
+.result-table td{padding:8px 10px;border-bottom:1px solid #f0ede0;font-size:12px;color:var(--text2)}
+.result-table td:last-child{text-align:right;font-family:var(--mono);font-weight:600;color:var(--text)}
+.result-table tr.total-row td{background:#f5f3e8;font-weight:700;color:var(--text);border-top:2px solid var(--border);border-bottom:none}
+.result-table tr.total-row td:last-child{color:var(--red)}
+.result-table tr.net-row td{background:var(--green-light);font-weight:800;color:var(--green);border-top:2px solid var(--green);font-size:13px;border-bottom:none}
+.result-table tr.section-head td{background:#f0ede0;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:5px 10px;border-bottom:none}
+.result-table tr.indent td:first-child{padding-left:22px}
+.result-table tr.zero td{opacity:.4}
+
+.bar-wrap{margin-bottom:14px}
+.bar-label{font-size:10px;color:var(--muted);font-weight:600;margin-bottom:4px;display:flex;justify-content:space-between}
+.bar{height:10px;border-radius:5px;background:#eee;overflow:hidden;display:flex}
+.bar-seg{height:100%;transition:width .4s ease}
+
+.tax-rate-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700}
+
+.disclaimer{font-size:10px;color:var(--muted);margin-top:16px;padding:10px 12px;background:#f8f7ee;border-radius:6px;border-left:3px solid var(--gold);line-height:1.6}
+
+.empty-state{text-align:center;padding:32px 16px;color:var(--muted)}
+.empty-state .icon{font-size:32px;margin-bottom:8px}
+.empty-state p{font-size:12px}
+
+.calc-btn{width:100%;padding:11px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:var(--display);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;margin-top:12px;letter-spacing:.02em}
+.calc-btn:hover{background:var(--red-dark);transform:translateY(-1px)}
+.calc-btn:active{transform:translateY(0)}
+
+.reset-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--muted);font-family:var(--sans);font-size:11px;font-weight:600;cursor:pointer;margin-top:6px;transition:all .15s}
+.reset-btn:hover{border-color:var(--red);color:var(--red)}
+
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+
+.period-switcher{display:flex;gap:4px;background:#f0ede0;border-radius:20px;padding:3px;margin-bottom:14px;width:fit-content}
+.period-btn{padding:4px 12px;border-radius:17px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;font-family:var(--sans)}
+.period-btn.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+
+.income-total-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:auto}
+</style>
+
+<!-- NAV -->
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+      <div class="ca-date" id="ca-hdr-date"></div>
+      <div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Mulish',sans-serif;font-weight:600;letter-spacing:.03em"></div>
+    </div>
+  </div>
+  <div class="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html" id="nav-revenue">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html">📅 Appointments</a>
+    <a href="workflows.html">⚙️ Workflows</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">🗓 Calendar</a>
+    <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
+    <a href="tax-calculator.html" class="active">🧮 Tax Calc</a>
+    <a href="audit.html" id="nav-audit" style="display:none">🔍 Audit</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');try{if(window.caAudit)caAudit.log('logout','Signed out','nav');}catch(e){}
+    await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
+  </div>
+</div>
+
+<script>
+window.caAudit=(function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action,detail,page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    var pg=page||window.location.pathname.split('/').pop().replace('.html','');
+    fetch(SB+'/rest/v1/audit_log',{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({staff:staff,action:action,detail:detail,page:pg,created_at:new Date().toISOString()})}).catch(function(){});
+  }
+  return{log:log};
+})();
+// Nav date
+(function(){
+  var d=new Date();
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var el=document.getElementById('ca-hdr-date');
+  if(el)el.textContent=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+})();
+</script>
+
+<!-- ══ MAIN ══ -->
+<div class="calc-wrap">
+  <div class="calc-header">
+    <h1>🧮 UK Tax Calculator</h1>
+    <p>Calculate Income Tax, National Insurance and take-home pay across all income types · Estimates only — not financial advice</p>
+  </div>
+
+  <!-- Tax Year -->
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+    <span style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Tax Year</span>
+    <div class="year-tabs" id="year-tabs" style="margin-bottom:0">
+      <button class="year-tab" onclick="setYear('2024/25',this)">2024/25</button>
+      <button class="year-tab active" onclick="setYear('2025/26',this)">2025/26</button>
+    </div>
+    <span style="font-size:11px;color:var(--muted)" id="year-hint">6 Apr 2025 – 5 Apr 2026</span>
+    <div style="margin-left:auto">
+      <div class="period-switcher" id="period-switcher">
+        <button class="period-btn active" onclick="setPeriod('annual',this)">Annual</button>
+        <button class="period-btn" onclick="setPeriod('monthly',this)">Monthly</button>
+        <button class="period-btn" onclick="setPeriod('weekly',this)">Weekly</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="calc-grid">
+    <!-- LEFT: INPUTS -->
+    <div>
+      <!-- INCOME CARD -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head">
+          <h2>💷 Income</h2>
+          <span class="badge-pill" style="background:#ede9fe;color:#7c3aed" id="total-income-pill">£0 total</span>
+        </div>
+        <div class="card-body">
+
+          <!-- Employment -->
+          <div class="income-section">
+            <div class="income-label">
+              <span class="dot" style="background:#3B82F6"></span>
+              Employment (PAYE)
+            </div>
+            <div class="income-row">
+              <label>Gross Salary / Wages</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-salary" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+            <div class="income-row">
+              <label>Benefits in Kind</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-bik" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+          </div>
+
+          <!-- Self Employment -->
+          <div class="income-section">
+            <div class="income-label">
+              <span class="dot" style="background:#F59E0B"></span>
+              Self-Employment
+            </div>
+            <div class="income-row">
+              <label>Net Profit (after expenses)</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-se" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+          </div>
+
+          <!-- Rental -->
+          <div class="income-section">
+            <div class="income-label">
+              <span class="dot" style="background:#10B981"></span>
+              Rental / Property Income
+            </div>
+            <div class="income-row">
+              <label>Net Rental Profit (after costs)</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-rental" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+          </div>
+
+          <!-- Dividends -->
+          <div class="income-section">
+            <div class="income-label">
+              <span class="dot" style="background:#8B5CF6"></span>
+              Dividend Income
+            </div>
+            <div class="income-row">
+              <label>Total Dividends Received</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-div" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+          </div>
+
+          <!-- Savings & Other -->
+          <div class="income-section">
+            <div class="income-label">
+              <span class="dot" style="background:#EC4899"></span>
+              Savings &amp; Other
+            </div>
+            <div class="income-row">
+              <label>Savings Interest</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-savings" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+            <div class="income-row">
+              <label>Other Taxable Income</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="i-other" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- DEDUCTIONS CARD -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head"><h2>📉 Deductions &amp; Allowances</h2></div>
+        <div class="card-body">
+          <div class="income-section">
+            <div class="income-label"><span class="dot" style="background:#6B7280"></span>Pension</div>
+            <div class="income-row">
+              <label>Employee Pension (£/yr)</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="d-pension" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+            <div class="income-row">
+              <label>Gift Aid Donations (£/yr)</label>
+              <div class="input-wrap"><span class="prefix">£</span><input type="number" id="d-giftaid" placeholder="0" oninput="recalc()" min="0"></div>
+            </div>
+          </div>
+          <div class="income-section">
+            <div class="income-label"><span class="dot" style="background:#6B7280"></span>Options</div>
+            <div class="options-grid">
+              <div>
+                <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px">Student Loan</div>
+                <select class="ctrl" id="d-student" onchange="recalc()">
+                  <option value="none">None</option>
+                  <option value="plan1">Plan 1 (pre-2012)</option>
+                  <option value="plan2">Plan 2 (post-2012)</option>
+                  <option value="plan4">Plan 4 (Scotland)</option>
+                  <option value="plan5">Plan 5 (2023+)</option>
+                  <option value="pg">Postgraduate</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:11px;color:var(--muted);font-weight:600;margin-bottom:4px">Tax Code</div>
+                <input type="text" class="ctrl" id="d-taxcode" placeholder="1257L" oninput="recalc()" style="padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:12px;color:var(--text);background:#fff;width:100%">
+              </div>
+            </div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+              <div class="toggle-row">
+                <label>Scotland (Scottish income tax rates)</label>
+                <label class="toggle"><input type="checkbox" id="d-scotland" onchange="recalc()"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <label>Married / Civil Partner</label>
+                <label class="toggle"><input type="checkbox" id="d-married" onchange="recalc()"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <label>Blind Person's Allowance</label>
+                <label class="toggle"><input type="checkbox" id="d-blind" onchange="recalc()"><span class="toggle-slider"></span></label>
+              </div>
+              <div class="toggle-row">
+                <label>Show Employer NI cost</label>
+                <label class="toggle"><input type="checkbox" id="d-employer-ni" onchange="recalc()" checked><span class="toggle-slider"></span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="reset-btn" onclick="resetCalc()">↺ Reset all inputs</button>
+    </div>
+
+    <!-- RIGHT: RESULTS -->
+    <div>
+      <div class="card" id="results-card">
+        <div class="card-head">
+          <h2>📊 Tax Breakdown</h2>
+          <span id="eff-rate-badge" class="badge-pill" style="background:#fee2e2;color:#dc2626;margin-left:auto">—</span>
+        </div>
+        <div class="card-body" id="results-body">
+          <div class="empty-state">
+            <div class="icon">🧮</div>
+            <p>Enter your income on the left<br>to see your full tax breakdown</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  TAX RATES
+// ══════════════════════════════════════════════════════════
+var RATES = {
+  '2025/26': {
+    pa: 12570,            // Personal allowance
+    blindAllowance: 3070,
+    marriageAllowance: 1260,
+    basicRate: 0.20,
+    basicBand: 37700,     // Up to £50,270
+    higherRate: 0.40,
+    higherThreshold: 50270,
+    additionalRate: 0.45,
+    additionalThreshold: 125140,
+    paTaper: 100000,      // PA starts tapering above this
+    // NI Employee
+    niPT: 12570,          // Primary threshold
+    niUEL: 50270,         // Upper earnings limit
+    niRate1: 0.08,        // Main rate (8%)
+    niRate2: 0.02,        // Above UEL
+    // NI Employer
+    niSecondaryThreshold: 5000,  // £5,000 from Apr 2025
+    niEmployerRate: 0.15,        // 15% from Apr 2025
+    // SE NI Class 4
+    niSERate1: 0.06,
+    niSERate2: 0.02,
+    niSELPT: 12570,
+    // Dividend
+    divAllowance: 500,
+    divBasicRate: 0.0875,
+    divHigherRate: 0.3375,
+    divAdditionalRate: 0.3935,
+    // Savings
+    savingsStartRate: 0.00,
+    savingsStartBand: 5000,
+    personalSavingsAllowance_basic: 1000,
+    personalSavingsAllowance_higher: 500,
+    // Student Loans
+    studentPlan1: 24990,
+    studentPlan2: 27295,
+    studentPlan4: 31395,
+    studentPlan5: 25000,
+    studentPG: 21000,
+    studentRate: 0.09,
+    studentPGRate: 0.06,
+    // Scotland
+    scotRates: [
+      {name:'Starter', rate:0.19, from:12570, to:14876},
+      {name:'Basic',   rate:0.20, from:14876, to:26561},
+      {name:'Inter',   rate:0.21, from:26561, to:43662},
+      {name:'Higher',  rate:0.42, from:43662, to:75000},
+      {name:'Adv',     rate:0.45, from:75000, to:125140},
+      {name:'Top',     rate:0.48, from:125140, to:Infinity},
+    ],
+  },
+  '2024/25': {
+    pa: 12570,
+    blindAllowance: 3070,
+    marriageAllowance: 1260,
+    basicRate: 0.20,
+    basicBand: 37700,
+    higherRate: 0.40,
+    higherThreshold: 50270,
+    additionalRate: 0.45,
+    additionalThreshold: 125140,
+    paTaper: 100000,
+    niPT: 12570,
+    niUEL: 50270,
+    niRate1: 0.08,
+    niRate2: 0.02,
+    niSecondaryThreshold: 9100,
+    niEmployerRate: 0.138,
+    niSERate1: 0.06,
+    niSERate2: 0.02,
+    niSELPT: 12570,
+    divAllowance: 500,
+    divBasicRate: 0.0875,
+    divHigherRate: 0.3375,
+    divAdditionalRate: 0.3935,
+    savingsStartRate: 0.00,
+    savingsStartBand: 5000,
+    personalSavingsAllowance_basic: 1000,
+    personalSavingsAllowance_higher: 500,
+    studentPlan1: 24990,
+    studentPlan2: 27295,
+    studentPlan4: 31395,
+    studentPlan5: 25000,
+    studentPG: 21000,
+    studentRate: 0.09,
+    studentPGRate: 0.06,
+    scotRates: [
+      {name:'Starter', rate:0.19, from:12570, to:14876},
+      {name:'Basic',   rate:0.20, from:14876, to:26561},
+      {name:'Inter',   rate:0.21, from:26561, to:43662},
+      {name:'Higher',  rate:0.42, from:43662, to:75000},
+      {name:'Adv',     rate:0.45, from:75000, to:125140},
+      {name:'Top',     rate:0.48, from:125140, to:Infinity},
+    ],
+  }
+};
+
+var currentYear = '2025/26';
+var currentPeriod = 'annual';
+
+function setYear(y, btn) {
+  currentYear = y;
+  document.querySelectorAll('.year-tab').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  var hints = {'2024/25':'6 Apr 2024 – 5 Apr 2025','2025/26':'6 Apr 2025 – 5 Apr 2026'};
+  document.getElementById('year-hint').textContent = hints[y]||'';
+  recalc();
+}
+
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  recalc();
+}
+
+function v(id) {
+  return parseFloat(document.getElementById(id).value)||0;
+}
+function vb(id) {
+  return document.getElementById(id).checked;
+}
+function vs(id) {
+  return document.getElementById(id).value;
+}
+
+function fmt(n, period) {
+  var divisor = period==='monthly' ? 12 : period==='weekly' ? 52 : 1;
+  var val = n / divisor;
+  return '£' + val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+function fmtM(n) {
+  return '£' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function calcTaxUK(income, pa, rates) {
+  // Standard UK income tax bands
+  var adjustedPA = pa;
+  // PA taper
+  if (income > rates.paTaper) {
+    var reduction = Math.floor((income - rates.paTaper) / 2);
+    adjustedPA = Math.max(0, pa - reduction);
+  }
+  var taxable = Math.max(0, income - adjustedPA);
+  var tax = 0;
+  var bands = [];
+
+  var basic = Math.min(taxable, rates.basicBand);
+  if (basic > 0) { var t=basic*rates.basicRate; tax+=t; bands.push({name:'Basic rate (20%)', income:basic, tax:t, rate:'20%'}); }
+  var higher = Math.min(Math.max(0, taxable - rates.basicBand), rates.additionalThreshold - rates.higherThreshold);
+  if (higher > 0) { var t2=higher*rates.higherRate; tax+=t2; bands.push({name:'Higher rate (40%)', income:higher, tax:t2, rate:'40%'}); }
+  var additional = Math.max(0, taxable - (rates.additionalThreshold - adjustedPA));
+  if (additional > 0) { var t3=additional*rates.additionalRate; tax+=t3; bands.push({name:'Additional rate (45%)', income:additional, tax:t3, rate:'45%'}); }
+
+  return {tax:tax, adjustedPA:adjustedPA, taxable:taxable, bands:bands};
+}
+
+function calcTaxScotland(income, pa, rates) {
+  var adjustedPA = pa;
+  if (income > rates.paTaper) {
+    var reduction = Math.floor((income - rates.paTaper) / 2);
+    adjustedPA = Math.max(0, pa - reduction);
+  }
+  var tax = 0;
+  var bands = [];
+  rates.scotRates.forEach(function(band){
+    if (income > band.from && band.from >= adjustedPA) {
+      var lo = Math.max(band.from, adjustedPA);
+      var hi = Math.min(income, band.to === Infinity ? income : band.to);
+      var inc = Math.max(0, hi - lo);
+      var t = inc * band.rate;
+      if (inc > 0) { tax+=t; bands.push({name:band.name+' rate ('+Math.round(band.rate*100)+'%)', income:inc, tax:t, rate:Math.round(band.rate*100)+'%'}); }
+    }
+  });
+  return {tax:tax, adjustedPA:adjustedPA, taxable:Math.max(0,income-adjustedPA), bands:bands};
+}
+
+function recalc() {
+  var R = RATES[currentYear];
+  var salary = v('i-salary');
+  var bik = v('i-bik');
+  var se = v('i-se');
+  var rental = v('i-rental');
+  var dividends = v('i-div');
+  var savings = v('i-savings');
+  var other = v('i-other');
+  var pension = v('d-pension');
+  var giftAid = v('d-giftaid');
+  var scotland = vb('d-scotland');
+  var married = vb('d-married');
+  var blind = vb('d-blind');
+  var showEmployerNI = vb('d-employer-ni');
+  var studentPlan = vs('d-student');
+  var taxCode = vs('d-taxcode').trim().toUpperCase();
+
+  // Personal Allowance adjustments
+  var pa = R.pa;
+  if (blind) pa += R.blindAllowance;
+  if (married) pa += R.marriageAllowance;
+
+  // Tax code override
+  if (taxCode && /^\d+[A-Z]$/.test(taxCode)) {
+    var codeNum = parseInt(taxCode);
+    pa = codeNum * 10;
+  } else if (taxCode === 'BR') { pa = 0; }
+  else if (taxCode === 'D0') { pa = 0; }
+  else if (taxCode === '0T') { pa = 0; }
+  else if (taxCode === 'NT') { pa = 999999; }
+
+  // Pension: reduces taxable income
+  var pensionRelief = Math.min(pension, salary);
+
+  // Gift Aid: extends basic rate band
+  var giftAidGrossed = giftAid * 1.25;
+
+  // Non-savings income (excl dividends & savings)
+  var nonSavings = Math.max(0, salary - pensionRelief) + bik + se + rental + other;
+  var totalIncome = nonSavings + dividends + savings;
+
+  // Update pill
+  document.getElementById('total-income-pill').textContent = fmtM(totalIncome) + ' total';
+
+  if (totalIncome === 0 && pension === 0) {
+    document.getElementById('results-body').innerHTML = '<div class="empty-state"><div class="icon">🧮</div><p>Enter your income on the left<br>to see your full tax breakdown</p></div>';
+    document.getElementById('eff-rate-badge').textContent = '—';
+    return;
+  }
+
+  // ── INCOME TAX on non-savings ──
+  var itResult = scotland ? calcTaxScotland(nonSavings, pa, R) : calcTaxUK(nonSavings, pa, R);
+  var adjPA = itResult.adjustedPA;
+  var usedPA = Math.min(adjPA, nonSavings);
+  var remainingPA = Math.max(0, adjPA - nonSavings);
+
+  // ── SAVINGS INTEREST TAX ──
+  var savingsTax = 0;
+  var savingsInBand = '';
+  // Savings starter rate (0%) on first £5,000 if non-savings below £17,570
+  var startRateAvail = Math.max(0, R.pa + R.savingsStartBand - nonSavings);
+  var savingsAfterPA = Math.max(0, savings - remainingPA);
+  var savingsAtStart = Math.min(savingsAfterPA, startRateAvail);
+  var savingsRemain = Math.max(0, savingsAfterPA - savingsAtStart);
+  // PSA
+  var totalNonDivForBand = nonSavings + savingsRemain;
+  var psaAllowance = totalNonDivForBand <= R.higherThreshold ? R.personalSavingsAllowance_basic : (totalNonDivForBand <= R.additionalThreshold ? R.personalSavingsAllowance_higher : 0);
+  var savingsTaxable = Math.max(0, savingsRemain - psaAllowance);
+  if (savingsTaxable > 0) {
+    var bandForSavings = totalNonDivForBand;
+    if (bandForSavings <= R.higherThreshold) { savingsTax = savingsTaxable * R.basicRate; savingsInBand = '20%'; }
+    else if (bandForSavings <= R.additionalThreshold) { savingsTax = savingsTaxable * R.higherRate; savingsInBand = '40%'; }
+    else { savingsTax = savingsTaxable * R.additionalRate; savingsInBand = '45%'; }
+  }
+
+  // ── DIVIDEND TAX ──
+  var divTax = 0;
+  var divBands = [];
+  var divAfterAllowance = Math.max(0, dividends - R.divAllowance);
+  var bandForDiv = nonSavings + savings; // where dividends sit
+  if (divAfterAllowance > 0) {
+    var inBasic = Math.max(0, Math.min(divAfterAllowance, R.higherThreshold - bandForDiv));
+    var inHigher = Math.max(0, Math.min(divAfterAllowance - inBasic, R.additionalThreshold - R.higherThreshold));
+    var inAdditional = Math.max(0, divAfterAllowance - inBasic - inHigher);
+    if (inBasic > 0) { var dt=inBasic*R.divBasicRate; divTax+=dt; divBands.push({name:'Dividend basic (8.75%)',income:inBasic,tax:dt}); }
+    if (inHigher > 0) { var dt2=inHigher*R.divHigherRate; divTax+=dt2; divBands.push({name:'Dividend higher (33.75%)',income:inHigher,tax:dt2}); }
+    if (inAdditional > 0) { var dt3=inAdditional*R.divAdditionalRate; divTax+=dt3; divBands.push({name:'Dividend additional (39.35%)',income:inAdditional,tax:dt3}); }
+  }
+
+  // ── NI EMPLOYEE ──
+  var niEmployee = 0;
+  var niEmployeeCalc = '';
+  if (salary > 0) {
+    var niSalary = Math.max(0, salary - pensionRelief);
+    var ni1 = Math.min(Math.max(0, niSalary - R.niPT), R.niUEL - R.niPT) * R.niRate1;
+    var ni2 = Math.max(0, niSalary - R.niUEL) * R.niRate2;
+    niEmployee = ni1 + ni2;
+    niEmployeeCalc = ni1 > 0 ? '8% on £'+fmtM(R.niPT)+'–£'+fmtM(Math.min(niSalary, R.niUEL)) : '';
+  }
+
+  // ── NI EMPLOYER ──
+  var niEmployer = 0;
+  if (salary > 0 && showEmployerNI) {
+    var grossForNI = Math.max(0, salary - pensionRelief);
+    niEmployer = Math.max(0, grossForNI - R.niSecondaryThreshold) * R.niEmployerRate;
+  }
+
+  // ── NI CLASS 4 (SE) ──
+  var niSE = 0;
+  if (se > 0) {
+    var seni1 = Math.min(Math.max(0, se - R.niSELPT), R.niUEL - R.niSELPT) * R.niSERate1;
+    var seni2 = Math.max(0, se - R.niUEL) * R.niSERate2;
+    niSE = seni1 + seni2;
+  }
+
+  // ── STUDENT LOAN ──
+  var studentLoan = 0;
+  if (studentPlan !== 'none') {
+    var thresholds = {plan1:R.studentPlan1,plan2:R.studentPlan2,plan4:R.studentPlan4,plan5:R.studentPlan5,pg:R.studentPG};
+    var rates2 = {plan1:R.studentRate,plan2:R.studentRate,plan4:R.studentRate,plan5:R.studentRate,pg:R.studentPGRate};
+    var slIncome = salary + se; // based on employment + SE
+    studentLoan = Math.max(0, slIncome - thresholds[studentPlan]) * rates2[studentPlan];
+  }
+
+  // ── TOTALS ──
+  var incomeTax = itResult.tax + savingsTax + divTax;
+  var totalNI = niEmployee + niSE;
+  var totalDeductions = incomeTax + totalNI + studentLoan;
+  var netIncome = totalIncome - totalDeductions - pensionRelief;
+  var effRate = totalIncome > 0 ? (totalDeductions / totalIncome * 100) : 0;
+  var marginalRate = getMarginalRate(nonSavings, R, scotland);
+
+  // Update effective rate badge
+  var badge = document.getElementById('eff-rate-badge');
+  badge.textContent = effRate.toFixed(1) + '% eff. rate';
+  badge.style.background = effRate > 40 ? '#fee2e2' : effRate > 20 ? '#fef3c7' : '#dcfce7';
+  badge.style.color = effRate > 40 ? '#dc2626' : effRate > 20 ? '#d97706' : '#16a34a';
+
+  var p = currentPeriod;
+
+  // ── BUILD HTML ──
+  var html = '';
+
+  // Summary KPIs
+  html += '<div class="result-summary">';
+  html += '<div class="result-kpi"><div class="rk">Total Income</div><div class="rv purple">'+fmt(totalIncome,p)+'</div><div class="rsub">gross</div></div>';
+  html += '<div class="result-kpi"><div class="rk">Total Tax & NI</div><div class="rv red">'+fmt(totalDeductions,p)+'</div><div class="rsub">'+effRate.toFixed(1)+'% eff. rate</div></div>';
+  html += '<div class="result-kpi"><div class="rk">Take-Home Pay</div><div class="rv green">'+fmt(netIncome,p)+'</div><div class="rsub">net income</div></div>';
+  html += '</div>';
+
+  // Visual bar
+  if (totalIncome > 0) {
+    var itPct = Math.min(100, incomeTax/totalIncome*100);
+    var niPct = Math.min(100-itPct, totalNI/totalIncome*100);
+    var slPct = Math.min(100-itPct-niPct, studentLoan/totalIncome*100);
+    var netPct = 100-itPct-niPct-slPct;
+    html += '<div class="bar-wrap">';
+    html += '<div class="bar-label"><span>Income Tax</span><span style="color:var(--green)">Take-home: '+Math.round(netPct)+'%</span></div>';
+    html += '<div class="bar">';
+    html += '<div class="bar-seg" style="width:'+itPct.toFixed(1)+'%;background:#EF4444"></div>';
+    html += '<div class="bar-seg" style="width:'+niPct.toFixed(1)+'%;background:#F59E0B"></div>';
+    if (slPct > 0) html += '<div class="bar-seg" style="width:'+slPct.toFixed(1)+'%;background:#8B5CF6"></div>';
+    html += '<div class="bar-seg" style="width:'+netPct.toFixed(1)+'%;background:#10B981"></div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:10px;margin-top:5px;flex-wrap:wrap">';
+    html += '<span style="font-size:9px;font-weight:600;color:#EF4444">■ Income Tax</span>';
+    html += '<span style="font-size:9px;font-weight:600;color:#F59E0B">■ NI</span>';
+    if (slPct > 0) html += '<span style="font-size:9px;font-weight:600;color:#8B5CF6">■ Student Loan</span>';
+    html += '<span style="font-size:9px;font-weight:600;color:#10B981">■ Take-home</span>';
+    html += '</div></div>';
+  }
+
+  // Detailed table
+  html += '<table class="result-table">';
+  html += '<thead><tr><th>Item</th><th>Amount</th></tr></thead><tbody>';
+
+  // Income section
+  html += '<tr class="section-head"><td colspan="2">Income</td></tr>';
+  if (salary > 0) html += '<tr class="indent"><td>Employment (Gross salary)</td><td>'+fmt(salary,p)+'</td></tr>';
+  if (bik > 0) html += '<tr class="indent"><td>Benefits in Kind</td><td>'+fmt(bik,p)+'</td></tr>';
+  if (se > 0) html += '<tr class="indent"><td>Self-Employment profits</td><td>'+fmt(se,p)+'</td></tr>';
+  if (rental > 0) html += '<tr class="indent"><td>Rental income</td><td>'+fmt(rental,p)+'</td></tr>';
+  if (dividends > 0) html += '<tr class="indent"><td>Dividends</td><td>'+fmt(dividends,p)+'</td></tr>';
+  if (savings > 0) html += '<tr class="indent"><td>Savings interest</td><td>'+fmt(savings,p)+'</td></tr>';
+  if (other > 0) html += '<tr class="indent"><td>Other income</td><td>'+fmt(other,p)+'</td></tr>';
+
+  // Deductions
+  html += '<tr class="section-head"><td colspan="2">Allowances &amp; Deductions</td></tr>';
+  if (pensionRelief > 0) html += '<tr class="indent"><td>Employee pension contribution</td><td style="color:var(--green)">−'+fmt(pensionRelief,p)+'</td></tr>';
+  html += '<tr class="indent"><td>Personal Allowance <span style="font-size:10px;color:var(--muted)">('+scotland?'Scot':'Eng/Wales'+' '+currentYear+')</span></td><td style="color:var(--green)">−'+fmt(adjPA,p)+'</td></tr>';
+  if (adjPA < R.pa) html += '<tr class="indent"><td style="color:var(--amber)">⚠️ PA reduced (income over £100k)</td><td style="color:var(--amber)">£'+fmtM(R.pa-adjPA)+' lost</td></tr>';
+  if (dividends > 0 && R.divAllowance > 0) html += '<tr class="indent"><td>Dividend Allowance</td><td style="color:var(--green)">−'+fmt(Math.min(dividends, R.divAllowance),p)+'</td></tr>';
+
+  // Income Tax
+  html += '<tr class="section-head"><td colspan="2">Income Tax</td></tr>';
+  itResult.bands.forEach(function(b){
+    html += '<tr class="indent"><td>'+b.name+'</td><td>'+fmt(b.tax,p)+'</td>';
+    html += '</tr>';
+  });
+  if (savingsTax > 0) html += '<tr class="indent"><td>Savings interest tax ('+savingsInBand+')</td><td>'+fmt(savingsTax,p)+'</td></tr>';
+  divBands.forEach(function(b){
+    html += '<tr class="indent"><td>'+b.name+'</td><td>'+fmt(b.tax,p)+'</td></tr>';
+  });
+  if (itResult.bands.length === 0 && savingsTax === 0 && divBands.length === 0) {
+    html += '<tr class="indent zero"><td>Income Tax</td><td>'+fmt(0,p)+'</td></tr>';
+  }
+  html += '<tr class="indent" style="font-weight:700"><td>Total Income Tax</td><td style="color:var(--red);font-weight:700">'+fmt(incomeTax,p)+'</td></tr>';
+
+  // NI
+  html += '<tr class="section-head"><td colspan="2">National Insurance</td></tr>';
+  if (salary > 0) {
+    html += '<tr class="indent"><td>Employee NI (Class 1)</td><td>'+fmt(niEmployee,p)+'</td></tr>';
+    if (showEmployerNI && niEmployer > 0) html += '<tr class="indent"><td style="color:var(--muted)">Employer NI (Class 1) <span style="font-size:10px">cost to employer</span></td><td style="color:var(--muted)">'+fmt(niEmployer,p)+'</td></tr>';
+  }
+  if (se > 0) html += '<tr class="indent"><td>SE NI (Class 4)</td><td>'+fmt(niSE,p)+'</td></tr>';
+  if (niEmployee === 0 && niSE === 0) html += '<tr class="indent zero"><td>NI</td><td>'+fmt(0,p)+'</td></tr>';
+
+  // Student Loan
+  if (studentPlan !== 'none') {
+    html += '<tr class="section-head"><td colspan="2">Student Loan</td></tr>';
+    html += '<tr class="indent"><td>Student Loan Repayment</td><td>'+fmt(studentLoan,p)+'</td></tr>';
+  }
+
+  // Totals
+  html += '<tr class="total-row"><td>Total Deductions</td><td>'+fmt(totalDeductions,p)+'</td></tr>';
+  if (showEmployerNI && niEmployer > 0) html += '<tr class="indent" style="font-size:11px;color:var(--muted)"><td colspan="2" style="color:var(--muted);font-size:10px">* Employer NI ('+fmt(niEmployer,p)+') excluded from total deductions — cost to employer, not employee</td></tr>';
+  html += '<tr class="net-row"><td>🏠 Net Take-Home Pay</td><td>'+fmt(netIncome,p)+'</td></tr>';
+
+  html += '</tbody></table>';
+
+  // Marginal rate
+  html += '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+  html += '<span style="font-size:11px;color:var(--muted)">Marginal rate on next £1 earned:</span>';
+  html += '<span class="tax-rate-badge" style="background:#fee2e2;color:#dc2626">'+marginalRate+'%</span>';
+  html += '</div>';
+
+  // Disclaimer
+  html += '<div class="disclaimer">📋 <strong>Estimates only.</strong> This calculator uses '+currentYear+' HMRC rates. It does not account for all personal circumstances. Always seek professional advice before making financial decisions.</div>';
+
+  document.getElementById('results-body').innerHTML = html;
+}
+
+function getMarginalRate(nonSavingsIncome, R, scotland) {
+  if (scotland) {
+    if (nonSavingsIncome < 14876) return 19;
+    if (nonSavingsIncome < 26561) return 20;
+    if (nonSavingsIncome < 43662) return 21;
+    if (nonSavingsIncome < 75000) return 42;
+    if (nonSavingsIncome < 100000) return 45;
+    if (nonSavingsIncome < 125140) return 63; // PA taper + 45%
+    return 48;
+  } else {
+    if (nonSavingsIncome < R.higherThreshold) return 20;
+    if (nonSavingsIncome < R.paTaper) return 40;
+    if (nonSavingsIncome < R.additionalThreshold) return 60; // PA taper + 40%
+    return 45;
+  }
+}
+
+function resetCalc() {
+  ['i-salary','i-bik','i-se','i-rental','i-div','i-savings','i-other','d-pension','d-giftaid'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('d-student').value = 'none';
+  document.getElementById('d-taxcode').value = '';
+  document.getElementById('d-scotland').checked = false;
+  document.getElementById('d-married').checked = false;
+  document.getElementById('d-blind').checked = false;
+  document.getElementById('d-employer-ni').checked = true;
+  recalc();
+}
+
+// Auto-highlight input when value entered
+document.addEventListener('input', function(e){
+  if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+    e.target.classList.toggle('has-value', !!e.target.value);
+  }
+});
+</script>
+</html>
