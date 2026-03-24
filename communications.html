@@ -1406,6 +1406,8 @@ async function logSend(idx, delivery){
     const r=await fetch(SB+'/rest/v1/client_messages?select=*&order=sent_at.desc&limit=500',{headers:H});
     LOGS=await r.json();
     renderStats();renderClients();
+    if(window.caAudit)caAudit.log('send','Sent '+(delivery==='whatsapp'?'WhatsApp':'Email')+' to ['+client.name+']','Comms');
+    if(window.caAudit)caAudit.log('send','Sent '+(delivery==='whatsapp'?'WhatsApp':'Email')+' to ['+client.name+']','Comms');
     toast(delivery==='whatsapp'?'WhatsApp opened & logged ✓':'Email opened & logged ✓');
   }catch(e){toast('Could not log: '+e.message,'err');}
 }

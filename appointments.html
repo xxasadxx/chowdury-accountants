@@ -1007,6 +1007,7 @@ async function saveAppt() {
       appointment_id:editId||null,action,detail,done_by:payload.booked_by||staff
     })});
 
+    if(window.caAudit)caAudit.log('book',(editId?'Updated':'Booked')+' appointment for ['+client+'] on '+date,'Appointments');
     closeBookModal();
     await loadAll();
     toast((editId?'Appointment updated':'Appointment booked')+' ✓');
@@ -1023,6 +1024,7 @@ async function deleteAppt() {
     await fetch(SB+'/rest/v1/appt_activity',{method:'POST',headers:H,body:JSON.stringify({
       action:'Deleted',detail:`Deleted: ${a?.client_name} on ${a?.appt_date}`,done_by:'—'
     })});
+    if(window.caAudit)caAudit.log('delete','Deleted appointment','Appointments');
     closeBookModal();await loadAll();toast('Appointment deleted');
   }catch(e){toast('Delete failed','err');}
 }
