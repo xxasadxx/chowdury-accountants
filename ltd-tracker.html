@@ -1804,8 +1804,6 @@ async function syncFromID(){
   }
   btn.disabled=false;btn.textContent='📋 Sync ID';
 }
-  btn.disabled=false;btn.textContent='📋 Sync ID';
-}
 
 function chDateToDisplay(s){if(!s)return'';const d=new Date(s);return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
 function parseDate(s){if(!s)return null;const p=s.split('/');return p.length===3?new Date(p[2],p[1]-1,p[0]):null;}
