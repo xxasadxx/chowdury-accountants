@@ -858,6 +858,30 @@ function dateClass(dStr){
   const d=daysUntil(dStr);if(d===null)return'filed';
   if(d<0)return'urgent';if(d<=30)return'urgent';if(d<=60)return'due-soon';return '';
 }
+function relDate(dStr){
+  if(!dStr||dStr==='—')return '<span style="color:var(--muted)">—</span>';
+  const diff=daysUntil(dStr);
+  if(diff===null)return`<span style="font-size:11px;color:var(--muted)">${dStr}</span>`;
+  let label,bg,color='#fff';
+  if(diff===0)      {label='Today';     bg='#dc2626';}
+  else if(diff===1) {label='Tomorrow';  bg='#d97706';}
+  else if(diff===-1){label='Yesterday'; bg='#7c3aed';}
+  else if(diff>0){
+    if(diff<=7)       {label=`in ${diff} days`;                             bg='#dc2626';}
+    else if(diff<=14) {label=`in ${diff} days`;                             bg='#d97706';}
+    else if(diff<=31) {label=`in ${Math.round(diff/7)} wks`;               bg='#d97706';}
+    else if(diff<=60) {label='in a month';                                  bg='#059669';}
+    else if(diff<365) {const m=Math.round(diff/30);label=`in ${m} month${m>1?'s':''}`;bg='#059669';}
+    else              {const y=Math.round(diff/365);label=`in ${y} year${y>1?'s':''}`;bg='#059669';}
+  } else {
+    const ago=-diff;
+    if(ago<=7)        {label=`${ago} day${ago>1?'s':''} ago`;              bg='#6b7280';}
+    else if(ago<=31)  {const w=Math.round(ago/7);label=`${w} wk${w>1?'s':''} ago`;bg='#6b7280';}
+    else if(ago<365)  {const m=Math.round(ago/30);label=`${m} mo${m>1?'s':''} ago`;bg='#374151';}
+    else              {const y=Math.round(ago/365);label=`${y} yr${y>1?'s':''} ago`;bg='#374151';}
+  }
+  return`<span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:${bg};color:${color};white-space:nowrap">${label}</span><br><span style="font-size:10px;color:var(--muted)">${dStr}</span>`;
+}
 function sectorBadge(s){
   const m={hospitality:'badge-orange',property:'badge-teal',retail:'badge-indigo',healthcare:'badge-blue',beauty:'badge-pink',construction:'badge-amber',transport:'badge-purple',education:'badge-green',travel:'badge-grey',other:'badge-grey'};
   const l={hospitality:'🍛 Hospitality',property:'🏠 Property',retail:'🛒 Retail',healthcare:'🏥 Healthcare',beauty:'💇 Beauty',construction:'🔨 Construction',transport:'🚚 Transport',education:'📚 Education',travel:'✈️ Travel',other:'📦 Other'};
@@ -1018,9 +1042,9 @@ function renderClientsTable(){
       <td style="font-family:var(--mono);font-size:11px;color:var(--blue)">${c.comp_no?`<a href="https://find-and-update.company-information.service.gov.uk/company/${c.comp_no}" onclick="event.stopPropagation()" style="color:var(--blue)">${esc(c.comp_no)}</a>`:'—'}</td>
       <td>${sectorBadge(c.sector)}</td>
       <td>${statusBadge(c.status)}</td>
-      <td class="${dc}">${esc(c.accounts_due||'—')}</td>
-      <td class="${cc}">${esc(c.conf_due||'—')}</td>
-      <td class="${vc}">${esc(c.vat_due||'—')}</td>
+      <td class="${dc}">${relDate(c.accounts_due)}</td>
+      <td class="${cc}">${relDate(c.conf_due)}</td>
+      <td class="${vc}">${relDate(c.vat_due)}</td>
       <td>${alertBadge(c.alerts)}</td>
     </tr>`;
   }).join('');
