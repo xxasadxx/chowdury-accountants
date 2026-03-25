@@ -2,6 +2,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+// Hide nav immediately if loaded inside iframe
+if(window.self!==window.top){
+  var _iframeStyle=document.createElement('style');
+  _iframeStyle.id='iframe-hide-nav';
+  _iframeStyle.textContent='#ca-nav,div#ca-nav{display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important}body{padding-top:0!important;margin-top:0!important}';
+  document.addEventListener('DOMContentLoaded',function(){
+    document.head.appendChild(_iframeStyle);
+    // Also directly hide the element
+    var n=document.getElementById('ca-nav');
+    if(n){n.style.cssText='display:none!important';}
+    // Watch for any re-shows
+    setInterval(function(){
+      var n=document.getElementById('ca-nav');
+      if(n&&n.style.display!=='none')n.style.display='none';
+    },100);
+  });
+  document.head.appendChild(_iframeStyle);
+}
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
