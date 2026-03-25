@@ -469,12 +469,13 @@ async function loadAll(){
   const [invs,ltdClients,saClients]=await Promise.all([
     sb('invoices?select=*&order=created_at.desc&limit=500'),
     sb('ltd_clients?select=id,company_name,comp_no&status=eq.active&limit=1000'),
-    sb('sa_clients?select=id,forename,surname,name&status=eq.active&limit=1000')
+    sb('sa_clients?select=id,forename,surname,name&limit=1000')
   ]);
   ALL_INVOICES=Array.isArray(invs)?invs:[];
   const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.id,name:c.company_name,ref:c.comp_no,type:'Ltd'}));
   const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:c.name||(((c.forename||'')+' '+(c.surname||'')).trim()),ref:'SA',type:'SA'})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  console.log('Clients loaded:',ALL_CLIENTS.length,'Ltd:',ltd.length,'SA:',sa.length);
 
   // Auto-flag overdue
   const today=new Date();today.setHours(0,0,0,0);
