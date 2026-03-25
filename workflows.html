@@ -179,6 +179,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <a href="calendar.html">🗓 Calendar</a>
     <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
     <a href="tax-calculator.html">🧮 Tax Calc</a>
+    <a href="invoice.html">🧾 Invoices</a>
     <a href="audit.html" id="nav-audit" style="display:none">🔍 Audit</a>
     <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');try{if(window.caAudit)caAudit.log('logout','Signed out','nav');}catch(e){}
     await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
