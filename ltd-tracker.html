@@ -1789,7 +1789,7 @@ async function syncFromID(){
   const ss=document.getElementById('sync-status');
   try{
     ss.textContent='⏳ Running full InformDirect sync (new companies, updates, inactivations)...';
-    const r=await fetch('/.netlify/functions/id-sync-scheduled',{method:'POST'});
+    const r=await fetch('/.netlify/functions/id-sync-manual',{method:'POST'});
     const text=await r.text();
     let d;try{d=JSON.parse(text);}catch(e){d={};}
     if(d.error){
