@@ -211,6 +211,13 @@ textarea{resize:vertical;min-height:50px}
   .paper{box-shadow:none;padding:15mm 18mm;max-width:100%}
 }
 </style>
+<script>
+if(new URLSearchParams(window.location.search).get('iframe')==='1'){
+  var s=document.createElement('style');
+  s.textContent='#ca-nav{display:none!important}body{padding-top:0!important;margin-top:0!important}';
+  document.head.appendChild(s);
+}
+</script>
 </head>
 <body>
 <style id="ca-nav-style">
@@ -227,7 +234,6 @@ textarea{resize:vertical;min-height:50px}
 #ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
 #ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
 </style>
-<script>if(window.self!==window.top){document.write('<style>#ca-nav{display:none!important}body{padding-top:0!important;margin-top:0!important}</style>');}</script>
 <div id="ca-nav">
   <div class="ca-band"></div>
   <div class="ca-top">
