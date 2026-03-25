@@ -1,8 +1,11 @@
 // InformDirect Nightly Sync — runs at 5:30am daily
-// Fetches companies from InformDirect, updates director names and CS dates in Supabase
+// Fetches companies from InformDirect
+// 1. Updates existing records — director names and CS dates
+// 2. AUTO-CREATES new companies not yet in the portal
 
 const ID_KEY    = 'Hufg9zYb8XwNQ8ZJ6hRcEKpGC9y3P8leCtCg9SnWMOXSndaCB1ZgXVE6eIN9b4va';
 const ID_BASE   = 'https://api.informdirect.co.uk';
+const CH_KEY    = '4ec759f4-152c-4680-9f8e-7ab1312aea1a';
 const SB_URL    = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 
@@ -21,7 +24,7 @@ function httpRequest(options, body) {
   });
 }
 
-function sbRequest(method, path, body) {
+function sbRequest(method, path, body, prefer) {
   return new Promise((resolve, reject) => {
     const bodyStr = body ? JSON.stringify(body) : '';
     const options = {
@@ -32,7 +35,7 @@ function sbRequest(method, path, body) {
         'apikey': SB_KEY,
         'Authorization': 'Bearer ' + SB_KEY,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates',
+        'Prefer': prefer || 'resolution=merge-duplicates',
         ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {})
       }
     };
@@ -47,6 +50,24 @@ function sbRequest(method, path, body) {
   });
 }
 
+function fetchCH(compNo) {
+  return new Promise((resolve) => {
+    const auth = Buffer.from(CH_KEY + ':').toString('base64');
+    const options = {
+      hostname: 'api.company-information.service.gov.uk',
+      path: '/company/' + encodeURIComponent(compNo),
+      headers: { 'Authorization': 'Basic ' + auth }
+    };
+    const req = https.get(options, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => { try { resolve(JSON.parse(body)); } catch(e) { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.end();
+  });
+}
+
 function toDisplayDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -54,21 +75,24 @@ function toDisplayDate(dateStr) {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
 }
 
+function chDateToDisplay(dateStr) {
+  if (!dateStr) return '';
+  const [y, m, d] = dateStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+
 exports.handler = async () => {
   console.log('ID sync started at', new Date().toISOString());
 
   try {
     // 1. Authenticate with InformDirect
-    const authUrl = new URL(ID_BASE + '/authenticate');
     const authBody = JSON.stringify({ apiKey: ID_KEY });
+    const authUrl = new URL(ID_BASE + '/authenticate');
     const authResp = await httpRequest({
       hostname: authUrl.hostname,
       path: authUrl.pathname,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(authBody)
-      }
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(authBody) }
     }, authBody);
 
     const authData = JSON.parse(authResp.body);
@@ -90,68 +114,102 @@ exports.handler = async () => {
     console.log(`Fetched ${companies.length} companies from InformDirect`);
 
     // 3. Fetch existing ltd_clients from Supabase
-    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,director_name,conf_due&status=eq.active&limit=1000');
+    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,company_name,director_name,conf_due,status&limit=2000');
     const clients = JSON.parse(clientsResp.body);
-    console.log(`Loaded ${clients.length} active clients from Supabase`);
+    console.log(`Loaded ${clients.length} clients from Supabase`);
 
-    // Build lookup map by company number
     const clientMap = {};
     clients.forEach(c => {
       if (c.comp_no) clientMap[c.comp_no.toUpperCase().replace(/\s/g, '')] = c;
     });
 
-    // 4. Match and build updates
+    // 4. Process each company
     const updates = [];
-    let matched = 0, updated = 0;
+    const newCompanies = [];
+    let matched = 0, updated = 0, created = 0;
 
     for (const c of companies) {
       const compNo = (c.companyNumber || c.CompanyNumber || c.company_number || '').replace(/\s/g, '').toUpperCase();
       if (!compNo) continue;
 
+      // Skip formations not yet registered at CH
+      const status = (c.status || c.Status || c.companyStatus || '').toLowerCase();
+      if (status === 'formation' || status === 'pending' || status === 'awaiting') continue;
+
       const local = clientMap[compNo];
-      if (!local) continue;
-      matched++;
 
-      const patch = { id: local.id };
-      let changed = false;
-
-      // Director name — only update if missing
+      // Director name
       const officers = c.officers || c.Officers || c.directors || [];
       const director = Array.isArray(officers) && officers.find(o =>
         (o.role || o.Role || o.officerRole || '').toLowerCase().includes('director')
       );
-      if (director && !local.director_name) {
-        const name = [
-          (director.forename || director.firstName || director.Forename || ''),
-          (director.surname || director.lastName || director.Surname || '')
-        ].join(' ').trim() || director.name || director.Name || '';
-        if (name) { patch.director_name = name; changed = true; }
-      }
+      const directorName = director ? (
+        [(director.forename || director.firstName || director.Forename || ''),
+         (director.surname || director.lastName || director.Surname || '')
+        ].join(' ').trim() || director.name || director.Name || ''
+      ) : '';
 
-      // CS due date — update if InformDirect has it
-      const csDate = c.nextConfirmationStatementDate || c.confirmationStatementDueDate || c.NextCSDate || '';
-      if (csDate) {
-        const display = toDisplayDate(csDate);
-        if (display && display !== local.conf_due) {
-          patch.conf_due = display;
-          changed = true;
-        }
-      }
+      // CS due date
+      const csDateRaw = c.nextConfirmationStatementDate || c.confirmationStatementDueDate || c.NextCSDate || '';
+      const csDate = csDateRaw ? toDisplayDate(csDateRaw) : '';
 
-      if (changed) { updates.push(patch); updated++; }
+      if (local) {
+        // UPDATE existing record
+        matched++;
+        const patch = { id: local.id };
+        let changed = false;
+        if (directorName && !local.director_name) { patch.director_name = directorName; changed = true; }
+        if (csDate && csDate !== local.conf_due) { patch.conf_due = csDate; changed = true; }
+        if (changed) { updates.push(patch); updated++; }
+
+      } else {
+        // NEW company — get full details from Companies House
+        console.log(`New company: ${compNo}`);
+        const chData = await fetchCH(compNo);
+        await new Promise(r => setTimeout(r, 150));
+
+        // Only add if CH confirms it's active
+        if (!chData || chData.company_status === 'dissolved') continue;
+
+        const companyName = c.companyName || c.CompanyName || c.name || chData.company_name || compNo;
+        const accDue = chData.accounts && chData.accounts.next_due ? chDateToDisplay(chData.accounts.next_due) : '';
+        const accRef = chData.accounts && chData.accounts.next_made_up_to ? chDateToDisplay(chData.accounts.next_made_up_to) : '';
+        const confDue = chData.confirmation_statement && chData.confirmation_statement.next_due
+          ? chDateToDisplay(chData.confirmation_statement.next_due) : (csDate || '');
+        const incDate = chData.date_of_creation ? chDateToDisplay(chData.date_of_creation) : '';
+
+        newCompanies.push({
+          company_name: companyName,
+          comp_no: compNo,
+          status: 'active',
+          director_name: directorName || '',
+          accounts_due: accDue,
+          accounts_ref_date: accRef,
+          conf_due: confDue,
+          inc_date: incDate,
+          sector: 'Hospitality',
+          source: 'auto-informdirect',
+          created_at: new Date().toISOString()
+        });
+        created++;
+      }
     }
 
-    console.log(`Matched: ${matched}, Updates needed: ${updated}`);
+    console.log(`Matched: ${matched}, Updates: ${updated}, New: ${created}`);
 
-    // 5. Apply updates in batches
+    // 5. Apply updates
     for (let i = 0; i < updates.length; i += 50) {
-      const batch = updates.slice(i, i + 50);
-      await sbRequest('POST', 'ltd_clients', batch);
+      await sbRequest('POST', 'ltd_clients', updates.slice(i, i + 50));
     }
 
-    const summary = `ID sync complete: ${companies.length} from ID, ${matched} matched, ${updated} updated`;
+    // 6. Insert new companies
+    for (let i = 0; i < newCompanies.length; i += 50) {
+      await sbRequest('POST', 'ltd_clients', newCompanies.slice(i, i + 50), 'return=minimal');
+    }
+
+    const summary = `ID sync complete: ${companies.length} from InformDirect, ${matched} matched, ${updated} updated, ${created} NEW auto-added`;
     console.log(summary);
-    return { statusCode: 200, body: JSON.stringify({ success: true, summary }) };
+    return { statusCode: 200, body: JSON.stringify({ success: true, summary, new_companies: newCompanies.map(c => c.company_name) }) };
 
   } catch(e) {
     console.error('ID sync failed:', e.message);
