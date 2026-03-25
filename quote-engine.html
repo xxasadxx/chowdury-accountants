@@ -2,26 +2,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-// Hide nav immediately if loaded inside iframe
-if(window.self!==window.top){
-  var _iframeStyle=document.createElement('style');
-  _iframeStyle.id='iframe-hide-nav';
-  _iframeStyle.textContent='#ca-nav,div#ca-nav{display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important}body{padding-top:0!important;margin-top:0!important}';
-  document.addEventListener('DOMContentLoaded',function(){
-    document.head.appendChild(_iframeStyle);
-    // Also directly hide the element
-    var n=document.getElementById('ca-nav');
-    if(n){n.style.cssText='display:none!important';}
-    // Watch for any re-shows
-    setInterval(function(){
-      var n=document.getElementById('ca-nav');
-      if(n&&n.style.display!=='none')n.style.display='none';
-    },100);
-  });
-  document.head.appendChild(_iframeStyle);
-}
-</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
@@ -135,7 +115,7 @@ html{scrollbar-gutter:stable}
     --dc-bg:        #F9F9F9;
     --dc-color:     #252525;
   }
-body{padding-top:16px;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px}
+body{padding-top:108px !important;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:13px}
 .layout{display:grid;grid-template-columns:430px 1fr;min-height:calc(100vh - 43px)}
 .builder{padding:16px;overflow-y:auto}
 .preview{background:#dde3ef;padding:24px;overflow-y:auto}
@@ -231,15 +211,74 @@ textarea{resize:vertical;min-height:50px}
   .paper{box-shadow:none;padding:15mm 18mm;max-width:100%}
 }
 </style>
-<script>
-if(new URLSearchParams(window.location.search).get('iframe')==='1'){
-  var s=document.createElement('style');
-  s.textContent='#ca-nav{display:none!important}body{padding-top:0!important;margin-top:0!important}';
-  document.head.appendChild(s);
-}
-</script>
 </head>
 <body>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div class="ca-date" id="ca-hdr-date"></div><div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Mulish',sans-serif;font-weight:600;letter-spacing:.03em"></div></div>
+  </div>
+  <div class="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html" id="nav-revenue">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Cost Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="appointments.html">📅 Appointments</a>
+    <a href="workflows.html">⚙️ Workflows</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">🗓 Calendar</a>
+    <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
+    <a href="audit.html" id="nav-audit" style="display:none">🔍 Audit</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');try{if(window.caAudit)caAudit.log('logout','Signed out','nav');}catch(e){}
+    await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
+  </div>
+</div>
+<script>
+
+// ── AUDIT LOGGER ─────────────────────────────────────────────────────────
+window.caAudit = (function(){
+  var SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  function log(action, detail, page){
+    var staff=localStorage.getItem('ca_name')||'Unknown';
+    var pg=page||window.location.pathname.split('/').pop().replace('.html','');
+    fetch(SB+'/rest/v1/audit_log',{
+      method:'POST',
+      headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({staff:staff,action:action,detail:detail,page:pg,created_at:new Date().toISOString()})
+    }).catch(function(){});
+  }
+  return {log:log};
+})();
+
+(function(){var d=new Date();var days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];var months=["January","February","March","April","May","June","July","August","September","October","November","December"];var el=document.getElementById("ca-hdr-date");if(el)el.textContent=days[d.getDay()]+", "+d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();})();
+(function(){var links=document.querySelector('#ca-nav .ca-links');if(!links)return;links.scrollLeft=0;var active=links.querySelector('a.active');if(active){var off=active.offsetLeft-32;links.scrollLeft=Math.max(0,off);}})();
+</script>
+
+
+
+
+<script>if(localStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
 
 <div class="layout">
 <!-- ═══ BUILDER ═══ -->
