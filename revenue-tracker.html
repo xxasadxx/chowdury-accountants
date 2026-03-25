@@ -46,7 +46,7 @@
 })();
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Chowdury Accountants · Revenue Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -302,6 +302,20 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
 /* GC History tab styles */
 .gc-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
 @media(max-width:700px){.gc-stat-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){
+  body{padding-top:90px!important}
+  .tab-bar{overflow-x:auto;flex-wrap:nowrap;padding:0 8px}
+  .tab-btn{white-space:nowrap;font-size:12px;padding:9px 12px}
+  .panel{padding:14px 12px}
+  .kpi-grid,.stat-grid{grid-template-columns:repeat(2,1fr)!important}
+  .kpi-strip{flex-wrap:wrap;gap:8px}
+  .kpi{min-width:calc(50% - 8px);flex:none}
+  .toolbar,.srch-row{flex-wrap:wrap;gap:8px}
+  .srch,.srch-select{width:100%!important;min-width:unset!important}
+  .split{flex-direction:column}
+  .split>div{width:100%!important}
+  #ca-nav .ca-top{padding:10px 14px}
+}
 .gc-stat{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
 .gc-stat-label{font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;font-weight:700;margin-bottom:6px;}
 .gc-stat-value{font-size:1.55rem;font-weight:800;color:var(--text);}
@@ -397,6 +411,7 @@ label{font-size:0.67rem;font-weight:700;color:var(--text2);text-transform:upperc
     <a href="sa-tracker.html">📋 SA</a>
     <a href="ch-tracker.html">⚖️ CH Cost Tracker</a>
     <a href="staff-management.html">👥 Staff</a>
+    <a href="jobs.html">🗂 Jobs</a>
     <a href="appointments.html">📅 Appointments</a>
     <a href="workflows.html">⚙️ Workflows</a>
     <a href="onboarding.html">🆕 Onboarding</a>

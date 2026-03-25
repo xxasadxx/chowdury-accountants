@@ -46,7 +46,7 @@
 })();
 </script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=1280">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ltd Co Tracker — The Chowdury Accountants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -163,6 +163,22 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
 .trend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:16px}
 .trend-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
 @media(max-width:600px){.fg3{grid-template-columns:1fr 1fr}.fg4{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){
+  body{padding-top:90px!important}
+  .kpi-row{flex-wrap:wrap;gap:8px}
+  .kpi{min-width:calc(50% - 8px);flex:none}
+  .toolbar{flex-wrap:wrap;gap:8px;padding:10px 12px}
+  .toolbar input,.toolbar select{width:100%;min-width:unset}
+  .page-header{padding:14px 16px}
+  .page-tabs{padding:0 8px;overflow-x:auto;flex-wrap:nowrap}
+  .page-tab{padding:10px 12px;font-size:12px;white-space:nowrap}
+  .table-wrap{padding:0 8px 20px}
+  .modal{max-width:100vw!important;width:100vw!important;border-radius:10px 10px 0 0!important;position:fixed!important;bottom:0!important;top:auto!important;margin:0!important}
+  .modal-overlay{align-items:flex-end!important}
+  .modal-tabs{overflow-x:auto;flex-wrap:nowrap}
+  .modal-tab{white-space:nowrap;font-size:11px;padding:10px 10px}
+  #ca-nav .ca-top{padding:10px 14px}
+}
 
 /* MODAL */
 .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.55);z-index:2000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
@@ -217,6 +233,7 @@ tr.data-row:hover{background:#eff6ff;cursor:pointer}
     <a href="sa-tracker.html">📋 SA</a>
     <a href="ch-tracker.html">⚖️ CH Cost Tracker</a>
     <a href="staff-management.html">👥 Staff</a>
+    <a href="jobs.html">🗂 Jobs</a>
     <a href="appointments.html">📅 Appointments</a>
     <a href="workflows.html">⚙️ Workflows</a>
     <a href="onboarding.html">🆕 Onboarding</a>

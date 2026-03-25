@@ -18,3 +18,7 @@
 # InformDirect director & CS date sync — 5:30am daily
 [functions."id-sync-scheduled"]
   schedule = "30 5 * * *"
+
+# Nightly database backup — 2:00am daily
+[functions."db-backup-scheduled"]
+  schedule = "0 2 * * *"
