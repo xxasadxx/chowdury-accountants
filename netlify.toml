@@ -7,9 +7,9 @@
 [context.production]
   environment = { NODE_VERSION = "18" }
 
-# GoCardless live data sync — 5:00am daily
+# GoCardless live data sync — 5:00am and 3:00pm daily
 [functions."gc-sync-scheduled"]
-  schedule = "0 5 * * *"
+  schedule = "0 5,15 * * *"
 
 # Companies House deadlines sync — 5:15am daily (moved from midnight)
 [functions."ch-sync-scheduled"]
