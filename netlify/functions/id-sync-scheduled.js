@@ -1,15 +1,27 @@
 // InformDirect Nightly Sync — runs at 5:30am daily
-// Fetches companies from InformDirect
 // 1. Updates existing records — director names and CS dates
 // 2. AUTO-CREATES new companies not yet in the portal
+// 3. AUTO-INACTIVATES companies that are struck off / dissolved
 
-const ID_KEY    = 'Hufg9zYb8XwNQ8ZJ6hRcEKpGC9y3P8leCtCg9SnWMOXSndaCB1ZgXVE6eIN9b4va';
-const ID_BASE   = 'https://api.informdirect.co.uk';
-const CH_KEY    = '4ec759f4-152c-4680-9f8e-7ab1312aea1a';
-const SB_URL    = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
-const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const ID_KEY = 'Hufg9zYb8XwNQ8ZJ6hRcEKpGC9y3P8leCtCg9SnWMOXSndaCB1ZgXVE6eIN9b4va';
+const ID_BASE = 'https://api.informdirect.co.uk';
+const CH_KEY = '4ec759f4-152c-4680-9f8e-7ab1312aea1a';
+const SB_URL = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 
 const https = require('https');
+
+// Statuses from InformDirect/CH that mean company should be inactive
+const INACTIVE_STATUSES = [
+  'dissolved', 'struck off', 'strike off', 'proposal to strike',
+  'proposal to strike off', 'liquidation', 'receivership',
+  'administration', 'voluntary arrangement', 'converted-closed', 'closed'
+];
+
+function isInactiveStatus(status) {
+  const s = (status || '').toLowerCase();
+  return INACTIVE_STATUSES.some(x => s.includes(x));
+}
 
 function httpRequest(options, body) {
   return new Promise((resolve, reject) => {
@@ -126,17 +138,32 @@ exports.handler = async () => {
     // 4. Process each company
     const updates = [];
     const newCompanies = [];
-    let matched = 0, updated = 0, created = 0;
+    const inactivated = [];
+    let matched = 0, updated = 0, created = 0, deactivated = 0;
 
     for (const c of companies) {
       const compNo = (c.companyNumber || c.CompanyNumber || c.company_number || '').replace(/\s/g, '').toUpperCase();
       if (!compNo) continue;
 
+      const idStatus = (c.status || c.Status || c.companyStatus || '').toLowerCase();
+
       // Skip formations not yet registered at CH
-      const status = (c.status || c.Status || c.companyStatus || '').toLowerCase();
-      if (status === 'formation' || status === 'pending' || status === 'awaiting') continue;
+      if (idStatus === 'formation' || idStatus === 'pending' || idStatus === 'awaiting') continue;
 
       const local = clientMap[compNo];
+
+      // ── AUTO-INACTIVATE: struck off / dissolved / proposal to strike off ──
+      if (local && local.status === 'active' && isInactiveStatus(idStatus)) {
+        console.log(`⚠️ Auto-inactivating: ${local.company_name} (${compNo}) — status: ${idStatus}`);
+        updates.push({
+          id: local.id,
+          status: 'left',
+          notes: `Auto-inactivated by sync: ${idStatus} (${new Date().toISOString().slice(0,10)})`
+        });
+        inactivated.push(local.company_name || compNo);
+        deactivated++;
+        continue;
+      }
 
       // Director name
       const officers = c.officers || c.Officers || c.directors || [];
@@ -169,7 +196,7 @@ exports.handler = async () => {
         await new Promise(r => setTimeout(r, 150));
 
         // Only add if CH confirms it's active
-        if (!chData || chData.company_status === 'dissolved') continue;
+        if (!chData || isInactiveStatus(chData.company_status || '')) continue;
 
         const companyName = c.companyName || c.CompanyName || c.name || chData.company_name || compNo;
         const accDue = chData.accounts && chData.accounts.next_due ? chDateToDisplay(chData.accounts.next_due) : '';
@@ -195,9 +222,10 @@ exports.handler = async () => {
       }
     }
 
-    console.log(`Matched: ${matched}, Updates: ${updated}, New: ${created}`);
+    console.log(`Matched: ${matched}, Updated: ${updated}, New: ${created}, Deactivated: ${deactivated}`);
+    if (inactivated.length) console.log('Inactivated:', inactivated.join(', '));
 
-    // 5. Apply updates
+    // 5. Apply all updates (includes inactivations)
     for (let i = 0; i < updates.length; i += 50) {
       await sbRequest('POST', 'ltd_clients', updates.slice(i, i + 50));
     }
@@ -207,9 +235,17 @@ exports.handler = async () => {
       await sbRequest('POST', 'ltd_clients', newCompanies.slice(i, i + 50), 'return=minimal');
     }
 
-    const summary = `ID sync complete: ${companies.length} from InformDirect, ${matched} matched, ${updated} updated, ${created} NEW auto-added`;
+    const summary = `ID sync complete: ${companies.length} from InformDirect | ${matched} matched | ${updated} updated | ${created} NEW added | ${deactivated} auto-inactivated`;
     console.log(summary);
-    return { statusCode: 200, body: JSON.stringify({ success: true, summary, new_companies: newCompanies.map(c => c.company_name) }) };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        success: true,
+        summary,
+        new_companies: newCompanies.map(c => c.company_name),
+        inactivated
+      })
+    };
 
   } catch(e) {
     console.error('ID sync failed:', e.message);
