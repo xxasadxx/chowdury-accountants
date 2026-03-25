@@ -222,6 +222,23 @@ exports.handler = async () => {
       }
     }
 
+    // AUTO-INACTIVATE: active portal clients no longer in InformDirect
+    const idCompNos = new Set(
+      companies
+        .map(c => (c.companyNumber || c.CompanyNumber || c.company_number || '').replace(/\s/g, '').toUpperCase())
+        .filter(Boolean)
+    );
+    const removedFromID = clients.filter(c =>
+      c.status === 'active' && c.comp_no &&
+      !idCompNos.has(c.comp_no.toUpperCase().replace(/\s/g, ''))
+    );
+    for (const c of removedFromID) {
+      console.log(`Removed from InformDirect: ${c.company_name} (${c.comp_no})`);
+      updates.push({ id: c.id, status: 'left', notes: `Auto-inactivated: removed from InformDirect (${new Date().toISOString().slice(0,10)})` });
+      inactivated.push(c.company_name || c.comp_no);
+      deactivated++;
+    }
+
     console.log(`Matched: ${matched}, Updated: ${updated}, New: ${created}, Deactivated: ${deactivated}`);
     if (inactivated.length) console.log('Inactivated:', inactivated.join(', '));
 
