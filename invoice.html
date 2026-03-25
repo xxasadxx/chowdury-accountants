@@ -466,12 +466,15 @@ function sbDelete(path){return fetch(SB_URL+'/rest/v1/'+path,{method:'DELETE',he
 
 // ── Load data ──────────────────────────────────────────────
 async function loadAll(){
-  const [invs,clients]=await Promise.all([
+  const [invs,ltdClients,saClients]=await Promise.all([
     sb('invoices?select=*&order=created_at.desc&limit=500'),
-    sb('ltd_clients?select=id,company_name,comp_no&status=eq.active&limit=1000')
+    sb('ltd_clients?select=id,company_name,comp_no&status=eq.active&limit=1000'),
+    sb('sa_clients?select=id,client_name&status=eq.active&limit=1000')
   ]);
   ALL_INVOICES=Array.isArray(invs)?invs:[];
-  ALL_CLIENTS=Array.isArray(clients)?clients:[];
+  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.id,name:c.company_name,ref:c.comp_no,type:'Ltd'}));
+  const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:c.client_name,ref:'SA',type:'SA'}));
+  ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
 
   // Auto-flag overdue
   const today=new Date();today.setHours(0,0,0,0);
@@ -726,7 +729,7 @@ function buildInvoiceHTML(inv,items){
     </div></div>
     <div class="inv-bank">
       <strong>Payment Details</strong>
-      The Chowdury Accountants Ltd &nbsp;|&nbsp; Sort Code: [Your Sort Code] &nbsp;|&nbsp; Account: [Your Account No]<br>
+      The Chowdury Accountants Ltd &nbsp;|&nbsp; Lloyds Bank &nbsp;|&nbsp; Sort Code: 30-99-83 &nbsp;|&nbsp; Account No: 79374560<br>
       Please use <strong>${inv.invoice_no}</strong> as your payment reference.
       ${inv.notes?'<br><br>'+inv.notes:''}
     </div>
@@ -816,7 +819,7 @@ function renderPreview(){
 function searchClients(q){
   const dd=document.getElementById('client-dropdown');
   if(!q||q.length<2){dd.classList.remove('show');return;}
-  const matches=ALL_CLIENTS.filter(c=>(c.company_name||'').toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  const matches=ALL_CLIENTS.filter(c=>(c.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,8);
   if(!matches.length){dd.classList.remove('show');return;}
   dd.innerHTML=matches.map(c=>`<div class="client-opt" onclick="selectClient('${(c.company_name||'').replace(/'/g,"\\'")}','${c.comp_no||''}')">
     <strong>${c.company_name||''}</strong>
@@ -825,7 +828,7 @@ function searchClients(q){
   dd.classList.add('show');
 }
 
-function selectClient(name,compNo){
+function selectClient(name){
   document.getElementById('f-client-name').value=name;
   document.getElementById('client-dropdown').classList.remove('show');
   renderPreview();
