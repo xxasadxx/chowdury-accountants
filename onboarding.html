@@ -318,9 +318,7 @@ window.caAudit = (function(){
 </div>
 
 <!-- QUOTE VIEW -->
-<div id="view-quote" style="display:none">
-  <iframe src="quote-engine.html?iframe=1" id="quote-iframe" style="width:100%;height:calc(100vh - 200px);border:none" onload="(function(){try{var d=document.getElementById('quote-iframe').contentDocument||document.getElementById('quote-iframe').contentWindow.document;var n=d.getElementById('ca-nav');if(n)n.style.display='none';var b=d.body;if(b)b.style.paddingTop='0';}catch(e){}})()"></iframe>
-</div>
+<div id="view-quote" style="display:none"></div>
 
 <!-- LIST VIEW -->
 <div id="view-list" style="display:none;padding:0 24px 30px">
@@ -643,8 +641,9 @@ function setView(v){
   ['pipeline','aml','quote','list'].forEach(x=>document.getElementById('view-'+x).style.display=x===v?'block':'none');
   document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list'][i]===v));
   if(v==='quote'){
-    const ifr=document.getElementById('quote-iframe');
-    if(!ifr.src||ifr.src==='about:blank') ifr.src='quote-calculator.html';
+    window.open('quote-engine.html','_blank');
+    setView('pipeline');
+    return;
   }
   render();
 }
