@@ -822,11 +822,12 @@ function searchClients(q){
   if(!q||q.length<1){dd.classList.remove('show');return;}
   const matches=ALL_CLIENTS.filter(c=>(c.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,8);
   if(!matches.length){dd.classList.remove('show');return;}
-  dd.innerHTML=matches.map(c=>`<div class="client-opt" onclick="selectClient('${(c.company_name||'').replace(/'/g,"\\'")}','${c.comp_no||''}')">
-    <strong>${c.company_name||''}</strong>
-    <small>${c.comp_no||''}</small>
+  dd.innerHTML=matches.map(cl=>`<div class="client-opt" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee" onmousedown="event.preventDefault();selectClient('${cl.name.replace(/'/g,String.fromCharCode(39))}')">
+    <div style="font-weight:600;font-size:12px">${cl.name}</div>
+    <div style="font-size:10px;color:#888">${cl.type}${cl.ref?' · '+cl.ref:''}</div>
   </div>`).join('');
   dd.classList.add('show');
+}
 }
 
 function selectClient(name){
