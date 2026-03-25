@@ -2,9 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>if(window.self!==window.top){window._inIframe=true;}</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
+  if(window._inIframe)return;
   var _sb=supabase.createClient(
     'https://yhvhpfsoqtjwnukgyqap.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
