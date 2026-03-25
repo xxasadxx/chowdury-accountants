@@ -280,7 +280,8 @@ window.caAudit = (function(){
 
 
 
-<script>if(localStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
+<script>if(window.self===window.top&&localStorage.getItem('ca_auth')!=='true')window.location.href='login.html';</script>
+<script>if(window.self!==window.top){document.addEventListener('DOMContentLoaded',function(){var _ns=document.getElementById('ca-nav');if(_ns)_ns.style.display='none';});var _s=document.createElement('style');_s.textContent='body{padding-top:0!important}';document.head.appendChild(_s);}</script>
 
 <div class="layout">
 <!-- ═══ BUILDER ═══ -->

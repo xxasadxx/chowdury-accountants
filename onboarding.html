@@ -319,7 +319,7 @@ window.caAudit = (function(){
 
 <!-- QUOTE VIEW -->
 <div id="view-quote" style="display:none">
-  <iframe src="quote-engine.html" id="quote-iframe" style="width:100%;height:calc(100vh - 200px);border:none"></iframe>
+  <iframe src="" id="quote-iframe" style="width:100%;height:calc(100vh - 200px);border:none"></iframe>
 </div>
 
 <!-- LIST VIEW -->
@@ -644,7 +644,7 @@ function setView(v){
   document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list'][i]===v));
   if(v==='quote'){
     const ifr=document.getElementById('quote-iframe');
-    if(!ifr.src||ifr.src==='about:blank') ifr.src='quote-calculator.html';
+    if(!ifr.src||ifr.src==='about:blank') ifr.src='quote-engine.html';
   }
   render();
 }
