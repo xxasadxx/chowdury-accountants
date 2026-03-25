@@ -469,11 +469,11 @@ async function loadAll(){
   const [invs,ltdClients,saClients]=await Promise.all([
     sb('invoices?select=*&order=created_at.desc&limit=500'),
     sb('ltd_clients?select=id,company_name,comp_no&status=eq.active&limit=1000'),
-    sb('sa_clients?select=id,client_name&status=eq.active&limit=1000')
+    sb('sa_clients?select=id,forename,surname,name&status=eq.active&limit=1000')
   ]);
   ALL_INVOICES=Array.isArray(invs)?invs:[];
   const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.id,name:c.company_name,ref:c.comp_no,type:'Ltd'}));
-  const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:c.client_name,ref:'SA',type:'SA'}));
+  const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:c.name||(((c.forename||'')+' '+(c.surname||'')).trim()),ref:'SA',type:'SA'})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
 
   // Auto-flag overdue
@@ -818,7 +818,7 @@ function renderPreview(){
 // ── Client search ─────────────────────────────────────────
 function searchClients(q){
   const dd=document.getElementById('client-dropdown');
-  if(!q||q.length<2){dd.classList.remove('show');return;}
+  if(!q||q.length<1){dd.classList.remove('show');return;}
   const matches=ALL_CLIENTS.filter(c=>(c.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,8);
   if(!matches.length){dd.classList.remove('show');return;}
   dd.innerHTML=matches.map(c=>`<div class="client-opt" onclick="selectClient('${(c.company_name||'').replace(/'/g,"\\'")}','${c.comp_no||''}')">
