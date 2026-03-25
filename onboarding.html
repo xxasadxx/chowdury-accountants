@@ -269,7 +269,7 @@ window.caAudit = (function(){
   <div class="page-tabs">
     <div class="page-tab active" onclick="setView('pipeline')">📋 Pipeline</div>
     <div class="page-tab" onclick="setView('aml')">🔐 AML Register</div>
-    <div class="page-tab" onclick="window.open('quote-engine.html','_blank')">💡 Quote Calculator</div>
+    <div class="page-tab" onclick="setView('quote')">💡 Quote Calculator</div>
     <div class="page-tab" onclick="setView('list')">📃 List View</div>
   </div>
 </div>
@@ -321,7 +321,237 @@ window.caAudit = (function(){
 </div>
 
 <!-- QUOTE VIEW -->
-<div id="view-quote" style="display:none"></div>
+<div id="view-quote" style="display:none;padding:0">
+
+<style>
+/* ── Quote Calculator embedded styles ── */
+#view-quote .qlayout{display:grid;grid-template-columns:430px 1fr;min-height:calc(100vh - 120px)}
+#view-quote .qbuilder{padding:16px;overflow-y:auto;background:#FBFAE8}
+#view-quote .qpreview{background:#dde3ef;padding:24px;overflow-y:auto}
+#view-quote .qtoggle{display:flex;gap:6px;margin-bottom:12px}
+#view-quote .qtog{flex:1;padding:8px;border-radius:8px;border:2px solid #CECECE;cursor:pointer;font-size:11px;font-weight:700;text-align:center;background:#fff;transition:all .15s}
+#view-quote .qtog.on{border-color:#155FA0;background:#eff6ff;color:#155FA0}
+#view-quote .qcard{background:#FBFAE8;border:1px solid #DEDEDE;border-radius:10px;margin-bottom:12px}
+#view-quote .qcard-h{padding:11px 14px;border-bottom:1px solid #DEDEDE;display:flex;align-items:center;gap:8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#4A4A4A}
+#view-quote .qcard-b{padding:14px}
+#view-quote .qfg{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+#view-quote .qfg:last-child{margin-bottom:0}
+#view-quote .qfg label{font-size:10px;color:#7A7A7A;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+#view-quote .qfg input,#view-quote .qfg select,#view-quote .qfg textarea{padding:7px 9px;border:1px solid #CECECE;border-radius:6px;font-size:12px;background:#F8F8F8;color:#252525;outline:none;width:100%}
+#view-quote .qrow2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#view-quote .qsrow{display:grid;grid-template-columns:18px 1fr 90px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #DEDEDE}
+#view-quote .qsrow:last-child{border-bottom:none}
+#view-quote .qsrow input[type=checkbox]{width:14px;height:14px;accent-color:#155FA0;cursor:pointer}
+#view-quote .qsn{font-size:12px;font-weight:500}
+#view-quote .qsb{font-size:10px;color:#7A7A7A;margin-top:1px}
+#view-quote .qsf-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+#view-quote .qsf{padding:5px 7px;border:1px solid #CECECE;border-radius:5px;font-size:12px;text-align:right;background:#F8F8F8;width:90px}
+#view-quote .qsec-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#7A7A7A;padding:8px 0 3px}
+#view-quote .qtbox{background:#FBFAE8;border-radius:8px;padding:12px;margin-top:8px}
+#view-quote .qtr{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+#view-quote .qtr.big{font-weight:700;font-size:14px;padding-top:8px;margin-top:4px;border-top:1px solid #CECECE}
+#view-quote .qmbox{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px;margin-top:8px;text-align:center;display:none}
+#view-quote .qmbox .qamt{font-size:20px;font-weight:700;color:#155FA0}
+#view-quote .qmbox .qlbl{font-size:10px;color:#155FA0;margin-top:2px}
+#view-quote .qbtn{width:100%;padding:10px;background:#155FA0;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
+#view-quote .qbtn:hover{background:#1d4ed8}
+#view-quote .qbtn2{width:100%;padding:9px;background:#fff;color:#252525;border:1px solid #CECECE;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin-top:6px}
+#view-quote .qpaper{background:#FBFAE8;max-width:700px;margin:0 auto;padding:44px 50px;box-shadow:0 4px 24px rgba(0,0,0,.13);font-family:'Times New Roman',serif;font-size:11pt;line-height:1.6;color:#111;min-height:900px}
+#view-quote .ph{display:flex;justify-content:space-between;align-items:center;padding-bottom:14px}
+#view-quote .ph-logo{height:44px;width:auto;object-fit:contain}
+#view-quote .ph-contact{text-align:left;font-size:8.5pt;color:#333;line-height:1.9;font-family:'Plus Jakarta Sans',Arial,sans-serif}
+#view-quote .ph-contact-row{display:flex;align-items:center;gap:6px}
+#view-quote .ph-icon{width:14px;height:14px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:7px;flex-shrink:0}
+#view-quote .ph-divider{display:flex;align-items:center;margin-bottom:18px}
+#view-quote .ph-divider-black{flex:0 0 55%;height:9px;background:#1a1a18;clip-path:polygon(0 0,100% 0,92% 100%,0 100%)}
+#view-quote .ph-divider-gold{flex:1;height:3px;background:linear-gradient(to right,#c8963c,#e8b84b)}
+#view-quote .ptable{width:100%;border-collapse:collapse;margin:14px 0;font-size:9.5pt}
+#view-quote .ptable th{background:#1a1a18;color:#fff;padding:7px 9px;text-align:left;font-size:9pt}
+#view-quote .ptable th.r,#view-quote .ptable td.r{text-align:right}
+#view-quote .ptable td{padding:6px 9px;border-bottom:1px solid #e5e5e5}
+#view-quote .ptable .sh td{background:#f0f0f0;font-weight:bold;font-size:9pt}
+#view-quote .ptable .tot td{font-weight:bold;border-top:2px solid #1a1a18;background:#fafafa}
+#view-quote .pblock{margin:14px 0;padding:11px 15px;border-left:3px solid #1a1a18;background:#fafafa;font-size:10pt}
+#view-quote .pul{margin-left:20px;margin-top:6px}
+#view-quote .pul li{margin-bottom:4px;font-size:10.5pt}
+#view-quote .psname{font-weight:bold;font-size:12pt;margin-top:26px}
+#view-quote .psrole{font-size:10pt;color:#444}
+#view-quote .pfoot-divider{display:flex;align-items:center;height:10px;margin-bottom:6px}
+#view-quote .pfoot-gold{flex:0 0 40%;height:3px;background:linear-gradient(to right,#c8963c,#e8b84b);align-self:center}
+#view-quote .pfoot-black{flex:1;height:10px;background:#1a1a18;clip-path:polygon(8% 0,100% 0,100% 100%,0 100%)}
+#view-quote .pfoot-text{text-align:center;font-size:8pt;color:#444;font-family:'Plus Jakarta Sans',Arial,sans-serif;margin-top:5px}
+</style>
+
+<div class="qlayout">
+<div class="qbuilder">
+  <div class="qtoggle">
+    <div class="qtog on" id="qt-std" onclick="qSetStyle('std',this)">📋 Standard Fee Schedule</div>
+    <div class="qtog" id="qt-bsp" onclick="qSetStyle('bsp',this)">✍️ Bespoke Project Quote</div>
+  </div>
+  <div class="qcard">
+    <div class="qcard-h">👤 Client Details</div>
+    <div class="qcard-b">
+      <div class="qfg"><label>Client Name</label><input id="qcn" placeholder="e.g. Dr Muhammad Sheraz" oninput="qUpdate()"></div>
+      <div class="qfg"><label>Address</label><textarea id="qca" placeholder="Address&#10;City&#10;Postcode" oninput="qUpdate()"></textarea></div>
+      <div class="qrow2">
+        <div class="qfg"><label>Date</label><input type="date" id="qcd" oninput="qUpdate()"></div>
+        <div class="qfg"><label>Reference</label><input id="qcr" placeholder="Quote/TCA/0001" oninput="qUpdate()"></div>
+      </div>
+      <div class="qfg"><label>Service Type</label>
+        <select id="qct" onchange="qUpdate()">
+          <option>Limited Company</option>
+          <option>Self Employed / Sole Trader</option>
+          <option>Partnership</option>
+          <option>Contractor</option>
+        </select>
+      </div>
+      <div class="qfg"><label>Custom Opening Paragraph (optional)</label><textarea id="qci" placeholder="Leave blank for default..." oninput="qUpdate()"></textarea></div>
+    </div>
+  </div>
+  <div id="qstd-section">
+    <div class="qcard"><div class="qcard-h">💷 Annual Services</div><div class="qcard-b" id="qsvc-wrap"></div></div>
+    <div class="qcard"><div class="qcard-h">🔧 One-Off Fees</div><div class="qcard-b" id="qoo-wrap"></div></div>
+    <div class="qcard"><div class="qcard-h">➕ Additional Services</div><div class="qcard-b" id="qadd-wrap"></div></div>
+    <div class="qcard"><div class="qcard-h">🚀 Onboarding Fee (optional)</div><div class="qcard-b">
+      <div class="qrow2">
+        <div class="qfg"><label>One-off Onboarding Fee (ex VAT) £</label><input type="number" id="qob-fee" value="0" min="0" oninput="qUpdate()"></div>
+        <div class="qfg"><label>Description</label><input id="qob-desc" value="One-off onboarding and set-up" oninput="qUpdate()"></div>
+      </div>
+    </div></div>
+  </div>
+  <div id="qbsp-section" style="display:none">
+    <div class="qcard"><div class="qcard-h">📝 Scope of Work</div><div class="qcard-b">
+      <div class="qfg"><label>Section Heading</label><input id="qbh" placeholder="e.g. Van Salvage Business:" oninput="qUpdate()"></div>
+      <div id="qwi-wrap"></div>
+      <button class="qbtn2" onclick="qAddWI()">+ Add work item</button>
+    </div></div>
+    <div class="qcard"><div class="qcard-h">💰 One-Off Project Fee</div><div class="qcard-b">
+      <div class="qrow2">
+        <div class="qfg"><label>Fee (ex VAT) £</label><input type="number" id="qbf" value="3500" oninput="qUpdate()"></div>
+        <div class="qfg"><label>Payment Terms</label><input id="qbp" value="Payable in advance" oninput="qUpdate()"></div>
+      </div>
+      <div class="qfg"><label>Description</label><input id="qbd" value="One-off payment to bring books and affairs in order" oninput="qUpdate()"></div>
+    </div></div>
+    <div class="qcard"><div class="qcard-h">📅 Ongoing Monthly Fees</div><div class="qcard-b">
+      <div id="qco-wrap"></div>
+      <button class="qbtn2" onclick="qAddCo()">+ Add company</button>
+      <div class="qfg" style="margin-top:12px"><label>Monthly fee covers</label>
+        <textarea id="qbc" oninput="qUpdate()">Quarterly bookkeeping, VAT preparation and submission
+Monthly payroll and RTI submissions to HMRC
+Annual accounts and corporation tax return</textarea>
+      </div>
+    </div></div>
+  </div>
+  <div class="qcard"><div class="qcard-h">🧮 Summary</div><div class="qcard-b">
+    <div class="qtbox" id="qtbox">Select services above</div>
+    <div class="qmbox" id="qmbox"><div class="qamt" id="qmamt"></div><div class="qlbl" id="qmlbl"></div></div>
+  </div></div>
+  <button class="qbtn" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <button class="qbtn2" onclick="qReset()">↺ Reset</button>
+</div>
+<div class="qpreview">
+  <div class="qpaper" id="qpaper">
+    <p style="color:#999;font-family:sans-serif;font-size:13px">Fill in client details to see the quote preview...</p>
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+const QP={name:'Chowdury Accountants',sig:'Md Asadul Chowdury',role:'Managing Director',tel:'0161 222 4647',email:'info@chowduryaccountants.co.uk',web:'www.chowduryaccountants.co.uk',addr:'283 Featherstall Road North\nOldham\nOL1 2NH',
+why:['AAT Licensed Practice — regulated, professional and accountable','Fixed fee basis — no hidden charges, no unexpected invoices','Unlimited phone, WhatsApp and email support throughout the year','Dedicated client manager — you will always deal with the same person','Specialists in hospitality, restaurants, takeaways and property','All work completed accurately and on time, guaranteed','Simple monthly payments via GoCardless direct debit — no paperwork','Cloud accounting and MTD (Making Tax Digital) ready','HMRC agent authorised — we deal with HMRC directly on your behalf']};
+const QSVCS=[
+  {sec:'Financial Accounting & Taxation',items:[{id:'s1',name:'Annual accounts (Companies House), corporation tax return & director's self assessment (dividend income only)',body:'Companies House / HMRC',fee:600,on:true}]},
+  {sec:'Payroll & VAT',items:[{id:'s2',name:'Payroll — monthly RTI submission (up to 3 employees)',body:'HMRC',fee:300,on:false},{id:'s3',name:'Payroll — additional employee (per employee per year)',body:'HMRC',fee:100,on:false},{id:'s4',name:'Quarterly VAT returns',body:'HMRC',fee:600,on:false}]},
+  {sec:'Other Annual Services',items:[{id:'s5',name:'Fee protection insurance',body:'Markel Tax',fee:200,on:false},{id:'s6',name:'Confirmation statement',body:'Companies House',fee:70,on:false},{id:'s7',name:'Director's personal tax return (complex)',body:'HMRC',fee:300,on:false},{id:'s8',name:'Rental income (per property)',body:'HMRC',fee:150,on:false},{id:'s9',name:'Company secretarial (registered office + mail forwarding)',body:'Companies House',fee:200,on:false}]}
+];
+const QOOF=[{id:'o1',name:'Company formation',body:'Companies House',fee:150},{id:'o2',name:'HMRC agent authorisation',body:'HMRC',fee:100},{id:'o3',name:'Bookkeeping set-up (QuickBooks/Xero)',body:'',fee:200},{id:'o4',name:'MTD compliance set-up',body:'HMRC',fee:150}];
+const QADD=[{id:'a1',name:'PAYE / payroll registration',body:'One-off',fee:100},{id:'a2',name:'VAT registration',body:'One-off',fee:100},{id:'a3',name:'Company closure',body:'One-off',fee:100},{id:'a4',name:'VAT deregistration / closure',body:'One-off',fee:100},{id:'a5',name:'PAYE closure',body:'One-off',fee:100},{id:'a6',name:'Rental property accounts',body:'',fee:200},{id:'a7',name:'P11D expenses & benefits return',body:'',fee:120},{id:'a8',name:'Management accounts (monthly)',body:'',fee:200},{id:'a9',name:'HMRC enquiry support (per hour)',body:'',fee:150}];
+let qWItems=[],qCos=[],qMode='std';
+function q$(id){return document.getElementById(id);}
+function qEsc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function qFmt(n){return'£'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function qFmtDate(v){if(!v)return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});const d=new Date(v);return isNaN(d)?v:d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+window.qSetStyle=function(m,el){qMode=m;document.querySelectorAll('.qtog').forEach(t=>t.classList.remove('on'));el.classList.add('on');q$('qstd-section').style.display=m==='std'?'':'none';q$('qbsp-section').style.display=m==='bsp'?'':'none';qUpdate();};
+window.qAddWI=function(){qWItems.push('');const wrap=q$('qwi-wrap');const i=qWItems.length-1;const d=document.createElement('div');d.className='qfg';d.innerHTML='<input placeholder="e.g. Prepare annual accounts" oninput="qWItems['+i+']=this.value;qUpdate()">';wrap.appendChild(d);};
+window.qAddCo=function(){qCos.push({name:'',fee:0,turn:''});const wrap=q$('qco-wrap');const i=qCos.length-1;const d=document.createElement('div');d.style.cssText='display:grid;grid-template-columns:1fr 80px 100px;gap:6px;margin-bottom:8px';d.innerHTML='<input placeholder="Company name" oninput="qCos['+i+'].name=this.value;qUpdate()"><input type="number" placeholder="Fee" oninput="qCos['+i+'].fee=+this.value;qUpdate()"><input placeholder="Turnover" oninput="qCos['+i+'].turn=this.value;qUpdate()">';wrap.appendChild(d);};
+window.qReset=function(){location.reload();};
+function qBuildServices(){
+  let h='';
+  QSVCS.forEach(sec=>{h+='<div class="qsec-t">'+sec.sec+'</div>';sec.items.forEach(it=>{h+='<div class="qsrow"><input type="checkbox" id="qc_'+it.id+'" '+(it.on?'checked':'')+' onchange="qUpdate()"><div><div class="qsn">'+it.name+'</div><div class="qsb">'+it.body+'</div></div><div class="qsf-wrap"><input class="qsf" type="number" id="qf_'+it.id+'" value="'+it.fee+'" oninput="qUpdate()"><div class="qsv">+£'+(it.fee*.2).toFixed(0)+' VAT</div></div></div>';});});
+  q$('qsvc-wrap').innerHTML=h;
+  let oh='';QOOF.forEach(it=>{oh+='<div class="qsrow"><input type="checkbox" id="qc_'+it.id+'" onchange="qUpdate()"><div><div class="qsn">'+it.name+'</div><div class="qsb">'+it.body+'</div></div><div class="qsf-wrap"><input class="qsf" type="number" id="qf_'+it.id+'" value="'+it.fee+'" oninput="qUpdate()"><div class="qsv">+£'+(it.fee*.2).toFixed(0)+' VAT</div></div></div>';});
+  q$('qoo-wrap').innerHTML=oh;
+  let ah='';QADD.forEach(it=>{ah+='<div class="qsrow"><input type="checkbox" id="qc_'+it.id+'" onchange="qUpdate()"><div><div class="qsn">'+it.name+'</div><div class="qsb">'+it.body+'</div></div><div class="qsf-wrap"><input class="qsf" type="number" id="qf_'+it.id+'" value="'+it.fee+'" oninput="qUpdate()"><div class="qsv">+£'+(it.fee*.2).toFixed(0)+' VAT</div></div></div>';});
+  q$('qadd-wrap').innerHTML=ah;
+}
+window.qUpdate=function(){
+  if(qMode==='std'){
+    const allItems=[...QSVCS.flatMap(s=>s.items)];
+    const checked=allItems.filter(it=>q$('qc_'+it.id)&&q$('qc_'+it.id).checked).map(it=>({...it,fee:+(q$('qf_'+it.id)||{value:it.fee}).value,vat:0})).map(it=>({...it,vat:Math.round(it.fee*.2*100)/100}));
+    const oo=QOOF.filter(it=>q$('qc_'+it.id)&&q$('qc_'+it.id).checked).map(it=>({...it,fee:+(q$('qf_'+it.id)||{value:it.fee}).value,vat:0})).map(it=>({...it,vat:Math.round(it.fee*.2*100)/100}));
+    const add=QADD.filter(it=>q$('qc_'+it.id)&&q$('qc_'+it.id).checked).map(it=>({...it,fee:+(q$('qf_'+it.id)||{value:it.fee}).value,vat:0})).map(it=>({...it,vat:Math.round(it.fee*.2*100)/100}));
+    const net=checked.reduce((s,i)=>s+i.fee,0);
+    const vat=Math.round(net*.2*100)/100;
+    const total=net+vat;
+    const monthly=Math.round((total/12)*100)/100;
+    q$('qtbox').innerHTML='<div class="qtr"><span>Annual fee (ex VAT)</span><span>'+qFmt(net)+'</span></div><div class="qtr"><span>VAT @ 20%</span><span>'+qFmt(vat)+'</span></div><div class="qtr big"><span>Total Annual (inc VAT)</span><span style="color:#155FA0">'+qFmt(total)+'</span></div>';
+    if(monthly>0){q$('qmbox').style.display='block';q$('qmamt').textContent=qFmt(monthly);q$('qmlbl').textContent='per month (inc VAT) via GoCardless';}
+    qRenderStd(checked,oo,add,net,vat,total,monthly);
+  } else {
+    const oof=parseFloat(q$('qbf')&&q$('qbf').value)||0;
+    const oov=Math.round(oof*.2*100)/100;
+    const oot=oof+oov;
+    const mnet=qCos.reduce((s,c)=>s+(c.fee||0),0);
+    const mvat=Math.round(mnet*.2*100)/100;
+    q$('qtbox').innerHTML='<div class="qtr"><span>One-off fee (ex VAT)</span><span>'+qFmt(oof)+'</span></div><div class="qtr"><span>VAT @ 20%</span><span>'+qFmt(oov)+'</span></div><div class="qtr big"><span>One-off Total (inc VAT)</span><span style="color:#155FA0">'+qFmt(oot)+'</span></div>';
+    if(mnet>0){q$('qmbox').style.display='block';q$('qmamt').textContent=qFmt(mnet+mvat);q$('qmlbl').textContent='combined monthly total (inc VAT)';}
+    qRenderBsp(oof,oov,oot,mnet,mvat);
+  }
+};
+function qRenderStd(checked,oo,add,net,vat,total,monthly){
+  const obFee=parseFloat(q$('qob-fee')&&q$('qob-fee').value||0)||0;
+  const obDesc=q$('qob-desc')&&q$('qob-desc').value||'One-off onboarding and set-up';
+  const name=q$('qcn').value.trim()||'[Client Name]';
+  const addr=q$('qca').value.trim();
+  const type=q$('qct').value;
+  const intro=q$('qci').value.trim();
+  const greet=name.includes('Ltd')||name.includes('Limited')?'Dear Sir/Madam':'Dear '+name.split(' ').slice(-1)[0];
+  let rows='';let lastSec='';
+  checked.forEach(it=>{const secName=QSVCS.find(s=>s.items.find(i=>i.id===it.id))&&QSVCS.find(s=>s.items.find(i=>i.id===it.id)).sec||'';if(secName!==lastSec){rows+='<tr class="sh"><td colspan="5">'+secName+'</td></tr>';lastSec=secName;}rows+='<tr><td>'+it.name+'</td><td>'+(it.body||'—')+'</td><td class="r">'+qFmt(it.fee)+'</td><td class="r">'+qFmt(it.vat)+'</td><td class="r">'+qFmt(it.fee+it.vat)+'</td></tr>';});
+  rows+='<tr class="tot"><td colspan="2"><strong>Total Accountancy Fees</strong></td><td class="r"><strong>'+qFmt(net)+'</strong></td><td class="r"><strong>'+qFmt(vat)+'</strong></td><td class="r"><strong>'+qFmt(total)+'</strong></td></tr>';
+  const allOO=[...oo,...add];let ooBlock='';
+  if(allOO.length){ooBlock='<p><strong>One-off fees:</strong></p><ul class="pul">';allOO.forEach(it=>{ooBlock+='<li>'+qFmt(it.fee+it.vat)+' (inc VAT) — '+it.name+'</li>';});ooBlock+='</ul>';}
+  const whyHtml=QP.why.map(w=>'<li>'+w+'</li>').join('');
+  const addrHtml=addr?addr.split('\n').map(l=>qEsc(l)).join('<br>'):'';
+  q$('qpaper').innerHTML=`<div class="ph"><img src="ca-logo.png" class="ph-logo" alt="CA"><div class="ph-contact"><div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">🌐</span><span>${QP.web}</span></div><div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📞</span><span>${QP.tel}</span></div><div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">✉</span><span>${QP.email}</span></div><div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📍</span><span>283 Featherstall Road North, Oldham, OL1 2NH</span></div></div></div><div class="ph-divider"><div class="ph-divider-black"></div><div class="ph-divider-gold"></div></div>${addrHtml?'<div style="font-size:10.5pt;line-height:1.8;margin-bottom:16px">'+addrHtml+'</div>':''}<div style="font-size:10pt;margin:18px 0 6px">${qFmtDate(q$('qcd')&&q$('qcd').value)}${q$('qcr')&&q$('qcr').value?'<br>Ref: '+qEsc(q$('qcr').value):''}</div><div style="margin-bottom:10px">${greet},</div><div style="font-weight:bold;margin-bottom:16px">Re: Quote for Professional Accountancy Services — ${qEsc(type)}</div><div><p style="margin-bottom:10px;font-size:10.5pt">${intro||'I am pleased to provide you with a competitive quote for the professional accountancy services for '+type+' as follows:'}</p><table class="ptable"><thead><tr><th>Description</th><th>Regulatory Body</th><th class="r">Fee (£)</th><th class="r">VAT (£)</th><th class="r">Total (£)</th></tr></thead><tbody>${rows}</tbody></table><div class="pblock"><p><strong>Please note the above fees are payable as follows:</strong></p><table style="width:100%;border-collapse:collapse;margin:8px 0;font-size:10pt"><tr><td style="padding:3px 0;color:#444">Annual fee (ex VAT)</td><td style="text-align:right;font-weight:600">${qFmt(net)}</td></tr><tr><td style="padding:3px 0;color:#444">VAT @ 20%</td><td style="text-align:right;font-weight:600">${qFmt(vat)}</td></tr><tr style="border-top:1px solid #ccc"><td style="padding:5px 0;font-weight:700">Total annual fee (inc VAT)</td><td style="text-align:right;font-weight:700">${qFmt(total)}</td></tr><tr style="background:#f5f5f5"><td style="padding:5px 0;font-weight:700;color:#1a1a18">Monthly payment via GoCardless</td><td style="text-align:right;font-weight:700;color:#1a1a18;font-size:11pt">${qFmt(monthly)} / month</td></tr>${obFee>0?'<tr><td style="padding:3px 0;color:#444">'+obDesc+' (one-off, inc VAT)</td><td style="text-align:right;font-weight:600">'+qFmt(obFee*1.2)+'</td></tr>':''}</table><p style="font-size:9.5pt;color:#555;margin-top:6px">All ongoing fees are payable monthly in advance by GoCardless direct debit.</p></div>${ooBlock}</div><div style="margin-top:16px"><p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p><ul class="pul">${whyHtml}</ul></div><div style="margin-top:30px;font-size:10.5pt"><p>I look forward to hearing from you.</p><p style="margin-top:10px">Yours sincerely,</p><div class="psname">${QP.sig}</div><div class="psrole">${QP.role}</div></div><div style="margin-top:32px"><div class="pfoot-divider"><div class="pfoot-gold"></div><div class="pfoot-black"></div></div><div class="pfoot-text">The Chowdury Accountants Ltd T/A Chowdury Accountants &nbsp;|&nbsp; Company Reg No: 09441520 &nbsp;|&nbsp; VAT No: 403392620</div></div>`;
+}
+function qRenderBsp(oof,oov,oot,mnet,mvat){
+  const name=q$('qcn').value.trim()||'[Client Name]';
+  const addr=q$('qca').value.trim();
+  const type=q$('qct').value;
+  const intro=q$('qci').value.trim();
+  const heading=q$('qbh')&&q$('qbh').value.trim();
+  const bd=q$('qbd')&&q$('qbd').value.trim();
+  const bp=q$('qbp')&&q$('qbp').value.trim();
+  const covers=q$('qbc')&&q$('qbc').value.trim().split('\n').filter(l=>l.trim());
+  const greet=name.includes('Ltd')||name.includes('Limited')?'Dear Sir/Madam':'Dear '+name.split(' ').slice(-1)[0];
+  const valid=qWItems.filter(w=>w.trim());
+  const wHtml=valid.length?'<ul class="pul">'+valid.map(w=>'<li>'+qEsc(w)+'</li>').join('')+'</ul>':'';
+  const coHtml=qCos.filter(c=>c.name||c.fee).map(c=>{const ct=(c.fee||0)+Math.round((c.fee||0)*.2*100)/100;return'<li><strong>'+qEsc(c.name||'Company')+'</strong>'+(c.turn?' — Turnover '+qEsc(c.turn):'')+' — <strong>'+qFmt(ct)+' per month</strong> (including VAT)</li>';}).join('');
+  const coversHtml=covers&&covers.length?'<p>Monthly fees will cover:</p><ul class="pul">'+covers.map(l=>'<li>'+qEsc(l)+'</li>').join('')+'</ul>':'';
+  const whyHtml=QP.why.map(w=>'<li>'+w+'</li>').join('');
+  const addrHtml=addr?addr.split('\n').map(l=>qEsc(l)).join('<br>'):'';
+  q$('qpaper').innerHTML='<div class="ph"><img src="ca-logo.png" class="ph-logo" alt="CA"><div class="ph-contact"><div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">🌐</span><span>'+QP.web+'</span></div><div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📞</span><span>'+QP.tel+'</span></div><div class="ph-contact-row"><span class="ph-icon" style="background:#c8963c;color:#fff">✉</span><span>'+QP.email+'</span></div><div class="ph-contact-row"><span class="ph-icon" style="background:#1a1a18;color:#fff">📍</span><span>283 Featherstall Road North, Oldham, OL1 2NH</span></div></div></div><div class="ph-divider"><div class="ph-divider-black"></div><div class="ph-divider-gold"></div></div>'+(addrHtml?'<div style="font-size:10.5pt;line-height:1.8;margin-bottom:16px">'+addrHtml+'</div>':'')+'<div style="font-size:10pt;margin:18px 0 6px">'+qFmtDate(q$('qcd')&&q$('qcd').value)+(q$('qcr')&&q$('qcr').value?'<br>Ref: '+qEsc(q$('qcr').value):'')+'</div><div style="margin-bottom:10px">'+greet+',</div><div style="font-weight:bold;margin-bottom:16px">Re: Quote for Professional Accountancy Services — '+qEsc(type)+'</div><div><p style="margin-bottom:10px;font-size:10.5pt">'+(intro||'We are pleased to provide you with a quote for our professional accountancy and tax advisory services.')+'</p>'+(heading?'<p><strong>'+qEsc(heading)+'</strong></p>':'')+wHtml+'<br><p>Our fees for this service would be <strong>'+qFmt(oof)+' plus VAT ('+qFmt(oot)+' including VAT)</strong>. '+(bd||'')+'. '+(bp?bp+'.':'')+'</p>'+(coHtml?'<p>Ongoing monthly fees are as follows:</p><ul class="pul">'+coHtml+'</ul>':'')+coversHtml+'</div><div style="margin-top:16px"><p style="font-size:10.5pt"><strong>Why choose The Chowdury Accountants?</strong></p><ul class="pul">'+whyHtml+'</ul></div><div style="margin-top:30px;font-size:10.5pt"><p>I look forward to hearing from you.</p><p style="margin-top:10px">Yours sincerely,</p><div class="psname">'+QP.sig+'</div><div class="psrole">'+QP.role+'</div></div><div style="margin-top:32px"><div class="pfoot-divider"><div class="pfoot-gold"></div><div class="pfoot-black"></div></div><div class="pfoot-text">The Chowdury Accountants Ltd T/A Chowdury Accountants &nbsp;|&nbsp; Company Reg No: 09441520 &nbsp;|&nbsp; VAT No: 403392620</div></div>';
+}
+// Init
+qBuildServices();
+// Set today's date
+const qTodayInput=q$('qcd');if(qTodayInput)qTodayInput.value=new Date().toISOString().slice(0,10);
+qUpdate();
+})();
+</script>
+</div>
 
 <!-- LIST VIEW -->
 <div id="view-list" style="display:none;padding:0 24px 30px">
@@ -643,11 +873,7 @@ function setView(v){
   view=v;
   ['pipeline','aml','quote','list'].forEach(x=>document.getElementById('view-'+x).style.display=x===v?'block':'none');
   document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list'][i]===v));
-  if(v==='quote'){
-    window.open('quote-engine.html','_blank');
-    setView('pipeline');
-    return;
-  }
+
   render();
 }
 function renderPipeline(list){
