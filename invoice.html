@@ -459,14 +459,14 @@ let ITEMS=[];
 // ── Utilities ─────────────────────────────────────────────
 function fmt(n){return'£'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
 function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
-function sb(path,opts){return fetch(SB_URL+'/rest/v1/'+path,{headers:H,...(opts||{})}).then(r=>r.json());}
+function sb(path,opts){return fetch(SB_URL+'/rest/v1/'+path,{headers:H,...(opts||{})}).then(r=>r.json()).then(d=>{if(d&&d.code&&d.message){console.warn('Supabase error on '+path+':',d.message);return[];}return d;});}
 function sbPost(path,body){return fetch(SB_URL+'/rest/v1/'+path,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(body)}).then(r=>r.json());}
 function sbPatch(path,body){return fetch(SB_URL+'/rest/v1/'+path,{method:'PATCH',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(body)}).then(r=>r.json());}
 function sbDelete(path){return fetch(SB_URL+'/rest/v1/'+path,{method:'DELETE',headers:H});}
 
 // ── Load data ──────────────────────────────────────────────
 async function loadAll(){
-  // Load each separately so one failure doesn't break everything
+  try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
   const ltdClients = await sb('ltd_clients?select=id,company_name,comp_no&status=eq.active&limit=1000').catch(()=>[]);
   const saClients = await sb('sa_clients?select=id,forename,surname&limit=1000').catch(()=>[]);
@@ -486,6 +486,7 @@ async function loadAll(){
   updateKPIs();
   renderTable();
   populateYears();
+  }catch(e){console.error('loadAll error:',e);document.getElementById('inv-tbody').innerHTML='<tr><td colspan="7"><div class="empty-state"><p>Error loading data: '+e.message+'</p></div></td></tr>';}
 }
 
 function updateKPIs(){
