@@ -14,3 +14,7 @@
 # Companies House deadlines sync — 5:15am daily (moved from midnight)
 [functions."ch-sync-scheduled"]
   schedule = "15 5 * * *"
+
+# InformDirect director & CS date sync — 5:30am daily
+[functions."id-sync-scheduled"]
+  schedule = "30 5 * * *"
