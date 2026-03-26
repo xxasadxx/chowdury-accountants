@@ -1705,6 +1705,31 @@ function closeHistoryModal(){
 }
 
 document.getElementById('delModal').addEventListener('click',function(e){if(e.target===this)closeDelModal();});
+
+async function markPaidFromModal(phId, companyName){
+  if(!confirm('Mark '+companyName+' as PAID for this month?')) return;
+  try{
+    // Get the record to find expected amount
+    const rec = (window._rpAllData||[]).find(h=>h.id===phId);
+    const expected = rec ? (rec.expected||rec.received||0) : 0;
+    await api('payment_history','?id=eq.'+phId,{method:'PATCH',body:JSON.stringify({status:'paid',received:expected})});
+    // Resolve any outstanding failed_payment for this client
+    try{
+      const fp=await api('failed_payments','?client_name=eq.'+encodeURIComponent(companyName)+'&status=eq.outstanding');
+      if(fp&&fp.length) await api('failed_payments','?id=eq.'+fp[0].id,{method:'PATCH',body:JSON.stringify({status:'resolved'})});
+    }catch(e){}
+    showToast(companyName+' marked as paid ✅','success');
+    // Refresh allData and re-open the same modal
+    const fresh=await api('payment_history','?order=id.asc');
+    window._rpAllData=fresh;
+    FP=await api('failed_payments','?select=*&order=id.desc');
+    refreshFailed();
+    renderReportsWithData(fresh);
+    // Re-open the modal for the same month
+    const mon=document.getElementById('mbTitle').textContent.split(' — ')[0];
+    openMonthModal(mon);
+  }catch(e){showToast('Error: '+e.message,'danger');}
+}
 document.getElementById('failedModal').addEventListener('click',function(e){if(e.target===this)closeFailedModal();});
 
 let PIPELINE=[];
@@ -2086,10 +2111,11 @@ function openMonthBreakdown(mon){
       const badgeColor=isPaid?'var(--green)':'var(--red)';
       const badgeBg=isPaid?'var(--green-light)':'var(--red-light,#fef2f2)';
       const icon=isPaid?'✅':'❌';
+      const markBtn=isPaid?'':`<button onclick="markPaidFromModal(${h.id},'${(h.company_name||'').replace(/'/g,"\\'")}'" style="margin-left:6px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:2px 7px;font-size:0.65rem;cursor:pointer;font-weight:600">✅ Mark Paid</button>`;
       html+='<tr style="border-bottom:1px solid var(--border)">'
         +'<td style="padding:6px 8px;font-weight:500">'+h.company_name+'</td>'
         +'<td style="padding:6px 8px;text-align:right;font-family:\'DM Mono\',monospace;color:'+badgeColor+';font-weight:600">£'+(h.received||0).toLocaleString('en-GB')+'</td>'
-        +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span></td>'
+        +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+markBtn+'</td>'
         +'</tr>';
     });
     html+='</tbody></table>';
@@ -2107,10 +2133,11 @@ function openMonthBreakdown(mon){
       const badgeBg=isPaid?'var(--green-light)':'var(--red-light,#fef2f2)';
       const icon=isPaid?'✅':'❌';
       html+='<tr style="border-bottom:1px solid var(--border)">'
+      const markBtn=isPaid?'':`<button onclick="markPaidFromModal(${h.id},'${(h.company_name||'').replace(/'/g,"\\'")}'" style="margin-left:6px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:2px 7px;font-size:0.65rem;cursor:pointer;font-weight:600">✅ Mark Paid</button>`;
         +'<td style="padding:6px 8px;font-weight:500">'+h.company_name+'</td>'
         +'<td style="padding:6px 8px;text-align:right;font-family:\'DM Mono\',monospace;color:'+badgeColor+';font-weight:600">£'+(h.received||0).toLocaleString('en-GB')+'</td>'
         +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span></td>'
-        +'</tr>';
+        +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+markBtn+'</td>'
     });
     html+='</tbody></table>';
   }
