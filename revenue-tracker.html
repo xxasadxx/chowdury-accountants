@@ -1664,12 +1664,20 @@ async function savePaymentRow(hid){
       if(c&&h){
         const existing=await api('failed_payments','?client_name=eq.'+encodeURIComponent(c.company_name)+'&failure_date=eq.'+encodeURIComponent(h.month));
         if(!existing||existing.length===0){
+          // No entry at all — create new
           await api('failed_payments','',{method:'POST',body:JSON.stringify({client_name:c.company_name,source:histClientType,amount:h.expected,failure_date:h.month,reason:'Missed payment',status:'outstanding'})});
-          const fpRefresh=await api('failed_payments','?select=*&order=id.desc');
-          FP=fpRefresh||[];
-          refreshFailed();
           showToast('Auto-logged to Failed Payments','info');
+        } else {
+          // Entry exists — reopen if resolved
+          const resolved=existing.find(x=>x.status==='resolved'||x.status==='paid');
+          if(resolved){
+            await api('failed_payments','?id=eq.'+resolved.id,{method:'PATCH',body:JSON.stringify({status:'outstanding'})});
+            showToast('Failed payment reopened','info');
+          }
         }
+        const fpRefresh=await api('failed_payments','?select=*&order=id.desc');
+        FP=fpRefresh||[];
+        refreshFailed();
       }
     }
     if(status==='paid'){
