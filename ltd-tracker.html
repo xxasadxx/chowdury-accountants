@@ -436,7 +436,7 @@ window.caAudit = (function(){
       <div class="modal-tab" onclick="showModalTab('docs',this)">📁 Docs & Log</div>
       <div class="modal-tab" onclick="showModalTab('accounts',this)">📊 Accounts Filed</div>
       <div class="modal-tab" onclick="showModalTab('messages',this);loadClientMessages()">💬 Messages</div>
-      <div class="modal-tab" onclick="showModalTab('invoices',this);setTimeout(loadClientInvoices,50)">🧾 Invoices</div>
+      <div class="modal-tab" onclick="showModalTab('invoices',this);showInvoicesPanel()">🧾 Invoices</div>
     </div>
   <div class="modal-body">
 
@@ -599,7 +599,7 @@ window.caAudit = (function(){
     </div>
 
     <div class="modal-tab-content" id="mtab-invoices">
-      <div id="cm-invoices-body">
+      <div id="cm-invoices-panel" style="display:none;padding:4px 0">
         <p style="color:red;font-size:14px;font-weight:bold">TEST - INVOICES TAB WORKING</p>
       </div>
     </div>
@@ -1341,7 +1341,7 @@ function closeClientModal(){
 async function loadClientInvoices(){
   const c=DATA.find(x=>x.id===currentId);
   if(!c) return;
-  const el=document.getElementById('cm-invoices-body');
+  const el=document.getElementById('cm-invoices-panel');if(!el)return;
   el.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">Loading...</div>';
   const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
   const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
@@ -1402,6 +1402,10 @@ async function loadClientInvoices(){
   }
 }
 
+function showInvoicesPanel(){
+  const panel=document.getElementById('cm-invoices-panel');
+  if(panel){panel.style.display='block';loadClientInvoices();}
+}
 function showModalTab(id,el){
   document.querySelectorAll('#client-modal-bg .modal-tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('#client-modal-bg .modal-tab').forEach(t=>t.classList.remove('active'));
