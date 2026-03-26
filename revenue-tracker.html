@@ -2104,7 +2104,7 @@ function openMonthBreakdown(mon){
     const col=isPaid?'var(--green)':'var(--red)';
     const bg=isPaid?'var(--green-light)':'var(--red-light,#fef2f2)';
     const icon=isPaid?'&#x2705;':'&#x274C;';
-    const amt=isPaid?(h.received||0):(h.expected||0);
+    const amt=isPaid?(h.received||0):0;
     const btn=isPaid?'':'<button onclick="markPaidFromModal('+h.id+',\''+h.company_name.replace(/\x27/g,'\\x27')+'\','+( h.expected||h.received||0)+')" style="margin-left:6px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:2px 7px;font-size:0.65rem;cursor:pointer;font-weight:600">&#x2705; Mark Paid</button>';
     return '<tr style="border-bottom:1px solid var(--border)">'
       +'<td style="padding:6px 8px;font-weight:500">'+h.company_name+'</td>'
