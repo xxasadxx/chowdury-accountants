@@ -180,7 +180,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13p
 
 /* ── Client search dropdown ── */
 .client-wrap{position:relative}
-.client-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:6px;box-shadow:var(--shadow-md);z-index:9999;max-height:200px;overflow-y:auto;display:none}
+.client-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:6px;box-shadow:var(--shadow-md);z-index:99999;max-height:200px;overflow-y:auto;display:none}
 .client-dropdown.show{display:block}
 .client-opt{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border)}
 .client-opt:last-child{border-bottom:none}
@@ -830,9 +830,14 @@ function renderPreview(){
 // ── Client search ─────────────────────────────────────────
 function searchClients(q){
   const dd=document.getElementById('client-dropdown');
+  const inp=document.getElementById('f-client-name');
   if(!q||q.length<1){dd.classList.remove('show');return;}
-  const matches=ALL_CLIENTS.filter(c=>(c.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  const matches=ALL_CLIENTS.filter(c=>(c.name||'').toLowerCase().includes(q.toLowerCase())).slice(0,10);
   if(!matches.length){dd.classList.remove('show');return;}
+  const rect=inp.getBoundingClientRect();
+  dd.style.left=rect.left+'px';
+  dd.style.top=(rect.bottom+2)+'px';
+  dd.style.width=rect.width+'px';
   dd.innerHTML=matches.map(cl=>`<div class="client-opt" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee" onmousedown="event.preventDefault();selectClient('${cl.name.replace(/'/g,String.fromCharCode(39))}')">
     <div style="font-weight:600;font-size:12px">${cl.name}</div>
     <div style="font-size:10px;color:#888">${cl.type}${cl.ref?' · '+cl.ref:''}</div>
