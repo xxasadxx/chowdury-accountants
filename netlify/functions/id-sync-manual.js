@@ -127,7 +127,7 @@ exports.handler = async () => {
     console.log(`Fetched ${companies.length} companies from InformDirect`);
 
     // 3. Fetch existing ltd_clients from Supabase
-    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,company_name,director_name,conf_due,status&limit=2000');
+    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,name,director_name,conf_due,status&limit=2000');
     let clients;
     try { clients = JSON.parse(clientsResp.body); } catch(e) { clients = []; }
     if (!Array.isArray(clients)) {
@@ -160,13 +160,13 @@ exports.handler = async () => {
 
       // ── AUTO-INACTIVATE: struck off / dissolved / proposal to strike off ──
       if (local && local.status === 'active' && isInactiveStatus(idStatus)) {
-        console.log(`⚠️ Auto-inactivating: ${local.company_name} (${compNo}) — status: ${idStatus}`);
+        console.log(`⚠️ Auto-inactivating: ${local.name} (${compNo}) — status: ${idStatus}`);
         updates.push({
           id: local.id,
           status: 'left',
           notes: `Auto-inactivated by sync: ${idStatus} (${new Date().toISOString().slice(0,10)})`
         });
-        inactivated.push(local.company_name || compNo);
+        inactivated.push(local.name || compNo);
         deactivated++;
         continue;
       }
@@ -240,9 +240,9 @@ exports.handler = async () => {
       !idCompNos.has(c.comp_no.toUpperCase().replace(/\s/g, ''))
     );
     for (const c of removedFromID) {
-      console.log(`Removed from InformDirect: ${c.company_name} (${c.comp_no})`);
+      console.log(`Removed from InformDirect: ${c.name} (${c.comp_no})`);
       updates.push({ id: c.id, status: 'left', notes: `Auto-inactivated: removed from InformDirect (${new Date().toISOString().slice(0,10)})` });
-      inactivated.push(c.company_name || c.comp_no);
+      inactivated.push(c.name || c.comp_no);
       deactivated++;
     }
 
@@ -266,7 +266,7 @@ exports.handler = async () => {
       body: JSON.stringify({
         success: true,
         summary,
-        new_companies: newCompanies.map(c => c.company_name),
+        new_companies: newCompanies.map(c => c.name),
         inactivated
       })
     };
