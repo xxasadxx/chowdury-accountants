@@ -180,7 +180,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13p
 
 /* ── Client search dropdown ── */
 .client-wrap{position:relative}
-.client-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:6px;box-shadow:var(--shadow-md);z-index:100;max-height:200px;overflow-y:auto;display:none}
+.client-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--surface);border:1px solid var(--border2);border-radius:6px;box-shadow:var(--shadow-md);z-index:9999;max-height:200px;overflow-y:auto;display:none}
 .client-dropdown.show{display:block}
 .client-opt{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border)}
 .client-opt:last-child{border-bottom:none}
@@ -478,12 +478,12 @@ async function sbDelete(path){return sb(path,{method:'DELETE'});}
 async function loadAll(){
   try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
-  const ltdClients = await sb('ltd_clients?select=comp_no,name,director_name,director_email,director_address&order=name.asc&limit=1000').catch(()=>[]);
-  const saClients = await sb('sa_clients?select=id,forename,surname,email,address&limit=1000').catch(()=>[]);
+  const ltdClients = await sb('ltd_clients?select=comp_no,name,director_email,director_address,status&order=name.asc&limit=2000').catch(()=>[]);
+  const saClients = await sb('sa_clients?select=id,forename,surname,email,address,status&order=forename.asc&limit=2000').catch(()=>[]);
 
   ALL_INVOICES=Array.isArray(invs)?invs:[];
-  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.comp_no,name:c.name||c.director_name||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||''})).filter(c=>c.name);
-  const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SE',email:c.email||'',address:c.address||''})).filter(c=>c.name);
+  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.comp_no,name:c.name||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||''})).filter(c=>c.name);
+  const sa=(Array.isArray(saClients)?saClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.id,name:((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SE',email:c.email||'',address:c.address||''})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
 
