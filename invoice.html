@@ -21,9 +21,13 @@
       var nu=document.getElementById('ca-nav-user');if(nu)nu.textContent=name?'Signed in: '+name:'';
       if(role==='admin'){var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';}
       else{var s=document.createElement('style');s.innerHTML='#nav-revenue{display:none!important}#nav-strategy{display:none!important}';document.head.appendChild(s);}
-      // Init invoice page after auth confirmed
-      if(typeof loadAll==='function') loadAll();
     });
+    // Call loadAll whether DOM is ready or not
+    if(document.readyState==='loading'){
+      window.addEventListener('DOMContentLoaded',function(){if(typeof loadAll==='function')loadAll();});
+    } else {
+      if(typeof loadAll==='function') loadAll();
+    }
   });
 })();
 </script>
