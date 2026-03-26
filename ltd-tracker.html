@@ -436,7 +436,7 @@ window.caAudit = (function(){
       <div class="modal-tab" onclick="showModalTab('docs',this)">📁 Docs & Log</div>
       <div class="modal-tab" onclick="showModalTab('accounts',this)">📊 Accounts Filed</div>
       <div class="modal-tab" onclick="showModalTab('messages',this);loadClientMessages()">💬 Messages</div>
-      <div class="modal-tab" onclick="showModalTab('invoices',this);showInvoicesPanel()">🧾 Invoices</div>
+      <div class="modal-tab" onclick="showModalTab('invoices',this)">🧾 Invoices</div>
     </div>
   <div class="modal-body">
 
@@ -599,9 +599,7 @@ window.caAudit = (function(){
     </div>
 
     <div class="modal-tab-content" id="mtab-invoices">
-      <div id="cm-invoices-panel" style="display:none;padding:4px 0">
-        <p style="color:red;font-size:14px;font-weight:bold">TEST - INVOICES TAB WORKING</p>
-      </div>
+      <p style="color:red;font-size:14px;font-weight:bold;padding:20px">TEST - INVOICES TAB WORKING</p>
     </div>
 
     <div class="modal-tab-content" id="mtab-messages">
@@ -1402,16 +1400,10 @@ async function loadClientInvoices(){
   }
 }
 
-function showInvoicesPanel(){
-  const panel=document.getElementById('cm-invoices-panel');
-  if(panel){panel.style.display='block';loadClientInvoices();}
-}
 function showModalTab(id,el){
-  document.querySelectorAll('#client-modal-bg .modal-tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('#client-modal-bg .modal-tab').forEach(t=>t.classList.remove('active'));
-  const target=document.getElementById('mtab-'+id);
-  if(target) target.classList.add('active');
-  if(el) el.classList.add('active');
+  document.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.modal-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('mtab-'+id).classList.add('active');if(el)el.classList.add('active');
 }
 function toggleAfVatStagger(){
   const v=document.getElementById('af-vat').value==='true';
