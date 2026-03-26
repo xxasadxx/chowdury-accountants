@@ -1144,9 +1144,13 @@ async function loadClientInvoices(){
   const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
   try{
     const name=(c.name||(c.forename+' '+c.surname)||'').toUpperCase();
-    const r=await fetch(`${SB}/rest/v1/invoices?client_name=ilike.${encodeURIComponent('%'+name+'%')}&order=created_at.desc&limit=50`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+    const r=await fetch(`${SB}/rest/v1/invoices?client_name=ilike.*${encodeURIComponent(name)}*&order=created_at.desc&limit=50`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
     const invs=await r.json();
-    if(!Array.isArray(invs)||!invs.length){
+    if(!Array.isArray(invs)){
+      el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--red);font-size:12px">Error: ${JSON.stringify(invs)}</div>`;
+      return;
+    }
+    if(!invs.length){
       el.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">No invoices found for this client.</div>';
       return;
     }
