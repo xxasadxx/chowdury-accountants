@@ -489,7 +489,7 @@ async function loadAll(){
   try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
   const ltdClients = await sb('clients?select=comp_no,display_name,director_name,director_email,director_address,director_mobile&client_type=eq.ltd&order=display_name.asc&limit=2000').catch(()=>[]);
-  const saClients = await sb('sa_clients?select=id,forename,surname,name,email,address,phone,status&order=forename.asc&limit=2000').catch(()=>[]);
+  const saClients = await sb('sa_clients?select=id,forename,surname,name,email,address,phone,status&order=id.asc&limit=2000').catch(()=>[]);
 
   ALL_INVOICES=Array.isArray(invs)?invs:[];
   const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.comp_no,name:c.display_name||c.director_name||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||'',mobile:c.director_mobile||''})).filter(c=>c.name);
