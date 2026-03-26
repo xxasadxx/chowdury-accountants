@@ -396,33 +396,40 @@ function showATab(tab) {
 }
 
 // ── SESSION LOG ──────────────────────────────────────────
-function renderSessionLog() {
+async function renderSessionLog() {
   var el = document.getElementById('session-log-list');
   if (!el) return;
-  var logs = [];
-  try { logs = JSON.parse(localStorage.getItem('ca_session_log') || '[]'); } catch(e) {}
-  if (!logs.length) {
-    el.innerHTML = '<div style="color:var(--muted);padding:14px 0;font-size:12px">No sessions logged yet.</div>';
-    return;
+  el.innerHTML = '<div style="color:var(--muted);padding:14px 0;font-size:12px">Loading...</div>';
+  try {
+    var r = await fetch(SB_URL+'/rest/v1/staff_sessions?select=*&order=login_at.desc&limit=100',{headers:{...H,'Range':'0-99'}});
+    var logs = await r.json();
+    if (!Array.isArray(logs)||!logs.length) {
+      el.innerHTML = '<div style="color:var(--muted);padding:14px 0;font-size:12px">No sessions logged yet.</div>';
+      return;
+    }
+    var colours = {Asadul:'#155FA0',Hassan:'#1D7A47',Aminul:'#6D28D9',Nawaz:'#C07A00',Sadat:'#D04A02'};
+    el.innerHTML = logs.map(function(s) {
+      var d = new Date(s.login_at);
+      var date = d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+      var time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+      var col = colours[s.staff] || '#6b7280';
+      var isMobile = (s.device||'').toLowerCase().includes('mobile')||(s.device||'').toLowerCase().includes('android')||(s.device||'').toLowerCase().includes('iphone');
+      return '<div style="display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede0">'
+        + '<span style="background:'+col+';color:#fff;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap">'+(s.staff||'?')+'</span>'
+        + '<span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);min-width:46px">'+time+'</span>'
+        + '<span style="color:var(--muted);font-size:12px">'+date+'</span>'
+        + '<span style="color:var(--muted);font-size:10px">'+(isMobile?'📱':'🖥')+'</span>'
+        + (s.role==='admin'?'<span style="color:var(--gold);font-size:10px;font-weight:700;margin-left:auto">Admin</span>':'')
+        + '</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div style="color:var(--red);padding:14px 0;font-size:12px">Error loading sessions.</div>';
   }
-  var colours = {Asadul:'#155FA0',Hassan:'#1D7A47',Aminul:'#6D28D9',Nawaz:'#C07A00',Sadat:'#D04A02'};
-  el.innerHTML = logs.map(function(l) {
-    var d = new Date(l.time);
-    var date = d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
-    var time = d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
-    var col = colours[l.user] || '#6b7280';
-    return '<div style="display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #f0ede0">'
-      + '<span style="background:'+col+';color:#fff;padding:2px 9px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap">'+l.user+'</span>'
-      + '<span style="font-family:var(--mono);font-size:12px;font-weight:600;color:var(--text);min-width:46px">'+time+'</span>'
-      + '<span style="color:var(--muted);font-size:12px">'+date+'</span>'
-      + (l.role==='admin'?'<span style="color:var(--gold);font-size:10px;font-weight:700;margin-left:auto">Admin</span>':'')
-      + '</div>';
-  }).join('');
 }
 
-function clearSessionLog() {
-  if (!confirm('Clear all session logs?')) return;
-  localStorage.removeItem('ca_session_log');
+async function clearSessionLog() {
+  if (!confirm('Clear all session logs from Supabase?')) return;
+  await fetch(SB_URL+'/rest/v1/staff_sessions?login_at=gt.2020-01-01', {method:'DELETE',headers:H});
   renderSessionLog();
 }
 </script>

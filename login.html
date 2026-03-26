@@ -125,6 +125,27 @@ async function login() {
   localStorage.removeItem('ca_login_attempts');
   localStorage.removeItem('ca_locked');
 
+  // Log session to Supabase
+  try {
+    await fetch('https://yhvhpfsoqtjwnukgyqap.supabase.co/rest/v1/staff_sessions', {
+      method: 'POST',
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4',
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        staff: name,
+        full_name: fullName,
+        email: email,
+        role: role,
+        device: navigator.userAgent.substring(0,150),
+        login_at: new Date().toISOString()
+      })
+    });
+  } catch(e) { console.warn('Session log failed', e); }
+
   window.location.href = 'index.html';
 }
 
