@@ -392,13 +392,13 @@ function renderAll(){
   if(type!=='all') data=data.filter(a=>a.type===type);
 
   // KPIs from full year data
-  const sortBy=document.getElementById('sort-by')?.value||'verified';
+  const printSort=document.getElementById('sort-by')?.value||'verified';
   const rawData=year==='all'?ALL:ALL.filter(a=>a.cpd_year===year);
   const yearData=[...rawData].sort((a,b)=>{
-    if(sortBy==='verified'){if(b.verified!==a.verified)return b.verified?1:-1;return new Date(b.date||0)-new Date(a.date||0);}
-    else if(sortBy==='date_desc')return new Date(b.date||0)-new Date(a.date||0);
-    else if(sortBy==='date_asc')return new Date(a.date||0)-new Date(b.date||0);
-    else if(sortBy==='hours')return(+b.hours||0)-(+a.hours||0);
+    if(printSort==='verified'){if(b.verified!==a.verified)return b.verified?1:-1;return new Date(b.date||0)-new Date(a.date||0);}
+    else if(printSort==='date_desc')return new Date(b.date||0)-new Date(a.date||0);
+    else if(printSort==='date_asc')return new Date(a.date||0)-new Date(b.date||0);
+    else if(printSort==='hours')return(+b.hours||0)-(+a.hours||0);
     return 0;
   });
   const totalHrs=yearData.reduce((s,a)=>s+(+a.hours||0),0);
@@ -597,13 +597,13 @@ async function deleteActivity(id){
 
 function printCPD(){
   const year=document.getElementById('filter-year').value;
-  const sortBy=document.getElementById('sort-by')?.value||'verified';
+  const printSort=document.getElementById('sort-by')?.value||'verified';
   const rawData=year==='all'?ALL:ALL.filter(a=>a.cpd_year===year);
   const yearData=[...rawData].sort((a,b)=>{
-    if(sortBy==='verified'){if(b.verified!==a.verified)return b.verified?1:-1;return new Date(b.date||0)-new Date(a.date||0);}
-    else if(sortBy==='date_desc')return new Date(b.date||0)-new Date(a.date||0);
-    else if(sortBy==='date_asc')return new Date(a.date||0)-new Date(b.date||0);
-    else if(sortBy==='hours')return(+b.hours||0)-(+a.hours||0);
+    if(printSort==='verified'){if(b.verified!==a.verified)return b.verified?1:-1;return new Date(b.date||0)-new Date(a.date||0);}
+    else if(printSort==='date_desc')return new Date(b.date||0)-new Date(a.date||0);
+    else if(printSort==='date_asc')return new Date(a.date||0)-new Date(b.date||0);
+    else if(printSort==='hours')return(+b.hours||0)-(+a.hours||0);
     return 0;
   });
   if(!yearData.length){alert('No activities to print for this period.');return;}
