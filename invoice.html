@@ -875,12 +875,26 @@ function selectClient(name){
     if(cl.mobile){ document.getElementById('f-client-mobile').value=cl.mobile; }
     window._selectedClientMobile=cl.mobile||'';
   }
-  document.getElementById('client-dropdown').classList.remove('show');
+  const dd=document.getElementById('client-dropdown');
+  dd.classList.remove('show');
+  dd.style.display='none';
+  setTimeout(()=>{ dd.style.display=''; },100);
   renderPreview();
 }
 
 document.addEventListener('click',function(e){
-  if(!e.target.closest('.client-wrap')) document.getElementById('client-dropdown').classList.remove('show');
+  const dd=document.getElementById('client-dropdown');
+  const inp=document.getElementById('f-client-name');
+  if(!dd.contains(e.target)&&e.target!==inp){
+    dd.classList.remove('show');
+  }
+});
+document.addEventListener('touchstart',function(e){
+  const dd=document.getElementById('client-dropdown');
+  const inp=document.getElementById('f-client-name');
+  if(!dd.contains(e.target)&&e.target!==inp){
+    dd.classList.remove('show');
+  }
 });
 
 // ── Modals ────────────────────────────────────────────────
