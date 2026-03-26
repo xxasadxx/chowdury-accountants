@@ -182,7 +182,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13p
 
 /* ── Client search dropdown ── */
 .client-wrap{position:relative}
-.client-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:6px;box-shadow:var(--shadow-md);z-index:99999;max-height:200px;overflow-y:auto;display:block}
+.client-dropdown{position:fixed;background:var(--surface);border:1px solid var(--border2);border-radius:6px;box-shadow:var(--shadow-md);z-index:99999;max-height:200px;overflow-y:auto;display:none}
 .client-dropdown.show{display:block}
 .client-opt{padding:8px 12px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border)}
 .client-opt:last-child{border-bottom:none}
@@ -274,8 +274,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13p
   </div>
 
   <!-- KPI Strip -->
-  <div id="debug-banner" style="background:#1d4ed8;color:#fff;padding:6px 20px;font-size:11px;font-family:monospace">Loading...</div>
-<div class="kpi-row">
+  <div class="kpi-row">
     <div class="kpi active" id="kpi-all" onclick="setFilter('all')">
       <div class="kpi-val" id="kv-all">—</div>
       <div class="kpi-lbl">All Invoices</div>
@@ -500,7 +499,6 @@ async function loadAll(){
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
   // Debug banner
-  var dbg=document.getElementById('debug-banner');if(dbg)dbg.textContent='✅ Loaded: '+ltd.length+' Ltd + '+sa.length+' SA = '+ALL_CLIENTS.length+' clients';
 
   // Auto-flag overdue
   const today=new Date();today.setHours(0,0,0,0);
@@ -859,7 +857,7 @@ function searchClients(q){
   dd.style.left=rect.left+'px';
   dd.style.top=(rect.bottom+2)+'px';
   dd.style.width=rect.width+'px';
-  dd.innerHTML=matches.map(cl=>`<div class="client-opt" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee" onmousedown="event.preventDefault();selectClient('${cl.name.replace(/'/g,String.fromCharCode(39))}')">
+  dd.innerHTML=matches.map(cl=>`<div class="client-opt" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee" onclick="selectClient('${cl.name.replace(/'/g,String.fromCharCode(39))}')" ontouchend="event.preventDefault();selectClient('${cl.name.replace(/'/g,String.fromCharCode(39))}')">
     <div style="font-weight:600;font-size:12px">${cl.name}</div>
     <div style="font-size:10px;margin-top:2px"><span style="padding:1px 6px;border-radius:10px;font-weight:700;${cl.type==='SE'?'background:#dbeafe;color:#1d4ed8':'background:#dcfce7;color:#15803d'}">${cl.type==='SE'?'Self-Employed':'Ltd'}</span>${cl.ref&&cl.type!=='SE'?' <span style=\'color:#aaa\'>· '+cl.ref+'</span>':''}</div>
   </div>`).join('');
