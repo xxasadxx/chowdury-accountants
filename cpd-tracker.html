@@ -1,0 +1,515 @@
+<!-- CA PORTAL v1774460000 -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var _sb=supabase.createClient(
+    'https://yhvhpfsoqtjwnukgyqap.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4'
+  );
+  _sb.auth.getSession().then(function(r){
+    var session=r.data&&r.data.session;
+    if(!session){window.location.replace('login.html');return;}
+    var role=localStorage.getItem('ca_role')||'staff';
+    var name=localStorage.getItem('ca_name')||'';
+    if(role!=='admin'){
+      var style=document.createElement('style');
+      style.innerHTML='#nav-revenue{display:none!important}#nav-strategy{display:none!important}button.act-del{display:none!important}';
+      document.head.appendChild(style);
+    } else {
+      function showAudit(){var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';}
+      if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',showAudit);}else{showAudit();}
+    }
+    window.addEventListener('DOMContentLoaded',function(){
+      var fullNames={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
+      var hu=document.getElementById('ca-hdr-user');
+      if(hu)hu.textContent=fullNames[name]||name;
+    });
+  });
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CPD Tracker — The Chowdury Accountants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&family=Mulish:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#FBFAE8;--surface:#FFFFFF;--ink:#252525;--ink2:#4A4A4A;
+  --muted:#7A7A7A;--border:#DEDEDE;--border2:#CECECE;--surface2:#F8F8F8;
+  --red:#D04A02;--red-light:#FCEEE8;
+  --green:#1D7A47;--green-light:#E5F4EC;
+  --blue:#155FA0;--blue-light:#E5EFF8;
+  --amber:#C07A00;--amber-light:#FEF3DC;
+  --purple:#7C3AED;--purple-light:#EDE9FE;
+  --accent:#D04A02;--shadow:0 1px 4px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.1);--radius:8px;
+  --sans:'Mulish',sans-serif;--display:'Raleway',sans-serif;--mono:'Fira Code',monospace;
+}
+body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;min-height:100vh}
+.page-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);background:var(--surface)}
+.page-title{font-family:var(--display);font-size:20px;font-weight:800;color:var(--accent)}
+.page-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* Staff tabs */
+.staff-tabs{display:flex;gap:0;background:var(--surface);border-bottom:2px solid var(--border);overflow-x:auto;padding:0 20px;scrollbar-width:none}
+.staff-tab{padding:12px 18px;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .15s;margin-bottom:-2px;font-family:var(--display)}
+.staff-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.staff-tab:hover{color:var(--ink)}
+
+/* Progress cards */
+.progress-section{padding:20px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+.progress-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.progress-name{font-family:var(--display);font-size:16px;font-weight:800}
+.progress-year{font-size:11px;color:var(--muted);background:var(--surface2);padding:3px 10px;border-radius:20px;border:1px solid var(--border)}
+.progress-bar-wrap{background:#f1f5f9;border-radius:99px;height:12px;overflow:hidden;margin-bottom:6px}
+.progress-bar{height:100%;border-radius:99px;transition:width .5s ease;background:linear-gradient(90deg,var(--blue),#3b82f6)}
+.progress-bar.done{background:linear-gradient(90deg,var(--green),#22c55e)}
+.progress-stats{display:flex;gap:20px;flex-wrap:wrap}
+.p-stat{font-size:11px;color:var(--muted)}
+.p-stat b{color:var(--ink);font-size:13px}
+
+/* KPI strip */
+.kpi-strip{display:flex;gap:0;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.kpi-item{padding:12px 20px;border-right:1px solid var(--border);flex-shrink:0;min-width:100px}
+.kpi-item .k{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.kpi-item .v{font-family:var(--mono);font-size:18px;font-weight:700;margin-top:2px}
+.blue{color:var(--blue)}.green{color:var(--green)}.amber{color:var(--amber)}.red{color:var(--red)}
+
+/* Toolbar */
+.toolbar{background:var(--bg);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.btn{padding:7px 15px;border-radius:7px;border:none;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-outline{background:var(--surface);color:var(--ink2);border:1px solid var(--border2)}.btn-outline:hover{border-color:var(--blue);color:var(--blue)}
+.sel{padding:7px 10px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;background:var(--surface);color:var(--ink);outline:none;cursor:pointer}
+
+/* Activity list */
+.act-list{padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.act-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.act-card:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.act-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.act-body{flex:1;min-width:0}
+.act-title{font-weight:700;font-size:12px;font-family:var(--display);margin-bottom:2px}
+.act-meta{font-size:10px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.act-desc{font-size:11px;color:var(--ink2);line-height:1.5}
+.act-reflection{font-size:11px;color:var(--purple);font-style:italic;margin-top:4px;padding-top:4px;border-top:1px solid var(--border)}
+.act-hours{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--blue);flex-shrink:0;text-align:right}
+.act-hours span{display:block;font-size:9px;color:var(--muted);font-family:var(--sans);font-weight:400}
+.badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;white-space:nowrap}
+.badge-verified{background:#dcfce7;color:#15803d}
+.badge-self{background:#dbeafe;color:#1d4ed8}
+.badge-event{background:#fef3c7;color:#92400e}
+.badge-peer{background:#ede9fe;color:#6d28d9}
+.badge-reading{background:#f0fdf4;color:#166534}
+.act-actions{display:flex;gap:4px;flex-shrink:0;align-self:flex-start}
+.act-btn{padding:4px 8px;border:1px solid var(--border);border-radius:5px;background:var(--surface);font-size:10px;cursor:pointer;font-family:var(--sans)}
+.act-btn:hover{background:var(--surface2)}
+.act-btn.del{border-color:var(--red-light);color:var(--red)}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:3000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;width:100%;max-width:560px;margin:auto;box-shadow:var(--shadow-md);overflow:hidden}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-title{font-family:var(--display);font-size:16px;font-weight:800}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border2);border-radius:7px;font-family:var(--sans);font-size:12px;background:var(--surface);color:var(--ink);outline:none}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue)}
+.field textarea{resize:vertical;min-height:70px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+@media(max-width:600px){.fg2{grid-template-columns:1fr}.act-card{flex-wrap:wrap}.act-actions{order:-1;align-self:flex-end;margin-left:auto}}
+</style>
+</head>
+<body>
+<style id="ca-nav-style">
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Mulish','DM Sans',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:12px 32px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap;letter-spacing:0.5px}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#ca-nav .ca-links::-webkit-scrollbar{display:none}
+#ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
+#ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
+#ca-nav .ca-links a.active{color:#fff;border-bottom-color:#c8963c}
+#ca-nav .ca-links .ca-signout{margin-left:auto;color:rgba(255,255,255,.3);font-size:11px}
+#ca-nav .ca-links .ca-signout:hover{color:#ff6b6b;border-bottom-color:transparent}
+</style>
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+      <div class="ca-date" id="ca-hdr-date"></div>
+      <div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Mulish',sans-serif;font-weight:600;letter-spacing:.03em"></div>
+    </div>
+  </div>
+  <div class="ca-links">
+    <a href="index.html">🏠 Portal</a>
+    <a href="revenue-tracker.html" id="nav-revenue">💰 Revenue</a>
+    <a href="ltd-tracker.html">🏢 Ltd Tracker</a>
+    <a href="vat-tracker.html">🟢 VAT</a>
+    <a href="paye-tracker.html">💼 PAYE</a>
+    <a href="sa-tracker.html">📋 SA</a>
+    <a href="ch-tracker.html">⚖️ CH Cost Tracker</a>
+    <a href="staff-management.html">👥 Staff</a>
+    <a href="jobs.html">🗂 Jobs</a>
+    <a href="appointments.html">📅 Appointments</a>
+    <a href="workflows.html">⚙️ Workflows</a>
+    <a href="onboarding.html">🆕 Onboarding</a>
+    <a href="communications.html">💬 Comms</a>
+    <a href="calendar.html">🗓 Calendar</a>
+    <a href="strategic-review.html" id="nav-strategy">🚀 Strategy</a>
+    <a href="tax-calculator.html">🧮 Tax Calc</a>
+    <a href="invoice.html">🧾 Invoices</a>
+    <a href="cpd-tracker.html" class="active">🎓 CPD</a>
+    <a href="audit.html" id="nav-audit" style="display:none">🔍 Audit</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false;">Sign out</a>
+  </div>
+</div>
+<script>
+(function(){
+  var d=new Date();
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var el=document.getElementById('ca-hdr-date');
+  if(el)el.textContent=days[d.getDay()]+', '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+})();
+</script>
+
+<div class="page-header">
+  <div class="page-title">🎓 CPD Tracker</div>
+  <div class="page-sub">Continuing Professional Development — all staff · Annual target: 30 hours</div>
+</div>
+
+<!-- Staff tabs -->
+<div class="staff-tabs" id="staff-tabs">
+  <div class="staff-tab active" onclick="switchStaff('Asadul',this)">Asadul</div>
+  <div class="staff-tab" onclick="switchStaff('Hassan',this)">Hassan</div>
+  <div class="staff-tab" onclick="switchStaff('Aminul',this)">Aminul</div>
+  <div class="staff-tab" onclick="switchStaff('Nawaz',this)">Nawaz</div>
+  <div class="staff-tab" onclick="switchStaff('Sadat',this)">Sadat</div>
+</div>
+
+<!-- Progress section -->
+<div class="progress-section">
+  <div class="progress-header">
+    <div class="progress-name" id="prog-name">Asadul</div>
+    <div class="progress-year" id="prog-year">2025/26</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+  </div>
+  <div class="progress-stats">
+    <div class="p-stat"><b id="prog-hours">0</b> hrs completed</div>
+    <div class="p-stat"><b>30</b> hrs target</div>
+    <div class="p-stat"><b id="prog-remaining">30</b> hrs remaining</div>
+    <div class="p-stat" id="prog-status-wrap"><span id="prog-status"></span></div>
+  </div>
+</div>
+
+<!-- KPI strip -->
+<div class="kpi-strip" id="kpi-strip">
+  <div class="kpi-item"><div class="k">Total Hours</div><div class="v blue" id="kpi-total">0</div></div>
+  <div class="kpi-item"><div class="k">Activities</div><div class="v" id="kpi-count">0</div></div>
+  <div class="kpi-item"><div class="k">Verified</div><div class="v green" id="kpi-verified">0</div></div>
+  <div class="kpi-item"><div class="k">Self-Study</div><div class="v" id="kpi-self">0</div></div>
+  <div class="kpi-item"><div class="k">Events</div><div class="v amber" id="kpi-events">0</div></div>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <button class="btn btn-blue" onclick="openAddModal()">+ Add Activity</button>
+  <select class="sel" id="filter-year" onchange="filterActivities()">
+    <option value="2025/26">2025/26</option>
+    <option value="2024/25">2024/25</option>
+    <option value="all">All Years</option>
+  </select>
+  <select class="sel" id="filter-type" onchange="filterActivities()">
+    <option value="all">All Types</option>
+    <option value="event">Events / Conferences</option>
+    <option value="reading">Reading / Research</option>
+    <option value="peer">Peer Learning</option>
+    <option value="online">Online / Webinar</option>
+    <option value="self">Self-Directed Study</option>
+    <option value="other">Other</option>
+  </select>
+</div>
+
+<!-- Activity list -->
+<div class="act-list" id="act-list">
+  <div class="empty"><div class="empty-icon">🎓</div><div>No CPD activities yet.<br>Click + Add Activity to get started.</div></div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add CPD Activity</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Activity Title</label>
+        <input id="f-title" type="text" placeholder="e.g. Accountex Summit Manchester 2025">
+      </div>
+      <div class="fg2">
+        <div class="field">
+          <label>Type</label>
+          <select id="f-type">
+            <option value="event">Event / Conference</option>
+            <option value="reading">Reading / Research</option>
+            <option value="peer">Peer Learning</option>
+            <option value="online">Online / Webinar</option>
+            <option value="self">Self-Directed Study</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>CPD Year</label>
+          <select id="f-year">
+            <option value="2025/26">2025/26</option>
+            <option value="2024/25">2024/25</option>
+            <option value="2023/24">2023/24</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="field">
+          <label>Provider / Source</label>
+          <input id="f-provider" type="text" placeholder="e.g. Diversified Communications UK">
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input id="f-date" type="date">
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="field">
+          <label>Hours</label>
+          <input id="f-hours" type="number" min="0.5" max="100" step="0.5" placeholder="e.g. 8">
+        </div>
+        <div class="field">
+          <label>Verified by Provider?</label>
+          <select id="f-verified">
+            <option value="false">No — Self-reported</option>
+            <option value="true">Yes — Certificate held</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Description / Topics Covered</label>
+        <textarea id="f-desc" placeholder="Brief description of what was covered..."></textarea>
+      </div>
+      <div class="field">
+        <label>Reflection (What did you learn? How will it improve your work?)</label>
+        <textarea id="f-reflection" placeholder="How has this activity developed your professional competence?"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-blue" onclick="saveActivity()">💾 Save Activity</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+const TARGET=30;
+const TYPE_ICONS={event:'🏛️',reading:'📚',peer:'👥',online:'💻',self:'🔬',other:'📌'};
+const TYPE_LABELS={event:'Event / Conference',reading:'Reading / Research',peer:'Peer Learning',online:'Online / Webinar',self:'Self-Directed Study',other:'Other'};
+const TYPE_BADGE={event:'badge-event',reading:'badge-reading',peer:'badge-peer',online:'badge-self',self:'badge-self',other:'badge-self'};
+const STAFF_FULL={Asadul:'Md Asadul Chowdury',Hassan:'Hassan Ali',Aminul:'Aminul Choudhury',Nawaz:'Syed Nawaz',Sadat:'Sadat Hossain'};
+
+let ALL=[], CURRENT_STAFF='Asadul', EDITING_ID=null;
+
+async function sbFetch(path,opts={}){
+  const r=await fetch(SB_URL+'/rest/v1/'+path,{...opts,headers:{...H,...(opts.headers||{})}});
+  const t=await r.text();
+  if(!t||t==='null')return[];
+  try{return JSON.parse(t);}catch(e){return[];}
+}
+
+async function init(){
+  // Create table if needed — will just fail silently if exists
+  await loadActivities();
+  document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+}
+
+async function loadActivities(){
+  const rows=await sbFetch('cpd_activities?select=*&staff=eq.'+CURRENT_STAFF+'&order=date.desc&limit=200');
+  ALL=Array.isArray(rows)?rows:[];
+  renderAll();
+}
+
+function renderAll(){
+  const year=document.getElementById('filter-year').value;
+  const type=document.getElementById('filter-type').value;
+  let data=ALL;
+  if(year!=='all') data=data.filter(a=>a.cpd_year===year);
+  if(type!=='all') data=data.filter(a=>a.type===type);
+
+  // KPIs from full year data
+  const yearData=year==='all'?ALL:ALL.filter(a=>a.cpd_year===year);
+  const totalHrs=yearData.reduce((s,a)=>s+(+a.hours||0),0);
+  const verified=yearData.filter(a=>a.verified).length;
+  const selfStudy=yearData.filter(a=>a.type==='reading'||a.type==='self').reduce((s,a)=>s+(+a.hours||0),0);
+  const events=yearData.filter(a=>a.type==='event'||a.type==='online').reduce((s,a)=>s+(+a.hours||0),0);
+
+  document.getElementById('kpi-total').textContent=totalHrs.toFixed(1);
+  document.getElementById('kpi-count').textContent=yearData.length;
+  document.getElementById('kpi-verified').textContent=verified;
+  document.getElementById('kpi-self').textContent=selfStudy.toFixed(1);
+  document.getElementById('kpi-events').textContent=events.toFixed(1);
+
+  // Progress bar
+  document.getElementById('prog-name').textContent=STAFF_FULL[CURRENT_STAFF]||CURRENT_STAFF;
+  document.getElementById('prog-year').textContent=year==='all'?'All Years':year;
+  const pct=Math.min(100,(totalHrs/TARGET)*100);
+  document.getElementById('prog-bar').style.width=pct+'%';
+  document.getElementById('prog-bar').className='progress-bar'+(totalHrs>=TARGET?' done':'');
+  document.getElementById('prog-hours').textContent=totalHrs.toFixed(1);
+  document.getElementById('prog-remaining').textContent=Math.max(0,TARGET-totalHrs).toFixed(1);
+  const statusEl=document.getElementById('prog-status');
+  if(totalHrs>=TARGET){
+    statusEl.textContent='✅ Target met!';
+    statusEl.style.color='var(--green)';
+    statusEl.style.fontWeight='700';
+  } else {
+    statusEl.textContent='';
+  }
+
+  // Render list
+  const el=document.getElementById('act-list');
+  if(!data.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">🎓</div><div>No CPD activities found.<br>Click + Add Activity to get started.</div></div>';
+    return;
+  }
+
+  el.innerHTML=data.map(a=>{
+    const icon=TYPE_ICONS[a.type]||'📌';
+    const badge=TYPE_BADGE[a.type]||'badge-self';
+    const label=TYPE_LABELS[a.type]||a.type;
+    const fmtDate=a.date?new Date(a.date).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    return `<div class="act-card">
+      <div class="act-icon" style="background:var(--blue-light)">${icon}</div>
+      <div class="act-body">
+        <div class="act-title">${esc(a.title||'Untitled')}</div>
+        <div class="act-meta">
+          <span class="badge ${badge}">${label}</span>
+          ${a.verified?'<span class="badge badge-verified">✅ Verified</span>':''}
+          <span>${fmtDate}</span>
+          ${a.provider?'<span>📍 '+esc(a.provider)+'</span>':''}
+          <span style="color:var(--muted)">📅 ${a.cpd_year||'—'}</span>
+        </div>
+        ${a.description?`<div class="act-desc">${esc(a.description)}</div>`:''}
+        ${a.reflection?`<div class="act-reflection">💭 ${esc(a.reflection)}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="act-hours">${(+a.hours||0).toFixed(1)}<span>hours</span></div>
+        <div class="act-actions">
+          <button class="act-btn" onclick="editActivity(${a.id})">✏️</button>
+          <button class="act-btn del act-del" onclick="deleteActivity(${a.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+function switchStaff(name,el){
+  CURRENT_STAFF=name;
+  document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  loadActivities();
+}
+
+function filterActivities(){renderAll();}
+
+function openAddModal(){
+  EDITING_ID=null;
+  document.getElementById('modal-title').textContent='Add CPD Activity';
+  document.getElementById('f-title').value='';
+  document.getElementById('f-type').value='event';
+  document.getElementById('f-year').value='2025/26';
+  document.getElementById('f-provider').value='';
+  document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('f-hours').value='';
+  document.getElementById('f-verified').value='false';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-reflection').value='';
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function editActivity(id){
+  const a=ALL.find(x=>x.id===id);
+  if(!a)return;
+  EDITING_ID=id;
+  document.getElementById('modal-title').textContent='Edit CPD Activity';
+  document.getElementById('f-title').value=a.title||'';
+  document.getElementById('f-type').value=a.type||'event';
+  document.getElementById('f-year').value=a.cpd_year||'2025/26';
+  document.getElementById('f-provider').value=a.provider||'';
+  document.getElementById('f-date').value=a.date||'';
+  document.getElementById('f-hours').value=a.hours||'';
+  document.getElementById('f-verified').value=a.verified?'true':'false';
+  document.getElementById('f-desc').value=a.description||'';
+  document.getElementById('f-reflection').value=a.reflection||'';
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+async function saveActivity(){
+  const payload={
+    staff:CURRENT_STAFF,
+    title:document.getElementById('f-title').value.trim(),
+    type:document.getElementById('f-type').value,
+    cpd_year:document.getElementById('f-year').value,
+    provider:document.getElementById('f-provider').value.trim(),
+    date:document.getElementById('f-date').value||null,
+    hours:parseFloat(document.getElementById('f-hours').value)||0,
+    verified:document.getElementById('f-verified').value==='true',
+    description:document.getElementById('f-desc').value.trim(),
+    reflection:document.getElementById('f-reflection').value.trim(),
+  };
+  if(!payload.title){alert('Please enter an activity title.');return;}
+  if(!payload.hours){alert('Please enter hours.');return;}
+
+  if(EDITING_ID){
+    await sbFetch('cpd_activities?id=eq.'+EDITING_ID,{method:'PATCH',body:JSON.stringify(payload)});
+  } else {
+    await sbFetch('cpd_activities',{method:'POST',body:JSON.stringify(payload)});
+  }
+  closeModal();
+  loadActivities();
+}
+
+async function deleteActivity(id){
+  if(!confirm('Delete this CPD activity?'))return;
+  await sbFetch('cpd_activities?id=eq.'+id,{method:'DELETE'});
+  loadActivities();
+}
+
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+document.getElementById('modal-bg').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+init();
+</script>
+</body>
+</html>
