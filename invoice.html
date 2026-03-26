@@ -462,9 +462,11 @@ function fmt(n){return'£'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',
 function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
 async function sb(path,opts={}){
   const {headers:eh,...rest}=opts;
-  const r=await fetch(SB_URL+'/rest/v1/'+path,{...rest,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(eh||{})}});
+  const isGet=!opts.method||opts.method==='GET';
+  const prefer=isGet?{}:{'Prefer':'return=representation'};
+  const r=await fetch(SB_URL+'/rest/v1/'+path,{...rest,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json',...prefer,...(eh||{})}});
   const t=await r.text();
-  if(!r.ok){console.warn('Supabase error',path,t);return[];}
+  if(!r.ok){console.warn('Supabase error',path,r.status,t);return[];}
   if(!t||t==='null')return[];
   try{return JSON.parse(t);}catch(e){return[];}
 }
