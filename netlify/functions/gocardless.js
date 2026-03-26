@@ -6,7 +6,6 @@ exports.handler = async function(event, context) {
     let all = [], cursor = null, hasMore = true;
     while (hasMore) {
       const url = new URL('https://api.gocardless.com/payments');
-      url.searchParams.set('status', 'confirmed');
       url.searchParams.set('limit', '500');
       if (cursor) url.searchParams.set('after', cursor);
       const res = await fetch(url.toString(), {
