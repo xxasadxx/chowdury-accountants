@@ -22,12 +22,7 @@
       if(role==='admin'){var na=document.getElementById('nav-audit');if(na)na.style.display='inline-block';}
       else{var s=document.createElement('style');s.innerHTML='#nav-revenue{display:none!important}#nav-strategy{display:none!important}';document.head.appendChild(s);}
     });
-    // Call loadAll whether DOM is ready or not
-    if(document.readyState==='loading'){
-      window.addEventListener('DOMContentLoaded',function(){if(typeof loadAll==='function')loadAll();});
-    } else {
-      if(typeof loadAll==='function') loadAll();
-    }
+    window._authReady=true;
   });
 })();
 </script>
@@ -860,6 +855,7 @@ function closeModal(id){document.getElementById(id).classList.add('hidden');}
 
 // ── Init ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',function(){
+  loadAll();
   // Set default dates
   const today=new Date().toISOString().slice(0,10);
   const due=new Date();due.setDate(due.getDate()+14);
