@@ -240,6 +240,12 @@ body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--s
     <option value="2024/25">2024/25</option>
     <option value="all">All Years</option>
   </select>
+  <select class="sel" id="sort-by" onchange="filterActivities()">
+    <option value="verified">✅ Verified First</option>
+    <option value="date_desc">📅 Date (Newest)</option>
+    <option value="date_asc">📅 Date (Oldest)</option>
+    <option value="hours">⏱ Hours (Most)</option>
+  </select>
   <select class="sel" id="filter-type" onchange="filterActivities()">
     <option value="all">All Types</option>
     <option value="event">Events / Conferences</option>
@@ -372,7 +378,16 @@ async function loadActivities(){
 function renderAll(){
   const year=document.getElementById('filter-year').value;
   const type=document.getElementById('filter-type').value;
-  let data=[...ALL].sort((a,b)=>{if(b.verified!==a.verified)return b.verified?1:-1;return new Date(b.date||0)-new Date(a.date||0);});
+  const sortBy=document.getElementById('sort-by')?.value||'verified';
+  let data=[...ALL].sort((a,b)=>{
+    if(sortBy==='verified'){
+      if(b.verified!==a.verified)return b.verified?1:-1;
+      return new Date(b.date||0)-new Date(a.date||0);
+    } else if(sortBy==='date_desc') return new Date(b.date||0)-new Date(a.date||0);
+    else if(sortBy==='date_asc') return new Date(a.date||0)-new Date(b.date||0);
+    else if(sortBy==='hours') return (+b.hours||0)-(+a.hours||0);
+    return 0;
+  });
   if(year!=='all') data=data.filter(a=>a.cpd_year===year);
   if(type!=='all') data=data.filter(a=>a.type===type);
 
