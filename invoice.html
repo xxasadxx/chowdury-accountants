@@ -479,12 +479,12 @@ async function sbDelete(path){return sb(path,{method:'DELETE'});}
 async function loadAll(){
   try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
-  const ltdClients = await sb('ltd_clients?select=comp_no,name,director_email,director_address,status&order=name.asc&limit=2000').catch(()=>[]);
-  const saClients = await sb('sa_clients?select=id,forename,surname,email,address,status&order=forename.asc&limit=2000').catch(()=>[]);
+  const ltdClients = await sb('ltd_clients?select=comp_no,director_name,director_email,director_address,status&order=comp_no.asc&limit=2000').catch(()=>[]);
+  const saClients = await sb('sa_clients?select=id,forename,surname,name,email,address,status&order=id.asc&limit=2000').catch(()=>[]);
 
   ALL_INVOICES=Array.isArray(invs)?invs:[];
-  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.comp_no,name:c.name||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||''})).filter(c=>c.name);
-  const sa=(Array.isArray(saClients)?saClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.id,name:((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SE',email:c.email||'',address:c.address||''})).filter(c=>c.name);
+  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.comp_no,name:c.director_name||c.comp_no||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||''})).filter(c=>c.name);
+  const sa=(Array.isArray(saClients)?saClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.id,name:c.name||((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SE',email:c.email||'',address:c.address||''})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
   // Debug banner
