@@ -755,7 +755,7 @@ window.caAudit = (function(){
   </div>
   <div class="tbl-wrap">
     <table>
-      <thead><tr>
+      <thead id="rp-thead"><tr>
         <th>Month</th>
         <th>DD Expected</th>
         <th>DD Collected</th>
@@ -1976,78 +1976,81 @@ function renderReports(){
 
 function renderReportsWithData(allData){
   window._rpAllData=allData;
-  const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const months=[];
-  const now=new Date();
-  let y=2026,m=2;
-  while(y<now.getFullYear()||(y===now.getFullYear()&&m<=now.getMonth())){
-    months.push(mNames[m]+' '+y);
-    m++;if(m>11){m=0;y++;}
+  var mNames=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var months=[];
+  var now=new Date();
+  var y=2026,mo=2;
+  while(y<now.getFullYear()||(y===now.getFullYear()&&mo<=now.getMonth())){
+    months.push(mNames[mo]+" "+y);
+    mo++;if(mo>11){mo=0;y++;}
   }
-  if(!months.length){document.getElementById('rp-noRes').style.display='block';return;}
-  document.getElementById('rp-noRes').style.display='none';
-
-  const filtered=reportFilter==='all'?allData:allData.filter(h=>h.client_type===reportFilter);
-
-  let totGcExp=0,totGcCol=0,totSoExp=0,totSoCol=0;
-
-  const rows=months.map(mon=>{
-    const ddRows=allData.filter(h=>h.month===mon&&h.client_type==='dd');
-    const soRows=allData.filter(h=>h.month===mon&&h.client_type==='so');
-    const ddActive=ddRows.filter(h=>h.status!=='pending');
-    const soActive=soRows.filter(h=>h.status!=='pending');
-    const ddExp=ddActive.reduce((s,h)=>s+(h.expected||0),0);
-    const ddCol=ddActive.filter(h=>h.status!=='failed').reduce((s,h)=>s+(h.received||0),0);
-    const soExp=soActive.reduce((s,h)=>s+(h.expected||0),0);
-    const soCol=soActive.filter(h=>h.status!=='failed').reduce((s,h)=>s+(h.received||0),0);
-    const totExp=ddExp+soExp,totCol=ddCol+soCol;
-    const gcRate=ddExp>0?Math.round(ddCol/ddExp*100):null;
-    const soRate=soExp>0?Math.round(soCol/soExp*100):null;
-    const totRate=totExp>0?Math.round(totCol/totExp*100):null;
+  if(!months.length){document.getElementById("rp-noRes").style.display="block";return;}
+  document.getElementById("rp-noRes").style.display="none";
+  var f=reportFilter;
+  var showDD=f==="all"||f==="dd";
+  var showSO=f==="all"||f==="so";
+  var showTot=f==="all";
+  var hdr="<tr><th>Month</th>";
+  if(showDD) hdr+="<th>DD Expected</th><th>DD Collected</th><th>DD Rate</th>";
+  if(showSO) hdr+="<th>SO Expected</th><th>SO Collected</th><th>SO Rate</th>";
+  if(showTot) hdr+='<th style="background:var(--accent-light);color:var(--accent)">Total Expected</th><th style="background:var(--green-light);color:var(--green)">Total Collected</th><th>Rate</th>';
+  else hdr+='<th style="background:var(--green-light);color:var(--green)">Collected</th><th>Rate</th>';
+  hdr+='<th style="background:var(--red-light);color:var(--red)">Failed</th></tr>';
+  document.getElementById("rp-thead").innerHTML=hdr;
+  function rc(r){return r===null?"var(--muted)":r>=95?"var(--green)":r>=80?"var(--amber)":"var(--red)";}
+  function fr(r){return r===null?"--":r+"%";}
+  function fm(v){return v>0?"£"+Math.round(v).toLocaleString("en-GB"):"--";}
+  var totGcExp=0,totGcCol=0,totSoExp=0,totSoCol=0;
+  var rows=months.map(function(mon){
+    var ddR=allData.filter(function(h){return h.month===mon&&h.client_type==="dd"&&h.status!=="pending";});
+    var soR=allData.filter(function(h){return h.month===mon&&h.client_type==="so"&&h.status!=="pending";});
+    var ddExp=ddR.reduce(function(s,h){return s+(h.expected||0);},0);
+    var ddCol=ddR.filter(function(h){return h.status==="paid";}).reduce(function(s,h){return s+(h.received||0);},0);
+    var soExp=soR.reduce(function(s,h){return s+(h.expected||0);},0);
+    var soCol=soR.filter(function(h){return h.status==="paid";}).reduce(function(s,h){return s+(h.received||0);},0);
+    var totExp=ddExp+soExp,totCol=ddCol+soCol;
+    var gcRate=ddExp>0?Math.round(ddCol/ddExp*100):null;
+    var soRate=soExp>0?Math.round(soCol/soExp*100):null;
+    var totRate=totExp>0?Math.round(totCol/totExp*100):null;
     totGcExp+=ddExp;totGcCol+=ddCol;totSoExp+=soExp;totSoCol+=soCol;
-
-    const rateColor=(r)=>r===null?'var(--muted)':r>=95?'var(--green)':r>=80?'var(--amber)':'var(--red)';
-    const fmtRate=(r)=>r===null?'—':r+'%';
-    const fmtMoney=(v)=>v>0?'£'+Math.round(v).toLocaleString('en-GB'):'—';
-    const hasPending=filtered.filter(h=>h.month===mon&&h.status==='pending').length>0;
-
-    return '<tr style="cursor:pointer" onclick="openMonthBreakdown(\''+mon+'\')" title="Click to see paid clients">'
-      +'<td style="font-weight:700;white-space:nowrap;color:var(--accent);text-decoration:underline dotted">'+mon+(hasPending?'<span style="font-size:0.6rem;color:var(--amber);margin-left:5px">⏳</span>':'')+'</td>'
-      +'<td style="font-family:\'DM Mono\',monospace;color:var(--muted);font-size:0.75rem">'+fmtMoney(ddExp)+'</td>'
-      +'<td style="font-family:\'DM Mono\',monospace;color:var(--green);font-weight:600;font-size:0.75rem">'+fmtMoney(ddCol)+'</td>'
-      +'<td><span style="font-weight:700;color:'+rateColor(gcRate)+'">'+fmtRate(gcRate)+'</span></td>'
-      +'<td style="font-family:\'DM Mono\',monospace;color:var(--muted);font-size:0.75rem">'+fmtMoney(soExp)+'</td>'
-      +'<td style="font-family:\'DM Mono\',monospace;color:var(--green);font-weight:600;font-size:0.75rem">'+fmtMoney(soCol)+'</td>'
-      +'<td><span style="font-weight:700;color:'+rateColor(soRate)+'">'+fmtRate(soRate)+'</span></td>'
-      +'<td style="background:var(--accent-light);font-family:\'DM Mono\',monospace;font-weight:700;font-size:0.75rem;color:var(--accent)">'+fmtMoney(totExp)+'</td>'
-      +'<td style="background:var(--green-light);font-family:\'DM Mono\',monospace;font-weight:700;font-size:0.75rem;color:var(--green)">'+fmtMoney(totCol)+'</td>'
-      +'<td><span style="font-weight:700;font-size:0.9rem;color:'+rateColor(totRate)+'">'+fmtRate(totRate)+'</span></td>'
-      +(function(){var fc=FP.filter(f=>f.failure_date===mon);var out=fc.filter(f=>f.status==='outstanding').length;var res=fc.filter(f=>f.status==='resolved').length;if(!fc.length)return '<td style="color:var(--muted);font-size:0.75rem">—</td>';return '<td style="background:var(--red-light)"><span style="color:var(--red);font-weight:700;font-size:0.8rem">'+out+' ⚠️'+( res?'<span style="color:var(--green);font-size:0.7rem;margin-left:4px">'+res+' ✅</span>':'')+ '</span></td>';})()      +'</tr>';
+    var hasPending=allData.filter(function(h){return h.month===mon&&h.status==="pending";}).length>0;
+    var fpRow=FP.filter(function(fp){return fp.failure_date===mon;});
+    var fpOut=fpRow.filter(function(fp){return fp.status==="outstanding";}).length;
+    var fpRes=fpRow.filter(function(fp){return fp.status==="resolved";}).length;
+    var fpCell=fpRow.length?('<td style="background:var(--red-light)"><span style="color:var(--red);font-weight:700">'+fpOut+' ⚠️'+(fpRes?'<span style="color:var(--green);font-size:0.7rem;margin-left:4px">'+fpRes+' ✅</span>':'')+'</span></td>'):'<td style="color:var(--muted);font-size:0.75rem">--</td>';
+    var r='<tr style="cursor:pointer" onclick="openMonthBreakdown(\'"+mon+"\')" title="Click">'
+      +'<td style="font-weight:700;white-space:nowrap;color:var(--accent);text-decoration:underline dotted">'+mon+(hasPending?'<span style="font-size:0.6rem;color:var(--amber);margin-left:5px">⏳</span>':'')+'</td>';
+    if(showDD) r+='<td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--muted);font-size:0.75rem">'+fm(ddExp)+'</td><td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--green);font-weight:600;font-size:0.75rem">'+fm(ddCol)+'</td><td><span style="font-weight:700;color:'+rc(gcRate)+'">'+fr(gcRate)+'</span></td>';
+    if(showSO) r+='<td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--muted);font-size:0.75rem">'+fm(soExp)+'</td><td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--green);font-weight:600;font-size:0.75rem">'+fm(soCol)+'</td><td><span style="font-weight:700;color:'+rc(soRate)+'">'+fr(soRate)+'</span></td>';
+    var cCol=showDD?ddCol:soCol;var cRate=showDD?gcRate:soRate;
+    if(showTot) r+='<td style="background:var(--accent-light);font-family:'+"'"+'DM Mono'+"'"+',monospace;font-weight:700;font-size:0.75rem;color:var(--accent)">'+fm(totExp)+'</td><td style="background:var(--green-light);font-family:'+"'"+'DM Mono'+"'"+',monospace;font-weight:700;font-size:0.75rem;color:var(--green)">'+fm(totCol)+'</td><td><span style="font-weight:700;font-size:0.9rem;color:'+rc(totRate)+'">'+fr(totRate)+'</span></td>';
+    else r+='<td style="background:var(--green-light);font-family:'+"'"+'DM Mono'+"'"+',monospace;font-weight:700;font-size:0.75rem;color:var(--green)">'+fm(cCol)+'</td><td><span style="font-weight:700;font-size:0.9rem;color:'+rc(cRate)+'">'+fr(cRate)+'</span></td>';
+    r+=fpCell+"</tr>";
+    return r;
   });
-
-  const ytdExp=totGcExp+totSoExp,ytdCol=totGcCol+totSoCol;
-  const ytdRate=ytdExp>0?Math.round(ytdCol/ytdExp*100):0;
-  rows.push('<tr style="background:var(--surface);font-weight:700;border-top:2px solid var(--border)">'
-    +'<td style="font-weight:700">📊 Year Total</td>'
-    +'<td style="font-family:\'DM Mono\',monospace;color:var(--muted)">£'+Math.round(totGcExp).toLocaleString('en-GB')+'</td>'
-    +'<td style="font-family:\'DM Mono\',monospace;color:var(--green)">£'+Math.round(totGcCol).toLocaleString('en-GB')+'</td>'
-    +'<td><span style="color:'+(totGcExp>0?Math.round(totGcCol/totGcExp*100)+'%':'—')+'">'+( totGcExp>0?Math.round(totGcCol/totGcExp*100)+'%':'—')+'</span></td>'
-    +'<td style="font-family:\'DM Mono\',monospace;color:var(--muted)">£'+Math.round(totSoExp).toLocaleString('en-GB')+'</td>'
-    +'<td style="font-family:\'DM Mono\',monospace;color:var(--green)">£'+Math.round(totSoCol).toLocaleString('en-GB')+'</td>'
-    +'<td>'+(totSoExp>0?Math.round(totSoCol/totSoExp*100)+'%':'—')+'</td>'
-    +'<td style="background:var(--accent-light);color:var(--accent);font-family:\'DM Mono\',monospace">£'+Math.round(ytdExp).toLocaleString('en-GB')+'</td>'
-    +'<td style="background:var(--green-light);color:var(--green);font-family:\'DM Mono\',monospace">£'+Math.round(ytdCol).toLocaleString('en-GB')+'</td>'
-    +'<td><span style="font-weight:700;font-size:1rem;color:'+(ytdRate>=95?'var(--green)':ytdRate>=80?'var(--amber)':'var(--red)')+'">'+ytdRate+'%</span></td>'
-    +(function(){var totalFailed=FP.filter(f=>f.status==='outstanding').length;var totalResolved=FP.filter(f=>f.status==='resolved').length;return '<td style="background:var(--red-light)"><span style="color:var(--red);font-weight:700">'+totalFailed+' ⚠️'+( totalResolved?'<span style="color:var(--green);font-size:0.7rem;margin-left:4px">'+totalResolved+' ✅</span>':'')+ '</span></td>';})()
-    +'</tr>');
-
-  document.getElementById('rp-tbody').innerHTML=rows.join('');
-  document.getElementById('rp-kExpected').textContent='£'+Math.round(ytdExp/1000)+'k';
-  document.getElementById('rp-kCollected').textContent='£'+Math.round(ytdCol/1000)+'k';
-  document.getElementById('rp-kMissed').textContent='£'+Math.round((ytdExp-ytdCol)/1000)+'k';
-  document.getElementById('rp-kRate').textContent=ytdRate+'%';
-  document.getElementById('rp-lastUpdated').textContent='Updated '+new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  var ytdExp=totGcExp+totSoExp,ytdCol=totGcCol+totSoCol;
+  var ytdRate=ytdExp>0?Math.round(ytdCol/ytdExp*100):0;
+  var gcR2=totGcExp>0?Math.round(totGcCol/totGcExp*100):0;
+  var soR2=totSoExp>0?Math.round(totSoCol/totSoExp*100):0;
+  var sCol=showDD?totGcCol:totSoCol;var sExp=showDD?totGcExp:totSoExp;
+  var sRate=sExp>0?Math.round(sCol/sExp*100):0;
+  var totalFailed=FP.filter(function(fp){return fp.status==="outstanding";}).length;
+  var totalResolved=FP.filter(function(fp){return fp.status==="resolved";}).length;
+  var yr='<tr style="background:var(--surface);font-weight:700;border-top:2px solid var(--border)"><td style="font-weight:700">£ Year Total</td>';
+  if(showDD) yr+='<td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--muted)">£'+Math.round(totGcExp).toLocaleString("en-GB")+'</td><td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--green)">£'+Math.round(totGcCol).toLocaleString("en-GB")+'</td><td><span style="color:'+rc(gcR2)+'">'+gcR2+'%</span></td>';
+  if(showSO) yr+='<td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--muted)">£'+Math.round(totSoExp).toLocaleString("en-GB")+'</td><td style="font-family:'+"'"+'DM Mono'+"'"+',monospace;color:var(--green)">£'+Math.round(totSoCol).toLocaleString("en-GB")+'</td><td>'+soR2+'%</td>';
+  if(showTot) yr+='<td style="background:var(--accent-light);color:var(--accent);font-family:'+"'"+'DM Mono'+"'"+',monospace">£'+Math.round(ytdExp).toLocaleString("en-GB")+'</td><td style="background:var(--green-light);color:var(--green);font-family:'+"'"+'DM Mono'+"'"+',monospace">£'+Math.round(ytdCol).toLocaleString("en-GB")+'</td><td><span style="font-weight:700;font-size:1rem;color:'+rc(ytdRate)+'">'+ytdRate+'%</span></td>';
+  else yr+='<td style="background:var(--green-light);color:var(--green);font-family:'+"'"+'DM Mono'+"'"+',monospace">£'+Math.round(sCol).toLocaleString("en-GB")+'</td><td><span style="font-weight:700;font-size:1rem;color:'+rc(sRate)+'">'+sRate+'%</span></td>';
+  yr+='<td style="background:var(--red-light)"><span style="color:var(--red);font-weight:700">'+totalFailed+' ⚠️'+(totalResolved?'<span style="color:var(--green);font-size:0.7rem;margin-left:4px">'+totalResolved+' ✅</span>':'')+'</span></td></tr>';
+  rows.push(yr);
+  document.getElementById("rp-tbody").innerHTML=rows.join("");
+  document.getElementById("rp-kExpected").textContent="£"+Math.round(ytdExp/1000)+"k";
+  document.getElementById("rp-kCollected").textContent="£"+Math.round(ytdCol/1000)+"k";
+  document.getElementById("rp-kMissed").textContent="£"+Math.round((ytdExp-ytdCol)/1000)+"k";
+  document.getElementById("rp-kRate").textContent=ytdRate+"%";
+  document.getElementById("rp-lastUpdated").textContent="Updated "+new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
 }
+
 
 function exportCSV(type){
   let rows=[], filename='', headers=[];
