@@ -488,12 +488,12 @@ async function loadAll(){
   try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
   const ltdClients = await sb('clients?select=comp_no,display_name,director_name,director_email,director_address,director_mobile&client_type=eq.ltd&order=display_name.asc&limit=2000').catch(()=>[]);
-  const saClients = await sb('sa_clients?select=id,forename,surname,name,email,address,status&order=id.asc&limit=2000').catch(()=>[]);
+  const saClients = await sb('sa_clients?select=id,forename,surname,name,email,address,phone,status&order=forename.asc&limit=2000').catch(()=>[]);
 
   ALL_INVOICES=Array.isArray(invs)?invs:[];
   const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.comp_no,name:c.display_name||c.director_name||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||'',mobile:c.director_mobile||''})).filter(c=>c.name);
-  const sa=(Array.isArray(saClients)?saClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.id,name:c.name||((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SE',email:c.email||'',address:c.address||''})).filter(c=>c.name);
-  ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const sa=(Array.isArray(saClients)?saClients:[]).filter(c=>!c.status||c.status==='active').map(c=>({id:c.id,name:c.name||((c.forename||'')+' '+(c.surname||'')).trim(),ref:'Self-Employed',type:'SE',email:c.email||'',address:c.address||'',mobile:c.phone||''})).filter(c=>c.name);
+  ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
   // Debug banner
   var dbg=document.getElementById('debug-banner');if(dbg)dbg.textContent='✅ Loaded: '+ltd.length+' Ltd + '+sa.length+' SA = '+ALL_CLIENTS.length+' clients';
@@ -857,7 +857,7 @@ function searchClients(q){
   dd.style.width=rect.width+'px';
   dd.innerHTML=matches.map(cl=>`<div class="client-opt" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee" onmousedown="event.preventDefault();selectClient('${cl.name.replace(/'/g,String.fromCharCode(39))}')">
     <div style="font-weight:600;font-size:12px">${cl.name}</div>
-    <div style="font-size:10px;color:#888">${cl.type}${cl.ref?' · '+cl.ref:''}</div>
+    <div style="font-size:10px;margin-top:2px"><span style="padding:1px 6px;border-radius:10px;font-weight:700;${cl.type==='SE'?'background:#dbeafe;color:#1d4ed8':'background:#dcfce7;color:#15803d'}">${cl.type==='SE'?'Self-Employed':'Ltd'}</span>${cl.ref&&cl.type!=='SE'?' <span style=\'color:#aaa\'>· '+cl.ref+'</span>':''}</div>
   </div>`).join('');
   dd.classList.add('show');
 }
