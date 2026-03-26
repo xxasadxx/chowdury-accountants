@@ -2115,7 +2115,9 @@ function openMonthBreakdown(mon){
       +'<td style="padding:6px 8px;text-align:center"><span style="background:'+bg+';color:'+col+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+btn+'</td>'
       +'</tr>';
   }
-  if(ddPaid.length){
+  var showDD2=reportFilter==='all'||reportFilter==='dd';
+  var showSO2=reportFilter==='all'||reportFilter==='so';
+  if(ddPaid.length&&showDD2){
     html+='<div style="font-weight:700;color:var(--accent);margin:12px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">&#x1F4B3; Direct Debit (\xa3'+Math.round(ddTotal).toLocaleString('en-GB')+')</div>';
     html+='<table style="width:100%;font-size:0.8rem"><thead><tr>'
       +'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Client</th>'
@@ -2125,7 +2127,7 @@ function openMonthBreakdown(mon){
     ddPaid.forEach(h=>{ html+=makeRow(h); });
     html+='</tbody></table>';
   }
-  if(soPaid.length){
+  if(soPaid.length&&showSO2){
     html+='<div style="font-weight:700;color:var(--green);margin:16px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">&#x1F3E6; Standing Orders (\xa3'+Math.round(soTotal).toLocaleString('en-GB')+')</div>';
     html+='<table style="width:100%;font-size:0.8rem"><thead><tr>'
       +'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Client</th>'
