@@ -923,9 +923,13 @@ function sendByEmail(){
   downloadAndEmail();
 }
 
-function sendByWhatsApp(){
+async function sendByWhatsApp(){
   const inv=ALL_INVOICES.find(i=>i.id===VIEWING_ID);
   if(!inv) return;
+  // Step 1: download PDF first so user can attach it
+  await downloadPDF();
+  // Step 2: open WhatsApp with message after short delay
+  await new Promise(res=>setTimeout(res,800));
   const msg=encodeURIComponent(
     'Dear '+inv.client_name+',\n\n'+
     'Please find your invoice details below:\n\n'+
@@ -939,7 +943,6 @@ function sendByWhatsApp(){
     'Thank you for your business!\n'+
     'Chowdury Accountants | 0161 222 4647'
   );
-  // Use stored mobile, clean to digits only
   const raw=inv.client_mobile||document.getElementById('f-client-mobile')?.value||window._selectedClientMobile||'';
   const phone=raw.replace(/[^0-9]/g,'').replace(/^0/,'44');
   const url=phone?'https://wa.me/'+phone+'?text='+msg:'https://wa.me/?text='+msg;
