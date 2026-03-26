@@ -371,7 +371,7 @@ async function loadActivities(){
 function renderAll(){
   const year=document.getElementById('filter-year').value;
   const type=document.getElementById('filter-type').value;
-  let data=ALL;
+  let data=[...ALL].sort((a,b)=>{if(b.verified!==a.verified)return b.verified?1:-1;return new Date(b.date||0)-new Date(a.date||0);});
   if(year!=='all') data=data.filter(a=>a.cpd_year===year);
   if(type!=='all') data=data.filter(a=>a.type===type);
 
