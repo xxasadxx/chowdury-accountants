@@ -196,8 +196,9 @@ exports.handler = async () => {
         if (changed) { updates.push(patch); updated++; }
 
       } else {
-        // NEW company — get full details from Companies House
-        console.log(`New company: ${compNo}`);
+        // NEW company — skip in manual run (handled by overnight scheduled sync)
+        continue;
+        // eslint-disable-next-line no-unreachable
         const chData = await fetchCH(compNo);
         await new Promise(r => setTimeout(r, 150));
 
