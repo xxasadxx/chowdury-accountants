@@ -478,12 +478,12 @@ async function sbDelete(path){return sb(path,{method:'DELETE'});}
 async function loadAll(){
   try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
-  const ltdClients = await sb('ltd_clients?select=comp_no,director_name&order=director_name.asc&limit=1000').catch(()=>[]);
-  const saClients = await sb('sa_clients?select=id,forename,surname&limit=1000').catch(()=>[]);
+  const ltdClients = await sb('ltd_clients?select=comp_no,name,director_name,director_email,director_address&order=name.asc&limit=1000').catch(()=>[]);
+  const saClients = await sb('sa_clients?select=id,forename,surname,email,address&limit=1000').catch(()=>[]);
 
   ALL_INVOICES=Array.isArray(invs)?invs:[];
-  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.comp_no,name:c.director_name||'',ref:c.comp_no||'',type:'Ltd'})).filter(c=>c.name);
-  const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SA'})).filter(c=>c.name);
+  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.comp_no,name:c.name||c.director_name||'',ref:c.comp_no||'',type:'Ltd',email:c.director_email||'',address:c.director_address||''})).filter(c=>c.name);
+  const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SE',email:c.email||'',address:c.address||''})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
 
@@ -841,7 +841,12 @@ function searchClients(q){
 }
 
 function selectClient(name){
+  const cl=ALL_CLIENTS.find(c=>c.name===name);
   document.getElementById('f-client-name').value=name;
+  if(cl){
+    if(cl.address) document.getElementById('f-client-addr').value=cl.address;
+    if(cl.email) document.getElementById('f-client-email').value=cl.email;
+  }
   document.getElementById('client-dropdown').classList.remove('show');
   renderPreview();
 }
