@@ -226,7 +226,8 @@ body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--s
 <div class="kpi-strip" id="kpi-strip">
   <div class="kpi-item"><div class="k">Total Hours</div><div class="v blue" id="kpi-total">0</div></div>
   <div class="kpi-item"><div class="k">Activities</div><div class="v" id="kpi-count">0</div></div>
-  <div class="kpi-item"><div class="k">Verified</div><div class="v green" id="kpi-verified">0</div></div>
+  <div class="kpi-item"><div class="k">Verified Acts</div><div class="v green" id="kpi-verified">0</div></div>
+  <div class="kpi-item"><div class="k">Verified Hrs</div><div class="v green" id="kpi-verified-hrs">0</div></div>
   <div class="kpi-item"><div class="k">Self-Study</div><div class="v" id="kpi-self">0</div></div>
   <div class="kpi-item"><div class="k">Events</div><div class="v amber" id="kpi-events">0</div></div>
 </div>
@@ -403,12 +404,14 @@ function renderAll(){
   });
   const totalHrs=yearData.reduce((s,a)=>s+(+a.hours||0),0);
   const verified=yearData.filter(a=>a.verified).length;
+  const verifiedHrs=yearData.filter(a=>a.verified).reduce((s,a)=>s+(+a.hours||0),0);
   const selfStudy=yearData.filter(a=>a.type==='reading'||a.type==='self').reduce((s,a)=>s+(+a.hours||0),0);
   const events=yearData.filter(a=>a.type==='event'||a.type==='online').reduce((s,a)=>s+(+a.hours||0),0);
 
   document.getElementById('kpi-total').textContent=totalHrs.toFixed(1);
   document.getElementById('kpi-count').textContent=yearData.length;
   document.getElementById('kpi-verified').textContent=verified;
+  document.getElementById('kpi-verified-hrs').textContent=verifiedHrs.toFixed(1);
   document.getElementById('kpi-self').textContent=selfStudy.toFixed(1);
   document.getElementById('kpi-events').textContent=events.toFixed(1);
 
