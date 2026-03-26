@@ -2099,7 +2099,9 @@ function openMonthBreakdown(mon){
   const soPaid=allData.filter(h=>h.month===mon&&h.client_type==='so'&&h.status!=='pending');
   const ddTotal=ddPaid.filter(h=>h.status==='paid').reduce((s,h)=>s+(h.received||0),0);
   const soTotal=soPaid.filter(h=>h.status==='paid').reduce((s,h)=>s+(h.received||0),0);
-  const grandTotal=ddTotal+soTotal;
+  var showDD2=reportFilter==='all'||reportFilter==='dd';
+  var showSO2=reportFilter==='all'||reportFilter==='so';
+  const grandTotal=(showDD2?ddTotal:0)+(showSO2?soTotal:0);
   document.getElementById('mbTitle').textContent=mon+' — Collected \xa3'+Math.round(grandTotal).toLocaleString('en-GB');
   let html='';
   function makeRow(h){
@@ -2115,8 +2117,6 @@ function openMonthBreakdown(mon){
       +'<td style="padding:6px 8px;text-align:center"><span style="background:'+bg+';color:'+col+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+btn+'</td>'
       +'</tr>';
   }
-  var showDD2=reportFilter==='all'||reportFilter==='dd';
-  var showSO2=reportFilter==='all'||reportFilter==='so';
   if(ddPaid.length&&showDD2){
     html+='<div style="font-weight:700;color:var(--accent);margin:12px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">&#x1F4B3; Direct Debit (\xa3'+Math.round(ddTotal).toLocaleString('en-GB')+')</div>';
     html+='<table style="width:100%;font-size:0.8rem"><thead><tr>'
