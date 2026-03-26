@@ -1634,18 +1634,19 @@ async function savePaymentRow(hid){
   const btn=document.querySelector('#hrow-'+hid+' .hsave');
   if(btn){btn.disabled=true;btn.textContent='...';}
   try{
-    const existing=histData.find(h=>h.id===hid);
+    const existing=histData.find(h=>String(h.id)===String(hid));
     let savedRow=existing||null;
-    if(existing&&existing._unsaved){
+    const isUnsaved=!existing||existing._unsaved||String(hid).startsWith('unsaved_');
+    if(isUnsaved&&existing){
       const newRow={client_id:existing.client_id,client_type:existing.client_type,month:existing.month,expected:existing.expected,received,status};
       const created=await api('payment_history','',{method:'POST',body:JSON.stringify(newRow)});
       if(created&&created[0]){
-        const i=histData.findIndex(h=>h.id===hid);
-        if(i>=0){histData[i]={...created[0]};savedRow=created[0];}
+        const i=histData.findIndex(h=>String(h.id)===String(hid));
+        if(i>=0){histData[i]={...created[0],_unsaved:false};savedRow=created[0];}
       }
-    } else {
+    } else if(!isUnsaved){
       await api('payment_history','?id=eq.'+hid,{method:'PATCH',body:JSON.stringify({received,status})});
-      const i=histData.findIndex(h=>h.id===hid);
+      const i=histData.findIndex(h=>String(h.id)===String(hid));
       if(i>=0){histData[i].received=received;histData[i].status=status;savedRow=histData[i];}
     }
     const totalExp=histData.reduce((s,h)=>s+(h.expected||0),0);
