@@ -319,7 +319,7 @@ body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--s
       <div class="field">
         <label>Certificate Image (optional — appears in printed PDF)</label>
         <button type="button" onclick="document.getElementById('f-cert-image').click()" style="padding:7px 14px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);font-size:12px;cursor:pointer;font-family:var(--sans)">📎 Choose Certificate Image</button>
-        <input id="f-cert-image" type="file" accept="image/*" style="display:none" onchange="handleCertUpload(this)">
+        <input id="f-cert-image" type="file" accept="image/*,.pdf,application/pdf" style="display:none" onchange="handleCertUpload(this)">
         <div id="cert-preview" style="margin-top:8px"></div>
       </div>
       <div class="field">
@@ -500,26 +500,36 @@ let CERT_IMAGE_DATA=null;
 function handleCertUpload(input){
   const file=input.files[0];
   if(!file){return;}
+  const isPDF=file.type==='application/pdf'||file.name.toLowerCase().endsWith('.pdf');
   const reader=new FileReader();
   reader.onload=function(e){
-    // Compress image using canvas
-    const img=new Image();
-    img.onload=function(){
-      const canvas=document.createElement('canvas');
-      const MAX=800;
-      let w=img.width,h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      canvas.width=w;canvas.height=h;
-      const ctx=canvas.getContext('2d');
-      ctx.fillStyle='#fff';
-      ctx.fillRect(0,0,w,h);
-      ctx.drawImage(img,0,0,w,h);
-      CERT_IMAGE_DATA=canvas.toDataURL('image/jpeg',0.7);
+    if(isPDF){
+      // Store PDF as base64 data URL directly
+      CERT_IMAGE_DATA=e.target.result;
       document.getElementById('cert-preview').innerHTML=
-        '<img src="'+CERT_IMAGE_DATA+'" style="max-width:220px;max-height:140px;border:1px solid #e2e8f0;border-radius:6px;margin-top:4px;display:block">'+
+        '<div style="padding:8px 12px;background:#ede9fe;border:1px solid #c4b5fd;border-radius:6px;font-size:11px;color:#6d28d9;margin-top:4px">'+
+        '📄 PDF: '+file.name+'<br><span style="font-size:10px;color:#888">'+Math.round(file.size/1024)+'KB — will appear as link in printed PDF</span></div>'+
         '<div style="font-size:10px;color:var(--green);margin-top:3px">✅ Certificate ready</div>';
-    };
-    img.src=e.target.result;
+    } else {
+      // Compress image using canvas
+      const img=new Image();
+      img.onload=function(){
+        const canvas=document.createElement('canvas');
+        const MAX=900;
+        let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+        canvas.width=w;canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.fillStyle='#fff';
+        ctx.fillRect(0,0,w,h);
+        ctx.drawImage(img,0,0,w,h);
+        CERT_IMAGE_DATA=canvas.toDataURL('image/jpeg',0.75);
+        document.getElementById('cert-preview').innerHTML=
+          '<img src="'+CERT_IMAGE_DATA+'" style="max-width:220px;max-height:140px;border:1px solid #e2e8f0;border-radius:6px;margin-top:4px;display:block">'+
+          '<div style="font-size:10px;color:var(--green);margin-top:3px">✅ Certificate ready</div>';
+      };
+      img.src=e.target.result;
+    }
   };
   reader.readAsDataURL(file);
 }
@@ -602,7 +612,7 @@ function printCPD(){
   <table>
     <thead><tr><th>Activity</th><th>Type</th><th>Provider</th><th>Date</th><th>Hours</th><th>Status</th></tr></thead>
     <tbody>${yearData.map(a=>`<tr>
-      <td><b>${a.title||''}</b>${a.cert_no?'<br><span style="font-size:10px;color:#888">Certificate No: '+a.cert_no+'</span>':''}${a.cert_image?'<br><img src="'+a.cert_image+'" style="max-width:300px;max-height:200px;margin-top:8px;border:1px solid #e2e8f0;display:block">':''}${a.description?'<br><span style="color:#555;font-size:11px">'+a.description+'</span>':''}${a.reflection?'<div class="reflection">💭 '+a.reflection+'</div>':''}</td>
+      <td><b>${a.title||''}</b>${a.cert_no?'<br><span style="font-size:10px;color:#888">Certificate No: '+a.cert_no+'</span>':''}${a.cert_image?(a.cert_image.startsWith('data:application/pdf')||a.cert_image.startsWith('data:application/octet')?'<br><div style="margin-top:8px;padding:8px;background:#ede9fe;border-radius:4px;font-size:11px">📄 PDF Certificate attached — <a href="'+a.cert_image+'" download="certificate.pdf">Download Certificate</a></div>':'<br><img src="'+a.cert_image+'" style="max-width:100%;max-height:250px;margin-top:8px;border:1px solid #e2e8f0;display:block;page-break-inside:avoid">':''}${a.description?'<br><span style="color:#555;font-size:11px">'+a.description+'</span>':''}${a.reflection?'<div class="reflection">💭 '+a.reflection+'</div>':''}</td>
       <td>${a.type||''}</td>
       <td style="font-size:11px">${a.provider||'—'}</td>
       <td style="white-space:nowrap">${fmtDate(a.date)}</td>
