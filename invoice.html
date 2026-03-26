@@ -437,9 +437,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13p
       <button class="modal-close" onclick="closeModal('modal-view')">✕</button>
     </div>
     <div class="modal-body" id="modal-view-body"></div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('modal-view')">Close</button>
+    <div class="modal-footer" style="flex-wrap:wrap;gap:8px">
+      <button class="btn-secondary" onclick="closeModal('modal-view')">✕ Close</button>
       <button class="btn-secondary" onclick="editFromView()">✏️ Edit</button>
+      <button class="btn-secondary" onclick="sendByEmail()">📧 Send Email</button>
+      <button class="btn-secondary" onclick="sendByWhatsApp()" style="background:#25D366;color:#fff;border-color:#25D366">💬 WhatsApp</button>
       <button class="btn-secondary" onclick="window.print()">🖨 Print / PDF</button>
       <button class="btn-primary" id="btn-mark-paid" onclick="markPaid()">✅ Mark as Paid</button>
     </div>
@@ -864,6 +866,41 @@ document.addEventListener('click',function(e){
 });
 
 // ── Modals ────────────────────────────────────────────────
+function sendByEmail(){
+  const inv=ALL_INVOICES.find(i=>i.id===VIEWING_ID);
+  if(!inv) return;
+  const email=inv.client_email||'';
+  const subject=encodeURIComponent('Invoice '+inv.invoice_no+' from Chowdury Accountants');
+  const body=encodeURIComponent(
+    'Dear '+inv.client_name+',\n\n'+
+    'Please find attached Invoice '+inv.invoice_no+' for £'+parseFloat(inv.total||0).toFixed(2)+'.\n\n'+
+    'Due date: '+(inv.due_date||'')+'\n\n'+
+    'Payment details:\nThe Chowdury Accountants Ltd | Lloyds Bank\nSort Code: 30-99-83 | Account No: 79374560\nReference: '+inv.invoice_no+'\n\n'+
+    'Please do not hesitate to contact us if you have any queries.\n\n'+
+    'Kind regards,\nChowdury Accountants\n0161 222 4647 | info@chowduryaccountants.co.uk'
+  );
+  window.open('mailto:'+email+'?subject='+subject+'&body='+body);
+}
+
+function sendByWhatsApp(){
+  const inv=ALL_INVOICES.find(i=>i.id===VIEWING_ID);
+  if(!inv) return;
+  const msg=encodeURIComponent(
+    'Dear '+inv.client_name+',\n\n'+
+    'Please find your invoice details below:\n\n'+
+    '📄 Invoice No: '+inv.invoice_no+'\n'+
+    '💷 Amount Due: £'+parseFloat(inv.total||0).toFixed(2)+' (inc VAT)\n'+
+    '📅 Due Date: '+(inv.due_date||'N/A')+'\n\n'+
+    '🏦 Payment Details:\n'+
+    'The Chowdury Accountants Ltd | Lloyds Bank\n'+
+    'Sort Code: 30-99-83 | Account No: 79374560\n'+
+    'Reference: '+inv.invoice_no+'\n\n'+
+    'Thank you for your business!\n'+
+    'Chowdury Accountants | 0161 222 4647'
+  );
+  window.open('https://wa.me/?text='+msg);
+}
+
 function openModal(id){document.getElementById(id).classList.remove('hidden');}
 function closeModal(id){document.getElementById(id).classList.add('hidden');}
 
