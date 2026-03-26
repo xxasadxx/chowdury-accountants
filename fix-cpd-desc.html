@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Fix CPD Descriptions</title>
+<style>body{font-family:sans-serif;padding:30px}
+#log{background:#111;color:#0f0;padding:16px;border-radius:8px;font-family:monospace;font-size:11px;height:200px;overflow-y:auto;white-space:pre-wrap}</style>
+</head><body>
+<h2>Fix CPD Descriptions</h2>
+<div id="log">Running...</div>
+<script>
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+function log(m){const e=document.getElementById('log');e.textContent+=m+'\n';e.scrollTop=e.scrollHeight;}
+
+function fixText(t){
+  if(!t)return t;
+  return t
+    .replace(/600\+? clients/g,'a growing client base')
+    .replace(/600 clients/g,'a growing client base')
+    .replace(/305 active (?:limited|Ltd) company clients/g,'active limited company clients in a growing practice')
+    .replace(/305 active clients/g,'active clients in a growing practice')
+    .replace(/305 companies/g,'companies in a growing practice')
+    .replace(/156 hospitality sector clients/g,'a large hospitality sector client base')
+    .replace(/all 600 clients/g,'all clients')
+    .replace(/ \(approx\. monthly, full day sessions\)/g,'');
+}
+
+async function run(){
+  const r=await fetch(SB+'/rest/v1/cpd_activities?staff=eq.Asadul&select=id,title,description,reflection',
+    {headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+  const acts=await r.json();
+  log('Found '+acts.length+' activities');
+  
+  for(const a of acts){
+    const newDesc=fixText(a.description);
+    const newRefl=fixText(a.reflection);
+    if(newDesc!==a.description||newRefl!==a.reflection){
+      await fetch(SB+'/rest/v1/cpd_activities?id=eq.'+a.id,{
+        method:'PATCH',headers:H,
+        body:JSON.stringify({description:newDesc,reflection:newRefl})
+      });
+      log('✅ Updated: '+a.title);
+    }
+  }
+  log('\n🎉 Done! All client numbers replaced with "growing practice".');
+}
+run();
+</script></body></html>

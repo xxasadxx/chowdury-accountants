@@ -317,6 +317,11 @@ body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--s
         <input id="f-cert-no" type="text" placeholder="e.g. 893312">
       </div>
       <div class="field">
+        <label>Certificate Image (optional — upload for PDF)</label>
+        <input id="f-cert-image" type="file" accept="image/*,.pdf" style="font-size:11px">
+        <div id="cert-preview" style="margin-top:6px"></div>
+      </div>
+      <div class="field">
         <label>Description / Topics Covered</label>
         <textarea id="f-desc" placeholder="Brief description of what was covered..."></textarea>
       </div>
@@ -462,6 +467,9 @@ function openAddModal(){
   document.getElementById('f-desc').value='';
   document.getElementById('f-reflection').value='';
   document.getElementById('f-cert-no').value='';
+  CERT_IMAGE_DATA=null;
+  document.getElementById('cert-preview').innerHTML='';
+  document.getElementById('f-cert-image').value='';
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -480,8 +488,23 @@ function editActivity(id){
   document.getElementById('f-desc').value=a.description||'';
   document.getElementById('f-reflection').value=a.reflection||'';
   document.getElementById('f-cert-no').value=a.cert_no||'';
+  CERT_IMAGE_DATA=null;
+  document.getElementById('cert-preview').innerHTML=a.cert_image?'<img src="'+a.cert_image+'" style="max-width:200px;max-height:120px;border:1px solid #e2e8f0;border-radius:4px">':'';
+  document.getElementById('f-cert-image').value='';
   document.getElementById('modal-bg').classList.add('open');
 }
+
+let CERT_IMAGE_DATA=null;
+document.getElementById('f-cert-image') && document.getElementById('f-cert-image').addEventListener('change',function(){
+  const file=this.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    CERT_IMAGE_DATA=e.target.result;
+    document.getElementById('cert-preview').innerHTML='<img src="'+e.target.result+'" style="max-width:200px;max-height:120px;border:1px solid #e2e8f0;border-radius:4px;margin-top:4px">';
+  };
+  reader.readAsDataURL(file);
+});
 
 async function saveActivity(){
   const payload={
@@ -496,7 +519,9 @@ async function saveActivity(){
     description:document.getElementById('f-desc').value.trim(),
     reflection:document.getElementById('f-reflection').value.trim(),
     cert_no:document.getElementById('f-cert-no').value.trim(),
+    cert_image:CERT_IMAGE_DATA||undefined,
   };
+  if(!CERT_IMAGE_DATA&&EDITING_ID){delete payload.cert_image;}
   if(!payload.title){alert('Please enter an activity title.');return;}
   if(!payload.hours){alert('Please enter hours.');return;}
 
@@ -559,7 +584,7 @@ function printCPD(){
   <table>
     <thead><tr><th>Activity</th><th>Type</th><th>Provider</th><th>Date</th><th>Hours</th><th>Status</th></tr></thead>
     <tbody>${yearData.map(a=>`<tr>
-      <td><b>${a.title||''}</b>${a.cert_no?'<br><span style="font-size:10px;color:#888">Certificate: '+a.cert_no+'</span>':''}${a.description?'<br><span style="color:#555;font-size:11px">'+a.description+'</span>':''}${a.reflection?'<div class="reflection">💭 '+a.reflection+'</div>':''}</td>
+      <td><b>${a.title||''}</b>${a.cert_no?'<br><span style="font-size:10px;color:#888">Certificate No: '+a.cert_no+'</span>':''}${a.cert_image?'<br><img src="'+a.cert_image+'" style="max-width:300px;max-height:200px;margin-top:8px;border:1px solid #e2e8f0;display:block">':''}${a.description?'<br><span style="color:#555;font-size:11px">'+a.description+'</span>':''}${a.reflection?'<div class="reflection">💭 '+a.reflection+'</div>':''}</td>
       <td>${a.type||''}</td>
       <td style="font-size:11px">${a.provider||'—'}</td>
       <td style="white-space:nowrap">${fmtDate(a.date)}</td>
