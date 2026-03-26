@@ -47,7 +47,8 @@ function sbRequest(method, path, body, prefer) {
         'apikey': SB_KEY,
         'Authorization': 'Bearer ' + SB_KEY,
         'Content-Type': 'application/json',
-        'Prefer': prefer || 'resolution=merge-duplicates',
+        'Prefer': prefer || (method === 'GET' ? 'count=none' : 'resolution=merge-duplicates'),
+        ...(method === 'GET' ? { 'Range': '0-9999' } : {}),
         ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {})
       }
     };
@@ -127,7 +128,12 @@ exports.handler = async () => {
 
     // 3. Fetch existing ltd_clients from Supabase
     const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,company_name,director_name,conf_due,status&limit=2000');
-    const clients = JSON.parse(clientsResp.body);
+    let clients;
+    try { clients = JSON.parse(clientsResp.body); } catch(e) { clients = []; }
+    if (!Array.isArray(clients)) {
+      console.error('Supabase clients error:', clientsResp.body);
+      clients = [];
+    }
     console.log(`Loaded ${clients.length} clients from Supabase`);
 
     const clientMap = {};
