@@ -491,6 +491,7 @@ window.caAudit = (function(){
       <div class="modal-tab" onclick="showModalTab('referral',this)">👥 Referral</div>
       <div class="modal-tab" onclick="showModalTab('docs',this)">🪪 Documents</div>
       <div class="modal-tab" onclick="showModalTab('messages',this);loadClientMessages()">💬 Messages</div>
+      <div class="modal-tab" onclick="showModalTab('invoices',this);loadClientInvoices()">🧾 Invoices</div>
     </div>
   </div>
   <div class="modal-body">
@@ -602,6 +603,12 @@ window.caAudit = (function(){
     </div>
 
     <!-- TAB: MESSAGES -->
+    <div class="modal-tab-content" id="mtab-invoices">
+      <div id="cm-invoices-body" style="padding:4px 0">
+        <div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">Loading invoices...</div>
+      </div>
+    </div>
+
     <div class="modal-tab-content" id="mtab-messages">
       <div style="margin-bottom:12px">
         <div class="sec-label">Send Message</div>
@@ -1127,6 +1134,63 @@ function openClientModal(id){
 }
 
 function closeClientModal(){document.getElementById('client-modal-bg').classList.remove('open');currentId=null;}
+
+async function loadClientInvoices(){
+  const c=DATA.find(x=>x.id===currentId);
+  if(!c) return;
+  const el=document.getElementById('cm-invoices-body');
+  el.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">Loading...</div>';
+  const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+  const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+  try{
+    const name=(c.name||(c.forename+' '+c.surname)||'').toUpperCase();
+    const r=await fetch(`${SB}/rest/v1/invoices?client_name=ilike.${encodeURIComponent('%'+name+'%')}&order=created_at.desc&limit=50`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+    const invs=await r.json();
+    if(!Array.isArray(invs)||!invs.length){
+      el.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">No invoices found for this client.</div>';
+      return;
+    }
+    const total=invs.reduce((s,i)=>s+(+i.total||0),0);
+    const outstanding=invs.filter(i=>i.status!=='paid'&&i.status!=='cancelled').reduce((s,i)=>s+(+i.total||0),0);
+    const paid=invs.filter(i=>i.status==='paid').reduce((s,i)=>s+(+i.total||0),0);
+    const fmt=n=>'£'+(+n||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+    const fmtD=d=>d?new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    const statusBadge=s=>{const m={draft:'background:#f1f5f9;color:#475569',sent:'background:#dbeafe;color:#1d4ed8',paid:'background:#dcfce7;color:#15803d',overdue:'background:#fee2e2;color:#dc2626',cancelled:'background:#f1f5f9;color:#94a3b8'};return`<span style="padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700;${m[s]||m.draft}">${(s||'draft').toUpperCase()}</span>`;};
+    el.innerHTML=`
+      <div style="display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;min-width:100px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600">Total Invoiced</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--blue)">${fmt(total)}</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;min-width:100px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600">Outstanding</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red)">${fmt(outstanding)}</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;flex:1;min-width:100px">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600">Paid</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green)">${fmt(paid)}</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        <thead><tr style="background:var(--bg);border-bottom:2px solid var(--border)">
+          <th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700">Invoice No</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700">Date</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700">Due</th>
+          <th style="padding:7px 10px;text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700">Amount</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700">Status</th>
+        </tr></thead>
+        <tbody>${invs.map(i=>`<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px 10px;font-weight:600;font-family:var(--mono);color:var(--blue)">${i.invoice_no||'—'}</td>
+          <td style="padding:8px 10px;color:var(--muted)">${fmtD(i.invoice_date)}</td>
+          <td style="padding:8px 10px;color:${i.due_date&&new Date(i.due_date)<new Date()&&i.status!=='paid'?'var(--red)':'var(--muted)'}">${fmtD(i.due_date)}</td>
+          <td style="padding:8px 10px;text-align:right;font-weight:600;font-family:var(--mono)">${fmt(i.total)}</td>
+          <td style="padding:8px 10px">${statusBadge(i.status)}</td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+  }catch(e){
+    el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--red);font-size:12px">Error loading invoices: ${e.message}</div>`;
+  }
+}
 
 function showModalTab(id,el){
   document.querySelectorAll('.modal-tab-content').forEach(t=>t.classList.remove('active'));
