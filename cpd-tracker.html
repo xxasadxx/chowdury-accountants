@@ -234,6 +234,7 @@ body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--s
 <!-- Toolbar -->
 <div class="toolbar">
   <button class="btn btn-blue" onclick="openAddModal()">+ Add Activity</button>
+  <button class="btn btn-outline" onclick="printCPD()">🖨 Print / PDF</button>
   <select class="sel" id="filter-year" onchange="filterActivities()">
     <option value="2025/26">2025/26</option>
     <option value="2024/25">2024/25</option>
@@ -310,6 +311,10 @@ body{padding-top:108px;background:var(--bg);color:var(--ink);font-family:var(--s
             <option value="true">Yes — Certificate held</option>
           </select>
         </div>
+      </div>
+      <div class="field">
+        <label>Certificate Number (if verified)</label>
+        <input id="f-cert-no" type="text" placeholder="e.g. 893312">
       </div>
       <div class="field">
         <label>Description / Topics Covered</label>
@@ -416,6 +421,7 @@ function renderAll(){
           ${a.verified?'<span class="badge badge-verified">✅ Verified</span>':''}
           <span>${fmtDate}</span>
           ${a.provider?'<span>📍 '+esc(a.provider)+'</span>':''}
+          ${a.cert_no?'<span>🏅 Cert: '+esc(a.cert_no)+'</span>':''}
           <span style="color:var(--muted)">📅 ${a.cpd_year||'—'}</span>
         </div>
         ${a.description?`<div class="act-desc">${esc(a.description)}</div>`:''}
@@ -455,6 +461,7 @@ function openAddModal(){
   document.getElementById('f-verified').value='false';
   document.getElementById('f-desc').value='';
   document.getElementById('f-reflection').value='';
+  document.getElementById('f-cert-no').value='';
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -472,6 +479,7 @@ function editActivity(id){
   document.getElementById('f-verified').value=a.verified?'true':'false';
   document.getElementById('f-desc').value=a.description||'';
   document.getElementById('f-reflection').value=a.reflection||'';
+  document.getElementById('f-cert-no').value=a.cert_no||'';
   document.getElementById('modal-bg').classList.add('open');
 }
 
@@ -487,6 +495,7 @@ async function saveActivity(){
     verified:document.getElementById('f-verified').value==='true',
     description:document.getElementById('f-desc').value.trim(),
     reflection:document.getElementById('f-reflection').value.trim(),
+    cert_no:document.getElementById('f-cert-no').value.trim(),
   };
   if(!payload.title){alert('Please enter an activity title.');return;}
   if(!payload.hours){alert('Please enter hours.');return;}
@@ -504,6 +513,71 @@ async function deleteActivity(id){
   if(!confirm('Delete this CPD activity?'))return;
   await sbFetch('cpd_activities?id=eq.'+id,{method:'DELETE'});
   loadActivities();
+}
+
+function printCPD(){
+  const year=document.getElementById('filter-year').value;
+  const yearData=year==='all'?ALL:ALL.filter(a=>a.cpd_year===year);
+  if(!yearData.length){alert('No activities to print for this period.');return;}
+  const totalHrs=yearData.reduce((s,a)=>s+(+a.hours||0),0);
+  const fmtDate=d=>d?new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+  const staffFull=document.getElementById('prog-name').textContent;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>CPD Record — ${staffFull}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:12px;color:#222;padding:30px;max-width:800px;margin:0 auto}
+    h1{font-size:20px;color:#155FA0;border-bottom:3px solid #155FA0;padding-bottom:8px;margin-bottom:4px}
+    .sub{color:#666;font-size:11px;margin-bottom:20px}
+    .summary{background:#f0f4ff;border:1px solid #c5d5f0;border-radius:6px;padding:12px 16px;margin-bottom:24px;display:flex;gap:30px}
+    .s-item b{display:block;font-size:18px;color:#155FA0}
+    .s-item span{font-size:10px;color:#666;text-transform:uppercase}
+    table{width:100%;border-collapse:collapse;margin-bottom:20px}
+    th{background:#155FA0;color:#fff;padding:8px 10px;text-align:left;font-size:11px}
+    td{padding:8px 10px;border-bottom:1px solid #e5e7eb;vertical-align:top}
+    tr:nth-child(even)td{background:#f8faff}
+    .verified{background:#dcfce7;color:#15803d;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700}
+    .self-rep{background:#f1f5f9;color:#475569;padding:2px 6px;border-radius:4px;font-size:10px}
+    .reflection{font-style:italic;color:#5b21b6;font-size:11px;margin-top:4px}
+    .footer{margin-top:30px;padding-top:12px;border-top:2px solid #155FA0;font-size:10px;color:#666;text-align:center}
+    .logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    @media print{body{padding:15px}.no-print{display:none}}
+  </style></head><body>
+  <div class="logo-row">
+    <div>
+      <h1>CPD Record — ${staffFull}</h1>
+      <div class="sub">The Chowdury Accountants Ltd T/A Chowdury Accountants · Company Reg: 09441520 · VAT: 403392620<br>
+      283 Featherstall Road North, Oldham, OL1 2NH · 0161 222 4647 · info@chowduryaccountants.co.uk</div>
+    </div>
+  </div>
+  <div class="summary">
+    <div class="s-item"><b>${totalHrs.toFixed(1)}</b><span>Total Hours</span></div>
+    <div class="s-item"><b>${yearData.length}</b><span>Activities</span></div>
+    <div class="s-item"><b>${yearData.filter(a=>a.verified).length}</b><span>Verified</span></div>
+    <div class="s-item"><b>${year==='all'?'All Years':year}</b><span>CPD Period</span></div>
+  </div>
+  <table>
+    <thead><tr><th>Activity</th><th>Type</th><th>Provider</th><th>Date</th><th>Hours</th><th>Status</th></tr></thead>
+    <tbody>${yearData.map(a=>`<tr>
+      <td><b>${a.title||''}</b>${a.cert_no?'<br><span style="font-size:10px;color:#888">Certificate: '+a.cert_no+'</span>':''}${a.description?'<br><span style="color:#555;font-size:11px">'+a.description+'</span>':''}${a.reflection?'<div class="reflection">💭 '+a.reflection+'</div>':''}</td>
+      <td>${a.type||''}</td>
+      <td style="font-size:11px">${a.provider||'—'}</td>
+      <td style="white-space:nowrap">${fmtDate(a.date)}</td>
+      <td style="font-weight:700;color:#155FA0">${(+a.hours||0).toFixed(1)}</td>
+      <td><span class="${a.verified?'verified':'self-rep'}">${a.verified?'✅ Verified':'Self-reported'}</span></td>
+    </tr>`).join('')}
+    </tbody>
+    <tfoot><tr style="background:#f0f4ff"><td colspan="4" style="font-weight:700;text-align:right">TOTAL</td><td style="font-weight:700;color:#155FA0;font-size:14px">${totalHrs.toFixed(1)} hrs</td><td></td></tr></tfoot>
+  </table>
+  <div class="footer">
+    Generated by Chowdury Accountants CPD Tracker · ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'})}
+  </div>
+  <div class="no-print" style="margin-top:20px;text-align:center">
+    <button onclick="window.print()" style="padding:10px 24px;background:#155FA0;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer">🖨 Print / Save as PDF</button>
+  </div>
+  </body></html>`);
+  w.document.close();
+  w.focus();
 }
 
 function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
