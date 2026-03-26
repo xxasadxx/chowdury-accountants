@@ -1706,12 +1706,12 @@ function closeHistoryModal(){
 
 document.getElementById('delModal').addEventListener('click',function(e){if(e.target===this)closeDelModal();});
 
-async function markPaidFromModal(phId, companyName){
+async function markPaidFromModal(phId, companyName, expectedAmt){
   if(!confirm('Mark '+companyName+' as PAID for this month?')) return;
   try{
     // Get the record to find expected amount
     const rec = (window._rpAllData||[]).find(h=>h.id===phId);
-    const expected = rec ? (rec.expected||rec.received||0) : 0;
+    const expected = expectedAmt || (rec ? (rec.expected||rec.received||0) : 0);
     await api('payment_history','?id=eq.'+phId,{method:'PATCH',body:JSON.stringify({status:'paid',received:expected})});
     // Resolve any outstanding failed_payment for this client
     try{
@@ -2094,60 +2094,51 @@ function openMonthBreakdown(mon){
   const allData=window._rpAllData||[];
   const ddPaid=allData.filter(h=>h.month===mon&&h.client_type==='dd'&&h.status!=='pending');
   const soPaid=allData.filter(h=>h.month===mon&&h.client_type==='so'&&h.status!=='pending');
-  const ddTotal=ddPaid.reduce((s,h)=>s+(h.received||0),0);
-  const soTotal=soPaid.reduce((s,h)=>s+(h.received||0),0);
+  const ddTotal=ddPaid.filter(h=>h.status==='paid').reduce((s,h)=>s+(h.received||0),0);
+  const soTotal=soPaid.filter(h=>h.status==='paid').reduce((s,h)=>s+(h.received||0),0);
   const grandTotal=ddTotal+soTotal;
-  document.getElementById('mbTitle').textContent=mon+' — Collected £'+Math.round(grandTotal).toLocaleString('en-GB');
+  document.getElementById('mbTitle').textContent=mon+' — Collected \xa3'+Math.round(grandTotal).toLocaleString('en-GB');
   let html='';
+  function makeRow(h){
+    const isPaid=h.status==='paid';
+    const col=isPaid?'var(--green)':'var(--red)';
+    const bg=isPaid?'var(--green-light)':'var(--red-light,#fef2f2)';
+    const icon=isPaid?'&#x2705;':'&#x274C;';
+    const amt=isPaid?(h.received||0):(h.expected||0);
+    const btn=isPaid?'':'<button onclick="markPaidFromModal('+h.id+',\''+h.company_name.replace(/\x27/g,'\\x27')+'\','+( h.expected||h.received||0)+')" style="margin-left:6px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:2px 7px;font-size:0.65rem;cursor:pointer;font-weight:600">&#x2705; Mark Paid</button>';
+    return '<tr style="border-bottom:1px solid var(--border)">'
+      +'<td style="padding:6px 8px;font-weight:500">'+h.company_name+'</td>'
+      +'<td style="padding:6px 8px;text-align:right;font-family:\'DM Mono\',monospace;color:'+col+';font-weight:600">\xa3'+amt.toLocaleString('en-GB')+'</td>'
+      +'<td style="padding:6px 8px;text-align:center"><span style="background:'+bg+';color:'+col+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+btn+'</td>'
+      +'</tr>';
+  }
   if(ddPaid.length){
-    html+='<div style="font-weight:700;color:var(--accent);margin:12px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">💳 Direct Debit (£'+Math.round(ddTotal).toLocaleString('en-GB')+')</div>';
+    html+='<div style="font-weight:700;color:var(--accent);margin:12px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">&#x1F4B3; Direct Debit (\xa3'+Math.round(ddTotal).toLocaleString('en-GB')+')</div>';
     html+='<table style="width:100%;font-size:0.8rem"><thead><tr>'
       +'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Client</th>'
       +'<th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Amount</th>'
       +'<th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Status</th>'
       +'</tr></thead><tbody>';
-    ddPaid.forEach(h=>{
-      const isPaid=h.status==='paid';
-      const badgeColor=isPaid?'var(--green)':'var(--red)';
-      const badgeBg=isPaid?'var(--green-light)':'var(--red-light,#fef2f2)';
-      const icon=isPaid?'✅':'❌';
-      const markBtn=isPaid?'':`<button onclick="markPaidFromModal(${h.id},'${(h.company_name||'').replace(/'/g,"\\'")}'" style="margin-left:6px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:2px 7px;font-size:0.65rem;cursor:pointer;font-weight:600">✅ Mark Paid</button>`;
-      html+='<tr style="border-bottom:1px solid var(--border)">'
-        +'<td style="padding:6px 8px;font-weight:500">'+h.company_name+'</td>'
-        +'<td style="padding:6px 8px;text-align:right;font-family:\'DM Mono\',monospace;color:'+badgeColor+';font-weight:600">£'+(h.received||0).toLocaleString('en-GB')+'</td>'
-        +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+markBtn+'</td>'
-        +'</tr>';
-    });
+    ddPaid.forEach(h=>{ html+=makeRow(h); });
     html+='</tbody></table>';
   }
   if(soPaid.length){
-    html+='<div style="font-weight:700;color:var(--green);margin:16px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">🏦 Standing Orders (£'+Math.round(soTotal).toLocaleString('en-GB')+')</div>';
+    html+='<div style="font-weight:700;color:var(--green);margin:16px 0 6px;font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">&#x1F3E6; Standing Orders (\xa3'+Math.round(soTotal).toLocaleString('en-GB')+')</div>';
     html+='<table style="width:100%;font-size:0.8rem"><thead><tr>'
       +'<th style="text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Client</th>'
       +'<th style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Amount</th>'
       +'<th style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);color:var(--muted)">Status</th>'
       +'</tr></thead><tbody>';
-    soPaid.forEach(h=>{
-      const isPaid=h.status==='paid';
-      const badgeColor=isPaid?'var(--green)':'var(--red)';
-      const badgeBg=isPaid?'var(--green-light)':'var(--red-light,#fef2f2)';
-      const icon=isPaid?'✅':'❌';
-      html+='<tr style="border-bottom:1px solid var(--border)">'
-      const markBtn=isPaid?'':`<button onclick="markPaidFromModal(${h.id},'${(h.company_name||'').replace(/'/g,"\\'")}'" style="margin-left:6px;background:var(--green);color:#fff;border:none;border-radius:10px;padding:2px 7px;font-size:0.65rem;cursor:pointer;font-weight:600">✅ Mark Paid</button>`;
-        +'<td style="padding:6px 8px;font-weight:500">'+h.company_name+'</td>'
-        +'<td style="padding:6px 8px;text-align:right;font-family:\'DM Mono\',monospace;color:'+badgeColor+';font-weight:600">£'+(h.received||0).toLocaleString('en-GB')+'</td>'
-        +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span></td>'
-        +'<td style="padding:6px 8px;text-align:center"><span style="background:'+badgeBg+';color:'+badgeColor+';padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:600">'+icon+' '+h.status+'</span>'+markBtn+'</td>'
-    });
+    soPaid.forEach(h=>{ html+=makeRow(h); });
     html+='</tbody></table>';
   }
   if(!ddPaid.length&&!soPaid.length){
-    html='<div style="text-align:center;padding:30px;color:var(--muted)">No payments collected yet for '+mon+'</div>';
+    html='<div style="text-align:center;padding:30px;color:var(--muted)">No payments recorded yet for '+mon+'</div>';
   }
   if(grandTotal>0){
     html+='<div style="margin-top:16px;padding:12px;background:var(--green-light);border-radius:8px;display:flex;justify-content:space-between;align-items:center">'
       +'<span style="font-weight:700;color:var(--green)">Total Collected</span>'
-      +'<span style="font-weight:700;font-size:1.1rem;color:var(--green);font-family:\'DM Mono\',monospace">£'+Math.round(grandTotal).toLocaleString('en-GB')+'</span>'
+      +'<span style="font-weight:700;font-size:1.1rem;color:var(--green);font-family:\'DM Mono\',monospace">\xa3'+Math.round(grandTotal).toLocaleString('en-GB')+'</span>'
       +'</div>';
   }
   document.getElementById('mbContent').innerHTML=html;
