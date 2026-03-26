@@ -1347,16 +1347,17 @@ async function loadClientInvoices(){
   const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
   try{
     const name=(c.name||'').toUpperCase().trim();
-    // Fetch all invoices and filter client-side to avoid URL encoding issues
-    const r=await fetch(`${SB}/rest/v1/invoices?select=*&order=created_at.desc&limit=500`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
+    el.innerHTML=`<div style="padding:12px;font-size:11px;color:var(--muted)">Searching for: <b>${name}</b>...</div>`;
+    const r=await fetch(`${SB}/rest/v1/invoices?select=id,invoice_no,client_name,total,status,invoice_date,due_date&order=created_at.desc&limit=500`,{headers:{'apikey':KEY,'Authorization':'Bearer '+KEY}});
     const all=await r.json();
     if(!Array.isArray(all)){
-      el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--red);font-size:12px">Error: ${JSON.stringify(all)}</div>`;
+      el.innerHTML=`<div style="padding:12px;color:var(--red);font-size:11px">API Error: ${JSON.stringify(all).substring(0,200)}</div>`;
       return;
     }
+    el.innerHTML+=`<div style="padding:4px 12px;font-size:11px;color:var(--muted)">Total invoices in DB: ${all.length}. Names: ${all.map(i=>i.client_name).join(' | ')}</div>`;
     const invs=all.filter(i=>(i.client_name||'').toUpperCase().includes(name)||(name.includes((i.client_name||'').toUpperCase())));
     if(!invs.length){
-      el.innerHTML=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">No invoices found for <b>${name}</b>.</div>`;
+      el.innerHTML+=`<div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">No match found for <b>${name}</b>.</div>`;
       return;
     }
     const total=invs.reduce((s,i)=>s+(+i.total||0),0);
