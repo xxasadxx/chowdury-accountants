@@ -476,11 +476,11 @@ async function sbDelete(path){return sb(path,{method:'DELETE'});}
 async function loadAll(){
   try{
   const invs = await sb('invoices?select=*&order=created_at.desc&limit=500').catch(()=>[]);
-  const ltdClients = await sb('ltd_clients?select=id,company_name,comp_no&status=eq.active&limit=1000').catch(()=>[]);
+  const ltdClients = await sb('ltd_clients?select=comp_no,director_name&order=director_name.asc&limit=1000').catch(()=>[]);
   const saClients = await sb('sa_clients?select=id,forename,surname&limit=1000').catch(()=>[]);
 
   ALL_INVOICES=Array.isArray(invs)?invs:[];
-  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.id,name:c.company_name||'',ref:c.comp_no||'',type:'Ltd'})).filter(c=>c.name);
+  const ltd=(Array.isArray(ltdClients)?ltdClients:[]).map(c=>({id:c.comp_no,name:c.director_name||'',ref:c.comp_no||'',type:'Ltd'})).filter(c=>c.name);
   const sa=(Array.isArray(saClients)?saClients:[]).map(c=>({id:c.id,name:((c.forename||'')+' '+(c.surname||'')).trim(),ref:'SA',type:'SA'})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').localeCompare(b.name||''));
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
