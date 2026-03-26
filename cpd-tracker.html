@@ -504,12 +504,12 @@ function handleCertUpload(input){
   const reader=new FileReader();
   reader.onload=function(e){
     if(isPDF){
-      // Store PDF as base64 data URL directly
-      CERT_IMAGE_DATA=e.target.result;
+      // PDF too large for DB - store filename only, advise screenshot
+      CERT_IMAGE_DATA=null;
       document.getElementById('cert-preview').innerHTML=
-        '<div style="padding:8px 12px;background:#ede9fe;border:1px solid #c4b5fd;border-radius:6px;font-size:11px;color:#6d28d9;margin-top:4px">'+
-        '📄 PDF: '+file.name+'<br><span style="font-size:10px;color:#888">'+Math.round(file.size/1024)+'KB — will appear as link in printed PDF</span></div>'+
-        '<div style="font-size:10px;color:var(--green);margin-top:3px">✅ Certificate ready</div>';
+        '<div style="padding:8px 12px;background:#fef3c7;border:1px solid #fcd34d;border-radius:6px;font-size:11px;color:#92400e;margin-top:4px">'+
+        '⚠️ PDF files cannot be embedded. Please take a screenshot of the certificate and upload as JPG/PNG instead.<br>'+
+        '<span style="font-size:10px">You can still note the certificate number above.</span></div>';
     } else {
       // Compress image using canvas
       const img=new Image();
@@ -547,9 +547,13 @@ async function saveActivity(){
     description:document.getElementById('f-desc').value.trim(),
     reflection:document.getElementById('f-reflection').value.trim(),
     cert_no:document.getElementById('f-cert-no').value.trim(),
-    cert_image:CERT_IMAGE_DATA||undefined,
   };
-  if(!CERT_IMAGE_DATA&&EDITING_ID){delete payload.cert_image;}
+  // Only include cert_image if it's a compressed image (not PDF - too large for DB)
+  if(CERT_IMAGE_DATA&&CERT_IMAGE_DATA.startsWith('data:image')){
+    payload.cert_image=CERT_IMAGE_DATA;
+  } else if(!CERT_IMAGE_DATA&&EDITING_ID){
+    // Don't overwrite existing cert_image when editing without new upload
+  }
   if(!payload.title){alert('Please enter an activity title.');return;}
   if(!payload.hours){alert('Please enter hours.');return;}
 
