@@ -497,6 +497,13 @@ async function loadAll(){
   const ltd=ltdClients.map(c=>({id:c.comp_no,name:c.name||'',ref:c.comp_no||'',type:'Ltd',email:c.email||'',address:c.address||'',mobile:c.mobile||''})).filter(c=>c.name);
   const sa=SA_SEED.map(c=>({id:c.id,name:c.name,ref:'Self-Employed',type:'SE',email:c.email||'',address:c.address||'',mobile:c.mobile||''})).filter(c=>c.name);
   ALL_CLIENTS=[...ltd,...sa].sort((a,b)=>(a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
+  // Fetch mobiles from Supabase ltd_clients and merge in background
+  sb('ltd_clients?select=comp_no,director_mobile&director_mobile=neq.&limit=1000').then(rows=>{
+    if(!Array.isArray(rows)) return;
+    const mobileMap={};
+    rows.forEach(r=>{ if(r.comp_no&&r.director_mobile) mobileMap[r.comp_no]=r.director_mobile; });
+    ALL_CLIENTS.forEach(c=>{ if(c.type==='Ltd'&&mobileMap[c.id]) c.mobile=mobileMap[c.id]; });
+  }).catch(()=>{});
   console.log('Loaded — Invoices:',ALL_INVOICES.length,'Ltd clients:',ltd.length,'SA clients:',sa.length);
   // Debug banner
 
