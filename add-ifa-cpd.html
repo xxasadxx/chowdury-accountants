@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Add IFA CPD</title></head>
+<body>
+<script>
+const SB='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+
+fetch(SB+'/rest/v1/cpd_activities',{
+  method:'POST',headers:H,
+  body:JSON.stringify({
+    staff:'Asadul',
+    title:'IFA Northern England Regional Event',
+    type:'event',
+    cpd_year:'2025/26',
+    provider:'Institute of Financial Accountants (IFA)',
+    date:'2025-11-19',
+    hours:2.5,
+    verified:true,
+    description:'Face to face IFA Northern England Regional Event at Xeinadin, 100 Barbirolli Square, Manchester. Evening session covering MTD for Income Tax with Q&A session with Lenny Barry. Attended with fellow practitioner.',
+    reflection:'Direct opportunity to put MTD questions to an IFA expert. Gained clarity on MTD implementation timeline and client communication requirements. Presentation slides provided for ongoing reference.',
+    cert_no:'IFA Member ID: 298599'
+  })
+}).then(r=>{
+  document.body.innerHTML=r.ok?'<h2 style="color:green">✅ IFA activity added successfully!</h2>':'<h2 style="color:red">❌ Error: '+r.status+'</h2>';
+});
+</script>
+<p>Adding IFA activity...</p>
+</body></html>
