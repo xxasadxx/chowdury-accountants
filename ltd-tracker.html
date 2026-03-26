@@ -436,7 +436,7 @@ window.caAudit = (function(){
       <div class="modal-tab" onclick="showModalTab('docs',this)">📁 Docs & Log</div>
       <div class="modal-tab" onclick="showModalTab('accounts',this)">📊 Accounts Filed</div>
       <div class="modal-tab" onclick="showModalTab('messages',this);loadClientMessages()">💬 Messages</div>
-      <div class="modal-tab" onclick="showModalTab('invoices',this);loadClientInvoices()">🧾 Invoices</div>
+      <div class="modal-tab" onclick="showModalTab('invoices',this);setTimeout(loadClientInvoices,50)">🧾 Invoices</div>
     </div>
   <div class="modal-body">
 
@@ -598,9 +598,9 @@ window.caAudit = (function(){
       <div id="cm-accounts-filed" style="padding:4px 0"></div>
     </div>
 
-    <div class="modal-tab-content" id="mtab-invoices">
-      <div id="cm-invoices-body" style="padding:4px 0">
-        <div style="text-align:center;padding:24px;color:var(--muted);font-size:12px">Loading invoices...</div>
+    <div class="modal-tab-content" id="mtab-invoices" style="min-height:200px">
+      <div id="cm-invoices-body" style="padding:8px 0;min-height:100px">
+        <p style="padding:20px;color:#888;font-size:12px">Click the Invoices tab to load...</p>
       </div>
     </div>
 
