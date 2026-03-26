@@ -681,10 +681,10 @@ function cardHTML(c){
     <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
       <span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span>
       ${c.aml_pep?'<span class="badge badge-pep">PEP</span>':''}
-      <span class="cc-name" style="flex:1">${c.company_name||'Unnamed'}</span>
+      <span class="cc-name" style="flex:1">${(c.company_name||"Unnamed").toUpperCase()}</span>
       ${amlOk?'<span style="font-size:11px">🔐✓</span>':''}
     </div>
-    <div class="cc-meta"><span>👤 ${c.director_name||'—'}</span>${c.monthly_fee?`<span>£${c.monthly_fee}/mo</span>`:''}</div>
+    <div class="cc-meta"><span>👤 ${(c.director_name||"—").toUpperCase()}</span>${c.monthly_fee?`<span>£${c.monthly_fee}/mo</span>`:''}</div>
     ${(c.services||[]).length?`<div style="font-size:10px;color:var(--muted);margin-top:3px">${(c.services||[]).slice(0,3).join(', ')}</div>`:''}
     <div class="cc-progress"><div class="cc-fill" style="width:${p}%"></div></div>
     <div class="cc-pct">${done(c)}/${cl(c).length} steps · ${p}%</div>
@@ -694,7 +694,7 @@ function renderAML(list){
   const amlColors={pending:'badge-amber',in_progress:'badge-blue',passed:'badge-green',failed:'badge-red'};
   document.getElementById('aml-tbody').innerHTML=list.map(c=>`
     <tr onclick="openClient(${c.id})" onmouseover="this.querySelectorAll('td').forEach(t=>t.style.background='var(--blue-light)')" onmouseout="this.querySelectorAll('td').forEach(t=>t.style.background='')">
-      <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${c.company_name||'—'}${c.aml_pep?'&nbsp;<span class="badge badge-pep">PEP</span>':''}</td>
+      <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${(c.company_name||"—").toUpperCase()}${c.aml_pep?'&nbsp;<span class="badge badge-pep">PEP</span>':''}</td>
       <td style="padding:9px 11px"><span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span></td>
       <td style="padding:9px 11px"><span class="badge ${amlColors[c.aml_status]||'badge-amber'}">${AL[c.aml_status]||'Pending'}</span></td>
       <td style="padding:9px 11px;font-size:11px;color:var(--ink2)">${c.aml_id_type||'—'}</td>
@@ -710,10 +710,10 @@ function renderList(list){
   document.getElementById('list-tbody').innerHTML=list.map(c=>{
     const p=pct(c);
     return `<tr style="border-bottom:1px solid var(--border);cursor:pointer" onclick="openClient(${c.id})" onmouseover="this.style.background='var(--blue-light)'" onmouseout="this.style.background=''">
-      <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${c.company_name||'—'}</td>
+      <td style="padding:9px 11px;font-weight:600;font-family:var(--display);font-size:12px">${(c.company_name||"—").toUpperCase()}</td>
       <td style="padding:9px 11px"><span class="badge badge-${c.client_type||'ltd'}">${c.client_type==='se'?'SE':'Ltd'}</span></td>
       <td style="padding:9px 11px"><span class="badge ${sc[c.status]||'badge-grey'}">${SL[c.status]||c.status}</span></td>
-      <td style="padding:9px 11px;font-size:11px">${c.director_name||'—'}</td>
+      <td style="padding:9px 11px;font-size:11px">${(c.director_name||"—").toUpperCase()}</td>
       <td style="padding:9px 11px"><div style="display:flex;align-items:center;gap:6px"><div style="width:70px;height:4px;background:var(--border);border-radius:99px;overflow:hidden"><div style="width:${p}%;height:100%;background:var(--green);border-radius:99px"></div></div><span style="font-size:10px;color:var(--muted)">${p}%</span></div></td>
       <td style="padding:9px 11px"><span class="badge ${ac[c.aml_status]||'badge-amber'}">${AL[c.aml_status]||'Pending'}</span></td>
       <td style="padding:9px 11px;font-size:11px">${c.monthly_fee?'£'+c.monthly_fee:'—'}</td>

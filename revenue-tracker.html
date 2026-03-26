@@ -1287,7 +1287,7 @@ function renderCombinedTable(){
     rn++;
     const typeColor=c._type==='DD'?'var(--accent)':'var(--green)';
     return '<tr><td style="color:var(--muted);font-size:0.68rem">'+rn+'</td>'
-      +'<td style="font-weight:600;font-size:0.79rem">'+c.company_name+'</td>'
+      +'<td style="font-weight:600;font-size:0.79rem">'+(c.company_name||'').toUpperCase()+'</td>'
       +'<td><span style="background:'+(c._type==='DD'?'var(--accent-light)':'var(--green-light)')+';color:'+typeColor+';border:1px solid '+(c._type==='DD'?'var(--accent-border)':'var(--green-border)')+';padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600">'+c._type+'</span></td>'
       +'<td style="color:var(--muted);font-size:0.75rem">'+(c.city||'')+'</td>'
       +'<td><span class="dbadge '+(DC_CLS[c.charge_date]||'d1')+'">'+c.charge_date+'</span></td>'
@@ -1324,7 +1324,7 @@ function renderFailed(){
   const stCol={'outstanding':'var(--red)','resolved':'var(--green)','written-off':'var(--muted)'};
   document.getElementById('fp-tbody').innerHTML=list.map((f,i)=>{
     return '<tr><td style="color:var(--muted);font-size:0.68rem">'+(i+1)+'</td>'
-      +'<td><span style="font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px" data-fpid="'+f.id+'" onclick="viewFailedHistory(this)">'+f.client_name+'</span></td>'
+      +'<td><span style="font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline;text-underline-offset:3px" data-fpid="'+f.id+'" onclick="viewFailedHistory(this)">'+(f.client_name||'').toUpperCase()+'</span></td>'
       +'<td><span style="background:'+(f.source==='so'?'var(--green-light)':'var(--accent-light)')+';color:'+(f.source==='so'?'var(--green)':'var(--accent)')+';border:1px solid '+(f.source==='so'?'var(--green-border)':'var(--accent-border)')+';padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:600">'+(f.source==='so'?'SO':'DD')+'</span></td>'
       +'<td><span class="fee-num">£'+(f.amount||0)+'</span></td>'
       +'<td style="color:var(--muted);font-size:0.75rem">'+(f.failure_date||'')+'</td>'
@@ -1412,7 +1412,7 @@ function renderTable(type){
     const isInact=c.status==='inactive';
     return '<tr class="'+(isInact?'inactive':'')+'">'
       +'<td style="color:var(--muted);font-size:0.68rem">'+rn+'</td>'
-      +'<td style="font-weight:600"><span class="client-link" onclick="openHistory(\''+type+'\','+c.id+')" title="View payment history">'+c.company_name+'</span></td>'
+      +'<td style="font-weight:600"><span class="client-link" onclick="openHistory(\''+type+'\','+c.id+')" title="View payment history">'+(c.company_name||'').toUpperCase()+'</span></td>'
       +'<td style="color:var(--muted);font-size:0.75rem">'+(c.city||'')+'</td>'
       +'<td><span class="dbadge '+(DC_CLS[c.charge_date]||'d1')+'">'+c.charge_date+'</span></td>'
       +'<td><div class="fee-wrap"><div class="fee-bar-track"><div class="fee-bar-fill" style="width:'+(c.fee/mF*100)+'%"></div></div>'

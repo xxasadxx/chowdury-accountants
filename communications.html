@@ -1549,7 +1549,7 @@ function renderLog(){
     const tplKey=getTplKey(m.message_body);
     return`<div>
       <div class="log-row" onclick="toggleMsg(${i})" style="cursor:pointer">
-        <div style="font-weight:600;font-size:11px;font-family:var(--display)">${m.client_name||'—'}<br><span class="badge badge-${m.client_type==='ltd'?'ltd':'se'}">${m.client_type==='ltd'?'Ltd':'SE'}</span></div>
+        <div style="font-weight:600;font-size:11px;font-family:var(--display)">${(m.client_name||'—').toUpperCase()}<br><span class="badge badge-${m.client_type==='ltd'?'ltd':'se'}">${m.client_type==='ltd'?'Ltd':'SE'}</span></div>
         <div style="font-size:11px;color:var(--muted)">${preview}</div>
         <div style="font-size:11px">${m.sent_by||'—'}</div>
         <div style="font-size:10px;color:var(--muted);font-family:var(--mono)">${ds}<br>${ts}</div>
@@ -1670,7 +1670,7 @@ function G_renderList(){
     const uk=mob.replace(/\D/g,'').replace(/^0/,'44');
     const href=mob?`https://wa.me/${uk}?text=${encodeURIComponent(tpl.replace(/{name}/g,c.name))}`:'';
     return`<div class="greet-cl-row${sent?' gsent':''}" onclick="${mob?`G_openWA('${c.id}','${href.replace(/'/g,"\\'")}')`:''}" title="${mob?'Tap to open WhatsApp':'No mobile number'}">
-      <div style="font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-weight:600;font-family:var(--display);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(c.name||'').toUpperCase()}</div>
       <div style="font-family:var(--mono);font-size:10px;color:var(--muted)">${mob||'<span class="no-mob">no mobile</span>'}</div>
       <div><span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div>
       <div><span class="badge ${sent?'badge-gsent':'badge-gunsent'}">${sent?'Sent':'—'}</span></div>
@@ -1739,7 +1739,7 @@ function G_renderLog(){
   if(!G_sentSet.size){document.getElementById('g-sent-log-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No messages sent this session yet</div>';return;}
   document.getElementById('g-sent-log-list').innerHTML=[...G_sentSet].map(id=>{
     const c=G_ALL.find(x=>x.id===id);if(!c)return'';
-    return`<div class="g-sent-entry"><div><span style="font-weight:600">${c.name}</span> <span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${c.mobile||'no mobile'}</span></div>`;
+    return`<div class="g-sent-entry"><div><span style="font-weight:600">${(c.name||'').toUpperCase()}</span> <span class="badge badge-${c.type}">${c.type==='ltd'?'Ltd':'SE'}</span></div><span style="font-family:var(--mono);font-size:10px;color:var(--muted)">${c.mobile||'no mobile'}</span></div>`;
   }).filter(Boolean).join('');
 }
 
@@ -2139,7 +2139,7 @@ function L_renderClients() {
     const waCoverUrl = mob ? 'https://wa.me/'+uk+'?text='+encodeURIComponent(coverMsg) : '';
 
     return `<div class="ltr-cl-row${sent?' ltr-sent':''}">
-      <div style="font-weight:600;font-size:11px;font-family:var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name}</div>
+      <div style="font-weight:600;font-size:11px;font-family:var(--display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${(c.name||'').toUpperCase()}</div>
       <div style="font-size:10px;color:var(--muted)">${c.director||'—'}</div>
       <div><span class="badge" style="background:${sent?'var(--green-light)':'var(--border)'};color:${sent?'var(--green)':'var(--muted)'}">${sent?'Sent':'—'}</span></div>
       <div style="display:flex;gap:4px">
