@@ -366,6 +366,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13p
           <input id="f-client-email" type="email" placeholder="client@email.com">
         </div>
         <div class="fg">
+          <label>Client Mobile</label>
+          <input id="f-client-mobile" type="tel" placeholder="07xxx xxxxxx">
+        </div>
+        <div class="fg">
           <label>Invoice Date</label>
           <input id="f-date" type="date">
         </div>
@@ -591,6 +595,7 @@ async function openNewInvoice(){
   document.getElementById('f-client-name').value='';
   document.getElementById('f-client-addr').value='';
   document.getElementById('f-client-email').value='';
+  document.getElementById('f-client-mobile').value='';
   document.getElementById('f-notes').value='';
   const today=new Date().toISOString().slice(0,10);
   const due=new Date();due.setDate(due.getDate()+14);
@@ -614,6 +619,7 @@ async function editInvoice(id){
   document.getElementById('f-client-name').value=inv.client_name||'';
   document.getElementById('f-client-addr').value=inv.client_address||'';
   document.getElementById('f-client-email').value=inv.client_email||'';
+  document.getElementById('f-client-mobile').value=inv.client_mobile||'';
   document.getElementById('f-notes').value=inv.notes||'';
   document.getElementById('f-date').value=inv.invoice_date||'';
   document.getElementById('f-due-date').value=inv.due_date||'';
@@ -640,7 +646,9 @@ async function saveInvoice(statusOverride){
     invoice_no:document.getElementById('f-inv-no').value,
     client_name:document.getElementById('f-client-name').value,
     client_email:document.getElementById('f-client-email').value,
+    client_mobile:document.getElementById('f-client-mobile').value,
     client_address:document.getElementById('f-client-addr').value,
+    client_mobile:document.getElementById('f-client-mobile').value,
     invoice_date:document.getElementById('f-date').value||null,
     due_date:document.getElementById('f-due-date').value||null,
     paid_date:document.getElementById('f-paid-date').value||null,
@@ -725,7 +733,7 @@ function buildInvoiceHTML(inv,items){
     </div>
     <div class="inv-divider"><div class="inv-div-black"></div><div class="inv-div-gold"></div></div>
     <div class="inv-meta">
-      <div class="inv-to"><strong>${inv.client_name||''}</strong>${addr?'<br>'+addr:''}${inv.client_email?'<br>'+inv.client_email:''}</div>
+      <div class="inv-to"><strong>${inv.client_name||''}</strong>${addr?'<br>'+addr:''}${inv.client_email?'<br>'+inv.client_email:''}${inv.client_mobile?'<br>📱 '+inv.client_mobile:''}</div>
       <div class="inv-details">
         <div class="inv-number">${inv.invoice_no}</div>
         <div>Date: ${fmtDate(inv.invoice_date)}</div>
@@ -815,7 +823,9 @@ function renderPreview(){
     invoice_no:document.getElementById('f-inv-no').value,
     client_name:document.getElementById('f-client-name').value||'[Client Name]',
     client_address:document.getElementById('f-client-addr').value,
+    client_mobile:document.getElementById('f-client-mobile').value,
     client_email:document.getElementById('f-client-email').value,
+    client_mobile:document.getElementById('f-client-mobile').value,
     invoice_date:document.getElementById('f-date').value,
     due_date:document.getElementById('f-due-date').value,
     paid_date:document.getElementById('f-paid-date').value,
@@ -855,6 +865,7 @@ function selectClient(name){
   if(cl){
     if(cl.address) document.getElementById('f-client-addr').value=cl.address;
     if(cl.email) document.getElementById('f-client-email').value=cl.email;
+    if(cl.mobile){ document.getElementById('f-client-mobile').value=cl.mobile; }
     window._selectedClientMobile=cl.mobile||'';
   }
   document.getElementById('client-dropdown').classList.remove('show');
@@ -899,7 +910,7 @@ function sendByWhatsApp(){
     'Chowdury Accountants | 0161 222 4647'
   );
   // Use stored mobile, clean to digits only
-  const raw=inv.client_mobile||window._selectedClientMobile||'';
+  const raw=inv.client_mobile||document.getElementById('f-client-mobile')?.value||window._selectedClientMobile||'';
   const phone=raw.replace(/[^0-9]/g,'').replace(/^0/,'44');
   const url=phone?'https://wa.me/'+phone+'?text='+msg:'https://wa.me/?text='+msg;
   window.open(url);
