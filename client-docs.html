@@ -655,7 +655,9 @@ async function showDetail(id){
     <div class="detail-row"><span class="lbl">Documents</span><span class="val"><ul style="padding-left:16px;margin-top:4px">${docs}</ul></span></div>
     <div class="detail-row"><span class="lbl">Approval Link</span><span class="val"><a href="${link}" target="_blank" style="color:#c8963c;word-break:break-all">${link}</a></span></div>
     ${a.notes?`<div class="detail-row"><span class="lbl">Notes</span><span class="val">${a.notes}</span></div>`:''}
-    ${proofHtml}`;
+    ${proofHtml}
+    ${a.status==='approved'?`<div style="text-align:center;margin-top:20px"><button onclick="downloadSignedPdf('${a.id}')" style="background:#1a1a18;color:#fff;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:0.88rem;font-weight:700;width:100%">⬇️ Download Signed PDF</button></div>`:''}
+    `;
   document.getElementById('detail-modal').classList.add('open');
 }
 
@@ -723,6 +725,56 @@ async function inviteToPortal(id){
     toast(`Invitation message copied! Code: ${shortCode}. Send to ${a.client_email}`,'green');
   }
   toast(`Portal invite sent! Code: ${shortCode}`,'green');
+}
+
+async function downloadSignedPdf(id){
+  const a=ALL_APPROVALS.find(x=>x.id===id);
+  if(!a){toast('Record not found','red');return;}
+  // If signed_documents exists use it, else call sign-pdf to generate
+  if(a.signed_documents&&a.signed_documents.length){
+    const sd=a.signed_documents[0];
+    try{
+      const res=await fetch(`${SB_URL}/storage/v1/object/sign/client-documents/${sd.signed}`,{
+        method:'POST',headers:{...H,'Content-Type':'application/json'},
+        body:JSON.stringify({expiresIn:60})
+      });
+      const data=await res.json();
+      const url=data.signedURL||data.signedUrl;
+      if(url){
+        const fullUrl=url.startsWith('http')?url:`${SB_URL}/storage/v1${url}`;
+        window.open(fullUrl,'_blank');
+        return;
+      }
+    }catch(e){}
+  }
+  // Generate signed PDF on demand
+  toast('Generating signed PDF…','gold');
+  try{
+    const r=await fetch('/.netlify/functions/sign-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:a.token})});
+    const d=await r.json();
+    if(d.success&&d.signed&&d.signed.length){
+      // Update local record
+      a.signed_documents=d.signed;
+      const sd=d.signed[0];
+      const res=await fetch(`${SB_URL}/storage/v1/object/sign/client-documents/${sd.signed}`,{
+        method:'POST',headers:{...H,'Content-Type':'application/json'},
+        body:JSON.stringify({expiresIn:60})
+      });
+      const data=await res.json();
+      const url=data.signedURL||data.signedUrl;
+      if(url){
+        const fullUrl=url.startsWith('http')?url:`${SB_URL}/storage/v1${url}`;
+        window.open(fullUrl,'_blank');
+        toast('✅ Signed PDF downloaded','green');
+        return;
+      }
+    }
+    toast('Could not generate signed PDF — check function logs','red');
+  }catch(e){toast('Error: '+e.message,'red');}
+}
+
+async function downloadProof(id){
+  downloadSignedPdf(id);
 }
 
 async function logAudit(action, user){
