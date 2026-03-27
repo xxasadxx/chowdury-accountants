@@ -175,10 +175,10 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
       <h2>📤 Send Documents for Client Approval</h2>
 
       <div class="form-grid">
-        <div class="form-group">
+        <div class="form-group" style="position:relative">
           <label>Company / Client Name *</label>
-          <input type="text" id="f-company" placeholder="e.g. Project Interim Limited" list="company-list">
-          <datalist id="company-list"></datalist>
+          <input type="text" id="f-company" placeholder="🔍 Type to search company…" autocomplete="off" oninput="filterCompanies(this.value)" onfocus="showDropdown()" onblur="setTimeout(hideDropdown,200)">
+          <div id="company-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #c8963c;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
         </div>
         <div class="form-group">
           <label>Director / Contact Name *</label>
@@ -641,28 +641,57 @@ function toast(msg,type='green'){
   setTimeout(()=>t.className='toast',3200);
 }
 
-// ── LOAD CLIENT COMPANIES FOR AUTOCOMPLETE ────────────
+// ── SEARCHABLE COMPANY DROPDOWN ───────────────────────
+let ALL_COMPANIES=[];
+
 async function loadCompanies(){
   try{
     const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=company_name,director_name,director_email,director_mobile&order=company_name.asc`,{headers:H});
     if(!res.ok) return;
-    const data=await res.json();
-    const dl=document.getElementById('company-list');
-    data.forEach(c=>{
-      const opt=document.createElement('option');
-      opt.value=c.company_name||'';
-      dl.appendChild(opt);
-    });
-    // Auto-fill contact/email/phone when company selected
-    document.getElementById('f-company').addEventListener('change',function(){
-      const match=data.find(c=>c.company_name===this.value);
-      if(match){
-        if(match.director_name) document.getElementById('f-contact').value=match.director_name;
-        if(match.director_email) document.getElementById('f-email').value=match.director_email;
-        if(match.director_mobile) document.getElementById('f-phone').value=match.director_mobile;
-      }
-    });
+    ALL_COMPANIES=await res.json();
+    // Pre-populate dropdown on focus
+    renderDropdown(ALL_COMPANIES.slice(0,50));
   }catch(e){}
+}
+
+function filterCompanies(val){
+  const q=(val||'').toLowerCase().trim();
+  const filtered=q
+    ? ALL_COMPANIES.filter(c=>(c.company_name||'').toLowerCase().includes(q)).slice(0,30)
+    : ALL_COMPANIES.slice(0,50);
+  renderDropdown(filtered);
+  showDropdown();
+}
+
+function renderDropdown(companies){
+  const dd=document.getElementById('company-dropdown');
+  if(!companies.length){
+    dd.innerHTML='<div style="padding:12px 14px;color:#999;font-size:0.85rem">No companies found</div>';
+    return;
+  }
+  dd.innerHTML=companies.map(c=>`
+    <div onclick="selectCompany(${JSON.stringify(c.company_name||'').replace(/"/g,'&quot;')},${JSON.stringify(c.director_name||'').replace(/"/g,'&quot;')},${JSON.stringify(c.director_email||'').replace(/"/g,'&quot;')},${JSON.stringify(c.director_mobile||'').replace(/"/g,'&quot;')})"
+      style="padding:10px 14px;cursor:pointer;font-size:0.87rem;border-bottom:1px solid #f5f5f5;transition:background .1s"
+      onmouseover="this.style.background='#fff8ee'" onmouseout="this.style.background='#fff'">
+      <strong style="color:#1a1a18">${c.company_name||'—'}</strong>
+      ${c.director_name?`<span style="color:#888;font-size:0.78rem;margin-left:8px">${c.director_name}</span>`:''}
+    </div>`).join('');
+}
+
+function selectCompany(name,director,email,phone){
+  document.getElementById('f-company').value=name;
+  if(director) document.getElementById('f-contact').value=director;
+  if(email) document.getElementById('f-email').value=email;
+  if(phone) document.getElementById('f-phone').value=phone;
+  hideDropdown();
+}
+
+function showDropdown(){
+  const dd=document.getElementById('company-dropdown');
+  if(ALL_COMPANIES.length>0) dd.style.display='block';
+}
+function hideDropdown(){
+  document.getElementById('company-dropdown').style.display='none';
 }
 
 // ── INIT ──────────────────────────────────────────────
