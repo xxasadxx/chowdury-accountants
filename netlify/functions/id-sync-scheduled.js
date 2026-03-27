@@ -47,8 +47,8 @@ function sbRequest(method, path, body, prefer) {
         'apikey': SB_KEY,
         'Authorization': 'Bearer ' + SB_KEY,
         'Content-Type': 'application/json',
-        'Prefer': prefer || (method === 'GET' ? 'count=none' : 'resolution=merge-duplicates'),
-        ...(method === 'GET' ? { 'Range': '0-9999' } : {}),
+        'Prefer': prefer || (method === 'GET' ? '' : 'resolution=merge-duplicates'),
+       ...(method === 'GET' ? {} : {}), 
         ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {})
       }
     };
@@ -127,7 +127,7 @@ exports.handler = async () => {
     console.log(`Fetched ${companies.length} companies from InformDirect`);
 
     // 3. Fetch existing ltd_clients from Supabase
-    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,name,director_name,conf_due,status&limit=2000');
+    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,company_name,director_name,conf_due,status&limit=2000&order=id.asc');
     let clients;
     try { clients = JSON.parse(clientsResp.body); } catch(e) { clients = []; }
     if (!Array.isArray(clients)) {
