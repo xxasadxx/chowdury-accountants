@@ -288,6 +288,7 @@ window.caAudit = (function(){
     <div class="page-tab" onclick="setView('aml')">🔐 AML Register</div>
     <div class="page-tab" onclick="setView('quote')">💡 Quote Calculator</div>
     <div class="page-tab" onclick="setView('list')">📃 List View</div>
+    <div class="page-tab" onclick="setView('clientportal')">🏢 Client Portal</div>
   </div>
 </div>
 
@@ -358,6 +359,63 @@ window.caAudit = (function(){
       </tr></thead>
       <tbody id="list-tbody"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- CLIENT PORTAL VIEW -->
+<div id="view-clientportal" style="display:none;padding:0 24px 30px">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+    <!-- INVITE CLIENT -->
+    <div style="background:#fff;border-radius:12px;padding:20px;border:1px solid #e8e8e8;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+      <h3 style="font-size:0.88rem;font-weight:800;margin-bottom:4px;color:#1a1a18">📨 Invite Client to Portal</h3>
+      <p style="font-size:0.78rem;color:#888;margin-bottom:16px">Send client a link to create their portal account and access their documents</p>
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Client Name</label>
+        <input id="inv-name" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit" placeholder="e.g. Ali Shafakat">
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Client Email</label>
+        <input id="inv-email" type="email" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit" placeholder="client@email.com">
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Company</label>
+        <input id="inv-company" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit" placeholder="e.g. Project Interim Limited">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="sendPortalInvite('email')" style="flex:1;background:#1a1a18;color:#fff;border:none;border-radius:8px;padding:10px;font-size:0.83rem;font-weight:700;cursor:pointer;font-family:inherit">✉️ Email Invite</button>
+        <button onclick="sendPortalInvite('whatsapp')" style="flex:1;background:#25D366;color:#fff;border:none;border-radius:8px;padding:10px;font-size:0.83rem;font-weight:700;cursor:pointer;font-family:inherit">💬 WhatsApp</button>
+      </div>
+      <div id="inv-msg" style="display:none;margin-top:12px;padding:10px 12px;border-radius:8px;font-size:0.8rem;font-weight:600"></div>
+    </div>
+    <!-- PORTAL STATS + LINKS -->
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="background:#fff;border-radius:12px;padding:18px;border:1px solid #e8e8e8;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:12px">📊 Portal Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="text-align:center;padding:12px;background:#f0f2f5;border-radius:8px">
+            <div id="cp-stat-accounts" style="font-size:1.4rem;font-weight:800;color:#1a1a18">—</div>
+            <div style="font-size:0.7rem;color:#888;font-weight:700;text-transform:uppercase;margin-top:2px">Registered</div>
+          </div>
+          <div style="text-align:center;padding:12px;background:#fff8ee;border-radius:8px">
+            <div id="cp-stat-pending" style="font-size:1.4rem;font-weight:800;color:#c8963c">—</div>
+            <div style="font-size:0.7rem;color:#888;font-weight:700;text-transform:uppercase;margin-top:2px">Docs Awaiting</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:18px;border:1px solid #e8e8e8;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+        <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;margin-bottom:10px">🔗 Quick Links</div>
+        <a href="client-login.html" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f0f2f5;border-radius:8px;text-decoration:none;color:#1a1a18;font-size:0.82rem;font-weight:600;margin-bottom:8px">Client Login Page <span style="color:#c8963c">↗</span></a>
+        <a href="client-docs.html" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f0f2f5;border-radius:8px;text-decoration:none;color:#1a1a18;font-size:0.82rem;font-weight:600">Send Documents <span style="color:#c8963c">↗</span></a>
+      </div>
+    </div>
+  </div>
+  <!-- REGISTERED ACCOUNTS TABLE -->
+  <div style="background:#fff;border-radius:12px;border:1px solid #e8e8e8;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-top:16px;overflow:hidden">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0">
+      <div style="font-size:0.85rem;font-weight:800;color:#1a1a18">👥 Registered Client Accounts</div>
+      <button onclick="loadPortalAccounts()" style="background:#f0f2f5;border:none;border-radius:6px;padding:6px 12px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit">↻ Refresh</button>
+    </div>
+    <div id="cp-accounts-list" style="padding:16px;font-size:0.84rem;color:#888;text-align:center">Click Refresh to load accounts</div>
   </div>
 </div>
 
@@ -660,8 +718,8 @@ function render(){
 }
 function setView(v){
   view=v;
-  ['pipeline','aml','quote','list'].forEach(x=>document.getElementById('view-'+x).style.display=x===v?'block':'none');
-  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list'][i]===v));
+  ['pipeline','aml','quote','list','clientportal'].forEach(x=>document.getElementById('view-'+x).style.display=x===v?'block':'none');
+  document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list','clientportal'][i]===v));
   if(v==='quote'){
     const ifr=document.getElementById('quote-iframe');
     if(!ifr.src||ifr.src==='about:blank') ifr.src='quote-engine.html';
@@ -1160,6 +1218,73 @@ async function markClearance(action){
 
 function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',3000);}
 toggleLtd();load();
+
+// ── CLIENT PORTAL TAB ─────────────────────────────────
+const CP_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const CP_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const CP_H={'apikey':CP_KEY,'Authorization':'Bearer '+CP_KEY,'Content-Type':'application/json'};
+const PORTAL_URL=window.location.origin+'/client-login.html';
+
+function sendPortalInvite(via){
+  const name=document.getElementById('inv-name').value.trim();
+  const email=document.getElementById('inv-email').value.trim();
+  const company=document.getElementById('inv-company').value.trim();
+  const msg=document.getElementById('inv-msg');
+  if(!name||!email){msg.style.display='block';msg.style.background='#fce4e4';msg.style.color='#c62828';msg.textContent='Please enter client name and email.';return;}
+  const firstName=name.split(' ')[0];
+  if(via==='email'){
+    const subject='Your Chowdury Accountants Client Portal — Create Your Account';
+    const body='Dear '+name+',\n\nWe are pleased to invite you to access your dedicated client portal with Chowdury Accountants.\n\nYour portal gives you secure access to:\n• All your documents and returns\n• Pending approvals requiring your signature\n• Correspondence from our team\n\nClick the link below to create your account:\n'+PORTAL_URL+'\n\nUse your email address ('+email+') to register. If you need any help, please call us on 0161 222 4647.\n\nYours sincerely,\nMd Asadul Islam Chowdury\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
+    window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  } else {
+    const waMsg='Hi '+firstName+',\n\nWe have set up your dedicated client portal with *Chowdury Accountants*.\n\nYour portal gives you secure access to all your documents, returns and approvals in one place.\n\n*Create your account here:*\n'+PORTAL_URL+'\n\nUse your email address ('+email+') to register.\n\nAny questions, call us on 0161 222 4647 📞\n\n_Chowdury Accountants_';
+    window.open('https://wa.me/?text='+encodeURIComponent(waMsg),'_blank');
+  }
+  msg.style.display='block';msg.style.background='#e8f5e9';msg.style.color='#2e7d32';
+  msg.textContent='✓ Invite ready — check your '+via+' app to send';
+}
+
+async function loadPortalAccounts(){
+  const el=document.getElementById('cp-accounts-list');
+  el.innerHTML='<div style="text-align:center;padding:20px;color:#888">Loading…</div>';
+  try{
+    const[accRes,docsRes]=await Promise.all([
+      fetch(CP_URL+'/rest/v1/client_portal_accounts?select=*&order=created_at.desc',{headers:CP_H}),
+      fetch(CP_URL+'/rest/v1/client_approvals?select=status&status=eq.pending',{headers:CP_H})
+    ]);
+    const accounts=await accRes.json();
+    const pending=await docsRes.json();
+    document.getElementById('cp-stat-accounts').textContent=Array.isArray(accounts)?accounts.length:'—';
+    document.getElementById('cp-stat-pending').textContent=Array.isArray(pending)?pending.length:'—';
+    if(!accounts.length){
+      el.innerHTML='<div style="text-align:center;padding:32px;color:#aaa"><div style="font-size:2rem;margin-bottom:8px">👤</div><p style="font-size:0.85rem">No clients have registered yet.<br>Use the invite form to get them set up.</p></div>';
+      return;
+    }
+    el.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:0.82rem">'
+      +'<thead><tr style="background:#f8f8f8">'
+      +'<th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;text-transform:uppercase;color:#888;letter-spacing:.5px">Client</th>'
+      +'<th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;text-transform:uppercase;color:#888;letter-spacing:.5px">Email</th>'
+      +'<th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;text-transform:uppercase;color:#888;letter-spacing:.5px">Company</th>'
+      +'<th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;text-transform:uppercase;color:#888;letter-spacing:.5px">Registered</th>'
+      +'<th style="padding:10px 14px;text-align:left;font-size:0.72rem;font-weight:800;text-transform:uppercase;color:#888;letter-spacing:.5px">Status</th>'
+      +'</tr></thead><tbody>'
+      +accounts.map(a=>{
+        const date=a.registered_at?new Date(a.registered_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+        const badge=a.status==='active'
+          ?'<span style="background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:4px;font-size:0.7rem;font-weight:800">● Active</span>'
+          :'<span style="background:#f0f2f5;color:#888;padding:3px 8px;border-radius:4px;font-size:0.7rem;font-weight:800">Inactive</span>';
+        return '<tr style="border-bottom:1px solid #f5f5f5">'
+          +'<td style="padding:11px 14px;font-weight:700">'+( a.contact_name||'—')+'</td>'
+          +'<td style="padding:11px 14px;color:#555">'+a.email+'</td>'
+          +'<td style="padding:11px 14px;color:#555">'+(a.company_name||'—')+'</td>'
+          +'<td style="padding:11px 14px;color:#888">'+date+'</td>'
+          +'<td style="padding:11px 14px">'+badge+'</td>'
+          +'</tr>';
+      }).join('')+'</tbody></table>';
+  }catch(e){
+    el.innerHTML='<div style="padding:16px;color:#c62828;font-size:0.82rem">Error: '+e.message+'</div>';
+  }
+}
 </script>
 </body>
 </html>
