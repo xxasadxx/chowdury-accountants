@@ -1,7 +1,18 @@
-// Overrides loadGCDataThen to use live Netlify function
+// Uses live Netlify function for monthly totals
+// Falls back to gc-data.js for client history
 async function loadGCDataThen(cb){
   if(window.GC_DATA_LOADED){ cb(); return; }
   try {
+    // Load client history from static file first
+    await new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = 'gc-data.js?v=3';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+
+    // Then override monthly totals with live data
     const res = await fetch('/.netlify/functions/gocardless');
     const data = await res.json();
     const months = Object.keys(data.monthly).sort();
@@ -15,16 +26,15 @@ async function loadGCDataThen(cb){
         payment_count: data.monthly[k].count
       };
     });
-    if(!window.GC_CLIENTS) window.GC_CLIENTS=[];
-    if(!window.GC_PAYMENTS_BY_CID) window.GC_PAYMENTS_BY_CID={};
-    if(!window.GC_FAILED) window.GC_FAILED=[];
-    window.GC_DATA_LOADED=true;
+
+    window.GC_DATA_LOADED = true;
     cb();
   } catch(e) {
-    console.warn('Live GC failed, falling back to gc-data.js:', e);
-    var s=document.createElement('script');
-    s.src='gc-data.js?v=3';
-    s.onload=function(){ window.GC_DATA_LOADED=true; cb(); };
+    console.warn('Error in gc-live.js:', e);
+    // Full fallback to static data only
+    var s = document.createElement('script');
+    s.src = 'gc-data.js?v=3';
+    s.onload = function(){ window.GC_DATA_LOADED=true; cb(); };
     document.head.appendChild(s);
   }
 }
