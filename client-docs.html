@@ -700,7 +700,6 @@ async function loadCompanies(){
       });
 
     populateSelect(ALL_COMPANIES);
-    toast(`✅ ${ALL_COMPANIES.length} companies loaded`,'green');
   }catch(e){
     sel.innerHTML='<option value="">❌ Error: '+e.message+'</option>';
     toast('Error loading companies: '+e.message,'red');
