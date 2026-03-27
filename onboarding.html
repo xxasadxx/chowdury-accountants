@@ -443,6 +443,17 @@ window.caAudit = (function(){
 
       <!-- DETAILS TAB -->
       <div class="modal-tc active" id="tc-details">
+
+        <!-- Companies House Search -->
+        <div style="background:linear-gradient(135deg,#1a1a18,#2a2a26);border-radius:10px;padding:12px 14px;margin-bottom:14px">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#c8963c;margin-bottom:8px">🏢 Search Companies House</div>
+          <div style="display:flex;gap:8px">
+            <input id="ch-search-input" placeholder="Type company name or number…" style="flex:1;padding:8px 10px;border:1px solid rgba(255,255,255,.15);border-radius:6px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-family:inherit;outline:none" oninput="chSearchDebounce(this.value)" onkeydown="if(event.key==='Enter')chSearch()">
+            <button onclick="chSearch()" style="background:#c8963c;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Search</button>
+          </div>
+          <div id="ch-results" style="margin-top:8px;max-height:180px;overflow-y:auto"></div>
+        </div>
+
         <div class="sec-label">Client Information</div>
         <div class="fg">
           <div class="field"><label>Client Type</label><select id="f-type" onchange="toggleLtd()"><option value="ltd">Ltd Company</option><option value="se">Self Employed / SA</option></select></div>
@@ -847,7 +858,110 @@ function renderList(list){
 }
 
 // --- MODAL ---
-function openNew(){cid=null;document.getElementById('m-title').textContent='New Client';document.getElementById('m-sub').textContent='Fill in details to begin onboarding';document.getElementById('del-btn').style.display='none';clearForm();switchTab('details');document.getElementById('modal-bg').classList.add('open');}
+// ── COMPANIES HOUSE SEARCH ───────────────────────────────
+let chSearchTimer = null;
+function chSearchDebounce(val){
+  clearTimeout(chSearchTimer);
+  if(val.length < 2) return;
+  chSearchTimer = setTimeout(()=>chSearch(val), 400);
+}
+
+async function chSearch(q) {
+  const query = q || document.getElementById('ch-search-input').value.trim();
+  if (!query) return;
+  const res = document.getElementById('ch-results');
+  res.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:11px;padding:6px">Searching…</div>';
+
+  try {
+    // Check if it looks like a company number
+    const isNum = /^[0-9]{6,8}$/.test(query.replace(/\s/g,''));
+    let url;
+    if (isNum) {
+      url = `/.netlify/functions/ch-proxy?comp_no=${query.replace(/\s/g,'')}`;
+    } else {
+      url = `/.netlify/functions/ch-proxy?path=search/companies?q=${encodeURIComponent(query)}&items_per_page=8`;
+    }
+
+    const r = await fetch(url);
+    const data = await r.json();
+
+    if (isNum && data.company_name) {
+      // Direct company lookup
+      chSelectCompany(data);
+      res.innerHTML = '';
+      return;
+    }
+
+    const items = data.items || [];
+    if (!items.length) {
+      res.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:11px;padding:6px">No results found</div>';
+      return;
+    }
+
+    res.innerHTML = items.map((c,i) => `
+      <div onclick="chSelectCompany(${JSON.stringify(c).replace(/"/g,'&quot;')})" style="padding:8px 10px;cursor:pointer;border-radius:6px;margin-bottom:2px;background:rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center;transition:background .15s" onmouseover="this.style.background='rgba(200,150,60,.2)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">
+        <div>
+          <div style="color:#fff;font-size:12px;font-weight:600">${c.title||c.company_name||'—'}</div>
+          <div style="color:rgba(255,255,255,.4);font-size:10px">${c.company_number||''} · ${c.company_status||''} · ${(c.address_snippet||c.registered_office_address?.postal_code||'')}</div>
+        </div>
+        <span style="color:#c8963c;font-size:10px;font-weight:700;white-space:nowrap;margin-left:8px">Select →</span>
+      </div>`).join('');
+
+  } catch(e) {
+    res.innerHTML = '<div style="color:#ff6b6b;font-size:11px;padding:6px">Search failed — check connection</div>';
+  }
+}
+
+async function chSelectCompany(c) {
+  // Fetch full company details if we only have summary
+  let full = c;
+  const compNo = c.company_number || c.company_number;
+  if (compNo && !c.accounts) {
+    try {
+      const r = await fetch(`/.netlify/functions/ch-proxy?comp_no=${compNo}`);
+      full = await r.json();
+    } catch(e) {}
+  }
+
+  // Auto-fill the form
+  const name = full.company_name || c.title || '';
+  const number = full.company_number || compNo || '';
+  const addr = full.registered_office_address || {};
+  const status = full.company_status || '';
+
+  document.getElementById('f-co').value = name;
+  document.getElementById('f-cn').value = number;
+
+  // Year end
+  const accounts = full.accounts || {};
+  const nextDue = accounts.next_accounts?.due_on || '';
+  if (nextDue) {
+    // Convert YYYY-MM-DD to DD/MM/YYYY
+    const parts = nextDue.split('-');
+    if (parts.length === 3) {
+      // Year end is typically 9 months before accounts due
+      const dueDate = new Date(nextDue);
+      dueDate.setMonth(dueDate.getMonth() - 9);
+      const ye = `${String(dueDate.getDate()).padStart(2,'0')}/${String(dueDate.getMonth()+1).padStart(2,'0')}/${dueDate.getFullYear()}`;
+      document.getElementById('f-ye').value = ye;
+    }
+  }
+
+  // Set to Ltd type
+  document.getElementById('f-type').value = 'ltd';
+  toggleLtd();
+
+  // Set status based on company status
+  if (status === 'active') document.getElementById('f-status').value = 'prospect';
+
+  // Clear search
+  document.getElementById('ch-results').innerHTML = `<div style="background:rgba(200,150,60,.15);border:1px solid rgba(200,150,60,.3);border-radius:6px;padding:8px 10px;margin-top:4px"><span style="color:#c8963c;font-size:11px;font-weight:700">✓ ${name} (${number}) auto-filled</span></div>`;
+  document.getElementById('ch-search-input').value = '';
+
+  toast('Company details auto-filled from Companies House!', 'ok');
+}
+
+function openNew(){cid=null;document.getElementById('m-title').textContent='New Client';document.getElementById('m-sub').textContent='Fill in details to begin onboarding';document.getElementById('del-btn').style.display='none';clearForm();switchTab('details');document.getElementById('ch-results').innerHTML='';document.getElementById('ch-search-input').value='';document.getElementById('modal-bg').classList.add('open');}
 function openClient(id){
   const c=CLIENTS.find(x=>x.id===id);if(!c)return;
   cid=id;
