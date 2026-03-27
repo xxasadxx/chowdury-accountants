@@ -1151,10 +1151,15 @@ async function completeOnboarding(){
 let curLetter='engagement';
 function showLetter(type){
   curLetter=type;
-  document.getElementById('lt-engagement').style.display=type==='engagement'?'block':'none';
-  document.getElementById('lt-clearance').style.display=type==='clearance'?'block':'none';
-  document.getElementById('lt-eng-btn').style.cssText=type==='engagement'?'border-color:var(--blue);color:var(--blue);background:var(--blue-light)':'';
-  document.getElementById('lt-clr-btn').style.cssText=type==='clearance'?'border-color:var(--blue);color:var(--blue);background:var(--blue-light)':'';
+  ['quote','engagement','clearance','welcome'].forEach(t=>{
+    const el=document.getElementById('lt-'+t);
+    if(el) el.style.display=t===type?'block':'none';
+  });
+  ['lt-quote-btn','lt-eng-btn','lt-clr-btn','lt-wel-btn'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    const active=['quote','engagement','clearance','welcome'][i]===type;
+    if(el) el.style.cssText=active?'border-color:var(--blue);color:var(--blue);background:var(--blue-light)':'';
+  });
 }
 function getClient(){return cid?CLIENTS.find(x=>x.id===cid):{};}
 function today(){return new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
