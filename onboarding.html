@@ -1299,23 +1299,43 @@ document.querySelectorAll('.page-tab').forEach(tab=>{
   }
 });
 
-function sendPortalInvite(via){
+async function sendPortalInvite(via){
   const name=document.getElementById('inv-name').value.trim();
   const email=document.getElementById('inv-email').value.trim();
   const company=document.getElementById('inv-company').value.trim();
   const msg=document.getElementById('inv-msg');
   if(!name||!email){msg.style.display='block';msg.style.background='#fce4e4';msg.style.color='#c62828';msg.textContent='Please enter client name and email.';return;}
   const firstName=name.split(' ')[0];
+
   if(via==='email'){
-    const subject='Your Chowdury Accountants Client Portal — Create Your Account';
-    const body='Dear '+name+',\n\nWe are pleased to invite you to access your dedicated client portal with Chowdury Accountants.\n\nYour portal gives you secure access to:\n• All your documents and returns\n• Pending approvals requiring your signature\n• Correspondence from our team\n\nClick the link below to create your account:\n'+PORTAL_URL+'\n\nUse your email address ('+email+') to register. If you need any help, please call us on 0161 222 4647.\n\nYours sincerely,\nMd Asadul Islam Chowdury\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
-    window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    msg.style.display='block';msg.style.background='#fff8ee';msg.style.color='#7a5c00';msg.textContent='Sending…';
+    try{
+      const res=await fetch('/.netlify/functions/send-email',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({type:'portal_invite',to:email,name,company,link:PORTAL_URL})
+      });
+      const data=await res.json();
+      if(data.success){
+        msg.style.background='#e8f5e9';msg.style.color='#2e7d32';
+        msg.textContent='✅ Invitation email sent to '+email;
+      } else {
+        throw new Error(data.error||'Failed to send');
+      }
+    }catch(e){
+      // Fallback to mailto
+      const subject='Your Chowdury Accountants Client Portal — Create Your Account';
+      const body='Dear '+name+',\n\nWe are pleased to invite you to access your dedicated client portal with Chowdury Accountants.\n\nYour portal gives you secure access to:\n• All your documents and returns\n• Pending approvals requiring your signature\n• Correspondence from our team\n\nClick the link below to create your account:\n'+PORTAL_URL+'\n\nUse your email address ('+email+') to register. If you need any help, please call us on 0161 222 4647.\n\nYours sincerely,\nMd Asadul Islam Chowdury\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
+      window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+      msg.style.background='#fff8ee';msg.style.color='#7a5c00';
+      msg.textContent='Email app opened — please send from Outlook';
+    }
   } else {
     const waMsg='Hi '+firstName+',\n\nWe have set up your dedicated client portal with *Chowdury Accountants*.\n\nYour portal gives you secure access to all your documents, returns and approvals in one place.\n\n*Create your account here:*\n'+PORTAL_URL+'\n\nUse your email address ('+email+') to register.\n\nAny questions, call us on 0161 222 4647 📞\n\n_Chowdury Accountants_';
     window.open('https://wa.me/?text='+encodeURIComponent(waMsg),'_blank');
+    msg.style.display='block';msg.style.background='#e8f5e9';msg.style.color='#2e7d32';
+    msg.textContent='✓ WhatsApp opened — please send the message';
   }
-  msg.style.display='block';msg.style.background='#e8f5e9';msg.style.color='#2e7d32';
-  msg.textContent='✓ Invite ready — check your '+via+' app to send';
 }
 
 async function loadPortalAccounts(){

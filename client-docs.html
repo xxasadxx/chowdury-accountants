@@ -503,14 +503,29 @@ function openWhatsApp(){
   window.open(waUrl,'_blank');
 }
 
-function openEmailClient(){
+async function openEmailClient(){
   const link=document.getElementById('preview-link').textContent;
-  // Smart name: use first part before space, capitalised properly
-  const name=CURRENT_CONTACT.split(' ')[0];
+  const name=CURRENT_CONTACT;
   const company=CURRENT_COMPANY;
-  const subject='Action Required: Documents Ready for Your Approval - '+company;
-  const body='Dear '+name+',\n\nPlease find your documents for '+company+' ready for your review and digital approval.\n\nClick the link below to view and approve your documents:\n\n'+link+'\n\nThis link is unique to you and expires in 30 days. Once approved, a copy of your approval will be recorded for our files.\n\nIf you have any queries, please do not hesitate to contact us on 0161 222 4647.\n\nYours sincerely,\nMd Asadul Islam Chowdury\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
-  window.location.href='mailto:'+CURRENT_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  const email=CURRENT_EMAIL;
+  const period=document.getElementById('f-period').value.trim();
+  if(!email){toast('No email address on file for this client','red');return;}
+  // Try Resend (automatic branded email)
+  try{
+    const res=await fetch('/.netlify/functions/send-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type:'document_approval',to:email,name,company,link,period,documents:[]})
+    });
+    const data=await res.json();
+    if(data.success){toast('✅ Email sent to '+email,'green');return;}
+    throw new Error(data.error||'Send failed');
+  }catch(e){
+    // Fallback to mailto if Resend not yet configured
+    const subject='Action Required: Documents Ready for Your Approval - '+company;
+    const body='Dear '+name.split(' ')[0]+',\n\nPlease find your documents for '+company+' ready for your review and digital approval.\n\nClick the link below to view and approve your documents:\n\n'+link+'\n\nThis link is unique to you and expires in 30 days. Once approved, a copy of your approval will be recorded for our files.\n\nIf you have any queries, please do not hesitate to contact us on 0161 222 4647.\n\nYours sincerely,\nMd Asadul Islam Chowdury\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
+    window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  }
 }
 
 
