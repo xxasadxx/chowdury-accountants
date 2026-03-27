@@ -192,3 +192,38 @@ exports.handler = async () => {
     return { statusCode: 500, body: JSON.stringify({ error: e.message, log }) };
   }
 };
+// 6. Auto-add/deactivate DD clients based on mandates
+    const activeCustIds = new Set(activeMandates.map(m => m.links && m.links.customer));
+    
+    for (const cust of customers) {
+      const rawName = (cust.company_name || (cust.given_name + ' ' + cust.family_name)).trim();
+      // Strip bracketed person name e.g. "Spice House NW Ltd (Sameul Haq)" → "Spice House NW Ltd"
+      const cleanName = rawName.replace(/\s*\(.*?\)\s*$/, '').trim();
+      const normName = norm(cleanName);
+      const isActive = activeCustIds.has(cust.id);
+      const existing = clientByName[normName];
+
+      if (existing) {
+        // Update status if changed
+        const newStatus = isActive ? 'active' : 'inactive';
+        if (existing.status !== newStatus) {
+          await sbRequest('PATCH', `Gocardless%20tracker?id=eq.${existing.id}`, { status: newStatus });
+          log.push(`Status updated: ${cleanName} → ${newStatus}`);
+        }
+      } else if (isActive) {
+        // New active client — auto-add
+        const lastPay = payments.filter(p => p.links && p.links.customer === cust.id)
+          .sort((a, b) => new Date(b.charge_date) - new Date(a.charge_date))[0];
+        const fee = lastPay ? lastPay.amount / 100 : 0;
+        await sbRequest('POST', 'Gocardless%20tracker', [{
+          company_name: cleanName,
+          city: '',
+          fee: fee,
+          charge_date: '1st',
+          client_since: new Date().toLocaleString('en-GB', { month: 'short', year: 'numeric' }),
+          status: 'active'
+        }]);
+        log.push(`New client added: ${cleanName} £${fee}/mo`);
+      }
+    }
+    log.push('DD client sync complete');
