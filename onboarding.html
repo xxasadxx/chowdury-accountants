@@ -1237,12 +1237,28 @@ let INV_COMPANIES=[];
 async function loadInvCompanies(){
   try{
     const chunks=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.ok?r.json():[])));
-    INV_COMPANIES=chunks.flat().filter(c=>c.status==='active'&&c.name).map(c=>({
-      company_name:c.name,
-      director_name:c.director_name||'',
-      director_email:c.director_email||'',
-      director_mobile:c.director_mobile||''
-    }));
+    const raw=chunks.flat().filter(c=>c.status==='active'&&c.name);
+
+    // Overlay Supabase contact data (has director_email and director_mobile)
+    let sbData=[];
+    try{
+      const {data:sd}=await supabase.createClient(CP_URL,CP_KEY).auth.getSession();
+      const token=sd&&sd.session?sd.session.access_token:CP_KEY;
+      const res=await fetch(CP_URL+'/rest/v1/ltd_clients?select=comp_no,director_name,director_email,director_mobile&limit=500',{
+        headers:{'apikey':CP_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+      });
+      if(res.ok) sbData=await res.json();
+    }catch(e){}
+
+    INV_COMPANIES=raw.map(c=>{
+      const sb=sbData.find(s=>s.comp_no===c.comp_no)||{};
+      return {
+        company_name:c.name,
+        director_name:sb.director_name||c.director_name||'',
+        director_email:sb.director_email||c.director_email||'',
+        director_mobile:sb.director_mobile||c.director_mobile||''
+      };
+    });
     populateInvSelect(INV_COMPANIES);
   }catch(e){}
 }
