@@ -1498,6 +1498,19 @@ async function sendOnboardingApproval(docType, via) {
   }
 }
 
+// Listen for quote approval trigger from quote-engine iframe
+window.addEventListener('message', async (e) => {
+  if(!e.data||e.data.type!=='send_quote_approval') return;
+  // Switch to onboarding modal Letters > Quote tab if client is open
+  if(cid){
+    switchTab('letters');
+    showLetter('quote');
+    toast('Upload the quote PDF above then click Send for Approval','ok');
+  } else {
+    toast('Open a client record first, then send the quote for approval','err');
+  }
+});
+
 async function sendPortalInvite(via){
   const name=document.getElementById('inv-name').value.trim();
   const email=document.getElementById('inv-email').value.trim();

@@ -385,6 +385,7 @@ Annual accounts and corporation tax return</textarea>
   </div>
 
   <button class="btn" onclick="window.print()">🖨 Print / Save as PDF</button>
+  <button class="btn" onclick="sendQuoteForApproval()" style="background:#c8963c;border-color:#c8963c;margin-left:4px" id="send-approval-btn">📤 Send for Approval</button>
   <button class="btn2" onclick="location.reload()">↺ Reset</button>
 </div>
 
@@ -735,6 +736,24 @@ function renderBsp(oof, oov, oot, mnet, mvat) {
       <div class="pfoot-text">The Chowdury Accountants Ltd T/A Chowdury Accountants &nbsp;|&nbsp; Company Reg No: 09441520 &nbsp;|&nbsp; VAT No: 403392620</div>
     </div>
   `;
+}
+
+function sendQuoteForApproval(){
+  // Get quote data from the preview
+  const paper = document.getElementById('paper');
+  if(!paper||paper.innerText.includes('Fill in client details')){
+    alert('Please fill in client details and generate the quote first.');return;
+  }
+  // Get client name from form
+  const clientName = (document.getElementById('cl-name')||{}).value||'';
+  const company = (document.getElementById('cl-co')||{}).value||'';
+  if(!company&&!clientName){alert('Please enter client details first.');return;}
+  // Post message to parent (onboarding page) to trigger approval
+  window.parent.postMessage({
+    type:'send_quote_approval',
+    company: company||clientName,
+    clientName: clientName
+  },'*');
 }
 </script>
 </body>
