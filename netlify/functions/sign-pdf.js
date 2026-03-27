@@ -45,14 +45,16 @@ exports.handler = async (event) => {
       if (!signedUrl) continue;
 
       // Download original PDF
-      const pdfRes = await fetch(`${SB_URL}/storage/v1${signedUrl.includes('/storage/v1') ? signedUrl.split('/storage/v1')[1] : signedUrl}`);
       let pdfBytes;
       try {
         const fullUrl = signedUrl.startsWith('http') ? signedUrl : `${SB_URL}/storage/v1${signedUrl}`;
+        console.log('Downloading PDF:', fullUrl.substring(0, 100));
         const dlRes = await fetch(fullUrl);
+        if (!dlRes.ok) throw new Error('Download failed: ' + dlRes.status);
         pdfBytes = await dlRes.arrayBuffer();
+        console.log('PDF downloaded, bytes:', pdfBytes.byteLength);
       } catch(e) {
-        console.error('PDF download error:', e);
+        console.error('PDF download error:', e.message);
         continue;
       }
 
