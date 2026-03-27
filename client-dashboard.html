@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Portal — Chowdury Accountants</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c8963c;--dark:#1a1a18;--bg:#f0f2f5;--white:#fff;--ink:#252525;--muted:#888;--border:#e8e8e8;--green:#2e7d32;--green-bg:#e8f5e9;--amber:#e65100;--amber-bg:#fff3e0}
+body{font-family:'Mulish','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:13px}
+/* NAV */
+#ca-nav{background:var(--dark);position:sticky;top:0;z-index:99999;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#ca-nav .ca-band{height:4px;background:var(--gold)}
+#ca-nav .ca-top{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-logo img{height:32px;display:block}
+#ca-nav .ca-right{display:flex;align-items:center;gap:16px}
+#ca-nav .ca-user{font-size:0.78rem;color:rgba(255,255,255,.5);text-align:right}
+#ca-nav .ca-user strong{color:var(--white);display:block}
+#ca-nav .ca-signout{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.75rem;font-family:inherit;transition:all .15s}
+#ca-nav .ca-signout:hover{border-color:rgba(255,100,100,.4);color:#ff6b6b}
+/* LAYOUT */
+.page-wrap{max-width:900px;margin:0 auto;padding:24px 16px 60px}
+/* WELCOME */
+.welcome-bar{background:var(--dark);border-radius:12px;padding:20px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.welcome-bar h1{font-size:1.1rem;font-weight:800;color:var(--white)}
+.welcome-bar p{font-size:0.82rem;color:rgba(255,255,255,.45);margin-top:2px}
+.welcome-bar .company-pill{background:rgba(200,150,60,.15);color:var(--gold);border:1px solid rgba(200,150,60,.3);border-radius:20px;padding:6px 14px;font-size:0.78rem;font-weight:700;white-space:nowrap}
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--white);border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);text-align:center}
+.stat-card .stat-val{font-size:1.6rem;font-weight:800;color:var(--dark);line-height:1}
+.stat-card .stat-lbl{font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px;font-weight:700}
+.stat-card.gold .stat-val{color:var(--gold)}
+.stat-card.green .stat-val{color:var(--green)}
+/* SECTION */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.section-head h2{font-size:0.85rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+.section-head .filter-pills{display:flex;gap:6px}
+.pill{padding:5px 12px;border-radius:20px;border:none;cursor:pointer;font-size:0.75rem;font-weight:700;background:#f0f2f5;color:var(--muted);font-family:inherit;transition:all .15s}
+.pill.active{background:var(--dark);color:var(--white)}
+/* DOC CARDS */
+.doc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:28px}
+.doc-item{background:var(--white);border-radius:10px;border:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:box-shadow .15s}
+.doc-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.doc-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.doc-icon{width:40px;height:40px;border-radius:8px;background:#f0f2f5;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.doc-icon.accounts{background:#e8f0ff}
+.doc-icon.ct600{background:#fff0e8}
+.doc-icon.sa100,.doc-icon.sa302{background:#e8fff0}
+.doc-icon.vat{background:#f8e8ff}
+.doc-meta{min-width:0}
+.doc-meta .doc-type{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+.doc-meta .doc-company{font-size:0.88rem;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-meta .doc-period{font-size:0.75rem;color:var(--muted);margin-top:1px}
+.doc-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.status-badge{padding:4px 10px;border-radius:20px;font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.3px;white-space:nowrap}
+.status-badge.pending{background:var(--amber-bg);color:var(--amber)}
+.status-badge.approved{background:var(--green-bg);color:var(--green)}
+.btn-action{background:var(--gold);color:var(--white);border:none;border-radius:6px;padding:7px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;text-decoration:none;display:inline-block}
+.btn-action:hover{background:#b8852c}
+.btn-action.secondary{background:#f0f2f5;color:var(--ink)}
+.btn-action.secondary:hover{background:#e4e6ea}
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty-state .e-icon{font-size:2.5rem;margin-bottom:12px}
+.empty-state p{font-size:0.88rem;line-height:1.6}
+/* LOADING */
+.loading{text-align:center;padding:32px;color:var(--muted);font-size:0.88rem}
+/* CONTACT CARD */
+.contact-card{background:var(--white);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;align-items:center;gap:16px}
+.contact-card .contact-icon{font-size:2rem;width:48px;height:48px;background:var(--bg);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.contact-card h3{font-size:0.88rem;font-weight:800;margin-bottom:4px}
+.contact-card p{font-size:0.8rem;color:var(--muted);line-height:1.6}
+.contact-card a{color:var(--gold);text-decoration:none;font-weight:600}
+/* FOOTER */
+.ca-footer{text-align:center;padding:20px;font-size:0.72rem;color:#bbb;line-height:1.8}
+.ca-footer a{color:var(--gold);text-decoration:none}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(3,1fr)}.welcome-bar{flex-direction:column;align-items:flex-start}.doc-item{flex-direction:column;align-items:flex-start}.doc-right{width:100%;justify-content:flex-end}}
+</style>
+</head>
+<body>
+
+<div id="ca-nav">
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div class="ca-right">
+      <div class="ca-user"><strong id="nav-name">—</strong><span id="nav-email"></span></div>
+      <button class="ca-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <div class="welcome-bar">
+    <div>
+      <h1 id="welcome-name">Welcome back</h1>
+      <p>Your documents and approvals from Chowdury Accountants</p>
+    </div>
+    <div class="company-pill" id="welcome-company">Loading…</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="stat-total">—</div><div class="stat-lbl">Documents</div></div>
+    <div class="stat-card gold"><div class="stat-val" id="stat-pending">—</div><div class="stat-lbl">Awaiting</div></div>
+    <div class="stat-card green"><div class="stat-val" id="stat-approved">—</div><div class="stat-lbl">Approved</div></div>
+  </div>
+
+  <div class="section-head">
+    <h2>📄 Your Documents</h2>
+    <div class="filter-pills">
+      <button class="pill active" onclick="filterDocs('all',this)">All</button>
+      <button class="pill" onclick="filterDocs('pending',this)">Pending</button>
+      <button class="pill" onclick="filterDocs('approved',this)">Approved</button>
+    </div>
+  </div>
+  <div class="doc-list" id="doc-list"><div class="loading">Loading your documents…</div></div>
+
+  <div class="section-head"><h2>📞 Your Accountant</h2></div>
+  <div class="contact-card">
+    <div class="contact-icon">👨‍💼</div>
+    <div>
+      <h3>Md Asadul Islam Chowdury</h3>
+      <p>Chowdury Accountants &bull; AAT Licensed<br>
+      <a href="tel:01612224647">📞 0161 222 4647</a> &bull;
+      <a href="tel:07948503627">📱 07948 503627</a> &bull;
+      <a href="mailto:info@chowduryaccountants.co.uk">✉️ info@chowduryaccountants.co.uk</a></p>
+    </div>
+  </div>
+
+</div>
+
+<div class="ca-footer">
+  The Chowdury Accountants Ltd &bull; Company Reg: 09441520 &bull; 283 Featherstall Road North, Oldham, OL1 2NH<br>
+  AAT Licensed Accountants &bull; <a href="https://www.chowduryaccountants.co.uk">www.chowduryaccountants.co.uk</a>
+</div>
+
+<script>
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+const SB=supabase.createClient(SB_URL,SB_KEY);
+
+let ALL_DOCS=[];
+let CLIENT_EMAIL='';
+
+// Auth guard
+SB.auth.getSession().then(({data:{session}})=>{
+  if(!session){window.location.replace('client-login.html');return;}
+  const u=session.user;
+  CLIENT_EMAIL=u.email;
+  const name=(u.user_metadata&&u.user_metadata.full_name)||u.email.split('@')[0];
+  document.getElementById('nav-name').textContent=name;
+  document.getElementById('nav-email').textContent=u.email;
+  document.getElementById('welcome-name').textContent='Welcome, '+name.split(' ')[0];
+  loadDocs(u.email);
+});
+
+async function loadDocs(email){
+  try{
+    const res=await fetch(`${SB_URL}/rest/v1/client_approvals?client_email=eq.${encodeURIComponent(email)}&select=*&order=created_at.desc`,{headers:H});
+    if(!res.ok) throw new Error(await res.text());
+    ALL_DOCS=await res.json();
+    // Set company name from first doc
+    if(ALL_DOCS.length){
+      document.getElementById('welcome-company').textContent=ALL_DOCS[0].company_name||'Your Company';
+    } else {
+      document.getElementById('welcome-company').textContent='Welcome';
+    }
+    updateStats();
+    renderDocs('all');
+  }catch(e){
+    document.getElementById('doc-list').innerHTML=`<div class="empty-state"><div class="e-icon">⚠️</div><p>${e.message}</p></div>`;
+  }
+}
+
+function updateStats(){
+  const total=ALL_DOCS.length;
+  const pending=ALL_DOCS.filter(d=>d.status==='pending').length;
+  const approved=ALL_DOCS.filter(d=>d.status==='approved').length;
+  document.getElementById('stat-total').textContent=total;
+  document.getElementById('stat-pending').textContent=pending;
+  document.getElementById('stat-approved').textContent=approved;
+}
+
+const DOC_ICONS={Accounts:'📊',CT600:'🧾',SA100:'📋',SA302:'📄','VAT Return':'💷','Engagement Letter':'📝',Other:'📁'};
+
+function renderDocs(filter){
+  const data=filter==='all'?ALL_DOCS:ALL_DOCS.filter(d=>d.status===filter);
+  const list=document.getElementById('doc-list');
+  if(!data.length){
+    list.innerHTML=`<div class="empty-state"><div class="e-icon">${filter==='pending'?'✅':'📭'}</div><p>${filter==='pending'?'No documents awaiting your approval.':filter==='approved'?'No approved documents yet.':'No documents found. Your accountant will send documents here for your review.'}</p></div>`;
+    return;
+  }
+  list.innerHTML=data.map(d=>{
+    const docs=(d.documents||[]);
+    const types=docs.map(x=>x.type).join(', ');
+    const firstType=docs[0]&&docs[0].type||'Other';
+    const icon=DOC_ICONS[firstType]||'📁';
+    const iconClass=firstType.toLowerCase().replace(/\s+/g,'').replace(/[^a-z]/g,'');
+    const date=d.created_at?new Date(d.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    const approvedDate=d.approved_at?new Date(d.approved_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'';
+    const badge=d.status==='approved'
+      ?`<span class="status-badge approved">✓ Approved${approvedDate?' '+approvedDate:''}</span>`
+      :`<span class="status-badge pending">⏳ Action Required</span>`;
+    const actionBtn=d.status==='pending'
+      ?`<a class="btn-action" href="approve.html?token=${d.token}">Review & Sign →</a>`
+      :`<a class="btn-action secondary" href="approve.html?token=${d.token}">View Record</a>`;
+    return `<div class="doc-item">
+      <div class="doc-left">
+        <div class="doc-icon ${iconClass}">${icon}</div>
+        <div class="doc-meta">
+          <div class="doc-type">${types||firstType}</div>
+          <div class="doc-company">${d.company_name||'—'}</div>
+          <div class="doc-period">${d.period_end?'Period: '+d.period_end+' &bull; ':''} Sent: ${date}</div>
+        </div>
+      </div>
+      <div class="doc-right">${badge}${actionBtn}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterDocs(filter,btn){
+  document.querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderDocs(filter);
+}
+
+async function doSignOut(){
+  await SB.auth.signOut();
+  window.location.replace('client-login.html');
+}
+</script>
+</body>
+</html>
