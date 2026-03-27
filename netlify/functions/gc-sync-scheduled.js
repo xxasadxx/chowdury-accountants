@@ -1,17 +1,20 @@
-// GoCardless Nightly Sync — runs at 5am daily
-// Fetches live payments, customers, mandates from GoCardless
-// Upserts into Supabase tables: gc_payments, gc_customers, gc_mandates
-// Also updates gc_monthly_summary for the Revenue Tracker
-
-const GC_TOKEN  = 'live_zTE6grGCyTMR4tobPZ1shAuALQeirL622mFy78Zs';
-const GC_BASE   = 'https://api.gocardless.com';
-const GC_VER    = '2015-07-06';
-const SB_URL    = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
-const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
-
+// GoCardless Sync — runs at 5am and 3pm daily
+const GC_TOKEN = process.env.GOCARDLESS_TOKEN;
+const GC_BASE  = 'https://api.gocardless.com';
+const GC_VER   = '2015-07-06';
+const SB_URL   = 'https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const https = require('https');
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function monthLabel(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return MONTH_NAMES[d.getMonth()] + ' ' + d.getFullYear();
+}
+function monthKey(dateStr) {
+  return dateStr ? dateStr.substring(0, 7) : null;
+}
 
 function gcFetch(path) {
   return new Promise((resolve, reject) => {
@@ -74,120 +77,118 @@ function sbRequest(method, path, body) {
 
 async function sbUpsert(table, rows) {
   if (!rows.length) return;
-  // Batch in chunks of 200
   for (let i = 0; i < rows.length; i += 200) {
-    const chunk = rows.slice(i, i + 200);
-    await sbRequest('POST', table, chunk);
+    await sbRequest('POST', table, rows.slice(i, i + 200));
   }
 }
 
-function monthKey(dateStr) {
-  // Returns YYYY-MM from an ISO date string
-  return dateStr ? dateStr.substring(0, 7) : null;
+async function sbGet(path) {
+  const r = await sbRequest('GET', path, null);
+  try { return JSON.parse(r.body); } catch(e) { return []; }
 }
 
-// ── Main handler ─────────────────────────────────────────────────────────────
-
 exports.handler = async () => {
+  if (!GC_TOKEN) return { statusCode: 500, body: 'GOCARDLESS_TOKEN not set' };
   console.log('GC sync started at', new Date().toISOString());
   const log = [];
 
   try {
     // 1. Fetch customers
-    log.push('Fetching customers...');
     const customers = await gcFetchAll('customers');
     log.push(`Customers: ${customers.length}`);
-
     const custRows = customers.map(c => ({
-      gc_id: c.id,
-      email: c.email || '',
-      given_name: c.given_name || '',
-      family_name: c.family_name || '',
-      company_name: c.company_name || '',
-      created_at: c.created_at,
-      metadata: c.metadata ? JSON.stringify(c.metadata) : null
+      gc_id: c.id, email: c.email || '',
+      given_name: c.given_name || '', family_name: c.family_name || '',
+      company_name: c.company_name || '', created_at: c.created_at
     }));
     await sbUpsert('gc_customers', custRows);
-    log.push('Customers upserted');
+
+    // Build customer name map
+    const custMap = {};
+    customers.forEach(c => {
+      custMap[c.id] = (c.company_name || (c.given_name + ' ' + c.family_name)).trim();
+    });
 
     // 2. Fetch mandates
-    log.push('Fetching mandates...');
     const mandates = await gcFetchAll('mandates');
-    log.push(`Mandates: ${mandates.length}`);
-
     const activeMandates = mandates.filter(m => m.status === 'active');
-    const mandateRows = mandates.map(m => ({
-      gc_id: m.id,
-      status: m.status,
-      customer_id: m.links && m.links.customer,
-      created_at: m.created_at,
-      next_possible_charge_date: m.next_possible_charge_date || null
-    }));
-    await sbUpsert('gc_mandates', mandateRows);
-    log.push(`Mandates upserted (${activeMandates.length} active)`);
+    await sbUpsert('gc_mandates', mandates.map(m => ({
+      gc_id: m.id, status: m.status,
+      customer_id: m.links && m.links.customer, created_at: m.created_at
+    })));
+    log.push(`Mandates: ${mandates.length} (${activeMandates.length} active)`);
 
-    // 3. Fetch payments (last 24 months)
-    log.push('Fetching payments...');
+    // 3. Fetch recent payments (last 3 months)
     const since = new Date();
-    since.setMonth(since.getMonth() - 24);
+    since.setMonth(since.getMonth() - 3);
     const payments = await gcFetchAll('payments', { 'created_at[gte]': since.toISOString() });
     log.push(`Payments: ${payments.length}`);
 
-    const paymentRows = payments.map(p => ({
-      gc_id: p.id,
-      amount: p.amount / 100, // GC stores in pence
-      status: p.status,
-      charge_date: p.charge_date,
-      description: p.description || '',
+    await sbUpsert('gc_payments', payments.map(p => ({
+      gc_id: p.id, amount: p.amount / 100, status: p.status,
+      charge_date: p.charge_date, description: p.description || '',
       customer_id: p.links && p.links.customer,
-      mandate_id: p.links && p.links.mandate,
-      created_at: p.created_at,
-      month_key: monthKey(p.charge_date)
-    }));
-    await sbUpsert('gc_payments', paymentRows);
-    log.push('Payments upserted');
+      created_at: p.created_at, month_key: monthKey(p.charge_date)
+    })));
 
-    // 4. Build monthly summary from paid payments only
-    const paidPayments = paymentRows.filter(p => p.status === 'paid_out' || p.status === 'confirmed');
-    const monthlySummary = {};
-    paidPayments.forEach(p => {
-      if (!p.month_key) return;
-      if (!monthlySummary[p.month_key]) monthlySummary[p.month_key] = { month: p.month_key, total: 0, count: 0, customers: new Set() };
-      monthlySummary[p.month_key].total += p.amount;
-      monthlySummary[p.month_key].count++;
-      if (p.customer_id) monthlySummary[p.month_key].customers.add(p.customer_id);
+    // 4. Auto-update payment_history in Supabase
+    // Fetch all DD clients from Gocardless tracker
+    const ddClients = await sbGet('Gocardless%20tracker?select=id,company_name,fee,charge_date&status=neq.inactive');
+    log.push(`DD clients: ${ddClients.length}`);
+
+    // Build name lookup (normalised)
+    const norm = s => (s || '').toLowerCase().replace(/\s+/g,' ').replace(/[^a-z0-9 ]/g,'').trim();
+    const clientByName = {};
+    ddClients.forEach(c => { clientByName[norm(c.company_name)] = c; });
+
+    // Group payments by customer and month
+    const payByMonth = {};
+    payments.forEach(p => {
+      const ml = monthLabel(p.charge_date);
+      const cname = norm(custMap[p.customer_id] || '');
+      if (!ml || !cname) return;
+      const key = cname + '|' + ml;
+      if (!payByMonth[key]) payByMonth[key] = { status: p.status, amount: p.amount / 100, cname, ml };
+      else if (p.status === 'paid_out' || p.status === 'confirmed') payByMonth[key].status = p.status;
     });
 
-    const summaryRows = Object.values(monthlySummary).map(m => ({
-      month: m.month,
-      total_revenue: Math.round(m.total * 100) / 100,
-      payment_count: m.count,
-      active_customers: m.customers.size
-    }));
-    await sbUpsert('gc_monthly_summary', summaryRows);
-    log.push(`Monthly summary: ${summaryRows.length} months`);
+    // Upsert payment_history for matched clients
+    let updated = 0;
+    for (const [key, pay] of Object.entries(payByMonth)) {
+      const client = clientByName[pay.cname];
+      if (!client) continue;
+      const gcStatus = (pay.status === 'paid_out' || pay.status === 'confirmed') ? 'paid' : 
+                       (pay.status === 'failed' || pay.status === 'cancelled') ? 'failed' : 'pending';
+      // Check if record exists
+      const existing = await sbGet(`payment_history?client_id=eq.${client.id}&client_type=eq.dd&month=eq.${encodeURIComponent(pay.ml)}`);
+      if (existing && existing.length > 0) {
+        await sbRequest('PATCH', `payment_history?id=eq.${existing[0].id}`, { status: gcStatus, received: gcStatus === 'paid' ? pay.amount : 0 });
+      } else {
+        await sbRequest('POST', 'payment_history', [{ client_id: client.id, client_type: 'dd', month: pay.ml, expected: client.fee, received: gcStatus === 'paid' ? pay.amount : 0, status: gcStatus }]);
+      }
+      updated++;
+    }
+    log.push(`payment_history updated: ${updated} records`);
 
-    // 5. Save sync metadata
-    await sbRequest('POST', 'gc_sync_log', [{
-      synced_at: new Date().toISOString(),
-      customers: customers.length,
-      active_mandates: activeMandates.length,
-      payments_synced: payments.length,
-      status: 'success',
-      log: log.join(' | ')
-    }]);
+    // 5. Monthly summary
+    const allPaid = payments.filter(p => p.status === 'paid_out' || p.status === 'confirmed');
+    const summary = {};
+    allPaid.forEach(p => {
+      const k = monthKey(p.charge_date);
+      if (!k) return;
+      if (!summary[k]) summary[k] = { month: k, total: 0, count: 0 };
+      summary[k].total += p.amount / 100;
+      summary[k].count++;
+    });
+    await sbUpsert('gc_monthly_summary', Object.values(summary).map(m => ({
+      month: m.month, total_revenue: Math.round(m.total * 100) / 100, payment_count: m.count
+    })));
 
-    const summary = `GC sync complete: ${customers.length} customers, ${activeMandates.length} active mandates, ${payments.length} payments`;
-    console.log(summary);
-    return { statusCode: 200, body: JSON.stringify({ success: true, summary, log }) };
+    log.push('Done');
+    return { statusCode: 200, body: JSON.stringify({ success: true, log }) };
 
   } catch(e) {
     console.error('GC sync failed:', e.message);
-    await sbRequest('POST', 'gc_sync_log', [{
-      synced_at: new Date().toISOString(),
-      status: 'error',
-      log: e.message
-    }]).catch(() => {});
     return { statusCode: 500, body: JSON.stringify({ error: e.message, log }) };
   }
 };
