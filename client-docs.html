@@ -19,12 +19,14 @@
 <title>Client Approvals — Chowdury Accountants</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-height:100vh}
+body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-height:100vh;padding-top:88px}
 /* NAV */
-#ca-nav{background:#1a1a18;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-#ca-nav .ca-brand{display:flex;align-items:center;gap:10px;padding:12px 28px;border-bottom:1px solid rgba(255,255,255,.07)}
-#ca-nav .ca-brand span{font-size:0.9rem;font-weight:700;color:#c8963c;letter-spacing:1px;text-transform:uppercase}
-#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none}
+#ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Segoe UI',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
+#ca-nav .ca-band{display:block;height:4px;background:#c8963c}
+#ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:10px 28px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
+#ca-nav .ca-top-title{font-size:0.88rem;font-weight:700;color:#c8963c;letter-spacing:0.5px}
+#ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap}
+#ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #ca-nav .ca-links::-webkit-scrollbar{display:none}
 #ca-nav .ca-links a{font-size:0.78rem;font-weight:500;color:rgba(255,255,255,.5);text-decoration:none;padding:10px 14px;border-bottom:3px solid transparent;white-space:nowrap;display:inline-block;transition:color .15s}
 #ca-nav .ca-links a:hover{color:#fff;border-bottom-color:rgba(200,150,60,.4)}
@@ -130,8 +132,10 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
 <body>
 
 <div id="ca-nav">
-  <div class="ca-brand">
-    <span>⚖️ Chowdury Accountants</span>
+  <div class="ca-band"></div>
+  <div class="ca-top">
+    <div class="ca-top-title">⚖️ Chowdury Accountants</div>
+    <div class="ca-date" id="ca-hdr-date"></div>
   </div>
   <div class="ca-links">
     <a href="index.html">🏠 Portal</a>
@@ -154,7 +158,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
     <a href="cpd-tracker.html">🎓 CPD</a>
     <a href="client-docs.html" class="active">📁 Client Docs</a>
     <a href="audit.html" id="nav-audit" style="display:none">🔍 Audit</a>
-    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');await sb.auth.signOut();window.location.replace('login.html');})();return false">Sign Out</a>
+    <a href="#" class="ca-signout" onclick="(async function(){var sb=supabase.createClient('https://yhvhpfsoqtjwnukgyqap.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4');await sb.auth.signOut();['ca_role','ca_name','ca_full_name','ca_email','ca_staff'].forEach(function(k){localStorage.removeItem(k);});window.location.replace('login.html');})();return false">Sign out</a>
   </div>
 </div>
 
@@ -175,10 +179,12 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
       <h2>📤 Send Documents for Client Approval</h2>
 
       <div class="form-grid">
-        <div class="form-group" style="position:relative">
+        <div class="form-group">
           <label>Company / Client Name *</label>
-          <input type="text" id="f-company" placeholder="🔍 Type to search company…" autocomplete="off" oninput="filterCompanies(this.value)" onfocus="showDropdown()" onblur="setTimeout(hideDropdown,200)">
-          <div id="company-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:#fff;border:1.5px solid #c8963c;border-radius:0 0 8px 8px;max-height:220px;overflow-y:auto;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
+          <input type="text" id="f-company-search" placeholder="🔍 Type to filter…" autocomplete="off" oninput="filterCompanies(this.value)" style="margin-bottom:6px">
+          <select id="f-company" size="1" onchange="selectCompanyFromDropdown(this.value)" style="border:1.5px solid #e0e0e0;border-radius:8px;padding:10px 12px;font-size:0.9rem;font-family:inherit;background:#fff;width:100%">
+            <option value="">— Select company —</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Director / Contact Name *</label>
@@ -649,63 +655,49 @@ async function loadCompanies(){
     const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=name,director_name,director_email,director_mobile&order=name.asc&limit=500`,{headers:H});
     if(!res.ok) return;
     const raw=await res.json();
-    // Normalise to consistent field name
     ALL_COMPANIES=raw.map(c=>({
-      company_name: c.name||'',
-      director_name: c.director_name||'',
-      director_email: c.director_email||'',
-      director_mobile: c.director_mobile||''
+      company_name:c.name||'',
+      director_name:c.director_name||'',
+      director_email:c.director_email||'',
+      director_mobile:c.director_mobile||''
     })).filter(c=>c.company_name);
-    renderDropdown(ALL_COMPANIES.slice(0,50));
+    populateSelect(ALL_COMPANIES);
   }catch(e){console.error('loadCompanies:',e);}
 }
 
-function filterCompanies(val){
-  const q=(val||'').toLowerCase().trim();
-  const filtered=q
-    ? ALL_COMPANIES.filter(c=>(c.company_name||'').toLowerCase().includes(q)).slice(0,30)
-    : ALL_COMPANIES.slice(0,50);
-  renderDropdown(filtered);
-  showDropdown();
-}
-
-function renderDropdown(companies){
-  const dd=document.getElementById('company-dropdown');
-  dd.innerHTML='';
-  if(!companies.length){
-    const empty=document.createElement('div');
-    empty.style.cssText='padding:12px 14px;color:#999;font-size:0.85rem';
-    empty.textContent='No companies found';
-    dd.appendChild(empty);
-    return;
-  }
+function populateSelect(companies){
+  const sel=document.getElementById('f-company');
+  sel.innerHTML='<option value="">— Select company —</option>';
   companies.forEach(c=>{
-    const item=document.createElement('div');
-    item.style.cssText='padding:10px 14px;cursor:pointer;font-size:0.87rem;border-bottom:1px solid #f5f5f5;transition:background .1s';
-    item.innerHTML=`<strong style="color:#1a1a18">${c.company_name||'—'}</strong>${c.director_name?` <span style="color:#888;font-size:0.78rem">${c.director_name}</span>`:''}`;
-    item.addEventListener('mousedown',function(e){
-      e.preventDefault();
-      document.getElementById('f-company').value=c.company_name||'';
-      if(c.director_name) document.getElementById('f-contact').value=c.director_name;
-      if(c.director_email) document.getElementById('f-email').value=c.director_email;
-      if(c.director_mobile) document.getElementById('f-phone').value=c.director_mobile;
-      hideDropdown();
-    });
-    item.addEventListener('mouseover',function(){this.style.background='#fff8ee';});
-    item.addEventListener('mouseout',function(){this.style.background='#fff';});
-    dd.appendChild(item);
+    const opt=document.createElement('option');
+    opt.value=c.company_name;
+    opt.textContent=c.company_name+(c.director_name?' — '+c.director_name:'');
+    sel.appendChild(opt);
   });
 }
 
-function showDropdown(){
-  const dd=document.getElementById('company-dropdown');
-  if(ALL_COMPANIES.length>0) dd.style.display='block';
+function filterCompanies(q){
+  const filtered=q.trim()
+    ? ALL_COMPANIES.filter(c=>c.company_name.toLowerCase().includes(q.toLowerCase()))
+    : ALL_COMPANIES;
+  populateSelect(filtered);
 }
-function hideDropdown(){
-  document.getElementById('company-dropdown').style.display='none';
+
+function selectCompanyFromDropdown(name){
+  const match=ALL_COMPANIES.find(c=>c.company_name===name);
+  if(match){
+    if(match.director_name) document.getElementById('f-contact').value=match.director_name;
+    if(match.director_email) document.getElementById('f-email').value=match.director_email;
+    if(match.director_mobile) document.getElementById('f-phone').value=match.director_mobile;
+  }
 }
 
 // ── INIT ──────────────────────────────────────────────
+// Set header date
+(function(){
+  const el=document.getElementById('ca-hdr-date');
+  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+})();
 loadCompanies();
 addDocRow(); // Start with one doc row
 
