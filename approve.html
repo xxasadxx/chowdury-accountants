@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Document Approval — Chowdury Accountants</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f5;color:#252525;min-height:100vh}
+/* HEADER */
+.ca-header{background:#1a1a18;padding:0}
+.ca-header-inner{max-width:800px;margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.ca-logo{display:flex;align-items:center;gap:10px}
+.ca-logo .logo-icon{background:#c8963c;color:#fff;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem}
+.ca-logo .logo-text{color:#fff;font-size:0.95rem;font-weight:700;line-height:1.2}
+.ca-logo .logo-sub{color:rgba(255,255,255,.5);font-size:0.73rem;display:block}
+.ca-contact{color:rgba(255,255,255,.5);font-size:0.78rem;text-align:right}
+.ca-contact a{color:#c8963c;text-decoration:none}
+/* MAIN */
+.page-wrap{max-width:800px;margin:0 auto;padding:28px 16px}
+/* STATES */
+.state-loading,.state-error,.state-expired,.state-approved{text-align:center;padding:60px 20px}
+.state-icon{font-size:3.5rem;margin-bottom:16px}
+.state-loading p,.state-error p,.state-expired p,.state-approved p{color:#666;margin-top:8px;font-size:0.95rem;line-height:1.6}
+.state-error h2{color:#c62828}
+.state-expired h2{color:#e65100}
+.state-approved h2{color:#2e7d32}
+/* REQUEST HEADER */
+.request-header{background:#1a1a18;color:#fff;border-radius:14px;padding:24px 28px;margin-bottom:20px;position:relative;overflow:hidden}
+.request-header::before{content:'';position:absolute;right:-20px;top:-20px;width:120px;height:120px;border-radius:50%;background:rgba(200,150,60,.08)}
+.request-header .firm-name{font-size:0.78rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.request-header h1{font-size:1.3rem;font-weight:800;margin-bottom:4px}
+.request-header .company-sub{color:#c8963c;font-size:0.9rem;font-weight:600;margin-bottom:16px}
+.request-meta{display:flex;gap:20px;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:2px}
+.meta-item .mk{font-size:0.72rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:0.5px}
+.meta-item .mv{font-size:0.88rem;color:#fff;font-weight:600}
+/* INTRO BOX */
+.intro-box{background:#fff8ee;border:1px solid #f0d090;border-radius:10px;padding:16px 20px;margin-bottom:20px;font-size:0.88rem;line-height:1.6;color:#7a5c00}
+.intro-box strong{color:#5a3c00}
+/* DOCUMENTS */
+.docs-section{margin-bottom:20px}
+.docs-section h2{font-size:0.9rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;margin-bottom:12px}
+.doc-card{background:#fff;border-radius:10px;border:1px solid #e8e8e8;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.doc-card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:background .15s}
+.doc-card-header:hover{background:#fafafa}
+.doc-card-left{display:flex;align-items:center;gap:12px}
+.doc-type-badge{background:#1a1a18;color:#c8963c;padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.doc-filename{font-size:0.87rem;color:#333;font-weight:500}
+.doc-card-right{display:flex;align-items:center;gap:10px}
+.btn-view-doc{background:#c8963c;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;transition:background .15s;text-decoration:none;display:inline-block}
+.btn-view-doc:hover{background:#b8852c}
+.doc-chevron{color:#ccc;font-size:0.9rem;transition:transform .2s}
+.doc-card.expanded .doc-chevron{transform:rotate(180deg)}
+.doc-preview-area{display:none;padding:0 18px 18px;border-top:1px solid #f0f0f0}
+.doc-card.expanded .doc-preview-area{display:block}
+.pdf-frame{width:100%;height:500px;border:1px solid #e0e0e0;border-radius:8px;background:#f5f5f5}
+/* APPROVAL FORM */
+.approval-form{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);overflow:hidden}
+.approval-form-header{background:#1a1a18;padding:18px 24px;display:flex;align-items:center;gap:10px}
+.approval-form-header h2{color:#fff;font-size:1rem;font-weight:700}
+.approval-form-body{padding:24px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;margin-bottom:7px}
+.form-group input[type=text]{width:100%;border:1.5px solid #e0e0e0;border-radius:8px;padding:12px 14px;font-size:0.95rem;font-family:inherit;transition:border .15s}
+.form-group input[type=text]:focus{outline:none;border-color:#c8963c;box-shadow:0 0 0 3px rgba(200,150,60,.1)}
+.declaration-box{background:#f8f9fa;border:1.5px solid #e0e0e0;border-radius:10px;padding:18px;margin-bottom:20px}
+.declaration-box .decl-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;margin-bottom:12px}
+.checkbox-row{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.checkbox-row input[type=checkbox]{width:20px;height:20px;flex-shrink:0;margin-top:2px;cursor:pointer;accent-color:#c8963c}
+.checkbox-row .check-text{font-size:0.88rem;line-height:1.6;color:#333}
+.checkbox-row .check-text strong{color:#1a1a18}
+/* SIGNATURE */
+.sig-box{border:1.5px solid #e0e0e0;border-radius:10px;padding:16px;background:#fafafa;margin-bottom:20px}
+.sig-box .sig-label{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;margin-bottom:12px}
+.sig-preview{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:12px 16px;font-family:'Brush Script MT',cursive;font-size:1.5rem;color:#1a1a18;min-height:52px;letter-spacing:1px;color:#333}
+/* SUBMIT */
+.submit-btn{width:100%;background:#1a1a18;color:#fff;border:none;border-radius:10px;padding:16px;font-size:1rem;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px}
+.submit-btn:hover{background:#c8963c}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed}
+.submit-btn.loading{background:#888}
+/* SECURITY NOTE */
+.security-note{text-align:center;margin-top:16px;font-size:0.78rem;color:#aaa;line-height:1.5}
+.security-note a{color:#c8963c;text-decoration:none}
+/* SUCCESS STATE */
+.success-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:40px;text-align:center}
+.success-icon{font-size:4rem;margin-bottom:16px}
+.success-card h2{font-size:1.4rem;font-weight:800;color:#2e7d32;margin-bottom:8px}
+.success-card p{color:#555;font-size:0.92rem;line-height:1.6;margin-bottom:20px}
+.ref-box{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:14px 20px;display:inline-block;margin-bottom:20px}
+.ref-box .ref-label{font-size:0.72rem;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.ref-box .ref-num{font-size:1rem;font-weight:800;color:#1a1a18;font-family:monospace}
+.proof-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:16px;text-align:left}
+.proof-table td{padding:8px 12px;border-bottom:1px solid #f0f0f0}
+.proof-table td:first-child{color:#888;font-weight:600;width:140px}
+.footer-note{margin-top:24px;padding:16px;background:#f8f9fa;border-radius:8px;font-size:0.8rem;color:#666;line-height:1.5}
+/* FOOTER */
+.ca-footer{margin-top:40px;padding:20px;text-align:center;font-size:0.75rem;color:#aaa;border-top:1px solid #e8e8e8}
+.ca-footer a{color:#c8963c;text-decoration:none}
+@media(max-width:600px){
+  .request-meta{gap:12px}
+  .doc-card-header{flex-direction:column;align-items:flex-start;gap:10px}
+  .pdf-frame{height:350px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="ca-header">
+  <div class="ca-header-inner">
+    <div class="ca-logo">
+      <div class="logo-icon">CA</div>
+      <div class="logo-text">Chowdury Accountants
+        <span class="logo-sub">Accountants and Tax Advisers</span>
+      </div>
+    </div>
+    <div class="ca-contact">
+      <a href="tel:01612224647">📞 0161 222 4647</a><br>
+      <a href="mailto:info@chowduryaccountants.co.uk">info@chowduryaccountants.co.uk</a>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap" id="page-wrap">
+  <!-- Loading State -->
+  <div id="state-loading" class="state-loading">
+    <div class="state-icon">⏳</div>
+    <h2>Loading your documents…</h2>
+    <p>Please wait while we retrieve your approval request.</p>
+  </div>
+</div>
+
+<div class="ca-footer">
+  <p>The Chowdury Accountants Ltd • Company Reg: 09441520 • 283 Featherstall Road North, Oldham, OL1 2NH</p>
+  <p style="margin-top:4px">AAT Licensed Accountants • <a href="https://www.chowduryaccountants.co.uk">www.chowduryaccountants.co.uk</a></p>
+</div>
+
+<script>
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+const SB=supabase.createClient(SB_URL,SB_KEY);
+
+let APPROVAL=null;
+let SIGNED_URLS={};
+
+// Get token from URL
+const params=new URLSearchParams(window.location.search);
+const TOKEN=params.get('token');
+
+async function init(){
+  if(!TOKEN){
+    showError('Invalid Link','This approval link is not valid. Please contact your accountant for a new link.');
+    return;
+  }
+
+  try{
+    // Fetch approval record
+    const res=await fetch(`${SB_URL}/rest/v1/client_approvals?token=eq.${TOKEN}&select=*`,{headers:H});
+    if(!res.ok) throw new Error('Could not load approval request.');
+    const data=await res.json();
+    if(!data||data.length===0){
+      showError('Not Found','This approval link could not be found. It may have been deleted or the link may be incorrect.');
+      return;
+    }
+    APPROVAL=data[0];
+
+    // Check status
+    if(APPROVAL.status==='approved'){
+      showAlreadyApproved();
+      return;
+    }
+    if(APPROVAL.status==='expired'||(APPROVAL.expiry_date&&new Date(APPROVAL.expiry_date)<new Date())){
+      showExpired();
+      return;
+    }
+
+    // Generate signed URLs for documents
+    for(const doc of(APPROVAL.documents||[])){
+      if(doc.storage_path){
+        const{data:urlData,error}=await SB.storage.from('client-documents').createSignedUrl(doc.storage_path,3600);
+        if(!error&&urlData) SIGNED_URLS[doc.storage_path]=urlData.signedUrl;
+      }
+    }
+
+    renderApprovalPage();
+
+  }catch(e){
+    showError('Error',e.message||'An unexpected error occurred. Please try refreshing the page.');
+  }
+}
+
+function renderApprovalPage(){
+  const wrap=document.getElementById('page-wrap');
+  const docCount=(APPROVAL.documents||[]).length;
+  const docWord=docCount===1?'document':'documents';
+
+  wrap.innerHTML=`
+    <!-- REQUEST HEADER -->
+    <div class="request-header">
+      <div class="firm-name">Chowdury Accountants — Document Approval</div>
+      <h1>${APPROVAL.company_name}</h1>
+      <div class="company-sub">Attention: ${APPROVAL.client_name}</div>
+      <div class="request-meta">
+        ${APPROVAL.period_end?`<div class="meta-item"><span class="mk">Period End</span><span class="mv">${APPROVAL.period_end}</span></div>`:''}
+        <div class="meta-item"><span class="mk">Documents</span><span class="mv">${docCount} ${docWord}</span></div>
+        <div class="meta-item"><span class="mk">Prepared By</span><span class="mv">${APPROVAL.created_by||'Chowdury Accountants'}</span></div>
+        <div class="meta-item"><span class="mk">Date Sent</span><span class="mv">${APPROVAL.created_at?new Date(APPROVAL.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'}):'—'}</span></div>
+      </div>
+    </div>
+
+    <!-- INTRO -->
+    <div class="intro-box">
+      <strong>Dear ${APPROVAL.client_name},</strong><br>
+      Please find below your ${docWord} prepared by Chowdury Accountants for the period ended ${APPROVAL.period_end||'—'}. <strong>Please review each document carefully</strong> before completing the approval declaration at the bottom of this page. By approving, you confirm these documents are accurate and complete to the best of your knowledge.
+    </div>
+
+    <!-- DOCUMENTS -->
+    <div class="docs-section">
+      <h2>📄 Your Documents (${docCount})</h2>
+      ${(APPROVAL.documents||[]).map((doc,i)=>renderDocCard(doc,i)).join('')}
+    </div>
+
+    <!-- APPROVAL FORM -->
+    <div class="approval-form" id="approval-form">
+      <div class="approval-form-header">
+        <span style="font-size:1.2rem">✍️</span>
+        <h2>Digital Approval Declaration</h2>
+      </div>
+      <div class="approval-form-body">
+
+        <div class="form-group">
+          <label>Your Full Name (as it appears on official documents) *</label>
+          <input type="text" id="inp-name" placeholder="e.g. Ali Shafakat" oninput="updateSignature(this.value)">
+        </div>
+
+        <div class="sig-box">
+          <div class="sig-label">Signature Preview</div>
+          <div class="sig-preview" id="sig-preview">Your name will appear here</div>
+        </div>
+
+        <div class="declaration-box">
+          <div class="decl-title">📋 Declaration</div>
+          <label class="checkbox-row">
+            <input type="checkbox" id="chk-declaration">
+            <span class="check-text">
+              I, <strong id="decl-name">the undersigned</strong>, confirm that I have reviewed the above documents and that the information contained within them is <strong>correct and complete to the best of my knowledge and belief</strong>. I understand that these documents will be submitted to HMRC and/or Companies House on my behalf and authorise Chowdury Accountants to proceed accordingly.
+            </span>
+          </label>
+        </div>
+
+        <button class="submit-btn" id="submit-btn" onclick="submitApproval()">
+          ✅ Approve and Sign Documents
+        </button>
+
+        <div class="security-note">
+          🔒 This approval is legally binding and creates an audit trail including your name, IP address, device information and timestamp.<br>
+          Questions? Call us on <a href="tel:01612224647">0161 222 4647</a> or email <a href="mailto:info@chowduryaccountants.co.uk">info@chowduryaccountants.co.uk</a>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDocCard(doc,i){
+  const signedUrl=SIGNED_URLS[doc.storage_path]||'';
+  const viewBtn=signedUrl
+    ?`<a class="btn-view-doc" href="${signedUrl}" target="_blank">📄 View Full PDF</a>`
+    :`<span style="font-size:0.78rem;color:#aaa">Preview unavailable</span>`;
+  return `
+    <div class="doc-card" id="doc-card-${i}">
+      <div class="doc-card-header" onclick="toggleDoc(${i})">
+        <div class="doc-card-left">
+          <span class="doc-type-badge">${doc.type}</span>
+          <span class="doc-filename">${doc.filename||doc.description||doc.type}</span>
+        </div>
+        <div class="doc-card-right">
+          ${viewBtn}
+          <span class="doc-chevron">▼</span>
+        </div>
+      </div>
+      ${signedUrl?`
+      <div class="doc-preview-area" id="preview-${i}">
+        <iframe class="pdf-frame" src="${signedUrl}" title="${doc.type}"></iframe>
+      </div>`:''}
+    </div>`;
+}
+
+function toggleDoc(i){
+  const card=document.getElementById(`doc-card-${i}`);
+  card.classList.toggle('expanded');
+}
+
+function updateSignature(val){
+  const preview=document.getElementById('sig-preview');
+  const declName=document.getElementById('decl-name');
+  preview.textContent=val||'Your name will appear here';
+  preview.style.color=val?'#1a1a18':'#ccc';
+  if(declName) declName.textContent=val||'the undersigned';
+}
+
+async function submitApproval(){
+  const name=document.getElementById('inp-name').value.trim();
+  const checked=document.getElementById('chk-declaration').checked;
+
+  if(!name){
+    alert('Please enter your full name to proceed.');
+    document.getElementById('inp-name').focus();
+    return;
+  }
+  if(!checked){
+    alert('Please tick the declaration checkbox to confirm you have reviewed the documents.');
+    return;
+  }
+
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;
+  btn.className='submit-btn loading';
+  btn.textContent='⏳ Recording your approval…';
+
+  // Get IP
+  let ip='Unknown';
+  try{
+    const ipRes=await fetch('https://api.ipify.org?format=json');
+    const ipData=await ipRes.json();
+    ip=ipData.ip||'Unknown';
+  }catch(e){}
+
+  const now=new Date().toISOString();
+  const ua=navigator.userAgent;
+  const refNum='CA-APR-'+APPROVAL.token.substring(0,8).toUpperCase();
+
+  try{
+    const updateRes=await fetch(`${SB_URL}/rest/v1/client_approvals?token=eq.${TOKEN}`,{
+      method:'PATCH',
+      headers:H,
+      body:JSON.stringify({
+        status:'approved',
+        approved_at:now,
+        approved_name:name,
+        approved_ip:ip,
+        approved_user_agent:ua,
+        declaration_confirmed:true
+      })
+    });
+    if(!updateRes.ok) throw new Error('Failed to record approval. Please try again or contact us.');
+
+    // Log to audit
+    try{
+      await fetch(`${SB_URL}/rest/v1/audit_log`,{
+        method:'POST',
+        headers:H,
+        body:JSON.stringify({
+          action:`Client approval received: ${APPROVAL.company_name} (${(APPROVAL.documents||[]).map(d=>d.type).join(', ')})`,
+          details:`Signed by: ${name} | IP: ${ip} | Token: ${TOKEN}`,
+          user_name:name,
+          created_at:now
+        })
+      });
+    }catch(e){}
+
+    showSuccess(name,now,ip,ua,refNum);
+
+  }catch(e){
+    btn.disabled=false;
+    btn.className='submit-btn';
+    btn.innerHTML='✅ Approve and Sign Documents';
+    alert(e.message);
+  }
+}
+
+function showSuccess(name,timestamp,ip,ua,refNum){
+  const wrap=document.getElementById('page-wrap');
+  const docs=(APPROVAL.documents||[]).map(d=>d.type).join(', ');
+  const dateStr=new Date(timestamp).toLocaleString('en-GB',{
+    day:'2-digit',month:'long',year:'numeric',
+    hour:'2-digit',minute:'2-digit',second:'2-digit'
+  });
+  wrap.innerHTML=`
+    <div class="success-card">
+      <div class="success-icon">✅</div>
+      <h2>Documents Approved</h2>
+      <p>Thank you, <strong>${name}</strong>. Your approval has been recorded and Chowdury Accountants will now proceed with the submission of your documents.</p>
+
+      <div class="ref-box">
+        <div class="ref-label">Approval Reference</div>
+        <div class="ref-num">${refNum}</div>
+      </div>
+
+      <h3 style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#555;margin-bottom:12px">Approval Record</h3>
+      <table class="proof-table">
+        <tr><td>Company</td><td><strong>${APPROVAL.company_name}</strong></td></tr>
+        <tr><td>Documents</td><td>${docs}</td></tr>
+        <tr><td>Period End</td><td>${APPROVAL.period_end||'—'}</td></tr>
+        <tr><td>Signed By</td><td><strong>${name}</strong></td></tr>
+        <tr><td>Date & Time</td><td>${dateStr}</td></tr>
+        <tr><td>IP Address</td><td>${ip}</td></tr>
+        <tr><td>Declaration</td><td>✓ Confirmed</td></tr>
+        <tr><td>Reference</td><td>${refNum}</td></tr>
+      </table>
+
+      <div class="footer-note">
+        We recommend saving or printing this page for your records. If you have any questions about your documents or the submission process, please contact us on <strong>0161 222 4647</strong> or <a href="mailto:info@chowduryaccountants.co.uk">info@chowduryaccountants.co.uk</a>.
+      </div>
+    </div>`;
+}
+
+function showError(title,msg){
+  document.getElementById('page-wrap').innerHTML=`
+    <div class="state-error">
+      <div class="state-icon">❌</div>
+      <h2>${title}</h2>
+      <p>${msg}</p>
+      <p style="margin-top:16px">Need help? Call us on <strong>0161 222 4647</strong></p>
+    </div>`;
+}
+
+function showExpired(){
+  document.getElementById('page-wrap').innerHTML=`
+    <div class="state-expired">
+      <div class="state-icon">⌛</div>
+      <h2>Link Expired</h2>
+      <p>This approval link has expired (links are valid for 30 days).</p>
+      <p style="margin-top:8px">Please contact Chowdury Accountants for a new link.</p>
+      <p style="margin-top:16px"><strong>📞 0161 222 4647</strong><br><a href="mailto:info@chowduryaccountants.co.uk" style="color:#c8963c">info@chowduryaccountants.co.uk</a></p>
+    </div>`;
+}
+
+function showAlreadyApproved(){
+  const a=APPROVAL;
+  const dateStr=a.approved_at?new Date(a.approved_at).toLocaleString('en-GB',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  document.getElementById('page-wrap').innerHTML=`
+    <div class="state-approved">
+      <div class="state-icon">✅</div>
+      <h2>Already Approved</h2>
+      <p>These documents were approved by <strong>${a.approved_name||'you'}</strong> on <strong>${dateStr}</strong>.</p>
+      <p style="margin-top:8px">If you believe this is incorrect, please contact us on <strong>0161 222 4647</strong>.</p>
+    </div>`;
+}
+
+// Fix the SB key typo I noticed
+// Actually initialise
+init();
+</script>
+</body>
+</html>
