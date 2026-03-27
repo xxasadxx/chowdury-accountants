@@ -797,7 +797,22 @@ function setView(v){
   document.querySelectorAll('.page-tab').forEach((t,i)=>t.classList.toggle('active',['pipeline','aml','quote','list','clientportal'][i]===v));
   if(v==='quote'){
     const ifr=document.getElementById('quote-iframe');
-    if(!ifr.src||ifr.src==='about:blank') ifr.src='quote-engine.html';
+    const needsLoad = !ifr.src||ifr.src==='about:blank';
+    if(needsLoad){ ifr.src='quote-engine.html'; }
+    // Send client data to iframe once loaded
+    const sendClientData = () => {
+      if(!cid) return;
+      const c = CLIENTS.find(x=>x.id===cid);
+      if(!c) return;
+      const svcs = [];
+      document.querySelectorAll('#svcs input:checked').forEach(cb=>svcs.push(cb.value));
+      ifr.contentWindow.postMessage({
+        type:'load_client_quote',
+        client:{ company_name:c.company_name, director_name:c.director_name, client_type:c.client_type||'ltd', services: c.services||svcs, year_end:c.year_end||'', address:'' }
+      },'*');
+    };
+    if(needsLoad){ ifr.addEventListener('load', sendClientData, {once:true}); }
+    else { setTimeout(sendClientData, 100); }
   }
   render();
 }
@@ -1634,16 +1649,91 @@ async function sendOnboardingApproval(docType, via) {
   }
 }
 
-// Listen for quote approval trigger from quote-engine iframe
+// Listen for messages from quote-engine iframe
 window.addEventListener('message', async (e) => {
-  if(!e.data||e.data.type!=='send_quote_approval') return;
-  // Switch to onboarding modal Letters > Quote tab if client is open
-  if(cid){
-    switchTab('letters');
-    showLetter('quote');
-    toast('Upload the quote PDF above then click Send for Approval','ok');
-  } else {
-    toast('Open a client record first, then send the quote for approval','err');
+  if(!e.data) return;
+
+  // Old trigger (kept for compatibility)
+  if(e.data.type==='send_quote_approval'){
+    if(cid){ switchTab('letters'); showLetter('quote'); toast('Upload the quote PDF above then click Send for Approval','ok'); }
+    else { toast('Open a client record first','err'); }
+    return;
+  }
+
+  // New: receive generated PDF from quote engine
+  if(e.data.type==='quote_pdf_ready'){
+    if(!cid){ toast('Open a client record first','err'); return; }
+    const c = CLIENTS.find(x=>x.id===cid);
+    if(!c){ toast('Client not found','err'); return; }
+
+    const {company, filename, pdfDataUrl} = e.data;
+    toast('Uploading quote PDF…','ok');
+
+    try {
+      // Convert data URL to blob
+      const res = await fetch(pdfDataUrl);
+      const blob = await res.blob();
+
+      // Upload to Supabase storage
+      const token = crypto.randomUUID();
+      const path = `${token}/${filename}`;
+      const uploadRes = await fetch(`${CP_URL}/storage/v1/object/client-documents/${path}`, {
+        method: 'POST',
+        headers: { 'apikey': CP_KEY, 'Authorization': 'Bearer ' + CP_KEY, 'Content-Type': 'application/pdf', 'x-upsert': 'true' },
+        body: blob
+      });
+      if(!uploadRes.ok) throw new Error('Upload failed: ' + await uploadRes.text());
+
+      // Create approval record
+      const approvalRes = await fetch(`${CP_URL}/rest/v1/client_approvals`, {
+        method: 'POST',
+        headers: CP_H,
+        body: JSON.stringify({
+          token, company_name: c.company_name, client_name: c.director_name,
+          client_email: c.email, client_phone: c.mobile,
+          document_type: 'Quote',
+          documents: [{ type: 'Quote', filename, storage_path: path }],
+          status: 'pending', created_by: 'Chowdury Accountants',
+          sent_via: 'email', period_end: c.year_end || ''
+        })
+      });
+      if(!approvalRes.ok) throw new Error('DB error: ' + await approvalRes.text());
+
+      const approvalLink = window.location.origin + '/approve.html?token=' + token;
+
+      // Send email via Resend
+      if(c.email){
+        try {
+          await fetch('/.netlify/functions/send-email', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ type:'document_approval', to:c.email, name:c.director_name||c.company_name, company:c.company_name, link:approvalLink, period:c.year_end||'', documents:[{type:'Quote',filename}] })
+          });
+        } catch(err) {
+          window.open('mailto:'+c.email+'?subject='+encodeURIComponent('Quote Ready for Approval — '+c.company_name)+'&body='+encodeURIComponent('Please review and approve your quote:\n'+approvalLink));
+        }
+      }
+
+      // Also open WhatsApp if mobile
+      if(c.mobile){
+        const name = (c.director_name||c.company_name||'').split(' ')[0];
+        const msg = `Hi ${name},\n\nYour fee quote from *Chowdury Accountants* is ready for your review and approval.\n\nPlease tap here to view and approve:\n${approvalLink}\n\nAny questions, call us on 0161 222 4647 📞`;
+        const phone = c.mobile.replace(/\D/g,'').replace(/^0/,'');
+        window.open(`https://wa.me/44${phone}?text=${encodeURIComponent(msg)}`,'_blank');
+      }
+
+      toast('✅ Quote sent for approval to ' + (c.email||c.company_name), 'ok');
+
+      // Switch to letters tab and show status
+      openClient(cid);
+      setTimeout(()=>{ switchTab('letters'); loadApprovalStatus(); }, 300);
+
+      // Reset send button in iframe
+      document.getElementById('quote-iframe').contentWindow.postMessage({type:'approval_sent'},'*');
+
+    } catch(err) {
+      toast('Error: ' + err.message, 'err');
+    }
+    return;
   }
 });
 

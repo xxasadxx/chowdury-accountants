@@ -48,6 +48,8 @@
 })();
 </script>
 <meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Quote Calculator — The Chowdury Accountants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -738,22 +740,113 @@ function renderBsp(oof, oov, oot, mnet, mvat) {
   `;
 }
 
-function sendQuoteForApproval(){
-  // Get quote data from the preview
-  const paper = document.getElementById('paper');
-  if(!paper||paper.innerText.includes('Fill in client details')){
-    alert('Please fill in client details and generate the quote first.');return;
+// ── RECEIVE CLIENT DATA FROM PARENT ─────────────────────
+window.addEventListener('message', (e) => {
+  if(!e.data) return;
+  // Reset button after approval sent
+  if(e.data.type==='approval_sent'){
+    const btn=document.getElementById('send-approval-btn');
+    if(btn){btn.textContent='✅ Sent for Approval!';btn.style.background='#2e7d32';btn.disabled=false;}
+    return;
   }
-  // Get client name from form
-  const clientName = (document.getElementById('cl-name')||{}).value||'';
-  const company = (document.getElementById('cl-co')||{}).value||'';
-  if(!company&&!clientName){alert('Please enter client details first.');return;}
-  // Post message to parent (onboarding page) to trigger approval
-  window.parent.postMessage({
-    type:'send_quote_approval',
-    company: company||clientName,
-    clientName: clientName
-  },'*');
+  if(e.data.type!=='load_client_quote') return;
+  const c = e.data.client;
+  if(!c) return;
+
+  // Fill client name
+  const cnEl = document.getElementById('cn');
+  if(cnEl){ cnEl.value = c.company_name||''; cnEl.dispatchEvent(new Event('input')); }
+
+  // Fill address if available
+  const caEl = document.getElementById('ca');
+  if(caEl && c.address){ caEl.value = c.address; caEl.dispatchEvent(new Event('input')); }
+
+  // Set service type
+  const ctEl = document.getElementById('ct');
+  if(ctEl){ ctEl.value = c.client_type==='se'?'se':'ltd'; ctEl.dispatchEvent(new Event('change')); }
+
+  // Tick services based on client services array
+  const svcMap = {
+    accounts:'s1', payroll:'s2', vat:'s4',
+    confirmation:'s6', registered:'s7', bookkeeping:'a1'
+  };
+  const clientSvcs = c.services || [];
+  Object.entries(svcMap).forEach(([svc, id]) => {
+    const el = document.getElementById(id);
+    if(el) el.checked = clientSvcs.includes(svc);
+  });
+
+  // Set reference
+  const crEl = document.getElementById('cr');
+  if(crEl){ crEl.value = 'Quote/TCA/'+(new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'2-digit',year:'2-digit'}).replace(/\//g,'')); }
+
+  update();
+  // Notify user
+  const btn = document.getElementById('send-approval-btn');
+  if(btn) btn.textContent = '📤 Send for Approval — ' + (c.company_name||'');
+});
+
+// ── GENERATE PDF AND SEND FOR APPROVAL ───────────────────
+async function sendQuoteForApproval(){
+  const paper = document.getElementById('paper');
+  if(!paper||paper.innerText.trim().includes('Fill in client details')){
+    alert('Please fill in client details first.');return;
+  }
+  const cnEl = document.getElementById('cn');
+  const company = cnEl ? cnEl.value.trim() : '';
+  if(!company){alert('Please enter the client name first.');return;}
+
+  const btn = document.getElementById('send-approval-btn');
+  const origText = btn.textContent;
+  btn.textContent = '⏳ Generating PDF…';
+  btn.disabled = true;
+
+  try {
+    // Use html2canvas to capture the preview
+    const canvas = await html2canvas(paper, {
+      scale: 2, useCORS: true, backgroundColor: '#ffffff',
+      logging: false, windowWidth: paper.scrollWidth, windowHeight: paper.scrollHeight
+    });
+
+    // Convert canvas to PDF using jsPDF
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    const imgData = canvas.toDataURL('image/jpeg', 0.92);
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height * pdfW) / canvas.width;
+
+    // If content is longer than one page, add pages
+    const pageH = pdf.internal.pageSize.getHeight();
+    if(pdfH <= pageH){
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
+    } else {
+      let yPos = 0;
+      let remaining = pdfH;
+      while(remaining > 0){
+        pdf.addImage(imgData, 'JPEG', 0, -yPos, pdfW, pdfH);
+        remaining -= pageH;
+        yPos += pageH;
+        if(remaining > 0) pdf.addPage();
+      }
+    }
+
+    // Convert to blob
+    const pdfBlob = pdf.output('blob');
+
+    // Send blob to parent for upload & approval
+    btn.textContent = '⏳ Sending for approval…';
+    window.parent.postMessage({
+      type: 'quote_pdf_ready',
+      company: company,
+      filename: 'Quote_' + company.replace(/[^a-zA-Z0-9]/g,'_') + '.pdf',
+      pdfDataUrl: pdf.output('datauristring')
+    }, '*');
+
+  } catch(e) {
+    alert('PDF generation failed: ' + e.message);
+    btn.textContent = origText;
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
