@@ -1325,7 +1325,7 @@ async function sendPortalInvite(via){
     }catch(e){
       // Fallback to mailto
       const subject='Your Chowdury Accountants Client Portal — Create Your Account';
-      const body='Dear '+name+',\n\nWe are pleased to invite you to access your dedicated client portal with Chowdury Accountants.\n\nYour portal gives you secure access to:\n• All your documents and returns\n• Pending approvals requiring your signature\n• Correspondence from our team\n\nClick the link below to create your account:\n'+PORTAL_URL+'\n\nUse your email address ('+email+') to register. If you need any help, please call us on 0161 222 4647.\n\nYours sincerely,\nMd Asadul Islam Chowdury\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
+      const body='Dear '+name+',\n\nWe have set up your secure client portal, giving you 24/7 online access to your documents, tax returns and approvals.\n\nCreate your account here:\n'+PORTAL_URL+'\n\nRegister using: '+email+'\n\nIf you need any help, please call us on 0161 222 4647.\n\nYours sincerely,\nChowdury Accountants\n283 Featherstall Road North, Oldham, OL1 2NH\nTel: 0161 222 4647 | info@chowduryaccountants.co.uk';
       window.location.href='mailto:'+email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
       msg.style.background='#fff8ee';msg.style.color='#7a5c00';
       msg.textContent='Email app opened — please send from Outlook';

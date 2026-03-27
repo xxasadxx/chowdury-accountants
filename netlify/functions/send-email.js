@@ -57,7 +57,9 @@ exports.handler = async (event) => {
   `;
 
   let subject, html;
-  const firstName = (name||'').split(' ')[0] || 'there';
+  const toTitleCase = s => (s||'').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  const cleanName = toTitleCase(name);
+  const firstName = cleanName.split(' ')[0] || 'there';
 
   if (type === 'portal_invite') {
     subject = `Your ${FIRM} Client Portal — Create Your Account`;
@@ -73,7 +75,7 @@ exports.handler = async (event) => {
         <p>${FIRM} — Secure Online Access</p>
       </div>
       <div class="body">
-        <p>Dear <strong>${name}</strong>,</p>
+        <p>Dear <strong>${cleanName}</strong>,</p>
         <p>We are pleased to invite you to access your dedicated client portal with <strong>${FIRM}</strong>.</p>
         <p>Your portal gives you secure, 24/7 access to:</p>
         <ul style="font-size:14px;line-height:1.8;color:#444;margin:0 0 16px;padding-left:20px">
@@ -83,7 +85,7 @@ exports.handler = async (event) => {
           <li>Secure correspondence from our team</li>
         </ul>
         <div class="btn-wrap">
-          <a href="${link}" class="btn">🏢 Create Your Account →</a>
+          <a href="${link}" class="btn">Click Here to Access Your Portal →</a>
         </div>
         <div class="info-box">
           Register using your email address: <strong>${to}</strong><br>
@@ -115,7 +117,7 @@ exports.handler = async (event) => {
         <p>${company}${period?' — Period ended '+period:''}</p>
       </div>
       <div class="body">
-        <p>Dear <strong>${name}</strong>,</p>
+        <p>Dear <strong>${cleanName}</strong>,</p>
         <p>Your documents have been prepared and are ready for your review and digital approval.</p>
         ${docList ? `<div class="doc-list">${docList}</div>` : ''}
         <div class="btn-wrap">
@@ -148,7 +150,7 @@ exports.handler = async (event) => {
         <p>Documents are awaiting your approval</p>
       </div>
       <div class="body">
-        <p>Dear <strong>${name}</strong>,</p>
+        <p>Dear <strong>${cleanName}</strong>,</p>
         <p>Just a friendly reminder that documents for <strong>${company}</strong> are still awaiting your approval.</p>
         <div class="btn-wrap">
           <a href="${link}" class="btn">📄 Review &amp; Approve Now →</a>
