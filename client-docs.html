@@ -654,32 +654,46 @@ async function loadCompanies(){
   const sel=document.getElementById('f-company');
   sel.innerHTML='<option value="">⏳ Loading companies…</option>';
   try{
-    // Get live session token for authenticated request
-    const {data:sessionData}=await SB.auth.getSession();
-    const token=sessionData&&sessionData.session?sessionData.session.access_token:SB_KEY;
-    const authH={
-      'apikey':SB_KEY,
-      'Authorization':'Bearer '+token,
-      'Content-Type':'application/json'
-    };
-    const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=name,director_name,director_email,director_mobile&order=name.asc&limit=500`,{headers:authH});
-    const raw=await res.json();
-    if(!Array.isArray(raw)||raw.length===0){
+    // Load from seed JSON files (same source as Ltd Tracker)
+    const chunks=await Promise.all(
+      [0,1,2,3,4,5,6].map(i=>fetch(`ltd-seed-${i}.json`).then(r=>r.ok?r.json():[]))
+    );
+    const raw=chunks.flat();
+    if(!raw.length){
       sel.innerHTML='<option value="">⚠️ No companies found</option>';
-      toast('No companies returned — check ltd_clients table','red');
+      toast('Could not load company data','red');
       return;
     }
-    ALL_COMPANIES=raw.map(c=>({
-      company_name:c.name||'',
-      director_name:c.director_name||'',
-      director_email:c.director_email||'',
-      director_mobile:c.director_mobile||''
-    })).filter(c=>c.company_name);
+    // Also overlay director contact details from Supabase ltd_clients where available
+    let sbData=[];
+    try{
+      const {data:sd}=await SB.auth.getSession();
+      const token=sd&&sd.session?sd.session.access_token:SB_KEY;
+      const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=comp_no,director_name,director_email,director_mobile&limit=500`,{
+        headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json'}
+      });
+      if(res.ok) sbData=await res.json();
+    }catch(e){}
+
+    ALL_COMPANIES=raw
+      .filter(c=>c.status==='active'&&c.name)
+      .map(c=>{
+        // Overlay Supabase contact data if available
+        const sb=sbData.find(s=>s.comp_no===c.comp_no)||{};
+        return {
+          company_name: c.name,
+          director_name: sb.director_name||c.director_name||'',
+          director_email: sb.director_email||c.director_email||'',
+          director_mobile: sb.director_mobile||c.director_mobile||''
+        };
+      });
+
     populateSelect(ALL_COMPANIES);
     toast(`✅ ${ALL_COMPANIES.length} companies loaded`,'green');
   }catch(e){
     sel.innerHTML='<option value="">❌ Error: '+e.message+'</option>';
-    toast('Error: '+e.message,'red');
+    toast('Error loading companies: '+e.message,'red');
+    console.error(e);
   }
 }
 
