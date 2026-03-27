@@ -1,0 +1,8 @@
+{
+  "name": "chowdury-accountants-portal",
+  "version": "1.0.0",
+  "description": "Chowdury Accountants Practice Management Portal",
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}

@@ -275,14 +275,22 @@ async function submitApproval(){
     });
     if(!r.ok) throw new Error('Failed to record approval. Please try again or contact us.');
     try{await fetch(`${SB_URL}/rest/v1/audit_log`,{method:'POST',headers:H,body:JSON.stringify({action:`Client approval: ${APPROVAL.company_name} (${(APPROVAL.documents||[]).map(d=>d.type).join(', ')})`,details:`Signed: ${name} | IP: ${ip}`,user_name:name,created_at:now})});}catch(e){}
-    showSuccess(name,now,ip,ref);
+    // Generate signed PDF in background
+    btn.textContent='⏳ Generating signed document…';
+    let signedDocs=[];
+    try{
+      const sr=await fetch('/.netlify/functions/sign-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:TOKEN})});
+      const sd=await sr.json();
+      if(sd.success&&sd.signed) signedDocs=sd.signed;
+    }catch(e){console.warn('PDF signing skipped:',e);}
+    showSuccess(name,now,ip,ref,signedDocs);
   }catch(e){
     btn.disabled=false;btn.textContent='✅ Approve and Sign';
     alert(e.message);
   }
 }
 
-function showSuccess(name,ts,ip,ref){
+function showSuccess(name,ts,ip,ref,signedDocs=[]){
   const docs=(APPROVAL.documents||[]).map(d=>d.type).join(', ');
   const dt=new Date(ts).toLocaleString('en-GB',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
   document.getElementById('page-wrap').innerHTML=`
@@ -312,6 +320,13 @@ function showSuccess(name,ts,ip,ref){
           <tr><td>Declaration</td><td>✓ Confirmed</td></tr>
           <tr><td>Reference</td><td>${ref}</td></tr>
         </table>
+        ${signedDocs&&signedDocs.length?`
+        <div style="text-align:center;margin:20px 0">
+          ${signedDocs.map(d=>`
+            <a id="dl-${d.type}" style="display:inline-flex;align-items:center;gap:8px;background:#1a1a18;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.88rem;margin:4px" onclick="downloadSigned('${d.signed}','${d.type}');return false" href="#">
+              ⬇️ Download Signed ${d.type}
+            </a>`).join('')}
+        </div>`:''}
         <div class="footer-note">
           We recommend saving or printing this page for your records. For any questions contact us on <strong>0161 222 4647</strong> or <a href="mailto:info@chowduryaccountants.co.uk">info@chowduryaccountants.co.uk</a>
         </div>
@@ -350,6 +365,28 @@ function showError(title,msg){
       <p>${msg}</p>
       <div class="phone">📞 0161 222 4647</div>
     </div>`;
+}
+
+async function downloadSigned(path, type){
+  try{
+    const res=await fetch(`${SB_URL}/storage/v1/object/sign/client-documents/${path}`,{
+      method:'POST',
+      headers:{...H,'Content-Type':'application/json'},
+      body:JSON.stringify({expiresIn:60})
+    });
+    const data=await res.json();
+    const url=data.signedURL||data.signedUrl;
+    if(url){
+      const fullUrl=url.startsWith('http')?url:`${SB_URL}/storage/v1${url}`;
+      const a=document.createElement('a');
+      a.href=fullUrl;
+      a.download=`Signed_${type}_${TOKEN.substring(0,8)}.pdf`;
+      a.target='_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  }catch(e){alert('Download failed. Please contact us.');}
 }
 
 init();
