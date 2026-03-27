@@ -651,10 +651,15 @@ function toast(msg,type='green'){
 let ALL_COMPANIES=[];
 
 async function loadCompanies(){
+  const sel=document.getElementById('f-company');
+  sel.innerHTML='<option value="">⏳ Loading companies…</option>';
   try{
     const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=name,director_name,director_email,director_mobile&order=name.asc&limit=500`,{headers:H});
-    if(!res.ok) return;
     const raw=await res.json();
+    if(!Array.isArray(raw)||raw.length===0){
+      sel.innerHTML='<option value="">⚠️ No companies found — check Supabase</option>';
+      return;
+    }
     ALL_COMPANIES=raw.map(c=>({
       company_name:c.name||'',
       director_name:c.director_name||'',
@@ -662,7 +667,12 @@ async function loadCompanies(){
       director_mobile:c.director_mobile||''
     })).filter(c=>c.company_name);
     populateSelect(ALL_COMPANIES);
-  }catch(e){console.error('loadCompanies:',e);}
+    toast(`✅ ${ALL_COMPANIES.length} companies loaded`,'green');
+  }catch(e){
+    sel.innerHTML='<option value="">❌ Failed to load — '+e.message+'</option>';
+    toast('Failed to load companies: '+e.message,'red');
+    console.error('loadCompanies error:',e);
+  }
 }
 
 function populateSelect(companies){
