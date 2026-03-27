@@ -60,7 +60,7 @@ exports.handler = async (event) => {
 
       // Load PDF and append signature page
       // Load PDF and append signature page
-      let pdfDoc;
+      let pdfDoc, helvetica, helveticaBold;
       try {
         console.log('Loading PDF with pdf-lib...');
         pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
@@ -69,8 +69,8 @@ exports.handler = async (event) => {
         console.error('pdf-lib load error:', pdfErr.message);
         continue;
       }
-      const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-
+      helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
       // Add new page at end
       const sigPage = pdfDoc.addPage([595, 842]); // A4
       const { width, height } = sigPage.getSize();
