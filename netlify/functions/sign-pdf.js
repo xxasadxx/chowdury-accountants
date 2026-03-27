@@ -197,12 +197,15 @@ exports.handler = async (event) => {
         },
         body: signedBytes
       });
-
-      if (uploadRes.ok) {
+      console.log('Upload status:', uploadRes.status, 'path:', signedPath);
+      if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        console.error('Upload failed:', errText);
+      } else {
         signedPaths.push({ original: doc.storage_path, signed: signedPath, type: doc.type });
       }
-    }
 
+    }
     // 3. Update record with signed PDF paths
     if (signedPaths.length > 0) {
       await fetch(`${SB_URL}/rest/v1/client_approvals?token=eq.${token}`, {

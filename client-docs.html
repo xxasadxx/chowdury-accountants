@@ -736,13 +736,19 @@ async function downloadSignedPdf(id){
     try{
       const res=await fetch(`${SB_URL}/storage/v1/object/sign/client-documents/${sd.signed}`,{
         method:'POST',headers:{...H,'Content-Type':'application/json'},
-        body:JSON.stringify({expiresIn:60})
+        body:JSON.stringify({expiresIn:300})
       });
       const data=await res.json();
       const url=data.signedURL||data.signedUrl;
       if(url){
         const fullUrl=url.startsWith('http')?url:`${SB_URL}/storage/v1${url}`;
-        window.open(fullUrl,'_blank');
+        const a=document.createElement('a');
+        a.href=fullUrl;
+        a.target='_blank';
+        a.rel='noopener';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>document.body.removeChild(a),1000);
         return;
       }
     }catch(e){}
@@ -758,14 +764,20 @@ async function downloadSignedPdf(id){
       const sd=d.signed[0];
       const res=await fetch(`${SB_URL}/storage/v1/object/sign/client-documents/${sd.signed}`,{
         method:'POST',headers:{...H,'Content-Type':'application/json'},
-        body:JSON.stringify({expiresIn:60})
+        body:JSON.stringify({expiresIn:300})
       });
       const data=await res.json();
       const url=data.signedURL||data.signedUrl;
       if(url){
         const fullUrl=url.startsWith('http')?url:`${SB_URL}/storage/v1${url}`;
-        window.open(fullUrl,'_blank');
-        toast('✅ Signed PDF downloaded','green');
+        const a=document.createElement('a');
+        a.href=fullUrl;
+        a.target='_blank';
+        a.rel='noopener';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>document.body.removeChild(a),1000);
+        toast('✅ Signed PDF ready — check your downloads','green');
         return;
       }
     }
