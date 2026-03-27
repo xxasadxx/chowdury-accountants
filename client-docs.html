@@ -417,7 +417,11 @@ async function sendApproval(via){
       }
     }
 
-    // Create Supabase record
+    // Create Supabase record using authenticated session token
+    const {data:sd}=await SB.auth.getSession();
+    const authToken=sd&&sd.session?sd.session.access_token:SB_KEY;
+    const authH={'apikey':SB_KEY,'Authorization':'Bearer '+authToken,'Content-Type':'application/json'};
+
     const record={
       token,
       client_name:contact,
@@ -434,7 +438,7 @@ async function sendApproval(via){
 
     const res=await fetch(`${SB_URL}/rest/v1/client_approvals`,{
       method:'POST',
-      headers:H,
+      headers:authH,
       body:JSON.stringify(record)
     });
     if(!res.ok){
