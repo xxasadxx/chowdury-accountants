@@ -665,25 +665,30 @@ function filterCompanies(val){
 
 function renderDropdown(companies){
   const dd=document.getElementById('company-dropdown');
+  dd.innerHTML='';
   if(!companies.length){
-    dd.innerHTML='<div style="padding:12px 14px;color:#999;font-size:0.85rem">No companies found</div>';
+    const empty=document.createElement('div');
+    empty.style.cssText='padding:12px 14px;color:#999;font-size:0.85rem';
+    empty.textContent='No companies found';
+    dd.appendChild(empty);
     return;
   }
-  dd.innerHTML=companies.map(c=>`
-    <div onclick="selectCompany(${JSON.stringify(c.company_name||'').replace(/"/g,'&quot;')},${JSON.stringify(c.director_name||'').replace(/"/g,'&quot;')},${JSON.stringify(c.director_email||'').replace(/"/g,'&quot;')},${JSON.stringify(c.director_mobile||'').replace(/"/g,'&quot;')})"
-      style="padding:10px 14px;cursor:pointer;font-size:0.87rem;border-bottom:1px solid #f5f5f5;transition:background .1s"
-      onmouseover="this.style.background='#fff8ee'" onmouseout="this.style.background='#fff'">
-      <strong style="color:#1a1a18">${c.company_name||'—'}</strong>
-      ${c.director_name?`<span style="color:#888;font-size:0.78rem;margin-left:8px">${c.director_name}</span>`:''}
-    </div>`).join('');
-}
-
-function selectCompany(name,director,email,phone){
-  document.getElementById('f-company').value=name;
-  if(director) document.getElementById('f-contact').value=director;
-  if(email) document.getElementById('f-email').value=email;
-  if(phone) document.getElementById('f-phone').value=phone;
-  hideDropdown();
+  companies.forEach(c=>{
+    const item=document.createElement('div');
+    item.style.cssText='padding:10px 14px;cursor:pointer;font-size:0.87rem;border-bottom:1px solid #f5f5f5;transition:background .1s';
+    item.innerHTML=`<strong style="color:#1a1a18">${c.company_name||'—'}</strong>${c.director_name?` <span style="color:#888;font-size:0.78rem">${c.director_name}</span>`:''}`;
+    item.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      document.getElementById('f-company').value=c.company_name||'';
+      if(c.director_name) document.getElementById('f-contact').value=c.director_name;
+      if(c.director_email) document.getElementById('f-email').value=c.director_email;
+      if(c.director_mobile) document.getElementById('f-phone').value=c.director_mobile;
+      hideDropdown();
+    });
+    item.addEventListener('mouseover',function(){this.style.background='#fff8ee';});
+    item.addEventListener('mouseout',function(){this.style.background='#fff';});
+    dd.appendChild(item);
+  });
 }
 
 function showDropdown(){
