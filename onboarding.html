@@ -370,16 +370,23 @@ window.caAudit = (function(){
       <h3 style="font-size:0.88rem;font-weight:800;margin-bottom:4px;color:#1a1a18">📨 Invite Client to Portal</h3>
       <p style="font-size:0.78rem;color:#888;margin-bottom:16px">Send client a link to create their portal account and access their documents</p>
       <div style="margin-bottom:12px">
+        <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Search Company</label>
+        <input id="inv-search" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit;margin-bottom:6px" placeholder="🔍 Type to filter…" oninput="filterInvCompanies(this.value)">
+        <select id="inv-company-sel" size="1" onchange="selectInvCompany(this.value)" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit;background:#fff">
+          <option value="">— Select company —</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
         <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Client Name</label>
-        <input id="inv-name" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit" placeholder="e.g. Ali Shafakat">
+        <input id="inv-name" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit">
       </div>
       <div style="margin-bottom:12px">
         <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Client Email</label>
-        <input id="inv-email" type="email" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit" placeholder="client@email.com">
+        <input id="inv-email" type="email" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit">
       </div>
       <div style="margin-bottom:16px">
         <label style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#888;display:block;margin-bottom:5px">Company</label>
-        <input id="inv-company" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit" placeholder="e.g. Project Interim Limited">
+        <input id="inv-company" type="text" style="width:100%;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:inherit">
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="sendPortalInvite('email')" style="flex:1;background:#1a1a18;color:#fff;border:none;border-radius:8px;padding:10px;font-size:0.83rem;font-weight:700;cursor:pointer;font-family:inherit">✉️ Email Invite</button>
@@ -1224,6 +1231,57 @@ const CP_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
 const CP_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
 const CP_H={'apikey':CP_KEY,'Authorization':'Bearer '+CP_KEY,'Content-Type':'application/json'};
 const PORTAL_URL=window.location.origin+'/client-login.html';
+
+let INV_COMPANIES=[];
+
+async function loadInvCompanies(){
+  try{
+    const chunks=await Promise.all([0,1,2,3,4,5,6].map(i=>fetch('ltd-seed-'+i+'.json').then(r=>r.ok?r.json():[])));
+    INV_COMPANIES=chunks.flat().filter(c=>c.status==='active'&&c.name).map(c=>({
+      company_name:c.name,
+      director_name:c.director_name||'',
+      director_email:c.director_email||'',
+      director_mobile:c.director_mobile||''
+    }));
+    populateInvSelect(INV_COMPANIES);
+  }catch(e){}
+}
+
+function populateInvSelect(companies){
+  const sel=document.getElementById('inv-company-sel');
+  if(!sel) return;
+  sel.innerHTML='<option value="">— Select company —</option>';
+  companies.forEach(c=>{
+    const opt=document.createElement('option');
+    opt.value=c.company_name;
+    opt.textContent=c.company_name+(c.director_name?' — '+c.director_name:'');
+    sel.appendChild(opt);
+  });
+}
+
+function filterInvCompanies(q){
+  const filtered=q.trim()?INV_COMPANIES.filter(c=>c.company_name.toLowerCase().includes(q.toLowerCase())):INV_COMPANIES;
+  populateInvSelect(filtered);
+}
+
+function selectInvCompany(name){
+  const match=INV_COMPANIES.find(c=>c.company_name===name);
+  if(match){
+    document.getElementById('inv-company').value=match.company_name;
+    if(match.director_name) document.getElementById('inv-name').value=match.director_name;
+    if(match.director_email) document.getElementById('inv-email').value=match.director_email;
+  }
+}
+
+// Load companies when Client Portal tab is clicked
+document.querySelectorAll('.page-tab').forEach(tab=>{
+  if(tab.textContent.includes('Client Portal')){
+    tab.addEventListener('click',()=>{
+      if(!INV_COMPANIES.length) loadInvCompanies();
+      loadPortalAccounts();
+    });
+  }
+});
 
 function sendPortalInvite(via){
   const name=document.getElementById('inv-name').value.trim();
