@@ -131,7 +131,7 @@ exports.handler = async () => {
     console.log(`Fetched ${companies.length} companies from InformDirect`);
 
     // 3. Fetch existing ltd_clients from Supabase
-    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,company_name,director_name,conf_due,status&limit=2000&order=id.asc');
+    const clientsResp = await sbRequest('GET', 'ltd_clients?select=id,comp_no,director_name,conf_due,status&limit=2000&order=id.asc');
     let clients;
     try { clients = JSON.parse(clientsResp.body); } catch(e) { clients = []; }
     if (!Array.isArray(clients)) {
