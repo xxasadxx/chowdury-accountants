@@ -612,12 +612,28 @@ function sendReminderWA(token){
   window.open(waUrl,'_blank');
 }
 
-function showDetail(id){
+async function showDetail(id){
   const a=ALL_APPROVALS.find(x=>x.id===id);
   if(!a) return;
   document.getElementById('modal-title').textContent=a.company_name||'Approval Details';
   const link=`${BASE_URL}approve.html?token=${a.token}`;
-  const docs=(a.documents||[]).map(d=>`<li style="margin-bottom:4px"><strong>${d.type}</strong> — ${d.filename}</li>`).join('');
+  // Generate signed URLs for each document
+  const docUrls={};
+  for(const d of (a.documents||[])){
+    if(d.storage_path){
+      try{
+        const{data:u,error}=await SB.storage.from('client-documents').createSignedUrl(d.storage_path,3600);
+        if(!error&&u) docUrls[d.storage_path]=u.signedUrl;
+      }catch(e){}
+    }
+  }
+  const docs=(a.documents||[]).map(d=>{
+    const url=d.storage_path?docUrls[d.storage_path]:'';
+    return `<li style="margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <strong>${d.type}</strong> — ${d.filename||d.type}
+      ${url?`<a href="${url}" target="_blank" style="background:#c8963c;color:#fff;padding:3px 10px;border-radius:5px;font-size:0.75rem;font-weight:700;text-decoration:none;white-space:nowrap">📄 View PDF</a>`:''}
+    </li>`;
+  }).join('');
   const proofHtml=a.status==='approved'?`
     <div class="approval-proof">
       <h4>✅ Approval Proof</h4>
