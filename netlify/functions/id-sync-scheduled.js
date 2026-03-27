@@ -47,7 +47,7 @@ function sbRequest(method, path, body, prefer) {
         'apikey': SB_KEY,
         'Authorization': 'Bearer ' + SB_KEY,
         'Content-Type': 'application/json',
-        'Prefer': prefer || (method === 'GET' ? '' : 'resolution=merge-duplicates'),
+        'Prefer': ...(method !== 'GET' ? {'Prefer': prefer || 'resolution=merge-duplicates'} : {}),
        ...(method === 'GET' ? {} : {}), 
         ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {})
       }
