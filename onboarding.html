@@ -546,15 +546,56 @@ window.caAudit = (function(){
 
       <!-- LETTERS TAB -->
       <div class="modal-tc" id="tc-letters">
-        <div style="display:flex;gap:8px;margin-bottom:16px">
+
+        <!-- Approval Status Strip -->
+        <div id="approval-status-strip" style="display:flex;gap:8px;margin-bottom:14px;padding:10px 12px;background:#f8f9fa;border-radius:8px;border:1px solid var(--border);font-size:11px;align-items:center;flex-wrap:wrap">
+          <span style="font-weight:700;color:var(--muted);margin-right:4px">APPROVALS:</span>
+          <span id="astat-quote" style="padding:3px 10px;border-radius:20px;background:#eee;color:#888;font-weight:600">📊 Quote —</span>
+          <span style="color:var(--muted)">→</span>
+          <span id="astat-loe" style="padding:3px 10px;border-radius:20px;background:#eee;color:#888;font-weight:600">📄 LOE —</span>
+          <span style="color:var(--muted)">→</span>
+          <span id="astat-active" style="padding:3px 10px;border-radius:20px;background:#eee;color:#888;font-weight:600">✅ Active</span>
+          <button onclick="loadApprovalStatus()" style="margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px">↻ Refresh</button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" id="lt-quote-btn" onclick="showLetter('quote')">📊 Quote</button>
           <button class="btn btn-secondary btn-sm" id="lt-eng-btn" onclick="showLetter('engagement')" style="border-color:var(--blue);color:var(--blue)">📄 Engagement Letter</button>
           <button class="btn btn-secondary btn-sm" id="lt-clr-btn" onclick="showLetter('clearance')">📨 Professional Clearance</button>
           <button class="btn btn-secondary btn-sm" id="lt-wel-btn" onclick="showLetter('welcome')">👋 Client Welcome</button>
         </div>
 
+        <!-- QUOTE SECTION -->
+        <div id="lt-quote" style="display:none">
+          <div class="info-banner">Send a fee quote for client approval. Upload a pre-made quote PDF, or generate one from the Quote Calculator tab.</div>
+
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Option 1 — Upload Quote PDF</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <label style="flex:1;min-width:200px;display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px dashed var(--border);border-radius:6px;cursor:pointer;font-size:12px;color:var(--muted)" for="quote-file-upload">
+                📎 <span id="quote-file-name">Choose quote PDF…</span>
+              </label>
+              <input type="file" id="quote-file-upload" accept=".pdf" style="display:none" onchange="document.getElementById('quote-file-name').textContent=this.files[0]?this.files[0].name:'Choose quote PDF…'">
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Option 2 — Use Quote Calculator</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Generate quote from the Quote Calculator tab, download as PDF, then upload above.</div>
+            <button class="btn btn-secondary btn-sm" onclick="closeModal();setView('quote')">🧮 Open Quote Calculator</button>
+          </div>
+
+          <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="btn btn-sm" onclick="sendOnboardingApproval('quote','email')" style="background:#1a1a18;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✉️ Send Quote for Approval</button>
+            <button class="btn btn-sm" onclick="sendOnboardingApproval('quote','whatsapp')" style="background:#25D366;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💬 WhatsApp</button>
+            <button class="btn btn-sm" onclick="sendOnboardingApproval('quote','both')" style="background:#c8963c;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📤 Send Both</button>
+          </div>
+          <div id="quote-approval-result" style="display:none;font-size:11px;padding:8px 12px;border-radius:6px;margin-top:8px"></div>
+        </div>
+
         <!-- Engagement Letter -->
         <div id="lt-engagement">
-          <div class="info-banner">Pre-filled with client details. Click Email to open in your mail client — letter_sent checklist step will auto-tick.</div>
+          <div class="info-banner">Pre-filled with client details. Click Email to open in your mail client, or upload signed LOE PDF and send for digital approval.</div>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
             <button class="btn btn-secondary btn-sm" onclick="genEngagement()">🔄 Generate</button>
             <button class="btn btn-secondary btn-sm" onclick="copyLetter('engagement-preview')">📋 Copy</button>
@@ -562,6 +603,22 @@ window.caAudit = (function(){
             <button class="btn btn-secondary btn-sm" onclick="printLetter('engagement-preview')">🖨 Print</button>
           </div>
           <div id="engagement-preview" class="letter-wrap">Click Generate to preview.</div>
+
+          <!-- LOE Send for Approval -->
+          <div style="margin-top:12px;padding:12px;background:#f8f9fa;border:1px solid var(--border);border-radius:8px">
+            <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">📤 Send LOE for Digital Approval</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Upload the LOE as a PDF (print above → Save as PDF, then upload here).</div>
+            <label style="display:flex;align-items:center;gap:8px;padding:7px 10px;border:1.5px dashed var(--border);border-radius:6px;cursor:pointer;font-size:12px;color:var(--muted);margin-bottom:8px" for="loe-file-upload">
+              📎 <span id="loe-file-name">Choose LOE PDF…</span>
+            </label>
+            <input type="file" id="loe-file-upload" accept=".pdf" style="display:none" onchange="document.getElementById('loe-file-name').textContent=this.files[0]?this.files[0].name:'Choose LOE PDF…'">
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <button class="btn btn-sm" onclick="sendOnboardingApproval('loe','email')" style="background:#1a1a18;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✉️ Send LOE for Approval</button>
+              <button class="btn btn-sm" onclick="sendOnboardingApproval('loe','whatsapp')" style="background:#25D366;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">💬 WhatsApp</button>
+              <button class="btn btn-sm" onclick="sendOnboardingApproval('loe','both')" style="background:#c8963c;color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📤 Both</button>
+            </div>
+            <div id="loe-approval-result" style="display:none;font-size:11px;padding:8px 12px;border-radius:6px;margin-top:8px"></div>
+          </div>
         </div>
 
         <!-- Clearance Letter -->
@@ -808,7 +865,7 @@ function switchTab(t){
     document.getElementById('mt-'+x).classList.toggle('active',x===t);
   });
   if(t==='checklist'&&cid) renderChecklist();
-  if(t==='letters') showLetter('engagement');
+  if(t==='letters'){showLetter('engagement');loadApprovalStatus();}
 }
 
 function clearForm(){
@@ -1298,6 +1355,148 @@ document.querySelectorAll('.page-tab').forEach(tab=>{
     });
   }
 });
+
+// ── ONBOARDING APPROVAL FUNCTIONS ─────────────────────────
+const APPROVAL_BASE = window.location.origin + '/';
+const SB_STORAGE = CP_URL + '/storage/v1/object/client-documents/';
+
+async function loadApprovalStatus() {
+  if (!cid) return;
+  const c = CLIENTS.find(x=>x.id===cid);
+  if (!c) return;
+  const company = c.company_name || '';
+  if (!company) return;
+
+  try {
+    const res = await fetch(`${CP_URL}/rest/v1/client_approvals?company_name=eq.${encodeURIComponent(company)}&select=document_type,status,approved_at,created_at&order=created_at.desc`, {headers:CP_H});
+    const rows = await res.json();
+
+    const getStatus = (type) => {
+      const r = rows.find(x => x.document_type === type);
+      if (!r) return {badge:'<span style="padding:3px 10px;border-radius:20px;background:#eee;color:#888;font-weight:600">', label: '—', end:'</span>'};
+      if (r.status === 'approved') return {badge:'<span style="padding:3px 10px;border-radius:20px;background:#e8f5e9;color:#2e7d32;font-weight:700">', label:'✓ Approved', end:'</span>'};
+      if (r.status === 'pending') return {badge:'<span style="padding:3px 10px;border-radius:20px;background:#fff8e1;color:#f59e0b;font-weight:700">', label:'⏳ Pending', end:'</span>'};
+      return {badge:'<span style="padding:3px 10px;border-radius:20px;background:#eee;color:#888;font-weight:600">', label:'—', end:'</span>'};
+    };
+
+    const q = getStatus('Quote');
+    const l = getStatus('Engagement Letter');
+    const quoteApproved = rows.some(x=>x.document_type==='Quote'&&x.status==='approved');
+    const loeApproved = rows.some(x=>x.document_type==='Engagement Letter'&&x.status==='approved');
+
+    document.getElementById('astat-quote').outerHTML = `${q.badge}📊 Quote ${q.label}${q.end}`;
+    const lEl = document.getElementById('astat-loe');
+    if (lEl) lEl.outerHTML = `${l.badge}📄 LOE ${l.label}${l.end}`;
+    const aEl = document.getElementById('astat-active');
+    if (aEl) {
+      if (quoteApproved && loeApproved) {
+        aEl.outerHTML = '<span id="astat-active" style="padding:3px 10px;border-radius:20px;background:#e8f5e9;color:#2e7d32;font-weight:700">✅ Ready to Activate!</span>';
+      }
+    }
+  } catch(e) { console.warn('Status load failed:', e); }
+}
+
+async function sendOnboardingApproval(docType, via) {
+  const c = CLIENTS.find(x=>x.id===cid);
+  if (!c) { toast('Save client first','err'); return; }
+
+  const name = c.director_name || '';
+  const email = c.email || '';
+  const mobile = c.mobile || '';
+  const company = c.company_name || '';
+
+  if (!email && via !== 'whatsapp') { toast('No email on file for this client','err'); return; }
+  if (!company) { toast('No company name','err'); return; }
+
+  const isQuote = docType === 'quote';
+  const fileInput = document.getElementById(isQuote ? 'quote-file-upload' : 'loe-file-upload');
+  const resultEl = document.getElementById(isQuote ? 'quote-approval-result' : 'loe-approval-result');
+  const docLabel = isQuote ? 'Quote' : 'Engagement Letter';
+
+  if (!fileInput.files || !fileInput.files[0]) {
+    toast(`Please upload a ${docLabel} PDF first`, 'err');
+    return;
+  }
+
+  const file = fileInput.files[0];
+  resultEl.style.display = 'block';
+  resultEl.style.background = '#fff8e1';
+  resultEl.style.color = '#7a5c00';
+  resultEl.textContent = 'Uploading document…';
+
+  try {
+    // Upload PDF to Supabase storage
+    const token = crypto.randomUUID();
+    const safeName = docLabel.replace(/\s+/g,'_');
+    const path = `${token}/${safeName}_${Date.now()}.pdf`;
+
+    const uploadRes = await fetch(`${CP_URL}/storage/v1/object/client-documents/${path}`, {
+      method: 'POST',
+      headers: { 'apikey': CP_KEY, 'Authorization': 'Bearer ' + CP_KEY, 'Content-Type': 'application/pdf', 'x-upsert': 'true' },
+      body: file
+    });
+    if (!uploadRes.ok) throw new Error('Upload failed: ' + await uploadRes.text());
+
+    // Create approval record
+    const approvalRes = await fetch(`${CP_URL}/rest/v1/client_approvals`, {
+      method: 'POST',
+      headers: CP_H,
+      body: JSON.stringify({
+        token,
+        company_name: company,
+        client_name: name,
+        client_email: email,
+        client_phone: mobile,
+        document_type: docLabel,
+        documents: [{ type: docLabel, filename: file.name, storage_path: path }],
+        status: 'pending',
+        created_by: 'Chowdury Accountants',
+        sent_via: via,
+        period_end: c.year_end || ''
+      })
+    });
+    if (!approvalRes.ok) throw new Error('DB error: ' + await approvalRes.text());
+
+    const approvalLink = `${APPROVAL_BASE}approve.html?token=${token}`;
+
+    // Send email via Resend
+    if (via === 'email' || via === 'both') {
+      try {
+        await fetch('/.netlify/functions/send-email', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ type: 'document_approval', to: email, name, company, link: approvalLink, period: c.year_end || '', documents: [{ type: docLabel, filename: file.name }] })
+        });
+      } catch(e) {
+        // fallback mailto
+        const subj = `Action Required: ${docLabel} Ready for Your Approval — ${company}`;
+        const body = `Dear ${name.split(' ')[0]},\n\nPlease review and approve your ${docLabel} for ${company}.\n\nClick here to approve:\n${approvalLink}\n\nKind regards,\nChowdury Accountants\n0161 222 4647`;
+        window.open('mailto:'+email+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body));
+      }
+    }
+
+    // Send WhatsApp
+    if (via === 'whatsapp' || via === 'both') {
+      const firstName = name.split(' ')[0] || 'there';
+      const msg = `Hi ${firstName},\n\nYour *${docLabel}* for *${company}* is ready for your review and digital approval.\n\nPlease tap the link below to view and approve:\n${approvalLink}\n\nIf you have any questions, call us on 0161 222 4647 📞\n\n_Chowdury Accountants_`;
+      const phone = mobile.replace(/\D/g,'');
+      const waUrl = phone ? `https://wa.me/44${phone.replace(/^0/,'')}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+      window.open(waUrl, '_blank');
+    }
+
+    resultEl.style.background = '#e8f5e9';
+    resultEl.style.color = '#2e7d32';
+    resultEl.innerHTML = `✅ ${docLabel} sent for approval! <a href="${approvalLink}" target="_blank" style="color:#1a6e2e;font-weight:700">View approval link →</a>`;
+    toast(`${docLabel} sent for approval!`, 'ok');
+    loadApprovalStatus();
+
+  } catch(e) {
+    resultEl.style.background = '#fce4e4';
+    resultEl.style.color = '#c62828';
+    resultEl.textContent = 'Error: ' + e.message;
+    toast('Error: ' + e.message, 'err');
+  }
+}
 
 async function sendPortalInvite(via){
   const name=document.getElementById('inv-name').value.trim();
