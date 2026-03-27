@@ -24,7 +24,7 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
 #ca-nav{all:initial;display:block;position:fixed;top:0;left:0;right:0;z-index:99999;font-family:'Segoe UI',sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.25);background:#252525}
 #ca-nav .ca-band{display:block;height:4px;background:#c8963c}
 #ca-nav .ca-top{display:flex;flex-direction:row;align-items:center;justify-content:space-between;padding:10px 28px;background:#252525;border-bottom:1px solid rgba(255,255,255,.06)}
-#ca-nav .ca-top-title{font-size:0.88rem;font-weight:700;color:#c8963c;letter-spacing:0.5px}
+#ca-nav .ca-logo img{height:36px;width:auto;display:block}
 #ca-nav .ca-date{font-size:0.72rem;color:rgba(255,255,255,.35);font-family:monospace;white-space:nowrap}
 #ca-nav .ca-links{display:flex;flex-direction:row;align-items:center;gap:2px;padding:0 28px;background:#252525;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #ca-nav .ca-links::-webkit-scrollbar{display:none}
@@ -134,8 +134,8 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
 <div id="ca-nav">
   <div class="ca-band"></div>
   <div class="ca-top">
-    <div class="ca-top-title">⚖️ Chowdury Accountants</div>
-    <div class="ca-date" id="ca-hdr-date"></div>
+    <div class="ca-logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><div class="ca-date" id="ca-hdr-date"></div><div id="ca-hdr-user" style="font-size:10px;color:rgba(255,255,255,.4);font-family:'Segoe UI',sans-serif;font-weight:600;letter-spacing:.03em"></div></div>
   </div>
   <div class="ca-links">
     <a href="index.html">🏠 Portal</a>
@@ -703,24 +703,24 @@ function selectCompanyFromDropdown(name){
 }
 
 // ── INIT ──────────────────────────────────────────────
-// Set header date
 (function(){
   const el=document.getElementById('ca-hdr-date');
-  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+  if(el) el.textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
 })();
-loadCompanies();
-addDocRow(); // Start with one doc row
-
-// Show audit link for admin
 SB.auth.getSession().then(r=>{
   if(r.data&&r.data.session){
     const u=r.data.session.user;
+    const name=(u.user_metadata&&u.user_metadata.full_name)||u.email||'';
+    const el=document.getElementById('ca-hdr-user');
+    if(el&&name) el.textContent=name;
     if(u&&u.email&&u.email.includes('asadul')){
-      const auditLink=document.getElementById('nav-audit');
-      if(auditLink) auditLink.style.display='inline-block';
+      const a=document.getElementById('nav-audit');
+      if(a) a.style.display='inline-block';
     }
   }
 });
+loadCompanies();
+addDocRow();
 </script>
 </body>
 </html>
