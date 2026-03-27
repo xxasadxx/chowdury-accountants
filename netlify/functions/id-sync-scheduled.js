@@ -39,18 +39,22 @@ function httpRequest(options, body) {
 function sbRequest(method, path, body, prefer) {
   return new Promise((resolve, reject) => {
     const bodyStr = body ? JSON.stringify(body) : '';
+    const headers = {
+      'apikey': SB_KEY,
+      'Authorization': 'Bearer ' + SB_KEY,
+      'Content-Type': 'application/json'
+    };
+    if (method !== 'GET') {
+      headers['Prefer'] = prefer || 'resolution=merge-duplicates';
+    }
+    if (bodyStr) {
+      headers['Content-Length'] = Buffer.byteLength(bodyStr);
+    }
     const options = {
       hostname: new URL(SB_URL).hostname,
       path: '/rest/v1/' + path,
       method,
-      headers: {
-        'apikey': SB_KEY,
-        'Authorization': 'Bearer ' + SB_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': ...(method !== 'GET' ? {'Prefer': prefer || 'resolution=merge-duplicates'} : {}),
-       ...(method === 'GET' ? {} : {}), 
-        ...(bodyStr ? { 'Content-Length': Buffer.byteLength(bodyStr) } : {})
-      }
+      headers
     };
     const req = https.request(options, (res) => {
       let b = '';
