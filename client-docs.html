@@ -111,6 +111,8 @@ body{font-family:'Segoe UI',sans-serif;background:#f0f2f5;color:#252525;min-heig
 .action-btns .btn-view:hover{background:#ffedcc}
 .action-btns .btn-del{color:#e74c3c;background:#fce4e4}
 .action-btns .btn-del:hover{background:#f8caca}
+.action-btns .btn-invite{color:#7b1fa2;background:#f3e5f5}
+.action-btns .btn-invite:hover{background:#e1bee7}
 .empty-state{text-align:center;padding:60px 20px;color:#999}
 .empty-state .icon{font-size:3rem;margin-bottom:12px}
 .approval-detail-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:20px}
@@ -558,6 +560,7 @@ function renderTable(){
           <button class="btn-wa" onclick="sendReminderWA('${a.token}')" title="Send WhatsApp">💬</button>
           <button class="btn-view" onclick="showDetail('${a.id}')" title="View details">👁</button>
           ${a.status==='approved'?`<button class="btn-view" onclick="downloadProof('${a.id}')" title="Download proof" style="color:#1a73e8;background:#e8f0fe">📄</button>`:''}
+          <button class="btn-invite" onclick="inviteToPortal('${a.id}')" title="Invite to portal">🔗</button>
           <button class="btn-del" onclick="deleteApproval('${a.id}')" title="Delete">🗑</button>
         </div>
       </td>
@@ -639,6 +642,56 @@ async function deleteApproval(id){
   }else{
     toast('Delete failed','red');
   }
+}
+
+async function inviteToPortal(id){
+  const a=ALL_APPROVALS.find(x=>x.id===id);
+  if(!a){toast('Record not found','red');return;}
+  if(!a.client_email){toast('No email on record — open the record and check client email','red');return;}
+
+  // Check if already invited
+  const check=await fetch(`${SB_URL}/rest/v1/client_accounts?email=eq.${encodeURIComponent(a.client_email)}&select=id,invitation_token,invitation_used`,{headers:H});
+  const existing=await check.json();
+
+  let invToken='';
+  if(existing&&existing.length){
+    invToken=existing[0].invitation_token||'';
+    if(existing[0].invitation_used){
+      toast('This client already has a portal account','green');
+      return;
+    }
+  }else{
+    // Create client_accounts record
+    const res=await fetch(`${SB_URL}/rest/v1/client_accounts`,{
+      method:'POST',
+      headers:{...H,'Prefer':'return=representation'},
+      body:JSON.stringify({
+        email:a.client_email,
+        first_name:(a.client_name||'').split(' ')[0],
+        last_name:(a.client_name||'').split(' ').slice(1).join(' '),
+        company_name:a.company_name,
+        invited_by:a.created_by||'Chowdury Accountants'
+      })
+    });
+    const created=await res.json();
+    invToken=Array.isArray(created)?created[0].invitation_token:created.invitation_token;
+  }
+
+  // Generate short code (last 8 chars of token, no hyphens)
+  const shortCode=(invToken||'').replace(/-/g,'').slice(-8).toUpperCase();
+  const portalUrl=`${window.location.origin}/client-login.html`;
+
+  const msg=`Hi ${(a.client_name||'').split(' ')[0]},\n\nYou now have access to your secure client portal at Chowdury Accountants.\n\nVisit: ${portalUrl}\n\nYour login details:\n• Email: ${a.client_email}\n• Invitation Code: ${shortCode}\n\nClick "First Time? Set Up" on the login page and enter these details to create your password.\n\nKind regards,\nChowdury Accountants\n📞 0161 222 4647`;
+
+  // Open WhatsApp with invite
+  const phone=(a.client_phone||'').replace(/\D/g,'');
+  if(phone){
+    window.open(`https://wa.me/44${phone.replace(/^0/,'')}?text=${encodeURIComponent(msg)}`,'_blank');
+  }else{
+    navigator.clipboard.writeText(msg);
+    toast(`Invitation message copied! Code: ${shortCode}. Send to ${a.client_email}`,'green');
+  }
+  toast(`Portal invite sent! Code: ${shortCode}`,'green');
 }
 
 async function logAudit(action, user){

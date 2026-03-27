@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Info — Chowdury Accountants</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c8963c;--dark:#1a1a18;--bg:#f0f2f5;--white:#fff;--ink:#252525;--muted:#888;--border:#e8e8e8}
+body{font-family:'Mulish','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:13px}
+#hdr{background:var(--dark);position:sticky;top:0;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#hdr .band{height:4px;background:var(--gold)}
+#hdr .top{display:flex;align-items:center;justify-content:space-between;padding:10px 20px}
+#hdr .logo img{height:34px;display:block}
+#hdr .top-right{display:flex;align-items:center;gap:12px}
+#hdr .user-name{font-size:0.75rem;color:rgba(255,255,255,.4);font-weight:600}
+#hdr .signout-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:5px 12px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:inherit}
+.layout{display:flex;min-height:calc(100vh - 88px)}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);flex-shrink:0;padding:20px 0}
+.sidebar .company-card{padding:14px 18px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.sidebar .company-card .co-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px}
+.sidebar .company-card .co-name{font-size:0.88rem;font-weight:800;color:var(--dark);line-height:1.3}
+.sidebar nav a{display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:0.85rem;font-weight:600;color:#555;text-decoration:none;transition:all .15s;border-left:3px solid transparent}
+.sidebar nav a:hover{background:#fafafa;color:var(--dark)}
+.sidebar nav a.active{background:#fff8ee;color:var(--gold);border-left-color:var(--gold)}
+.sidebar nav a .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.sidebar nav .nav-sep{height:1px;background:var(--border);margin:8px 16px}
+.content{flex:1;padding:24px;overflow-x:hidden;max-width:720px}
+
+/* SECTION CARDS */
+.section-card{background:var(--white);border-radius:10px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.section-head{background:var(--dark);color:var(--white);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.section-head h3{font-size:0.88rem;font-weight:700}
+.section-head .chevron{color:rgba(255,255,255,.5);transition:transform .2s;font-size:0.8rem}
+.section-card.open .section-head .chevron{transform:rotate(180deg)}
+.section-body{display:none;padding:18px}
+.section-card.open .section-body{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted)}
+.field input,.field select,.field textarea{border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-size:0.88rem;font-family:inherit;transition:border .15s;background:var(--white)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 2px rgba(200,150,60,.1)}
+.field textarea{resize:vertical;min-height:70px}
+
+/* SAVE BAR */
+.save-bar{position:sticky;bottom:0;background:var(--white);border-top:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 8px rgba(0,0,0,.06)}
+.save-btn{background:var(--dark);color:var(--white);border:none;border-radius:8px;padding:11px 24px;font-size:0.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+.save-btn:hover{background:var(--gold)}
+.save-btn:disabled{opacity:.5;cursor:not-allowed}
+.save-msg{font-size:0.82rem;font-weight:600;color:#2e7d32}
+
+@media(max-width:680px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);padding:8px 0}
+  .sidebar nav{display:flex;overflow-x:auto;padding:0 8px}
+  .sidebar nav a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;padding:8px 12px}
+  .sidebar nav a.active{border-bottom-color:var(--gold);border-left-color:transparent}
+  .sidebar .company-card,.sidebar nav .nav-sep{display:none}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:1}
+}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="band"></div>
+  <div class="top">
+    <div class="logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div class="top-right">
+      <span class="user-name" id="user-name"></span>
+      <button class="signout-btn" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="company-card">
+      <div class="co-label">Your Company</div>
+      <div class="co-name" id="sidebar-company">Loading…</div>
+    </div>
+    <nav>
+      <a href="client-portal.html"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="client-documents.html"><span class="nav-icon">📄</span>My Documents</a>
+      <a href="client-myinfo.html" class="active"><span class="nav-icon">👤</span>My Info</a>
+      <div class="nav-sep"></div>
+      <a href="client-login.html" onclick="signOut();return false"><span class="nav-icon">🔒</span>Sign Out</a>
+    </nav>
+  </div>
+
+  <div class="content">
+    <div style="margin-bottom:20px">
+      <div style="font-size:1.05rem;font-weight:800;color:var(--dark)">👤 My Info</div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-top:3px">Review and update your details. Click any section to expand it.</div>
+    </div>
+
+    <!-- Company Details -->
+    <div class="section-card open" id="sec-company">
+      <div class="section-head" onclick="toggleSection('sec-company')">
+        <h3>🏢 Company Details</h3><span class="chevron">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="field full"><label>Company Name</label><input type="text" id="f-company-name" readonly style="background:#f8f8f8;color:#888"></div>
+          <div class="field"><label>Primary Company Email</label><input type="email" id="f-company-email"></div>
+          <div class="field"><label>Company Reg Number</label><input type="text" id="f-company-reg"></div>
+          <div class="field"><label>Corporation Tax UTR</label><input type="text" id="f-ct-utr"></div>
+          <div class="field"><label>Turnover (approximate)</label><input type="text" id="f-turnover" placeholder="£"></div>
+          <div class="field"><label>Date of Trading</label><input type="date" id="f-trading-date"></div>
+          <div class="field full"><label>Nature of Business</label><input type="text" id="f-nature"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Details -->
+    <div class="section-card" id="sec-personal">
+      <div class="section-head" onclick="toggleSection('sec-personal')">
+        <h3>👤 Personal Details</h3><span class="chevron">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="field"><label>Title</label>
+            <select id="f-title">
+              <option value="">Select</option>
+              <option>Mr</option><option>Mrs</option><option>Ms</option><option>Miss</option><option>Dr</option>
+            </select>
+          </div>
+          <div class="field"><label>Preferred Name</label><input type="text" id="f-preferred"></div>
+          <div class="field"><label>First Name</label><input type="text" id="f-first-name"></div>
+          <div class="field"><label>Last Name</label><input type="text" id="f-last-name"></div>
+          <div class="field"><label>Date of Birth</label><input type="date" id="f-dob"></div>
+          <div class="field"><label>NI Number</label><input type="text" id="f-ni" placeholder="AA 12 34 56 A"></div>
+          <div class="field"><label>Personal UTR</label><input type="text" id="f-utr"></div>
+          <div class="field"><label>Mobile Number</label><input type="tel" id="f-mobile"></div>
+          <div class="field"><label>Telephone</label><input type="tel" id="f-telephone"></div>
+          <div class="field"><label>Email Address</label><input type="email" id="f-email" readonly style="background:#f8f8f8;color:#888"></div>
+          <div class="field full"><label>Postal Address</label><textarea id="f-address"></textarea></div>
+          <div class="field"><label>Nationality</label><input type="text" id="f-nationality"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAT Details -->
+    <div class="section-card" id="sec-vat">
+      <div class="section-head" onclick="toggleSection('sec-vat')">
+        <h3>💷 VAT Details</h3><span class="chevron">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="field"><label>VAT Registration Number</label><input type="text" id="f-vat-no" placeholder="GB 123 4567 89"></div>
+          <div class="field"><label>Date of VAT Registration</label><input type="date" id="f-vat-date"></div>
+          <div class="field full"><label>VAT Scheme</label>
+            <select id="f-vat-scheme">
+              <option value="">Select Scheme</option>
+              <option>Standard Scheme</option>
+              <option>Cash Accounting Scheme</option>
+              <option>Flat Rate Scheme</option>
+              <option>Retail Scheme</option>
+              <option>Margin Scheme</option>
+              <option>Not VAT Registered</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYE Details -->
+    <div class="section-card" id="sec-paye">
+      <div class="section-head" onclick="toggleSection('sec-paye')">
+        <h3>💼 PAYE Details</h3><span class="chevron">▼</span>
+      </div>
+      <div class="section-body">
+        <div class="form-grid">
+          <div class="field"><label>Employers PAYE Reference</label><input type="text" id="f-paye-ref"></div>
+          <div class="field"><label>Accounts Office Reference</label><input type="text" id="f-ao-ref"></div>
+          <div class="field"><label>Number of Employees</label><input type="number" id="f-employees" min="0"></div>
+          <div class="field"><label>PAYE Frequency</label>
+            <select id="f-paye-freq">
+              <option value="">Select</option>
+              <option>Monthly</option><option>Weekly</option><option>Two-weekly</option><option>Four-weekly</option>
+            </select>
+          </div>
+          <div class="field"><label>First Pay Date</label><input type="date" id="f-first-pay"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:80px"></div>
+  </div>
+</div>
+
+<div class="save-bar">
+  <span class="save-msg" id="save-msg"></span>
+  <button class="save-btn" id="save-btn" onclick="saveAll()">💾 Save My Info</button>
+</div>
+
+<script>
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json'};
+const SB=supabase.createClient(SB_URL,SB_KEY);
+let CLIENT_EMAIL='';
+
+function toggleSection(id){
+  document.getElementById(id).classList.toggle('open');
+}
+
+function val(id){return document.getElementById(id).value.trim();}
+function setVal(id,v){const el=document.getElementById(id);if(el&&v!=null)el.value=v||'';}
+
+async function init(){
+  const{data}=await SB.auth.getSession();
+  if(!data||!data.session){window.location.replace('client-login.html');return;}
+  const user=data.session.user;
+  if((user.user_metadata||{}).role!=='client'){await SB.auth.signOut();window.location.replace('client-login.html');return;}
+  CLIENT_EMAIL=user.email||'';
+  const company=(user.user_metadata||{}).company_name||'';
+  document.getElementById('user-name').textContent=CLIENT_EMAIL;
+  document.getElementById('sidebar-company').textContent=company||'Your Company';
+  document.getElementById('f-company-name').value=company;
+  document.getElementById('f-email').value=CLIENT_EMAIL;
+
+  // Load existing info
+  const res=await fetch(`${SB_URL}/rest/v1/client_info?email=eq.${encodeURIComponent(CLIENT_EMAIL)}&select=*`,{headers:H});
+  const rows=await res.json();
+  if(rows&&rows.length){
+    const d=rows[0];
+    setVal('f-company-email',d.company_email);
+    setVal('f-company-reg',d.company_reg_no);
+    setVal('f-ct-utr',d.ct_utr);
+    setVal('f-turnover',d.turnover);
+    setVal('f-trading-date',d.date_of_trading);
+    setVal('f-nature',d.nature_of_business);
+    setVal('f-title',d.title);
+    setVal('f-preferred',d.preferred_name);
+    setVal('f-first-name',d.first_name);
+    setVal('f-last-name',d.last_name);
+    setVal('f-dob',d.dob);
+    setVal('f-ni',d.ni_number);
+    setVal('f-utr',d.personal_utr);
+    setVal('f-mobile',d.mobile);
+    setVal('f-telephone',d.telephone);
+    setVal('f-address',d.postal_address);
+    setVal('f-nationality',d.nationality);
+    setVal('f-vat-no',d.vat_number);
+    setVal('f-vat-date',d.vat_reg_date);
+    setVal('f-vat-scheme',d.vat_scheme);
+    setVal('f-paye-ref',d.paye_ref);
+    setVal('f-ao-ref',d.accounts_office_ref);
+    setVal('f-employees',d.no_of_employees);
+    setVal('f-paye-freq',d.paye_frequency);
+    setVal('f-first-pay',d.first_pay_date);
+  }
+}
+
+async function saveAll(){
+  const btn=document.getElementById('save-btn');
+  const msg=document.getElementById('save-msg');
+  btn.disabled=true;btn.textContent='Saving…';msg.textContent='';
+
+  const payload={
+    email:CLIENT_EMAIL,
+    company_name:val('f-company-name'),
+    company_email:val('f-company-email'),
+    company_reg_no:val('f-company-reg'),
+    ct_utr:val('f-ct-utr'),
+    turnover:val('f-turnover'),
+    date_of_trading:val('f-trading-date')||null,
+    nature_of_business:val('f-nature'),
+    title:val('f-title'),
+    preferred_name:val('f-preferred'),
+    first_name:val('f-first-name'),
+    last_name:val('f-last-name'),
+    dob:val('f-dob')||null,
+    ni_number:val('f-ni'),
+    personal_utr:val('f-utr'),
+    mobile:val('f-mobile'),
+    telephone:val('f-telephone'),
+    postal_address:val('f-address'),
+    nationality:val('f-nationality'),
+    vat_number:val('f-vat-no'),
+    vat_reg_date:val('f-vat-date')||null,
+    vat_scheme:val('f-vat-scheme'),
+    paye_ref:val('f-paye-ref'),
+    accounts_office_ref:val('f-ao-ref'),
+    no_of_employees:parseInt(val('f-employees'))||null,
+    paye_frequency:val('f-paye-freq'),
+    first_pay_date:val('f-first-pay')||null,
+    updated_at:new Date().toISOString()
+  };
+
+  const res=await fetch(`${SB_URL}/rest/v1/client_info`,{
+    method:'POST',
+    headers:{...H,'Prefer':'resolution=merge-duplicates,return=minimal'},
+    body:JSON.stringify(payload)
+  });
+
+  if(res.ok||res.status===201||res.status===204){
+    msg.textContent='✅ Saved successfully';
+    btn.textContent='💾 Save My Info';
+    setTimeout(()=>{msg.textContent='';},3000);
+  }else{
+    msg.textContent='❌ Save failed — please try again';
+    msg.style.color='#c62828';
+    btn.textContent='💾 Save My Info';
+  }
+  btn.disabled=false;
+}
+
+async function signOut(){await SB.auth.signOut();window.location.replace('client-login.html');}
+init();
+</script>
+</body>
+</html>

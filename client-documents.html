@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Documents — Chowdury Accountants</title>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#c8963c;--dark:#1a1a18;--bg:#f0f2f5;--white:#fff;--ink:#252525;--muted:#888;--border:#e8e8e8}
+body{font-family:'Mulish','Segoe UI',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:13px}
+#hdr{background:var(--dark);position:sticky;top:0;z-index:999;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#hdr .band{height:4px;background:var(--gold)}
+#hdr .top{display:flex;align-items:center;justify-content:space-between;padding:10px 20px}
+#hdr .logo img{height:34px;display:block}
+#hdr .top-right{display:flex;align-items:center;gap:12px}
+#hdr .user-name{font-size:0.75rem;color:rgba(255,255,255,.4);font-weight:600}
+#hdr .signout-btn{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);padding:5px 12px;border-radius:6px;font-size:0.75rem;cursor:pointer;font-family:inherit}
+#hdr .signout-btn:hover{color:#ff6b6b;border-color:#ff6b6b}
+.layout{display:flex;min-height:calc(100vh - 88px)}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);flex-shrink:0;padding:20px 0}
+.sidebar .company-card{padding:14px 18px;border-bottom:1px solid var(--border);margin-bottom:8px}
+.sidebar .company-card .co-label{font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:4px}
+.sidebar .company-card .co-name{font-size:0.88rem;font-weight:800;color:var(--dark);line-height:1.3}
+.sidebar nav a{display:flex;align-items:center;gap:10px;padding:11px 18px;font-size:0.85rem;font-weight:600;color:#555;text-decoration:none;transition:all .15s;border-left:3px solid transparent}
+.sidebar nav a:hover{background:#fafafa;color:var(--dark)}
+.sidebar nav a.active{background:#fff8ee;color:var(--gold);border-left-color:var(--gold)}
+.sidebar nav a .nav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+.sidebar nav .nav-sep{height:1px;background:var(--border);margin:8px 16px}
+.content{flex:1;padding:24px;overflow-x:hidden}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-bar select{border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.83rem;font-family:inherit;background:var(--white)}
+.filter-bar input{border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.83rem;font-family:inherit;background:var(--white);flex:1;min-width:180px}
+
+/* DOCS TABLE */
+.docs-table{width:100%;border-collapse:collapse;background:var(--white);border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.docs-table thead th{background:var(--dark);color:rgba(255,255,255,.7);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:11px 14px;text-align:left}
+.docs-table tbody tr{border-bottom:1px solid #f5f5f5;transition:background .15s}
+.docs-table tbody tr:hover{background:#fffbf3}
+.docs-table tbody td{padding:12px 14px;font-size:0.83rem;vertical-align:middle}
+.doc-badge{background:var(--dark);color:var(--gold);padding:3px 8px;border-radius:4px;font-size:0.68rem;font-weight:800;text-transform:uppercase;display:inline-block;margin:2px}
+.status-pill{padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:700;text-transform:uppercase;display:inline-block}
+.status-pill.approved{background:#e8f5e9;color:#2e7d32}
+.status-pill.pending{background:#fff8e1;color:#f59e0b}
+.action-btn{border:none;border-radius:6px;padding:6px 12px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block}
+.action-btn.sign{background:var(--gold);color:var(--white)}
+.action-btn.view{background:#e8f5e9;color:#2e7d32}
+.empty-state{text-align:center;padding:48px;color:var(--muted)}
+.empty-state .icon{font-size:2.5rem;margin-bottom:12px}
+
+@media(max-width:680px){
+  .layout{flex-direction:column}
+  .sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border);padding:8px 0}
+  .sidebar nav{display:flex;overflow-x:auto;padding:0 8px}
+  .sidebar nav a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;padding:8px 12px;border-radius:0}
+  .sidebar nav a.active{border-bottom-color:var(--gold);border-left-color:transparent}
+  .sidebar .company-card,.sidebar nav .nav-sep{display:none}
+  .docs-table thead th:nth-child(3),.docs-table tbody td:nth-child(3){display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="band"></div>
+  <div class="top">
+    <div class="logo"><img src="ca-logo.png" alt="Chowdury Accountants"></div>
+    <div class="top-right">
+      <span class="user-name" id="user-name"></span>
+      <button class="signout-btn" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="company-card">
+      <div class="co-label">Your Company</div>
+      <div class="co-name" id="sidebar-company">Loading…</div>
+    </div>
+    <nav>
+      <a href="client-portal.html"><span class="nav-icon">🏠</span>Dashboard</a>
+      <a href="client-documents.html" class="active"><span class="nav-icon">📄</span>My Documents</a>
+      <a href="client-myinfo.html"><span class="nav-icon">👤</span>My Info</a>
+      <div class="nav-sep"></div>
+      <a href="client-login.html" onclick="signOut();return false"><span class="nav-icon">🔒</span>Sign Out</a>
+    </nav>
+  </div>
+
+  <div class="content">
+    <div style="margin-bottom:20px">
+      <div style="font-size:1.05rem;font-weight:800;color:var(--dark)">📄 My Documents</div>
+      <div style="font-size:0.82rem;color:var(--muted);margin-top:3px">All documents sent by Chowdury Accountants for your review and approval</div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="search" placeholder="🔍 Search documents…" oninput="renderTable()">
+      <select id="filter-status" onchange="renderTable()">
+        <option value="">All Status</option>
+        <option value="pending">Awaiting Signature</option>
+        <option value="approved">Approved</option>
+      </select>
+    </div>
+
+    <div id="docs-container"><div class="empty-state"><div class="icon">⏳</div><p>Loading documents…</p></div></div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://yhvhpfsoqtjwnukgyqap.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlodmhwZnNvcXRqd251a2d5cWFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MzUzODQsImV4cCI6MjA4ODExMTM4NH0.QDTVLU0vNRc3WJfYTOOG3ct9G2Ywgd49dC5hr6to3P4';
+const H={'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+const SB=supabase.createClient(SB_URL,SB_KEY);
+let ALL_DOCS=[];
+let CLIENT_COMPANY='';
+
+async function init(){
+  const{data}=await SB.auth.getSession();
+  if(!data||!data.session){window.location.replace('client-login.html');return;}
+  const user=data.session.user;
+  if((user.user_metadata||{}).role!=='client'){await SB.auth.signOut();window.location.replace('client-login.html');return;}
+  document.getElementById('user-name').textContent=user.email||'';
+  CLIENT_COMPANY=(user.user_metadata||{}).company_name||'';
+  document.getElementById('sidebar-company').textContent=CLIENT_COMPANY||'Your Company';
+  await loadDocs();
+}
+
+async function loadDocs(){
+  const res=await fetch(`${SB_URL}/rest/v1/client_approvals?company_name=eq.${encodeURIComponent(CLIENT_COMPANY)}&order=created_at.desc&select=*`,{headers:H});
+  ALL_DOCS=await res.json();
+  if(!Array.isArray(ALL_DOCS)) ALL_DOCS=[];
+  renderTable();
+}
+
+function renderTable(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const sf=document.getElementById('filter-status').value;
+  const data=ALL_DOCS.filter(d=>{
+    const matchQ=!q||(d.documents||[]).some(x=>(x.type||'').toLowerCase().includes(q))||(d.period_end||'').includes(q);
+    const matchS=!sf||d.status===sf;
+    return matchQ&&matchS;
+  });
+
+  if(!data.length){
+    document.getElementById('docs-container').innerHTML='<div class="empty-state"><div class="icon">📭</div><p>No documents found</p></div>';
+    return;
+  }
+
+  const rows=data.map(d=>{
+    const docBadges=(d.documents||[]).map(x=>`<span class="doc-badge">${x.type}</span>`).join('');
+    const date=d.created_at?new Date(d.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    const approvedDate=d.approved_at?new Date(d.approved_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+    const pill=d.status==='approved'
+      ?'<span class="status-pill approved">✓ Approved</span>'
+      :'<span class="status-pill pending">⏳ Awaiting</span>';
+    const action=d.status==='pending'
+      ?`<a class="action-btn sign" href="approve.html?token=${d.token}">✍️ Sign Now</a>`
+      :`<a class="action-btn view" href="approve.html?token=${d.token}">👁 View</a>`;
+    return `<tr>
+      <td><div>${docBadges}</div><div style="font-size:0.75rem;color:var(--muted);margin-top:4px">${d.period_end?'Period: '+d.period_end:''}</div></td>
+      <td>${date}</td>
+      <td>${d.status==='approved'?approvedDate:'—'}</td>
+      <td>${pill}</td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('docs-container').innerHTML=`
+    <table class="docs-table">
+      <thead><tr>
+        <th>Document</th>
+        <th>Sent</th>
+        <th>Approved</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+async function signOut(){await SB.auth.signOut();window.location.replace('client-login.html');}
+init();
+</script>
+</body>
+</html>
