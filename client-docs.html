@@ -646,12 +646,18 @@ let ALL_COMPANIES=[];
 
 async function loadCompanies(){
   try{
-    const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=company_name,director_name,director_email,director_mobile&order=company_name.asc`,{headers:H});
+    const res=await fetch(`${SB_URL}/rest/v1/ltd_clients?select=name,director_name,director_email,director_mobile&order=name.asc&limit=500`,{headers:H});
     if(!res.ok) return;
-    ALL_COMPANIES=await res.json();
-    // Pre-populate dropdown on focus
+    const raw=await res.json();
+    // Normalise to consistent field name
+    ALL_COMPANIES=raw.map(c=>({
+      company_name: c.name||'',
+      director_name: c.director_name||'',
+      director_email: c.director_email||'',
+      director_mobile: c.director_mobile||''
+    })).filter(c=>c.company_name);
     renderDropdown(ALL_COMPANIES.slice(0,50));
-  }catch(e){}
+  }catch(e){console.error('loadCompanies:',e);}
 }
 
 function filterCompanies(val){
